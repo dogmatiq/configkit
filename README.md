@@ -1,4 +1,4 @@
-# configkit
+# Dogma Configuration Toolkit
 
 [![Build Status](https://github.com/dogmatiq/configkit/workflows/CI/badge.svg)](https://github.com/dogmatiq/configkit/actions?workflow=CI)
 [![Code Coverage](https://img.shields.io/codecov/c/github/dogmatiq/configkit/master.svg)](https://codecov.io/github/dogmatiq/configkit)
