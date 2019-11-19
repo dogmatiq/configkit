@@ -8,10 +8,10 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("type Error", func() {
+var _ = Describe("type ValidationError", func() {
 	Describe("func Error", func() {
 		It("returns the error message", func() {
-			err := Error("<message>")
+			err := ValidationError("<message>")
 			Expect(err.Error()).To(Equal("<message>"))
 		})
 	})

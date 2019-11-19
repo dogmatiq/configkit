@@ -132,7 +132,7 @@ var _ = Describe("type ApplicationConfig", func() {
 				_, err := NewApplicationConfig(app)
 
 				Expect(err).To(Equal(
-					Error(
+					ValidationError(
 						`*fixtures.Application.Configure() did not call ApplicationConfigurer.Identity()`,
 					),
 				))
@@ -151,7 +151,7 @@ var _ = Describe("type ApplicationConfig", func() {
 				_, err := NewApplicationConfig(app)
 
 				Expect(err).To(Equal(
-					Error(
+					ValidationError(
 						`*fixtures.Application.Configure() has already called ApplicationConfigurer.Identity("<name>", "<key>")`,
 					),
 				))
@@ -169,7 +169,7 @@ var _ = Describe("type ApplicationConfig", func() {
 				_, err := NewApplicationConfig(app)
 
 				Expect(err).To(Equal(
-					Error(
+					ValidationError(
 						`*fixtures.Application.Configure() called ApplicationConfigurer.Identity() with an invalid name "\t \n", names must be non-empty, printable UTF-8 strings with no whitespace`,
 					),
 				))
@@ -187,7 +187,7 @@ var _ = Describe("type ApplicationConfig", func() {
 				_, err := NewApplicationConfig(app)
 
 				Expect(err).To(Equal(
-					Error(
+					ValidationError(
 						`*fixtures.Application.Configure() called ApplicationConfigurer.Identity() with an invalid key "\t \n", keys must be non-empty, printable UTF-8 strings with no whitespace`,
 					),
 				))
@@ -245,7 +245,7 @@ var _ = Describe("type ApplicationConfig", func() {
 				_, err := NewApplicationConfig(app)
 
 				Expect(err).To(Equal(
-					Error(
+					ValidationError(
 						`*fixtures.AggregateMessageHandler can not use the handler name "<process>", because it is already used by *fixtures.ProcessMessageHandler`,
 					),
 				))
@@ -267,7 +267,7 @@ var _ = Describe("type ApplicationConfig", func() {
 				_, err := NewApplicationConfig(app)
 
 				Expect(err).To(Equal(
-					Error(
+					ValidationError(
 						`*fixtures.AggregateMessageHandler can not use the handler key "<process-key>", because it is already used by *fixtures.ProcessMessageHandler`,
 					),
 				))
@@ -283,7 +283,7 @@ var _ = Describe("type ApplicationConfig", func() {
 				_, err := NewApplicationConfig(app)
 
 				Expect(err).To(Equal(
-					Error(
+					ValidationError(
 						`*fixtures.ProcessMessageHandler can not use the handler name "<aggregate>", because it is already used by *fixtures.AggregateMessageHandler`,
 					),
 				))
@@ -299,7 +299,7 @@ var _ = Describe("type ApplicationConfig", func() {
 				_, err := NewApplicationConfig(app)
 
 				Expect(err).To(Equal(
-					Error(
+					ValidationError(
 						`*fixtures.ProcessMessageHandler can not use the handler key "<aggregate-key>", because it is already used by *fixtures.AggregateMessageHandler`,
 					),
 				))
@@ -315,7 +315,7 @@ var _ = Describe("type ApplicationConfig", func() {
 				_, err := NewApplicationConfig(app)
 
 				Expect(err).To(Equal(
-					Error(
+					ValidationError(
 						`*fixtures.IntegrationMessageHandler can not use the handler name "<process>", because it is already used by *fixtures.ProcessMessageHandler`,
 					),
 				))
@@ -331,7 +331,7 @@ var _ = Describe("type ApplicationConfig", func() {
 				_, err := NewApplicationConfig(app)
 
 				Expect(err).To(Equal(
-					Error(
+					ValidationError(
 						`*fixtures.IntegrationMessageHandler can not use the handler key "<process-key>", because it is already used by *fixtures.ProcessMessageHandler`,
 					),
 				))
@@ -346,7 +346,7 @@ var _ = Describe("type ApplicationConfig", func() {
 				_, err := NewApplicationConfig(app)
 
 				Expect(err).To(Equal(
-					Error(
+					ValidationError(
 						`*fixtures.ProjectionMessageHandler can not use the handler name "<integration>", because it is already used by *fixtures.IntegrationMessageHandler`,
 					),
 				))
@@ -361,7 +361,7 @@ var _ = Describe("type ApplicationConfig", func() {
 				_, err := NewApplicationConfig(app)
 
 				Expect(err).To(Equal(
-					Error(
+					ValidationError(
 						`*fixtures.ProjectionMessageHandler can not use the handler key "<integration-key>", because it is already used by *fixtures.IntegrationMessageHandler`,
 					),
 				))
@@ -378,7 +378,7 @@ var _ = Describe("type ApplicationConfig", func() {
 			_, err := NewApplicationConfig(app)
 
 			Expect(err).To(Equal(
-				Error(
+				ValidationError(
 					`the "<integration>" handler can not consume fixtures.MessageA commands because they are already consumed by "<aggregate>"`,
 				),
 			))
@@ -394,7 +394,7 @@ var _ = Describe("type ApplicationConfig", func() {
 			_, err := NewApplicationConfig(app)
 
 			Expect(err).To(Equal(
-				Error(
+				ValidationError(
 					`the "<integration>" handler can not produce fixtures.MessageE events because they are already produced by "<aggregate>"`,
 				),
 			))
@@ -443,7 +443,7 @@ var _ = Describe("type ApplicationConfig", func() {
 				_, err := NewApplicationConfig(app)
 
 				Expect(err).To(Equal(
-					Error(
+					ValidationError(
 						`the "<process>" handler configures fixtures.MessageA as an event but "<aggregate>" configures it as a command`,
 					),
 				))
@@ -459,7 +459,7 @@ var _ = Describe("type ApplicationConfig", func() {
 				_, err := NewApplicationConfig(app)
 
 				Expect(err).To(Equal(
-					Error(
+					ValidationError(
 						`the "<process>" handler configures fixtures.MessageE as a command but "<aggregate>" configures it as an event`,
 					),
 				))
