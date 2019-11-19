@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	"github.com/dogmatiq/dogma"
-	"github.com/dogmatiq/marshalkit"
 )
 
 // MessageTypeContainer is an interface for containers of message types.
@@ -48,33 +47,6 @@ func NewMessageType(rt reflect.Type) (mt MessageType, ok bool) {
 func MessageTypeOf(m dogma.Message) MessageType {
 	rt := reflect.TypeOf(m)
 	return newMessageType(rt)
-}
-
-// MarshalMessageType marshals a message type to its portable representation.
-func MarshalMessageType(ma *marshalkit.Marshaler, mt MessageType) (string, error) {
-	return ma.MarshalType(mt.ReflectType())
-}
-
-// UnmarshalMessageType unmarshals a message type from its portable
-// representation.
-func UnmarshalMessageType(ma *marshalkit.Marshaler, mt string) (MessageType, error) {
-	rt, err := ma.UnmarshalType(mt)
-	if err != nil {
-		return nil, err
-	}
-
-	return newMessageType(rt), nil
-}
-
-// UnmarshalMessageTypeFromMediaType unmarshals a message type from a MIME
-// media-type.
-func UnmarshalMessageTypeFromMediaType(ma *marshalkit.Marshaler, mt string) (MessageType, error) {
-	rt, err := ma.UnmarshalTypeFromMediaType(mt)
-	if err != nil {
-		return nil, err
-	}
-
-	return newMessageType(rt), nil
 }
 
 // newMessageType returns the message type for the Go type reprsented by t.
