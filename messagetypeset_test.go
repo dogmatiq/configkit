@@ -1,9 +1,9 @@
-package config_test
+package configkit_test
 
 import (
 	. "github.com/dogmatiq/configkit"
 	. "github.com/dogmatiq/configkit/fixtures"
-	. "github.com/dogmatiq/dogma/fixtures"
+	"github.com/dogmatiq/dogma/fixtures"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -26,8 +26,8 @@ var _ = Describe("type MessageTypeSet", func() {
 	Describe("func MessageTypesOf", func() {
 		It("returns a set containing the types of the given messages", func() {
 			Expect(MessageTypesOf(
-				MessageA1,
-				MessageB1,
+				fixtures.MessageA1,
+				fixtures.MessageB1,
 			)).To(Equal(MessageTypeSet{
 				MessageAType: struct{}{},
 				MessageBType: struct{}{},
@@ -37,8 +37,8 @@ var _ = Describe("type MessageTypeSet", func() {
 
 	Describe("func Has", func() {
 		set := MessageTypesOf(
-			MessageA1,
-			MessageB1,
+			fixtures.MessageA1,
+			fixtures.MessageB1,
 		)
 
 		It("returns true if the type is in the set", func() {
@@ -56,19 +56,19 @@ var _ = Describe("type MessageTypeSet", func() {
 
 	Describe("func HasM", func() {
 		set := MessageTypesOf(
-			MessageA1,
-			MessageB1,
+			fixtures.MessageA1,
+			fixtures.MessageB1,
 		)
 
 		It("returns true if the type is in the set", func() {
 			Expect(
-				set.HasM(MessageA1),
+				set.HasM(fixtures.MessageA1),
 			).To(BeTrue())
 		})
 
 		It("returns false if the type is not in the set", func() {
 			Expect(
-				set.HasM(MessageC1),
+				set.HasM(fixtures.MessageC1),
 			).To(BeFalse())
 		})
 	})
@@ -104,7 +104,7 @@ var _ = Describe("type MessageTypeSet", func() {
 	Describe("func AddM", func() {
 		It("adds the type of the message to the set", func() {
 			s := MessageTypesOf()
-			s.AddM(MessageA1)
+			s.AddM(fixtures.MessageA1)
 
 			Expect(
 				s.Has(MessageAType),
@@ -115,7 +115,7 @@ var _ = Describe("type MessageTypeSet", func() {
 			s := MessageTypesOf()
 
 			Expect(
-				s.AddM(MessageA1),
+				s.AddM(fixtures.MessageA1),
 			).To(BeTrue())
 		})
 
@@ -124,14 +124,14 @@ var _ = Describe("type MessageTypeSet", func() {
 			s.Add(MessageAType)
 
 			Expect(
-				s.AddM(MessageA1),
+				s.AddM(fixtures.MessageA1),
 			).To(BeFalse())
 		})
 	})
 
 	Describe("func Remove", func() {
 		It("removes the type from the set", func() {
-			s := MessageTypesOf(MessageA1)
+			s := MessageTypesOf(fixtures.MessageA1)
 			s.Remove(MessageAType)
 
 			Expect(
@@ -159,8 +159,8 @@ var _ = Describe("type MessageTypeSet", func() {
 
 	Describe("func RemoveM", func() {
 		It("removes the type of the message from the set", func() {
-			s := MessageTypesOf(MessageA1)
-			s.RemoveM(MessageA1)
+			s := MessageTypesOf(fixtures.MessageA1)
+			s.RemoveM(fixtures.MessageA1)
 
 			Expect(
 				s.Has(MessageAType),
@@ -172,7 +172,7 @@ var _ = Describe("type MessageTypeSet", func() {
 			s.Add(MessageAType)
 
 			Expect(
-				s.RemoveM(MessageA1),
+				s.RemoveM(fixtures.MessageA1),
 			).To(BeTrue())
 		})
 
@@ -180,7 +180,7 @@ var _ = Describe("type MessageTypeSet", func() {
 			s := MessageTypesOf()
 
 			Expect(
-				s.RemoveM(MessageA1),
+				s.RemoveM(fixtures.MessageA1),
 			).To(BeFalse())
 		})
 	})

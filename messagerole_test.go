@@ -1,4 +1,4 @@
-package config_test
+package configkit_test
 
 import (
 	. "github.com/dogmatiq/configkit"

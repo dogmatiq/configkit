@@ -1,9 +1,9 @@
-package config_test
+package configkit_test
 
 import (
 	. "github.com/dogmatiq/configkit"
 	. "github.com/dogmatiq/configkit/fixtures"
-	. "github.com/dogmatiq/dogma/fixtures"
+	"github.com/dogmatiq/dogma/fixtures"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -38,13 +38,13 @@ var _ = Describe("type MessageRoleMap", func() {
 
 		It("returns true if the type is in the map", func() {
 			Expect(
-				rm.HasM(MessageA1),
+				rm.HasM(fixtures.MessageA1),
 			).To(BeTrue())
 		})
 
 		It("returns false if the type is not in the map", func() {
 			Expect(
-				rm.HasM(MessageC1),
+				rm.HasM(fixtures.MessageC1),
 			).To(BeFalse())
 		})
 	})
@@ -84,7 +84,7 @@ var _ = Describe("type MessageRoleMap", func() {
 	Describe("func AddM()", func() {
 		It("adds the type of the message to the map", func() {
 			rm := MessageRoleMap{}
-			rm.AddM(MessageA1, CommandMessageRole)
+			rm.AddM(fixtures.MessageA1, CommandMessageRole)
 
 			Expect(
 				rm.Has(MessageAType),
@@ -95,16 +95,16 @@ var _ = Describe("type MessageRoleMap", func() {
 			rm := MessageRoleMap{}
 
 			Expect(
-				rm.AddM(MessageA1, CommandMessageRole),
+				rm.AddM(fixtures.MessageA1, CommandMessageRole),
 			).To(BeTrue())
 		})
 
 		It("returns false if the type is already in the map", func() {
 			rm := MessageRoleMap{}
-			rm.AddM(MessageA1, CommandMessageRole)
+			rm.AddM(fixtures.MessageA1, CommandMessageRole)
 
 			Expect(
-				rm.AddM(MessageA1, EventMessageRole),
+				rm.AddM(fixtures.MessageA1, EventMessageRole),
 			).To(BeFalse())
 
 			Expect(
@@ -143,7 +143,7 @@ var _ = Describe("type MessageRoleMap", func() {
 	Describe("func RemoveM()", func() {
 		It("removes the type of the message from the set", func() {
 			rm := MessageRoleMap{MessageAType: CommandMessageRole}
-			rm.RemoveM(MessageA1)
+			rm.RemoveM(fixtures.MessageA1)
 
 			Expect(
 				rm.Has(MessageAType),
@@ -154,7 +154,7 @@ var _ = Describe("type MessageRoleMap", func() {
 			rm := MessageRoleMap{MessageAType: CommandMessageRole}
 
 			Expect(
-				rm.RemoveM(MessageA1),
+				rm.RemoveM(fixtures.MessageA1),
 			).To(BeTrue())
 		})
 
@@ -162,7 +162,7 @@ var _ = Describe("type MessageRoleMap", func() {
 			rm := MessageRoleMap{}
 
 			Expect(
-				rm.RemoveM(MessageA1),
+				rm.RemoveM(fixtures.MessageA1),
 			).To(BeFalse())
 		})
 	})

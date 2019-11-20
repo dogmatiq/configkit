@@ -7,80 +7,80 @@ import (
 
 var (
 	// MessageAType is the message.Type for the MessageA struct.
-	MessageAType = config.MessageTypeOf(fixtures.MessageA{})
+	MessageAType = configkit.MessageTypeOf(fixtures.MessageA{})
 
 	// MessageBType is the message.Type for the MessageB struct.
-	MessageBType = config.MessageTypeOf(fixtures.MessageB{})
+	MessageBType = configkit.MessageTypeOf(fixtures.MessageB{})
 
 	// MessageCType is the message.Type for the MessageC struct.
-	MessageCType = config.MessageTypeOf(fixtures.MessageC{})
+	MessageCType = configkit.MessageTypeOf(fixtures.MessageC{})
 
 	// MessageDType is the message.Type for the MessageD struct.
-	MessageDType = config.MessageTypeOf(fixtures.MessageD{})
+	MessageDType = configkit.MessageTypeOf(fixtures.MessageD{})
 
 	// MessageEType is the message.Type for the MessageE struct.
-	MessageEType = config.MessageTypeOf(fixtures.MessageE{})
+	MessageEType = configkit.MessageTypeOf(fixtures.MessageE{})
 
 	// MessageFType is the message.Type for the MessageF struct.
-	MessageFType = config.MessageTypeOf(fixtures.MessageF{})
+	MessageFType = configkit.MessageTypeOf(fixtures.MessageF{})
 
 	// MessageGType is the message.Type for the MessageG struct.
-	MessageGType = config.MessageTypeOf(fixtures.MessageG{})
+	MessageGType = configkit.MessageTypeOf(fixtures.MessageG{})
 
 	// MessageHType is the message.Type for the MessageH struct.
-	MessageHType = config.MessageTypeOf(fixtures.MessageH{})
+	MessageHType = configkit.MessageTypeOf(fixtures.MessageH{})
 
 	// MessageIType is the message.Type for the MessageI struct.
-	MessageIType = config.MessageTypeOf(fixtures.MessageI{})
+	MessageIType = configkit.MessageTypeOf(fixtures.MessageI{})
 
 	// MessageJType is the message.Type for the MessageJ struct.
-	MessageJType = config.MessageTypeOf(fixtures.MessageJ{})
+	MessageJType = configkit.MessageTypeOf(fixtures.MessageJ{})
 
 	// MessageKType is the message.Type for the MessageK struct.
-	MessageKType = config.MessageTypeOf(fixtures.MessageK{})
+	MessageKType = configkit.MessageTypeOf(fixtures.MessageK{})
 
 	// MessageLType is the message.Type for the MessageL struct.
-	MessageLType = config.MessageTypeOf(fixtures.MessageL{})
+	MessageLType = configkit.MessageTypeOf(fixtures.MessageL{})
 
 	// MessageMType is the message.Type for the MessageM struct.
-	MessageMType = config.MessageTypeOf(fixtures.MessageM{})
+	MessageMType = configkit.MessageTypeOf(fixtures.MessageM{})
 
 	// MessageNType is the message.Type for the MessageN struct.
-	MessageNType = config.MessageTypeOf(fixtures.MessageN{})
+	MessageNType = configkit.MessageTypeOf(fixtures.MessageN{})
 
 	// MessageOType is the message.Type for the MessageO struct.
-	MessageOType = config.MessageTypeOf(fixtures.MessageO{})
+	MessageOType = configkit.MessageTypeOf(fixtures.MessageO{})
 
 	// MessagePType is the message.Type for the MessageP struct.
-	MessagePType = config.MessageTypeOf(fixtures.MessageP{})
+	MessagePType = configkit.MessageTypeOf(fixtures.MessageP{})
 
 	// MessageQType is the message.Type for the MessageQ struct.
-	MessageQType = config.MessageTypeOf(fixtures.MessageQ{})
+	MessageQType = configkit.MessageTypeOf(fixtures.MessageQ{})
 
 	// MessageRType is the message.Type for the MessageR struct.
-	MessageRType = config.MessageTypeOf(fixtures.MessageR{})
+	MessageRType = configkit.MessageTypeOf(fixtures.MessageR{})
 
 	// MessageSType is the message.Type for the MessageS struct.
-	MessageSType = config.MessageTypeOf(fixtures.MessageS{})
+	MessageSType = configkit.MessageTypeOf(fixtures.MessageS{})
 
 	// MessageTType is the message.Type for the MessageT struct.
-	MessageTType = config.MessageTypeOf(fixtures.MessageT{})
+	MessageTType = configkit.MessageTypeOf(fixtures.MessageT{})
 
 	// MessageUType is the message.Type for the MessageU struct.
-	MessageUType = config.MessageTypeOf(fixtures.MessageU{})
+	MessageUType = configkit.MessageTypeOf(fixtures.MessageU{})
 
 	// MessageVType is the message.Type for the MessageV struct.
-	MessageVType = config.MessageTypeOf(fixtures.MessageV{})
+	MessageVType = configkit.MessageTypeOf(fixtures.MessageV{})
 
 	// MessageWType is the message.Type for the MessageW struct.
-	MessageWType = config.MessageTypeOf(fixtures.MessageW{})
+	MessageWType = configkit.MessageTypeOf(fixtures.MessageW{})
 
 	// MessageXType is the message.Type for the MessageX struct.
-	MessageXType = config.MessageTypeOf(fixtures.MessageX{})
+	MessageXType = configkit.MessageTypeOf(fixtures.MessageX{})
 
 	// MessageYType is the message.Type for the MessageY struct.
-	MessageYType = config.MessageTypeOf(fixtures.MessageY{})
+	MessageYType = configkit.MessageTypeOf(fixtures.MessageY{})
 
 	// MessageZType is the message.Type for the MessageZ struct.
-	MessageZType = config.MessageTypeOf(fixtures.MessageZ{})
+	MessageZType = configkit.MessageTypeOf(fixtures.MessageZ{})
 )

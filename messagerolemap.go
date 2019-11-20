@@ -1,4 +1,4 @@
-package config
+package configkit
 
 import "github.com/dogmatiq/dogma"
 
