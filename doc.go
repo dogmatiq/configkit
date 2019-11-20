@@ -1,2 +1,2 @@
-// Package config builds and validates Dogma application configurations.
-package config
+// Package configkit builds and validates Dogma application configurations.
+package configkit
