@@ -5,42 +5,42 @@ import (
 	"strings"
 )
 
-// ValidationError is an error representing a fault in an application's
+// Error is an error representing a fault in an application's
 // configuration.
-type ValidationError string
+type Error string
 
-func (e ValidationError) Error() string {
+func (e Error) Error() string {
 	return string(e)
 }
 
-// catch calls fn(), and recovers from any panic where the value is a
-// ConfigurationError by returning that error.
-func catch(fn func()) (err error) {
-	defer func() {
-		switch r := recover().(type) {
-		case ValidationError:
-			err = r
-		case nil:
-			return
-		default:
-			panic(r)
-		}
-	}()
+// Recover recovers from a configuration related panic.
+//
+// It is intended to be used in a defer statement. If the panic value is a
+// Error, it is assigned to *err.
+func Recover(err *error) {
+	if err == nil {
+		panic("err must be a non-nil pointer")
+	}
 
-	fn()
-
-	return
+	switch v := recover().(type) {
+	case Error:
+		*err = v
+	case nil:
+		return
+	default:
+		panic(v)
+	}
 }
 
-// panicf panics with a new configuration error.
-func panicf(f string, v ...interface{}) {
-	panic(errorf(f, v...))
+// Panicf panics with a new Error.
+func Panicf(f string, v ...interface{}) {
+	panic(Errorf(f, v...))
 }
 
-// errorf returns a new configuration error.
-func errorf(f string, v ...interface{}) ValidationError {
+// Errorf returns a new ValidationEerror.
+func Errorf(f string, v ...interface{}) Error {
 	m := fmt.Sprintf(f, v...)
 	m = strings.Replace(m, "an command", "a command", -1)
 	m = strings.Replace(m, "a event", "an event", -1)
-	return ValidationError(m)
+	return Error(m)
 }
