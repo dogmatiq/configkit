@@ -2,7 +2,7 @@ package configkit_test
 
 import (
 	. "github.com/dogmatiq/configkit"
-	. "github.com/dogmatiq/configkit/fixtures"
+	configfixtures "github.com/dogmatiq/configkit/fixtures"
 	"github.com/dogmatiq/dogma/fixtures"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -14,11 +14,11 @@ var _ = Describe("type MessageTypeSet", func() {
 	Describe("func NewMessageTypeSet", func() {
 		It("returns a set containing the given types", func() {
 			Expect(NewMessageTypeSet(
-				MessageAType,
-				MessageBType,
+				configfixtures.MessageAType,
+				configfixtures.MessageBType,
 			)).To(Equal(MessageTypeSet{
-				MessageAType: struct{}{},
-				MessageBType: struct{}{},
+				configfixtures.MessageAType: struct{}{},
+				configfixtures.MessageBType: struct{}{},
 			}))
 		})
 	})
@@ -29,8 +29,8 @@ var _ = Describe("type MessageTypeSet", func() {
 				fixtures.MessageA1,
 				fixtures.MessageB1,
 			)).To(Equal(MessageTypeSet{
-				MessageAType: struct{}{},
-				MessageBType: struct{}{},
+				configfixtures.MessageAType: struct{}{},
+				configfixtures.MessageBType: struct{}{},
 			}))
 		})
 	})
@@ -43,13 +43,13 @@ var _ = Describe("type MessageTypeSet", func() {
 
 		It("returns true if the type is in the set", func() {
 			Expect(
-				set.Has(MessageAType),
+				set.Has(configfixtures.MessageAType),
 			).To(BeTrue())
 		})
 
 		It("returns false if the type is not in the set", func() {
 			Expect(
-				set.Has(MessageCType),
+				set.Has(configfixtures.MessageCType),
 			).To(BeFalse())
 		})
 	})
@@ -76,10 +76,10 @@ var _ = Describe("type MessageTypeSet", func() {
 	Describe("func Add", func() {
 		It("adds the type to the set", func() {
 			s := MessageTypesOf()
-			s.Add(MessageAType)
+			s.Add(configfixtures.MessageAType)
 
 			Expect(
-				s.Has(MessageAType),
+				s.Has(configfixtures.MessageAType),
 			).To(BeTrue())
 		})
 
@@ -87,16 +87,16 @@ var _ = Describe("type MessageTypeSet", func() {
 			s := MessageTypesOf()
 
 			Expect(
-				s.Add(MessageAType),
+				s.Add(configfixtures.MessageAType),
 			).To(BeTrue())
 		})
 
 		It("returns false if the type is already in the set", func() {
 			s := MessageTypesOf()
-			s.Add(MessageAType)
+			s.Add(configfixtures.MessageAType)
 
 			Expect(
-				s.Add(MessageAType),
+				s.Add(configfixtures.MessageAType),
 			).To(BeFalse())
 		})
 	})
@@ -107,7 +107,7 @@ var _ = Describe("type MessageTypeSet", func() {
 			s.AddM(fixtures.MessageA1)
 
 			Expect(
-				s.Has(MessageAType),
+				s.Has(configfixtures.MessageAType),
 			).To(BeTrue())
 		})
 
@@ -121,7 +121,7 @@ var _ = Describe("type MessageTypeSet", func() {
 
 		It("returns false if the type is already in the set", func() {
 			s := MessageTypesOf()
-			s.Add(MessageAType)
+			s.Add(configfixtures.MessageAType)
 
 			Expect(
 				s.AddM(fixtures.MessageA1),
@@ -132,19 +132,19 @@ var _ = Describe("type MessageTypeSet", func() {
 	Describe("func Remove", func() {
 		It("removes the type from the set", func() {
 			s := MessageTypesOf(fixtures.MessageA1)
-			s.Remove(MessageAType)
+			s.Remove(configfixtures.MessageAType)
 
 			Expect(
-				s.Has(MessageAType),
+				s.Has(configfixtures.MessageAType),
 			).To(BeFalse())
 		})
 
 		It("returns true if the type is already in the set", func() {
 			s := MessageTypesOf()
-			s.Add(MessageAType)
+			s.Add(configfixtures.MessageAType)
 
 			Expect(
-				s.Remove(MessageAType),
+				s.Remove(configfixtures.MessageAType),
 			).To(BeTrue())
 		})
 
@@ -152,7 +152,7 @@ var _ = Describe("type MessageTypeSet", func() {
 			s := MessageTypesOf()
 
 			Expect(
-				s.Remove(MessageAType),
+				s.Remove(configfixtures.MessageAType),
 			).To(BeFalse())
 		})
 	})
@@ -163,13 +163,13 @@ var _ = Describe("type MessageTypeSet", func() {
 			s.RemoveM(fixtures.MessageA1)
 
 			Expect(
-				s.Has(MessageAType),
+				s.Has(configfixtures.MessageAType),
 			).To(BeFalse())
 		})
 
 		It("returns true if the type is already in the set", func() {
 			s := MessageTypesOf()
-			s.Add(MessageAType)
+			s.Add(configfixtures.MessageAType)
 
 			Expect(
 				s.RemoveM(fixtures.MessageA1),
@@ -187,8 +187,8 @@ var _ = Describe("type MessageTypeSet", func() {
 
 	Describe("func Each()", func() {
 		s := NewMessageTypeSet(
-			MessageAType,
-			MessageBType,
+			configfixtures.MessageAType,
+			configfixtures.MessageBType,
 		)
 
 		It("calls fn for each type in the container", func() {
@@ -199,7 +199,7 @@ var _ = Describe("type MessageTypeSet", func() {
 				return true
 			})
 
-			Expect(types).To(ConsistOf(MessageAType, MessageBType))
+			Expect(types).To(ConsistOf(configfixtures.MessageAType, configfixtures.MessageBType))
 			Expect(all).To(BeTrue())
 		})
 
