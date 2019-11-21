@@ -1,6 +1,11 @@
 package configkit
 
-import "github.com/dogmatiq/dogma"
+import (
+	"context"
+	"reflect"
+
+	"github.com/dogmatiq/dogma"
+)
 
 // Application is an interface that represents the configuration of a Dogma
 // application.
@@ -19,52 +24,107 @@ type Application interface {
 	// HandlerByKey by name returns the handler with the given key.
 	HandlerByKey(string) (Handler, bool)
 
-	// ForeignCommands returns the set of command message types that this
-	// application produces but does not consume.
-	ForeignCommands() []TypeName
-
-	// ForeignEvents returns the set of event message types that this
-	// application consumes but does not produce.
-	ForeignEvents() []TypeName
+	// ForeignMessages returns the set of message types that this application
+	// references that originate or are destined for some other application.
+	ForeignMessages() map[TypeName]MessageRole
 }
 
-// RichApplication is a specialization of the Application interface that has
-// access to the Go types used to implement the Dogma application.
-type RichApplication interface {
-	RichEntity
+// RichApplication is an implementation of Application that has access to the Go
+// types used to implement the Dogma application.
+type RichApplication struct {
+	Application dogma.Application
+}
 
-	// Handlers returns the handlers within this application.
-	Handlers() []Handler
+// Identity returns the identity of the entity.
+func (*RichApplication) Identity() Identity {
+	panic("not implemented")
+}
 
-	// HandlerByIdentity by identity returns the handler with the given identity.
-	HandlerByIdentity(Identity) (Handler, bool)
+// TypeName returns the fully-qualified type name of the entity.
+func (*RichApplication) TypeName() TypeName {
+	panic("not implemented")
+}
 
-	// HandlerByName by name returns the handler with the given name.
-	HandlerByName(string) (Handler, bool)
+// ConsumedMessages returns the message types consumed by the entity.
+func (*RichApplication) ConsumedMessages() map[TypeName]MessageRole {
+	panic("not implemented")
+}
 
-	// HandlerByKey by name returns the handler with the given key.
-	HandlerByKey(string) (Handler, bool)
+// ProducedMessages returns the message types produced by the entity.
+func (*RichApplication) ProducedMessages() map[TypeName]MessageRole {
+	panic("not implemented")
+}
 
-	// ForeignCommands returns the set of command message types that this
-	// application produces but does not consume.
-	ForeignCommands() []TypeName
+// AcceptVisitor calls the appropriate method on v for this entity type.
+func (*RichApplication) AcceptVisitor(ctx context.Context, v Visitor) error {
+	panic("not implemented")
+}
 
-	// ForeignEvents returns the set of event message types that this
-	// application consumes but does not produce.
-	ForeignEvents() []TypeName
+// ReflectType returns the reflect.Type of the Dogma entity.
+func (*RichApplication) ReflectType() reflect.Type {
+	panic("not implemented")
+}
 
-	// Application returns the application implementation.
-	Application() dogma.Application
+// ReflectTypeOf returns the reflect.Type of the type with the given name.
+// It panics if the type name is not used within the entity.
+func (*RichApplication) ReflectTypeOf(TypeName) reflect.Type {
+	panic("not implemented")
+}
 
-	// RichHandlers returns the handlers within this application.
-	RichHandlers() []RichHandler
+// MessageTypeOf returns the MessageType of the type with the given name.
+// It panics if the type is not used as a message within the entity.
+func (*RichApplication) MessageTypeOf(TypeName) (MessageType, bool) {
+	panic("not implemented")
+}
 
-	// RichHandlerByIdentity by identity returns the handler with the given identity.
-	RichHandlerByIdentity(Identity) (RichHandler, bool)
+// AcceptRichVisitor calls the appropriate method on v for this
+// configuration type.
+func (*RichApplication) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
+	panic("not implemented")
+}
 
-	// RichHandlerByName by name returns the handler with the given name.
-	RichHandlerByName(string) (RichHandler, bool)
+// Handlers returns the handlers within this application.
+func (*RichApplication) Handlers() []Handler {
+	panic("not implemented")
+}
 
-	// RichHandlerByKey by name returns the handler with the given key.
-	RichHandlerByKey(string) (RichHandler, bool)
+// HandlerByIdentity by identity returns the handler with the given identity.
+func (*RichApplication) HandlerByIdentity(Identity) (Handler, bool) {
+	panic("not implemented")
+}
+
+// HandlerByName by name returns the handler with the given name.
+func (*RichApplication) HandlerByName(string) (Handler, bool) {
+	panic("not implemented")
+}
+
+// HandlerByKey by name returns the handler with the given key.
+func (*RichApplication) HandlerByKey(string) (Handler, bool) {
+	panic("not implemented")
+}
+
+// ForeignMessages returns the set of message types that this application
+// references that originate or are destined for some other application.
+func (*RichApplication) ForeignMessages() map[TypeName]MessageRole {
+	panic("not implemented")
+}
+
+// RichHandlers returns the handlers within this application.
+func (*RichApplication) RichHandlers() []RichHandler {
+	panic("not implemented")
+}
+
+// RichHandlerByIdentity by identity returns the handler with the given identity.
+func (*RichApplication) RichHandlerByIdentity(Identity) (RichHandler, bool) {
+	panic("not implemented")
+}
+
+// RichHandlerByName by name returns the handler with the given name.
+func (*RichApplication) RichHandlerByName(string) (RichHandler, bool) {
+	panic("not implemented")
+}
+
+// RichHandlerByKey by name returns the handler with the given key.
+func (*RichApplication) RichHandlerByKey(string) (RichHandler, bool) {
+	panic("not implemented")
 }

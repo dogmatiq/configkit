@@ -1,21 +1,73 @@
 package configkit
 
-import "github.com/dogmatiq/dogma"
+import (
+	"context"
+	"reflect"
+
+	"github.com/dogmatiq/dogma"
+)
 
 // Aggregate is an interface that represents the configuration of a Dogma
 // aggregate message handler.
 type Aggregate interface {
 	Handler
-
-	// Handler returns the handler implementation.
-	Handler() dogma.AggregateMessageHandler
 }
 
-// RichAggregate is a specialization of the Aggregate interface that has access
-// to the Go types used to implement the Dogma aggregate message handler.
-type RichAggregate interface {
-	RichHandler
+// RichAggregate is an implementation of Aggregate that has access to the Go
+// types used to implement the underlying Dogma handler.
+type RichAggregate struct {
+	Handler dogma.AggregateMessageHandler
+}
 
-	// Handler returns the handler implementation.
-	Handler() dogma.AggregateMessageHandler
+// Identity returns the identity of the entity.
+func (*RichAggregate) Identity() Identity {
+	panic("not implemented")
+}
+
+// TypeName returns the fully-qualified type name of the entity.
+func (*RichAggregate) TypeName() TypeName {
+	panic("not implemented")
+}
+
+// ConsumedMessages returns the message types consumed by the entity.
+func (*RichAggregate) ConsumedMessages() map[TypeName]MessageRole {
+	panic("not implemented")
+}
+
+// ProducedMessages returns the message types produced by the entity.
+func (*RichAggregate) ProducedMessages() map[TypeName]MessageRole {
+	panic("not implemented")
+}
+
+// AcceptVisitor calls the appropriate method on v for this entity type.
+func (*RichAggregate) AcceptVisitor(ctx context.Context, v Visitor) error {
+	panic("not implemented")
+}
+
+// ReflectType returns the reflect.Type of the Dogma entity.
+func (*RichAggregate) ReflectType() reflect.Type {
+	panic("not implemented")
+}
+
+// ReflectTypeOf returns the reflect.Type of the type with the given name.
+// It panics if the type name is not used within the entity.
+func (*RichAggregate) ReflectTypeOf(TypeName) reflect.Type {
+	panic("not implemented")
+}
+
+// MessageTypeOf returns the MessageType of the type with the given name.
+// It panics if the type is not used as a message within the entity.
+func (*RichAggregate) MessageTypeOf(TypeName) (MessageType, bool) {
+	panic("not implemented")
+}
+
+// AcceptRichVisitor calls the appropriate method on v for this
+// configuration type.
+func (*RichAggregate) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
+	panic("not implemented")
+}
+
+// HandlerType returns the type of handler.
+func (*RichAggregate) HandlerType() HandlerType {
+	panic("not implemented")
 }

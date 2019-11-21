@@ -74,17 +74,17 @@ var _ configkit.RichVisitor = (*RichVisitor)(nil)
 
 // RichVisitor is an mock implementation of configkit.RichVisitor.
 type RichVisitor struct {
-	VisitRichApplicationFunc func(context.Context, configkit.RichApplication) error
-	VisitRichAggregateFunc   func(context.Context, configkit.RichAggregate) error
-	VisitRichProcessFunc     func(context.Context, configkit.RichProcess) error
-	VisitRichIntegrationFunc func(context.Context, configkit.RichIntegration) error
-	VisitRichProjectionFunc  func(context.Context, configkit.RichProjection) error
+	VisitRichApplicationFunc func(context.Context, *configkit.RichApplication) error
+	VisitRichAggregateFunc   func(context.Context, *configkit.RichAggregate) error
+	VisitRichProcessFunc     func(context.Context, *configkit.RichProcess) error
+	VisitRichIntegrationFunc func(context.Context, *configkit.RichIntegration) error
+	VisitRichProjectionFunc  func(context.Context, *configkit.RichProjection) error
 }
 
 // VisitRichApplication calls v.VisitApplicationFunc(ctx, cfg) if it is non-nil.
 //
 // If v.VisitRichApplicationFunc is nil, each of the handlers in cfg is visited.
-func (v *RichVisitor) VisitRichApplication(ctx context.Context, cfg configkit.RichApplication) error {
+func (v *RichVisitor) VisitRichApplication(ctx context.Context, cfg *configkit.RichApplication) error {
 	if v.VisitRichApplicationFunc != nil {
 		return v.VisitRichApplicationFunc(ctx, cfg)
 	}
@@ -99,7 +99,7 @@ func (v *RichVisitor) VisitRichApplication(ctx context.Context, cfg configkit.Ri
 }
 
 // VisitRichAggregate calls v.VisitAggregateFunc(ctx, cfg) if it is non-nil.
-func (v *RichVisitor) VisitRichAggregate(ctx context.Context, cfg configkit.RichAggregate) error {
+func (v *RichVisitor) VisitRichAggregate(ctx context.Context, cfg *configkit.RichAggregate) error {
 	if v.VisitRichAggregateFunc == nil {
 		return nil
 	}
@@ -108,7 +108,7 @@ func (v *RichVisitor) VisitRichAggregate(ctx context.Context, cfg configkit.Rich
 }
 
 // VisitRichProcess calls v.VisitProcessFunc(ctx, cfg) if it is non-nil.
-func (v *RichVisitor) VisitRichProcess(ctx context.Context, cfg configkit.RichProcess) error {
+func (v *RichVisitor) VisitRichProcess(ctx context.Context, cfg *configkit.RichProcess) error {
 	if v.VisitRichProcessFunc == nil {
 		return nil
 	}
@@ -117,7 +117,7 @@ func (v *RichVisitor) VisitRichProcess(ctx context.Context, cfg configkit.RichPr
 }
 
 // VisitRichIntegration calls v.VisitIntegrationFunc(ctx, cfg) if it is non-nil.
-func (v *RichVisitor) VisitRichIntegration(ctx context.Context, cfg configkit.RichIntegration) error {
+func (v *RichVisitor) VisitRichIntegration(ctx context.Context, cfg *configkit.RichIntegration) error {
 	if v.VisitRichIntegrationFunc == nil {
 		return nil
 	}
@@ -126,7 +126,7 @@ func (v *RichVisitor) VisitRichIntegration(ctx context.Context, cfg configkit.Ri
 }
 
 // VisitRichProjection calls v.VisitProjectionFunc(ctx, cfg) if it is non-nil.
-func (v *RichVisitor) VisitRichProjection(ctx context.Context, cfg configkit.RichProjection) error {
+func (v *RichVisitor) VisitRichProjection(ctx context.Context, cfg *configkit.RichProjection) error {
 	if v.VisitRichProjectionFunc == nil {
 		return nil
 	}

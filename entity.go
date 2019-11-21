@@ -5,9 +5,6 @@ import (
 	"reflect"
 )
 
-// TypeName is a fully-qualified name for a Go type.
-type TypeName string
-
 // Entity is an interface that represents the configuration of a Dogma "entity"
 // such as an application or handler.
 //
