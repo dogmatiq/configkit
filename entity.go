@@ -30,16 +30,6 @@ type Entity interface {
 	AcceptVisitor(ctx context.Context, v Visitor) error
 }
 
-// PortableEntity is a specialization of the Entity interface that does not
-// require the Go types used to implement the Dogma entity.
-type PortableEntity interface {
-	Entity
-
-	// AcceptPortableVisitor calls the appropriate method on v for this
-	// configuration type.
-	AcceptPortableVisitor(ctx context.Context, v PortableVisitor) error
-}
-
 // RichEntity is a specialization of the Entity interface that has access to the
 // Go types used to implement the Dogma entity.
 type RichEntity interface {
