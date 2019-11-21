@@ -17,6 +17,9 @@ type Entity interface {
 	// TypeName returns the fully-qualified type name of the entity.
 	TypeName() TypeName
 
+	// Messages returns the messages used by the entity in any way.
+	Messages() map[TypeName]MessageRole
+
 	// ConsumedMessages returns the message types consumed by the entity.
 	ConsumedMessages() map[TypeName]MessageRole
 

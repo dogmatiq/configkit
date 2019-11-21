@@ -29,6 +29,11 @@ func (*RichProjection) TypeName() TypeName {
 	panic("not implemented")
 }
 
+// Messages returns the messages used by the entity in any way.
+func (*RichProjection) Messages() map[TypeName]MessageRole {
+	panic("not implemented")
+}
+
 // ConsumedMessages returns the message types consumed by the entity.
 func (*RichProjection) ConsumedMessages() map[TypeName]MessageRole {
 	panic("not implemented")

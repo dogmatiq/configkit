@@ -24,6 +24,12 @@ type Application interface {
 	// HandlerByKey by name returns the handler with the given key.
 	HandlerByKey(string) (Handler, bool)
 
+	// ConsumersOf returns the handlers that consume messages of the given type.
+	ConsumersOf(TypeName) []Handler
+
+	// ProducersOf returns the handlers that produce messages of the given type.
+	ProducersOf(TypeName) []Handler
+
 	// ForeignMessages returns the set of message types that this application
 	// references that originate or are destined for some other application.
 	ForeignMessages() map[TypeName]MessageRole
@@ -42,6 +48,11 @@ func (*RichApplication) Identity() Identity {
 
 // TypeName returns the fully-qualified type name of the entity.
 func (*RichApplication) TypeName() TypeName {
+	panic("not implemented")
+}
+
+// Messages returns the messages used by the entity in any way.
+func (*RichApplication) Messages() map[TypeName]MessageRole {
 	panic("not implemented")
 }
 
@@ -103,6 +114,16 @@ func (*RichApplication) HandlerByKey(string) (Handler, bool) {
 	panic("not implemented")
 }
 
+// ConsumersOf returns the handlers that consume messages of the given type.
+func (*RichApplication) ConsumersOf(TypeName) []Handler {
+	panic("not implemented")
+}
+
+// ProducersOf returns the handlers that produce messages of the given type.
+func (*RichApplication) ProducersOf(TypeName) []Handler {
+	panic("not implemented")
+}
+
 // ForeignMessages returns the set of message types that this application
 // references that originate or are destined for some other application.
 func (*RichApplication) ForeignMessages() map[TypeName]MessageRole {
@@ -126,5 +147,15 @@ func (*RichApplication) RichHandlerByName(string) (RichHandler, bool) {
 
 // RichHandlerByKey by name returns the handler with the given key.
 func (*RichApplication) RichHandlerByKey(string) (RichHandler, bool) {
+	panic("not implemented")
+}
+
+// RichConsumersOf returns the handlers that consume messages of the given type.
+func (*RichApplication) RichConsumersOf(TypeName) []*RichHandler {
+	panic("not implemented")
+}
+
+// RichProducersOf returns the handlers that produce messages of the given type.
+func (*RichApplication) RichProducersOf(TypeName) []*RichHandler {
 	panic("not implemented")
 }
