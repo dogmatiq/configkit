@@ -19,7 +19,7 @@ type EntityMessageNames struct {
 // where message is identified by its type.
 type EntityMessageTypes struct {
 	// Roles is a map of message type to its role within the entity.
-	Roles map[message.Name]message.Role
+	Roles message.TypeRoles
 
 	// Produced is a set of message types produced by the entity.
 	Produced message.TypeSet
