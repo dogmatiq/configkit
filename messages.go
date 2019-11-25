@@ -6,7 +6,7 @@ import "github.com/dogmatiq/configkit/message"
 // where message is identified by its name.
 type EntityMessageNames struct {
 	// Roles is a map of message name to its role within the entity.
-	Roles map[message.Name]message.Role
+	Roles message.NameRoles
 
 	// Produced is a set of message names produced by the entity.
 	Produced message.NameSet
