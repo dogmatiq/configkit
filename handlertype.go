@@ -246,6 +246,8 @@ func ConsumersOf(r message.Role) []HandlerType {
 // ProducersOf returns the handler types that can produces messages with the
 // given role.
 func ProducersOf(r message.Role) []HandlerType {
+	r.MustValidate()
+
 	switch r {
 	case message.CommandRole:
 		return []HandlerType{ProcessHandlerType}
