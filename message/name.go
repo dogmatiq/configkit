@@ -48,7 +48,7 @@ func (n *Name) UnmarshalText(text []byte) error {
 	return nil
 }
 
-// MarshalBinary returns a binary representation of the handler type.
+// MarshalBinary returns a binary representation of the name.
 func (n Name) MarshalBinary() ([]byte, error) {
 	return n.MarshalText()
 }
