@@ -25,10 +25,10 @@ var (
 	_ RichHandler = (*RichAggregate)(nil)
 	_ Aggregate   = (*RichAggregate)(nil)
 
-	// // Process
-	// _ Handler     = Process(nil)
-	// _ RichHandler = (*RichProcess)(nil)
-	// _ Process     = (*RichProcess)(nil)
+	// Process
+	_ Handler     = Process(nil)
+	_ RichHandler = (*RichProcess)(nil)
+	_ Process     = (*RichProcess)(nil)
 
 	// Integration
 	_ Handler     = Integration(nil)
