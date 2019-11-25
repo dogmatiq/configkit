@@ -30,10 +30,10 @@ var (
 	// _ RichHandler = (*RichProcess)(nil)
 	// _ Process     = (*RichProcess)(nil)
 
-	// // Integration
-	// _ Handler     = Integration(nil)
-	// _ RichHandler = (*RichIntegration)(nil)
-	// _ Integration = (*RichIntegration)(nil)
+	// Integration
+	_ Handler     = Integration(nil)
+	_ RichHandler = (*RichIntegration)(nil)
+	_ Integration = (*RichIntegration)(nil)
 
 	// // Projection
 	// _ Handler     = Projection(nil)
