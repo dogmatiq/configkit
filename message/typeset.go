@@ -4,8 +4,8 @@ import (
 	"github.com/dogmatiq/dogma"
 )
 
-// TypeSet is an implementation of TypeCollection that contains a distinct set of
-// message types.
+// TypeSet is an implementation of TypeCollection that contains a distinct set
+// of message types.
 type TypeSet map[Type]struct{}
 
 // NewTypeSet returns a TypeSet containing the given types.

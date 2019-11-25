@@ -9,10 +9,10 @@ type EntityMessageNames struct {
 	Roles map[message.Name]message.Role
 
 	// Produced is a set of message names produced by the entity.
-	Produced []message.Name
+	Produced message.NameSet
 
 	// Consumed is a set of message names consumed by the entity.
-	Consumed []message.Name
+	Consumed message.NameSet
 }
 
 // EntityMessageTypes is describes how messages are used within a Dogma entity
