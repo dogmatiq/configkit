@@ -21,8 +21,8 @@ type Application interface {
 	ForeignMessageNames() message.NameRoles
 }
 
-// RichApplication is an implementation of Application that has access to the Go
-// types used to implement the Dogma application.
+// RichApplication is an implementation of Application that exposes information
+// about the Go types used to implement the Dogma application.
 type RichApplication struct {
 	Application dogma.Application
 }

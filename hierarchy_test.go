@@ -20,10 +20,10 @@ var (
 	_ RichEntity = RichHandler(nil)
 	_ Handler    = RichHandler(nil)
 
-	// // Aggregate
-	// _ Handler     = Aggregate(nil)
-	// _ RichHandler = (*RichAggregate)(nil)
-	// _ Aggregate   = (*RichAggregate)(nil)
+	// Aggregate
+	_ Handler     = Aggregate(nil)
+	_ RichHandler = (*RichAggregate)(nil)
+	_ Aggregate   = (*RichAggregate)(nil)
 
 	// // Process
 	// _ Handler     = Process(nil)
