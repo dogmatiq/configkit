@@ -20,7 +20,7 @@ type Entity interface {
 	TypeName() string
 
 	// MessageNames returns information about the messages used by the entity.
-	MessagesNames() EntityMessageNames
+	MessageNames() EntityMessageNames
 
 	// AcceptVisitor calls the appropriate method on v for this entity type.
 	AcceptVisitor(ctx context.Context, v Visitor) error
