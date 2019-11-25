@@ -168,7 +168,7 @@ var _ = Describe("type Name", func() {
 		})
 	})
 
-	Describe("func UnmarshalText()", func() {
+	Describe("func UnmarshalBinary()", func() {
 		It("unmarshals from a textual representation", func() {
 			var n Name
 
