@@ -54,15 +54,18 @@ func (*RichIntegration) ReflectType() reflect.Type {
 	panic("not implemented")
 }
 
-// ReflectTypeOf returns the reflect.Type of the type with the given name.
-// It panics if the type name is not used within the entity.
-func (*RichIntegration) ReflectTypeOf(TypeName) reflect.Type {
+// RichMessages returns the messages used by the entity in any way.
+func (*RichIntegration) RichMessages() map[MessageType]MessageRole {
 	panic("not implemented")
 }
 
-// MessageTypeOf returns the MessageType of the type with the given name.
-// It panics if the type is not used as a message within the entity.
-func (*RichIntegration) MessageTypeOf(TypeName) (MessageType, bool) {
+// RichConsumedMessages returns the message types consumed by the entity.
+func (*RichIntegration) RichConsumedMessages() map[MessageType]MessageRole {
+	panic("not implemented")
+}
+
+// RichProducedMessages returns the message types produced by the entity.
+func (*RichIntegration) RichProducedMessages() map[MessageType]MessageRole {
 	panic("not implemented")
 }
 

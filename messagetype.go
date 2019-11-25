@@ -7,25 +7,11 @@ import (
 	"github.com/dogmatiq/dogma"
 )
 
-// MessageTypeContainer is an interface for containers of message types.
-type MessageTypeContainer interface {
-	// Has returns true if t is in the container.
-	Has(t MessageType) bool
-
-	// HasM returns true if TypeOf(m) is in the container.
-	HasM(m dogma.Message) bool
-
-	// Each invokes fn once for each type in the container.
-	//
-	// Iteration stops when fn returns false or once fn has been invoked for all
-	// types in the container.
-	//
-	// It returns true if fn returned true for all types.
-	Each(fn func(MessageType) bool) bool
-}
-
 // MessageType is a value that identifies the type of a message.
 type MessageType interface {
+	// TypeName returns the fully-qualified name for the Go type.
+	TypeName() TypeName
+
 	// ReflectType returns the reflect.Type for this message type.
 	ReflectType() reflect.Type
 
@@ -104,6 +90,10 @@ func newmtype(rt reflect.Type) *mtype {
 	mt := mtype(n)
 
 	return &mt
+}
+
+func (mt *mtype) TypeName() TypeName {
+	return TypeNameOf(mt.ReflectType())
 }
 
 func (mt *mtype) ReflectType() reflect.Type {

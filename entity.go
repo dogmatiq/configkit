@@ -20,12 +20,6 @@ type Entity interface {
 	// Messages returns the messages used by the entity in any way.
 	Messages() map[TypeName]MessageRole
 
-	// ConsumedMessages returns the message types consumed by the entity.
-	ConsumedMessages() map[TypeName]MessageRole
-
-	// ProducedMessages returns the message types produced by the entity.
-	ProducedMessages() map[TypeName]MessageRole
-
 	// AcceptVisitor calls the appropriate method on v for this entity type.
 	AcceptVisitor(ctx context.Context, v Visitor) error
 }
@@ -38,13 +32,8 @@ type RichEntity interface {
 	// ReflectType returns the reflect.Type of the Dogma entity.
 	ReflectType() reflect.Type
 
-	// ReflectTypeOf returns the reflect.Type of the type with the given name.
-	// It panics if the type name is not used within the entity.
-	ReflectTypeOf(TypeName) reflect.Type
-
-	// MessageTypeOf returns the MessageType of the type with the given name.
-	// It panics if the type is not used as a message within the entity.
-	MessageTypeOf(TypeName) (MessageType, bool)
+	// RichMessages returns the messages used by the entity in any way.
+	RichMessages() map[MessageType]MessageRole
 
 	// AcceptRichVisitor calls the appropriate method on v for this
 	// configuration type.

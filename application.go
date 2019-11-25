@@ -76,15 +76,18 @@ func (*RichApplication) ReflectType() reflect.Type {
 	panic("not implemented")
 }
 
-// ReflectTypeOf returns the reflect.Type of the type with the given name.
-// It panics if the type name is not used within the entity.
-func (*RichApplication) ReflectTypeOf(TypeName) reflect.Type {
+// RichMessages returns the messages used by the entity in any way.
+func (*RichApplication) RichMessages() map[MessageType]MessageRole {
 	panic("not implemented")
 }
 
-// MessageTypeOf returns the MessageType of the type with the given name.
-// It panics if the type is not used as a message within the entity.
-func (*RichApplication) MessageTypeOf(TypeName) (MessageType, bool) {
+// RichConsumedMessages returns the message types consumed by the entity.
+func (*RichApplication) RichConsumedMessages() map[MessageType]MessageRole {
+	panic("not implemented")
+}
+
+// RichProducedMessages returns the message types produced by the entity.
+func (*RichApplication) RichProducedMessages() map[MessageType]MessageRole {
 	panic("not implemented")
 }
 
@@ -157,5 +160,11 @@ func (*RichApplication) RichConsumersOf(TypeName) []*RichHandler {
 
 // RichProducersOf returns the handlers that produce messages of the given type.
 func (*RichApplication) RichProducersOf(TypeName) []*RichHandler {
+	panic("not implemented")
+}
+
+// RichForeignMessages returns the set of message types that this application
+// references that originate or are destined for some other application.
+func (*RichApplication) RichForeignMessages() map[MessageType]MessageRole {
 	panic("not implemented")
 }
