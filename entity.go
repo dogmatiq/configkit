@@ -18,7 +18,7 @@ type Entity interface {
 	TypeName() string
 
 	// MessageNames returns information about the messages used by the entity.
-	MessagesNames() MessageNames
+	MessagesNames() EntityMessageNames
 
 	// AcceptVisitor calls the appropriate method on v for this entity type.
 	AcceptVisitor(ctx context.Context, v Visitor) error
@@ -33,7 +33,7 @@ type RichEntity interface {
 	ReflectType() reflect.Type
 
 	// MessageTypes returns information about the messages used by the entity.
-	MessageTypes() MessageTypes
+	MessageTypes() EntityMessageTypes
 
 	// AcceptRichVisitor calls the appropriate method on v for this
 	// configuration type.

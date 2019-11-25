@@ -2,9 +2,9 @@ package configkit
 
 import "github.com/dogmatiq/configkit/message"
 
-// MessageNames is describes how messages are used within a Dogma entity where
-// message is identified by its name.
-type MessageNames struct {
+// EntityMessageNames is describes how messages are used within a Dogma entity
+// where message is identified by its name.
+type EntityMessageNames struct {
 	// Roles is a map of message name to its role within the entity.
 	Roles map[message.Name]message.Role
 
@@ -15,9 +15,9 @@ type MessageNames struct {
 	Consumed []message.Name
 }
 
-// MessageTypes is describes how messages are used within a Dogma entity where
-// message is identified by its type.
-type MessageTypes struct {
+// EntityMessageTypes is describes how messages are used within a Dogma entity
+// where message is identified by its type.
+type EntityMessageTypes struct {
 	// Roles is a map of message type to its role within the entity.
 	Roles map[message.Name]message.Role
 
