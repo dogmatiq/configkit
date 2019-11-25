@@ -36,7 +36,7 @@ func Panicf(f string, v ...interface{}) {
 	panic(Errorf(f, v...))
 }
 
-// Errorf returns a new ValidationEerror.
+// Errorf returns a new ValidationError.
 func Errorf(f string, v ...interface{}) Error {
 	m := fmt.Sprintf(f, v...)
 	m = strings.Replace(m, "an command", "a command", -1)

@@ -37,6 +37,6 @@ type RichApplication interface {
 	// uses that must be communicated to some other Dogma application.
 	ForeignMessageTypes() message.TypeRoles
 
-	// Application returns the underlying application .
+	// Application returns the underlying application.
 	Application() dogma.Application
 }

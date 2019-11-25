@@ -5,17 +5,17 @@ import "github.com/dogmatiq/configkit/message"
 // HandlerSet is a collection of handlers.
 type HandlerSet []Handler
 
-// ByIdentity by identity returns the handler with the given identity.
+// ByIdentity returns the handler with the given identity.
 func (s HandlerSet) ByIdentity(Identity) (Handler, bool) {
 	panic("not implemented")
 }
 
-// ByName by name returns the handler with the given name.
+// ByName returns the handler with the given name.
 func (s HandlerSet) ByName(string) (Handler, bool) {
 	panic("not implemented")
 }
 
-// ByKey by name returns the handler with the given key.
+// ByKey returns the handler with the given key.
 func (s HandlerSet) ByKey(string) (Handler, bool) {
 	panic("not implemented")
 }
@@ -30,20 +30,20 @@ func (s HandlerSet) ProducersOf(message.Name) HandlerSet {
 	panic("not implemented")
 }
 
-// RichHandlerSet is a collection of rich handlers
+// RichHandlerSet is a collection of rich handlers.
 type RichHandlerSet []RichHandler
 
-// ByIdentity by identity returns the handler with the given identity.
+// ByIdentity returns the handler with the given identity.
 func (s RichHandlerSet) ByIdentity(Identity) (Handler, bool) {
 	panic("not implemented")
 }
 
-// ByName by name returns the handler with the given name.
+// ByName returns the handler with the given name.
 func (s RichHandlerSet) ByName(string) (Handler, bool) {
 	panic("not implemented")
 }
 
-// ByKey by name returns the handler with the given key.
+// ByKey returns the handler with the given key.
 func (s RichHandlerSet) ByKey(string) (Handler, bool) {
 	panic("not implemented")
 }

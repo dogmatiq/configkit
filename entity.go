@@ -42,8 +42,8 @@ type RichEntity interface {
 	AcceptRichVisitor(ctx context.Context, v RichVisitor) error
 }
 
-// EntityMessageNames is describes how messages are used within a Dogma entity
-// where message is identified by its name.
+// EntityMessageNames describes how messages are used within a Dogma entity
+// where each message is identified by its name.
 type EntityMessageNames struct {
 	// Roles is a map of message name to its role within the entity.
 	Roles message.NameRoles
@@ -55,8 +55,8 @@ type EntityMessageNames struct {
 	Consumed message.NameSet
 }
 
-// EntityMessageTypes is describes how messages are used within a Dogma entity
-// where message is identified by its type.
+// EntityMessageTypes describes how messages are used within a Dogma entity
+// where each message is identified by its type.
 type EntityMessageTypes struct {
 	// Roles is a map of message type to its role within the entity.
 	Roles message.TypeRoles

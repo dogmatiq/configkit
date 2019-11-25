@@ -51,7 +51,7 @@ var (
 	projectionHandlerTypeBytes  = []byte(projectionHandlerTypeString)
 )
 
-// Validate returns an error if r is not a valid message role.
+// Validate returns an error if t is not a valid handler type.
 func (t HandlerType) Validate() error {
 	switch t {
 	case AggregateHandlerType,
@@ -64,7 +64,7 @@ func (t HandlerType) Validate() error {
 	}
 }
 
-// MustValidate panics if r is not a valid message role.
+// MustValidate panics if t is not a valid handler type.
 func (t HandlerType) MustValidate() {
 	if err := t.Validate(); err != nil {
 		panic(err)
