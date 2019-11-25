@@ -7,7 +7,7 @@ import (
 )
 
 var _ = Describe("type Error", func() {
-	Describe("func Error", func() {
+	Describe("func Error()", func() {
 		It("returns the error message", func() {
 			err := Error("<message>")
 			Expect(err.Error()).To(Equal("<message>"))

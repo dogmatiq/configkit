@@ -7,7 +7,7 @@ import (
 )
 
 var _ = Describe("type Role", func() {
-	Describe("func MustValidate", func() {
+	Describe("func MustValidate()", func() {
 		It("does not panic when the role is valid", func() {
 			CommandRole.MustValidate()
 			EventRole.MustValidate()
@@ -21,7 +21,7 @@ var _ = Describe("type Role", func() {
 		})
 	})
 
-	Describe("func Is", func() {
+	Describe("func Is()", func() {
 		It("returns true when the role is in the given set", func() {
 			Expect(CommandRole.Is(CommandRole, EventRole)).To(BeTrue())
 		})
@@ -31,7 +31,7 @@ var _ = Describe("type Role", func() {
 		})
 	})
 
-	Describe("func MustBe", func() {
+	Describe("func MustBe()", func() {
 		It("does not panic when the role is in the given set", func() {
 			CommandRole.MustBe(CommandRole, EventRole)
 		})
@@ -43,7 +43,7 @@ var _ = Describe("type Role", func() {
 		})
 	})
 
-	Describe("func MustNotBe", func() {
+	Describe("func MustNotBe()", func() {
 		It("does not panic when the role is not in the given set", func() {
 			TimeoutRole.MustNotBe(CommandRole, EventRole)
 		})
@@ -55,7 +55,7 @@ var _ = Describe("type Role", func() {
 		})
 	})
 
-	Describe("func Marker", func() {
+	Describe("func Marker()", func() {
 		It("returns the correct marker character", func() {
 			Expect(CommandRole.Marker()).To(Equal("?"))
 			Expect(EventRole.Marker()).To(Equal("!"))
@@ -71,7 +71,7 @@ var _ = Describe("type Role", func() {
 		})
 	})
 
-	Describe("func String", func() {
+	Describe("func String()", func() {
 		It("returns the role value as a string", func() {
 			Expect(CommandRole.String()).To(Equal("command"))
 			Expect(EventRole.String()).To(Equal("event"))
