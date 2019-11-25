@@ -10,10 +10,10 @@ var (
 	// Entity
 	_ Entity = RichEntity(nil)
 
-	// // Application
-	// _ Entity      = Application(nil)
-	// _ RichEntity  = (*RichApplication)(nil)
-	// _ Application = (*RichApplication)(nil)
+	// Application
+	_ Entity      = Application(nil)
+	_ RichEntity  = (*RichApplication)(nil)
+	_ Application = (*RichApplication)(nil)
 
 	// Handler
 	_ Entity     = Handler(nil)

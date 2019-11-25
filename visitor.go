@@ -1,8 +1,10 @@
 package configkit
 
+import "context"
+
 // Visitor is a visitor that visits configurations.
 type Visitor interface {
-	// VisitApplication(context.Context, Application) error
+	VisitApplication(context.Context, Application) error
 	// VisitAggregate(context.Context, Aggregate) error
 	// VisitProcess(context.Context, Process) error
 	// VisitIntegration(context.Context, Integration) error
@@ -11,7 +13,7 @@ type Visitor interface {
 
 // RichVisitor is a visitor that visits "rich" configurations.
 type RichVisitor interface {
-	// VisitRichApplication(context.Context, *RichApplication) error
+	VisitRichApplication(context.Context, *RichApplication) error
 	// VisitRichAggregate(context.Context, *RichAggregate) error
 	// VisitRichProcess(context.Context, *RichProcess) error
 	// VisitRichIntegration(context.Context, *RichIntegration) error
