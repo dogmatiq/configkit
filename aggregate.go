@@ -1,9 +1,6 @@
 package configkit
 
 import (
-	"context"
-	"reflect"
-
 	"github.com/dogmatiq/dogma"
 )
 
@@ -13,49 +10,11 @@ type Aggregate interface {
 	Handler
 }
 
-// RichAggregate is an implementation of Aggregate that exposes informatiom
+// RichAggregate is a specialization of Aggregate that exposes information
 // about the Go types used to implement the underlying Dogma handler.
-type RichAggregate struct {
-	Handler dogma.AggregateMessageHandler
-}
+type RichAggregate interface {
+	RichHandler
 
-// Identity returns the identity of the entity.
-func (*RichAggregate) Identity() Identity {
-	panic("not implemented")
-}
-
-// TypeName returns the fully-qualified type name of the entity.
-func (*RichAggregate) TypeName() string {
-	panic("not implemented")
-}
-
-// MessageNames returns information about the messages used by the entity.
-func (*RichAggregate) MessageNames() EntityMessageNames {
-	panic("not implemented")
-}
-
-// AcceptVisitor calls the appropriate method on v for this entity type.
-func (*RichAggregate) AcceptVisitor(ctx context.Context, v Visitor) error {
-	panic("not implemented")
-}
-
-// ReflectType returns the reflect.Type of the Dogma entity.
-func (*RichAggregate) ReflectType() reflect.Type {
-	panic("not implemented")
-}
-
-// MessageTypes returns information about the messages used by the entity.
-func (*RichAggregate) MessageTypes() EntityMessageTypes {
-	panic("not implemented")
-}
-
-// AcceptRichVisitor calls the appropriate method on v for this
-// configuration type.
-func (*RichAggregate) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
-	panic("not implemented")
-}
-
-// HandlerType returns the type of handler.
-func (*RichAggregate) HandlerType() HandlerType {
-	panic("not implemented")
+	// Handler returns the underlying message handler.
+	Handler() dogma.AggregateMessageHandler
 }

@@ -12,8 +12,8 @@ var (
 
 	// Application
 	_ Entity      = Application(nil)
-	_ RichEntity  = (*RichApplication)(nil)
-	_ Application = (*RichApplication)(nil)
+	_ RichEntity  = RichApplication(nil)
+	_ Application = RichApplication(nil)
 
 	// Handler
 	_ Entity     = Handler(nil)
@@ -22,21 +22,21 @@ var (
 
 	// Aggregate
 	_ Handler     = Aggregate(nil)
-	_ RichHandler = (*RichAggregate)(nil)
-	_ Aggregate   = (*RichAggregate)(nil)
+	_ RichHandler = RichAggregate(nil)
+	_ Aggregate   = RichAggregate(nil)
 
 	// Process
 	_ Handler     = Process(nil)
-	_ RichHandler = (*RichProcess)(nil)
-	_ Process     = (*RichProcess)(nil)
+	_ RichHandler = RichProcess(nil)
+	_ Process     = RichProcess(nil)
 
 	// Integration
 	_ Handler     = Integration(nil)
-	_ RichHandler = (*RichIntegration)(nil)
-	_ Integration = (*RichIntegration)(nil)
+	_ RichHandler = RichIntegration(nil)
+	_ Integration = RichIntegration(nil)
 
 	// Projection
 	_ Handler     = Projection(nil)
-	_ RichHandler = (*RichProjection)(nil)
-	_ Projection  = (*RichProjection)(nil)
+	_ RichHandler = RichProjection(nil)
+	_ Projection  = RichProjection(nil)
 )
