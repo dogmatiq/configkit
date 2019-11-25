@@ -6,6 +6,23 @@ import (
 	"github.com/dogmatiq/dogma"
 )
 
+// TypeCollection is an interface for containers of message types.
+type TypeCollection interface {
+	// Has returns true if t is in the container.
+	Has(t Type) bool
+
+	// HasM returns true if TypeOf(m) is in the container.
+	HasM(m dogma.Message) bool
+
+	// Each invokes fn once for each type in the container.
+	//
+	// Iteration stops when fn returns false or once fn has been invoked for all
+	// types in the container.
+	//
+	// It returns true if fn returned true for all types.
+	Each(fn func(Type) bool) bool
+}
+
 // Type represents the type of a Dogma message.
 type Type struct {
 	n  Name
