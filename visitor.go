@@ -1,4 +1,4 @@
-package config
+package configkit
 
 // Visitor is a visitor that visits configurations.
 type Visitor interface {

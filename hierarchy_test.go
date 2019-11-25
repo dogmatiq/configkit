@@ -1,6 +1,6 @@
-package config_test
+package configkit_test
 
-import . "github.com/dogmatiq/configkit/config"
+import . "github.com/dogmatiq/configkit"
 
 // Following is a set of static assertions that confirms the "inheritance"
 // relationships between the various interfaces are as expected.

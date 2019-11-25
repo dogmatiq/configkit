@@ -1,7 +1,7 @@
-package config_test
+package configkit_test
 
 import (
-	. "github.com/dogmatiq/configkit/config"
+	. "github.com/dogmatiq/configkit"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

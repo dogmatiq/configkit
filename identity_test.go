@@ -1,9 +1,9 @@
-package config_test
+package configkit_test
 
 import (
 	"fmt"
 
-	. "github.com/dogmatiq/configkit/config"
+	. "github.com/dogmatiq/configkit"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
