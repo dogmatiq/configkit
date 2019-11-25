@@ -35,8 +35,8 @@ var (
 	_ RichHandler = (*RichIntegration)(nil)
 	_ Integration = (*RichIntegration)(nil)
 
-	// // Projection
-	// _ Handler     = Projection(nil)
-	// _ RichHandler = (*RichProjection)(nil)
-	// _ Projection  = (*RichProjection)(nil)
+	// Projection
+	_ Handler     = Projection(nil)
+	_ RichHandler = (*RichProjection)(nil)
+	_ Projection  = (*RichProjection)(nil)
 )
