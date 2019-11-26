@@ -7,6 +7,23 @@ import (
 	"github.com/dogmatiq/dogma"
 )
 
+// NameCollection is an interface for containers of message names.
+type NameCollection interface {
+	// Has returns true if n is in the container.
+	Has(n Name) bool
+
+	// HasM returns true if NameOf(m) is in the container.
+	HasM(m dogma.Message) bool
+
+	// Each invokes fn once for each name in the container.
+	//
+	// Iteration stops when fn returns false or once fn has been invoked for all
+	// names in the container.
+	//
+	// It returns true if fn returned true for all names.
+	Each(fn func(Name) bool) bool
+}
+
 // Name is the fully-qualified name of a message type.
 type Name struct {
 	n string
