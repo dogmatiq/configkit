@@ -23,7 +23,7 @@ type RichProjection interface {
 	Handler() dogma.ProjectionMessageHandler
 }
 
-// FromProjection returns the configuration for an projection message handler.
+// FromProjection returns the configuration for a projection message handler.
 //
 // It panics if the handler is configured incorrectly. Use Recover() to convert
 // configuration related panic values to errors.

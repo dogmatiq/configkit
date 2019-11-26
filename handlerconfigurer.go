@@ -7,7 +7,7 @@ import (
 	"github.com/dogmatiq/dogma"
 )
 
-// handlerConfigurer is an implementation of the the configurer interfaces for
+// handlerConfigurer is an implementation of the configurer interfaces for
 // all of the Dogma handler types.
 //
 // - dogma.AggregateConfigurer

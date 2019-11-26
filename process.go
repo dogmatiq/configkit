@@ -23,7 +23,7 @@ type RichProcess interface {
 	Handler() dogma.ProcessMessageHandler
 }
 
-// FromProcess returns the configuration for an process message handler.
+// FromProcess returns the configuration for a process message handler.
 //
 // It panics if the handler is configured incorrectly. Use Recover() to convert
 // configuration related panic values to errors.
