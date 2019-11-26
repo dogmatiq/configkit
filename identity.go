@@ -69,7 +69,7 @@ func (i Identity) Validate() error {
 }
 
 func (i Identity) String() string {
-	return fmt.Sprintf("%s (%s)", i.Name, i.Key)
+	return fmt.Sprintf("%s/%s", i.Name, i.Key)
 }
 
 // isValidIdentityComponent returns true if n is a valid application or handler

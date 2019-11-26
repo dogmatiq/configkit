@@ -1,6 +1,10 @@
 package configkit
 
 import (
+	"context"
+	"reflect"
+
+	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
 
@@ -17,4 +21,47 @@ type RichProjection interface {
 
 	// Handler returns the underlying message handler.
 	Handler() dogma.ProjectionMessageHandler
+}
+
+// FromProjection returns the configuration for a projection message handler.
+//
+// It panics if the handler is configured incorrectly. Use Recover() to convert
+// configuration related panic values to errors.
+func FromProjection(h dogma.ProjectionMessageHandler) RichProjection {
+	cfg := &projection{
+		handler: handler{
+			rt: reflect.TypeOf(h),
+			ht: ProjectionHandlerType,
+		},
+		impl: h,
+	}
+
+	c := &handlerConfigurer{
+		target: &cfg.handler,
+	}
+
+	h.Configure(c)
+
+	c.validate()
+	c.mustConsume(message.EventRole)
+
+	return cfg
+}
+
+// projection is an implementation of RichProjection.
+type projection struct {
+	handler
+	impl dogma.ProjectionMessageHandler
+}
+
+func (h *projection) AcceptVisitor(ctx context.Context, v Visitor) error {
+	return v.VisitProjection(ctx, h)
+}
+
+func (h *projection) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
+	return v.VisitRichProjection(ctx, h)
+}
+
+func (h *projection) Handler() dogma.ProjectionMessageHandler {
+	return h.impl
 }

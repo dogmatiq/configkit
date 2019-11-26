@@ -1,6 +1,10 @@
 package configkit
 
 import (
+	"context"
+	"reflect"
+
+	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
 
@@ -17,4 +21,48 @@ type RichAggregate interface {
 
 	// Handler returns the underlying message handler.
 	Handler() dogma.AggregateMessageHandler
+}
+
+// FromAggregate returns the configuration for an aggregate message handler.
+//
+// It panics if the handler is configured incorrectly. Use Recover() to convert
+// configuration related panic values to errors.
+func FromAggregate(h dogma.AggregateMessageHandler) RichAggregate {
+	cfg := &aggregate{
+		handler: handler{
+			rt: reflect.TypeOf(h),
+			ht: AggregateHandlerType,
+		},
+		impl: h,
+	}
+
+	c := &handlerConfigurer{
+		target: &cfg.handler,
+	}
+
+	h.Configure(c)
+
+	c.validate()
+	c.mustConsume(message.CommandRole)
+	c.mustProduce(message.EventRole)
+
+	return cfg
+}
+
+// aggregate is an implementation of RichAggregate.
+type aggregate struct {
+	handler
+	impl dogma.AggregateMessageHandler
+}
+
+func (h *aggregate) AcceptVisitor(ctx context.Context, v Visitor) error {
+	return v.VisitAggregate(ctx, h)
+}
+
+func (h *aggregate) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
+	return v.VisitRichAggregate(ctx, h)
+}
+
+func (h *aggregate) Handler() dogma.AggregateMessageHandler {
+	return h.impl
 }
