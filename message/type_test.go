@@ -33,6 +33,12 @@ var _ = Describe("type Type", func() {
 			mt := TypeOf(fixtures.MessageA1)
 			Expect(mt.Name()).To(Equal(NameOf(fixtures.MessageA1)))
 		})
+
+		It("panics if the type is the zero-value", func() {
+			Expect(func() {
+				Type{}.Name()
+			}).To(Panic())
+		})
 	})
 
 	Describe("func ReflectType()", func() {
@@ -41,6 +47,12 @@ var _ = Describe("type Type", func() {
 			rt := reflect.TypeOf(fixtures.MessageA1)
 
 			Expect(mt.ReflectType()).To(BeIdenticalTo(rt))
+		})
+
+		It("panics if the type is the zero-value", func() {
+			Expect(func() {
+				Type{}.ReflectType()
+			}).To(Panic())
 		})
 	})
 
