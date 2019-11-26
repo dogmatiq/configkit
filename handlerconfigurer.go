@@ -23,6 +23,7 @@ type handlerConfigurer struct {
 	target *handler
 }
 
+// Identity sets the handler's identity.
 func (c *handlerConfigurer) Identity(name string, key string) {
 	if !c.target.ident.IsZero() {
 		Panicf(
@@ -46,27 +47,38 @@ func (c *handlerConfigurer) Identity(name string, key string) {
 	}
 }
 
+// ConsumesCommandTypes marks the handler as a consumer of command messages of
+// the same type as m.
 func (c *handlerConfigurer) ConsumesCommandType(m dogma.Message) {
 	c.consumes(m, message.CommandRole, "consume")
 }
 
+// ConsumesEventType marks the handler as a consumer of event messages of the
+// same type as m.
 func (c *handlerConfigurer) ConsumesEventType(m dogma.Message) {
 	c.consumes(m, message.EventRole, "consume")
 }
 
+// ProducesCommandType marks the handler as a producer of command messages of
+// the same type as m.
 func (c *handlerConfigurer) ProducesCommandType(m dogma.Message) {
 	c.produces(m, message.CommandRole, "produce")
 }
 
+// ProducesEventType marks the handler as a producer of event messages of the
+// same type as m.
 func (c *handlerConfigurer) ProducesEventType(m dogma.Message) {
 	c.produces(m, message.EventRole, "produce")
 }
 
+// SchedulesTimeoutType marks the handler as a scheduler of timeout messages of
+// the same type as m.
 func (c *handlerConfigurer) SchedulesTimeoutType(m dogma.Message) {
 	c.consumes(m, message.TimeoutRole, "schedule")
 	c.produces(m, message.TimeoutRole, "schedule")
 }
 
+// consumes marks the handler as a consumer of messages of the same type as m.
 func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role, verb string) {
 	mt := message.TypeOf(m)
 	c.guardAgainstRoleMismatch(mt, r)
@@ -98,6 +110,7 @@ func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role, verb strin
 	c.target.types.Consumed.Add(mt)
 }
 
+// produces marks the handler as a consumer of messages of the same type as m.
 func (c *handlerConfigurer) produces(m dogma.Message, r message.Role, verb string) {
 	mt := message.TypeOf(m)
 	c.guardAgainstRoleMismatch(mt, r)
@@ -128,6 +141,7 @@ func (c *handlerConfigurer) produces(m dogma.Message, r message.Role, verb strin
 	c.target.types.Produced.Add(mt)
 }
 
+// guardAgainstRoleMismatch panics if mt is already used in some role other than r.
 func (c *handlerConfigurer) guardAgainstRoleMismatch(mt message.Type, r message.Role) {
 	x, ok := c.target.types.Roles[mt]
 
