@@ -26,11 +26,11 @@ type handlerConfigurer struct {
 func (c *handlerConfigurer) Identity(name string, key string) {
 	if !c.target.ident.IsZero() {
 		Panicf(
-			"%s.Configure() has already called %s.Identity(%#v, %#v)",
+			"%s is configured with multiple identities (%s and %s/%s), Identity() must be called exactly once within Configure()",
 			c.target.rt.String(),
-			c.interfaceName,
-			c.target.ident.Name,
-			c.target.ident.Key,
+			c.target.ident,
+			name,
+			key,
 		)
 	}
 
@@ -39,10 +39,9 @@ func (c *handlerConfigurer) Identity(name string, key string) {
 
 	if err != nil {
 		Panicf(
-			"%s.Configure() called %s.Identity() with an %s",
+			"%s is configured with an invalid identity, %s",
 			c.target.rt.String(),
-			c.interfaceName,
-			err.Error(),
+			err,
 		)
 	}
 }
@@ -64,73 +63,22 @@ func (c *handlerConfigurer) ProducesEventType(m dogma.Message) {
 }
 
 func (c *handlerConfigurer) SchedulesTimeoutType(m dogma.Message) {
-	mt := message.TypeOf(m)
-
-	if x, ok := c.target.types.Roles[mt]; ok {
-		verb := "TODO"
-		if x == message.TimeoutRole {
-			verb = "Schedules"
-		}
-
-		Panicf(
-			"%s.Configure() has already called %s.%s%sType(%s)",
-			c.target.rt.String(),
-			c.interfaceName,
-			verb,
-			strings.Title(x.String()),
-			mt,
-		)
-	}
-
-	c.producesType(mt, message.TimeoutRole)
-	c.consumesType(mt, message.TimeoutRole)
+	c.produces(m, message.TimeoutRole)
+	c.consumes(m, message.TimeoutRole)
 }
 
 func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role) {
 	mt := message.TypeOf(m)
+	c.guardAgainstRoleMismatch(mt, r)
 
-	if x, ok := c.target.types.Roles[mt]; ok {
-		verb := "Consumes"
-		if x == message.TimeoutRole {
-			verb = "Schedules"
-		}
-
+	if c.target.types.Consumed.Has(mt) {
 		Panicf(
-			"%s.Configure() has already called %s.%s%sType(%s)",
+			"%s is configured to consume %s more than once, should this refer to different message types?",
 			c.target.rt.String(),
-			c.interfaceName,
-			verb,
-			strings.Title(x.String()),
 			mt,
 		)
 	}
 
-	c.consumesType(mt, r)
-}
-
-func (c *handlerConfigurer) produces(m dogma.Message, r message.Role) {
-	mt := message.TypeOf(m)
-
-	if x, ok := c.target.types.Roles[mt]; ok {
-		verb := "Produces"
-		if x == message.TimeoutRole {
-			verb = "Schedules"
-		}
-
-		Panicf(
-			"%s.Configure() has already called %s.%s%sType(%s)",
-			c.target.rt.String(),
-			c.interfaceName,
-			verb,
-			strings.Title(x.String()),
-			mt,
-		)
-	}
-
-	c.producesType(mt, r)
-}
-
-func (c *handlerConfigurer) consumesType(mt message.Type, r message.Role) {
 	if c.target.names.Roles == nil {
 		c.target.names.Roles = message.NameRoles{}
 		c.target.types.Roles = message.TypeRoles{}
@@ -148,7 +96,17 @@ func (c *handlerConfigurer) consumesType(mt message.Type, r message.Role) {
 	c.target.types.Consumed.Add(mt)
 }
 
-func (c *handlerConfigurer) producesType(mt message.Type, r message.Role) {
+func (c *handlerConfigurer) produces(m dogma.Message, r message.Role) {
+	mt := message.TypeOf(m)
+	c.guardAgainstRoleMismatch(mt, r)
+
+	if c.target.types.Produced.Has(mt) {
+		Panicf(
+			"%s is configured to produce %s more than once, should this refer to different message types?",
+			c.target.rt.String(),
+			mt,
+		)
+	}
 	if c.target.names.Roles == nil {
 		c.target.names.Roles = message.NameRoles{}
 		c.target.types.Roles = message.TypeRoles{}
@@ -166,17 +124,33 @@ func (c *handlerConfigurer) producesType(mt message.Type, r message.Role) {
 	c.target.types.Produced.Add(mt)
 }
 
+func (c *handlerConfigurer) guardAgainstRoleMismatch(mt message.Type, r message.Role) {
+	x, ok := c.target.types.Roles[mt]
+
+	if !ok || x == r {
+		return
+	}
+
+	Panicf(
+		"%s is configured to use %s as both a %s and a %s",
+		c.target.rt.String(),
+		mt,
+		x,
+		r,
+	)
+}
+
 // validate panics if the configuration is invalid.
 func (c *handlerConfigurer) validate() {
 	if c.target.ident.IsZero() {
 		Panicf(
-			"%s.Configure() did not call %s.Identity()",
+			"%s is configured without an identity, Identity() must be called exactly once within Configure()",
 			c.target.rt.String(),
-			c.interfaceName,
 		)
 	}
 }
 
+// mustConsume panics if the handler does not consume any messages of the given role.
 func (c *handlerConfigurer) mustConsume(r message.Role) {
 	for mt := range c.target.names.Consumed {
 		if r == c.target.names.Roles[mt] {
@@ -185,13 +159,14 @@ func (c *handlerConfigurer) mustConsume(r message.Role) {
 	}
 
 	Panicf(
-		"%s.Configure() did not call %s.Consumes%sType()",
+		`%s is not configured to consume any %ss, Consumes%sType() must be called at least once within Configure()`,
 		c.target.rt.String(),
-		c.interfaceName,
+		r.String(),
 		strings.Title(r.String()),
 	)
 }
 
+// mustProduce panics if the handler does not produce any messages of the given role.
 func (c *handlerConfigurer) mustProduce(r message.Role) {
 	for mt := range c.target.names.Produced {
 		if r == c.target.names.Roles[mt] {
@@ -200,9 +175,9 @@ func (c *handlerConfigurer) mustProduce(r message.Role) {
 	}
 
 	Panicf(
-		"%s.Configure() did not call %s.Produces%sType()",
+		`%s is not configured to produce any %ss, Produces%sType() must be called at least once within Configure()`,
 		c.target.rt.String(),
-		c.interfaceName,
+		r.String(),
 		strings.Title(r.String()),
 	)
 }
