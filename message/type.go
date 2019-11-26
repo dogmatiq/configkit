@@ -3,6 +3,7 @@ package message
 import (
 	"reflect"
 
+	"github.com/dogmatiq/configkit/internal/typename"
 	"github.com/dogmatiq/dogma"
 )
 
@@ -32,7 +33,7 @@ type Type struct {
 // TypeOf returns the message type of m.
 func TypeOf(m dogma.Message) Type {
 	rt := reflect.TypeOf(m)
-	n := buildName(rt, true)
+	n := typename.Of(rt)
 
 	return Type{
 		Name{n},
@@ -66,7 +67,7 @@ func (t Type) ReflectType() reflect.Type {
 //
 // The returned name is not necessarily globally-unique.
 func (t Type) String() string {
-	return buildName(t.rt, false)
+	return t.rt.String()
 }
 
 // IsZero returns true if t is the zero-value.
