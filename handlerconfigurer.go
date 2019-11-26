@@ -63,8 +63,8 @@ func (c *handlerConfigurer) ProducesEventType(m dogma.Message) {
 }
 
 func (c *handlerConfigurer) SchedulesTimeoutType(m dogma.Message) {
-	c.produces(m, message.TimeoutRole)
 	c.consumes(m, message.TimeoutRole)
+	c.produces(m, message.TimeoutRole)
 }
 
 func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role) {
@@ -72,9 +72,15 @@ func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role) {
 	c.guardAgainstRoleMismatch(mt, r)
 
 	if c.target.types.Consumed.Has(mt) {
+		verb := "consume"
+		if r == message.TimeoutRole {
+			verb = "schedule"
+		}
+
 		Panicf(
-			"%s is configured to consume the %s %s more than once, should this refer to different message types?",
+			"%s is configured to %s the %s %s more than once, should this refer to different message types?",
 			c.target.rt.String(),
+			verb,
 			mt,
 			r,
 		)
