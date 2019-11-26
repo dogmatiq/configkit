@@ -52,14 +52,14 @@ func (i Identity) IsZero() bool {
 // Validate returns an error if i is not a valid identity.
 func (i Identity) Validate() error {
 	if !isValidIdentityComponent(i.Name) {
-		return fmt.Errorf(
+		return Errorf(
 			"invalid name %#v, names must be non-empty, printable UTF-8 strings with no whitespace",
 			i.Name,
 		)
 	}
 
 	if !isValidIdentityComponent(i.Key) {
-		return fmt.Errorf(
+		return Errorf(
 			"invalid key %#v, keys must be non-empty, printable UTF-8 strings with no whitespace",
 			i.Key,
 		)
