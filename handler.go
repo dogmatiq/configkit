@@ -53,6 +53,6 @@ func (h *handler) ReflectType() reflect.Type {
 	return h.rt
 }
 
-func (h *aggregate) HandlerType() HandlerType {
+func (h *handler) HandlerType() HandlerType {
 	return h.ht
 }

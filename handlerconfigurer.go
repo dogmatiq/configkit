@@ -51,6 +51,10 @@ func (c *handlerConfigurer) ConsumesCommandType(m dogma.Message) {
 	c.consumes(m, message.CommandRole)
 }
 
+func (c *handlerConfigurer) ConsumesEventType(m dogma.Message) {
+	c.consumes(m, message.EventRole)
+}
+
 func (c *handlerConfigurer) ProducesEventType(m dogma.Message) {
 	c.produces(m, message.EventRole)
 }

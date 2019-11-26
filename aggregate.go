@@ -33,7 +33,7 @@ func FromAggregate(h dogma.AggregateMessageHandler) RichAggregate {
 			rt: reflect.TypeOf(h),
 			ht: AggregateHandlerType,
 		},
-		aggregate: h,
+		impl: h,
 	}
 
 	c := &handlerConfigurer{
@@ -53,7 +53,7 @@ func FromAggregate(h dogma.AggregateMessageHandler) RichAggregate {
 // aggregate is an implementation of RichAggregate.
 type aggregate struct {
 	handler
-	aggregate dogma.AggregateMessageHandler
+	impl dogma.AggregateMessageHandler
 }
 
 func (h *aggregate) AcceptVisitor(ctx context.Context, v Visitor) error {
@@ -65,5 +65,5 @@ func (h *aggregate) AcceptRichVisitor(ctx context.Context, v RichVisitor) error 
 }
 
 func (h *aggregate) Handler() dogma.AggregateMessageHandler {
-	return h.aggregate
+	return h.impl
 }
