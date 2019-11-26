@@ -225,16 +225,6 @@ var _ = Describe("func FromProcess()", func() {
 			},
 		),
 		Entry(
-			"when the handler configures an event that was previously configured as a timeout",
-			`*fixtures.ProcessMessageHandler.Configure() has already called ProcessConfigurer.SchedulesTimeoutType(fixtures.MessageA)`,
-			func(c dogma.ProcessConfigurer) {
-				c.Identity("<name>", "<key>")
-				c.SchedulesTimeoutType(fixtures.MessageA{})
-				c.ConsumesEventType(fixtures.MessageA{})
-				c.ProducesCommandType(fixtures.MessageC{})
-			},
-		),
-		Entry(
 			"when the handler does not configure any produced commands",
 			`*fixtures.ProcessMessageHandler.Configure() did not call ProcessConfigurer.ProducesCommandType()`,
 			func(c dogma.ProcessConfigurer) {
@@ -253,13 +243,12 @@ var _ = Describe("func FromProcess()", func() {
 			},
 		),
 		Entry(
-			"when the handler configures a command that was previously configured as a timeout",
-			`*fixtures.ProcessMessageHandler.Configure() has already called ProcessConfigurer.SchedulesTimeoutType(fixtures.MessageC)`,
+			"when the handler configures the same message type with different roles",
+			`*fixtures.ProcessMessageHandler is configured to use fixtures.MessageA as both a command and a timeout`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", "<key>")
-				c.ConsumesEventType(fixtures.MessageA{})
-				c.SchedulesTimeoutType(fixtures.MessageC{})
-				c.ProducesCommandType(fixtures.MessageC{})
+				c.ConsumesCommandType(fixtures.MessageA{})
+				c.SchedulesTimeoutType(fixtures.MessageA{})
 			},
 		),
 	)
