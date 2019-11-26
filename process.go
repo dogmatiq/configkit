@@ -37,8 +37,7 @@ func FromProcess(h dogma.ProcessMessageHandler) RichProcess {
 	}
 
 	c := &handlerConfigurer{
-		interfaceName: "ProcessConfigurer",
-		target:        &cfg.handler,
+		target: &cfg.handler,
 	}
 
 	h.Configure(c)

@@ -15,10 +15,6 @@ import (
 // - dogma.IntegrationConfigurer
 // - dogma.ProjectionConfigurer
 type handlerConfigurer struct {
-	// interfaceName is the name of the Dogma interface that the configurer is being used as.
-	// It is used to construct error messages.
-	interfaceName string
-
 	// target is the handler to populate with the configuration values.
 	target *handler
 }

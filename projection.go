@@ -37,8 +37,7 @@ func FromProjection(h dogma.ProjectionMessageHandler) RichProjection {
 	}
 
 	c := &handlerConfigurer{
-		interfaceName: "ProjectionConfigurer",
-		target:        &cfg.handler,
+		target: &cfg.handler,
 	}
 
 	h.Configure(c)

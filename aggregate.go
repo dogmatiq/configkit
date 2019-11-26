@@ -37,8 +37,7 @@ func FromAggregate(h dogma.AggregateMessageHandler) RichAggregate {
 	}
 
 	c := &handlerConfigurer{
-		interfaceName: "AggregateConfigurer",
-		target:        &cfg.handler,
+		target: &cfg.handler,
 	}
 
 	h.Configure(c)
