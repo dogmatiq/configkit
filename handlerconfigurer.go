@@ -47,36 +47,31 @@ func (c *handlerConfigurer) Identity(name string, key string) {
 }
 
 func (c *handlerConfigurer) ConsumesCommandType(m dogma.Message) {
-	c.consumes(m, message.CommandRole)
+	c.consumes(m, message.CommandRole, "consume")
 }
 
 func (c *handlerConfigurer) ConsumesEventType(m dogma.Message) {
-	c.consumes(m, message.EventRole)
+	c.consumes(m, message.EventRole, "consume")
 }
 
 func (c *handlerConfigurer) ProducesCommandType(m dogma.Message) {
-	c.produces(m, message.CommandRole)
+	c.produces(m, message.CommandRole, "produce")
 }
 
 func (c *handlerConfigurer) ProducesEventType(m dogma.Message) {
-	c.produces(m, message.EventRole)
+	c.produces(m, message.EventRole, "produce")
 }
 
 func (c *handlerConfigurer) SchedulesTimeoutType(m dogma.Message) {
-	c.consumes(m, message.TimeoutRole)
-	c.produces(m, message.TimeoutRole)
+	c.consumes(m, message.TimeoutRole, "schedule")
+	c.produces(m, message.TimeoutRole, "schedule")
 }
 
-func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role) {
+func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role, verb string) {
 	mt := message.TypeOf(m)
 	c.guardAgainstRoleMismatch(mt, r)
 
 	if c.target.types.Consumed.Has(mt) {
-		verb := "consume"
-		if r == message.TimeoutRole {
-			verb = "schedule"
-		}
-
 		Panicf(
 			"%s is configured to %s the %s %s more than once, should this refer to different message types?",
 			c.target.rt.String(),
@@ -103,14 +98,15 @@ func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role) {
 	c.target.types.Consumed.Add(mt)
 }
 
-func (c *handlerConfigurer) produces(m dogma.Message, r message.Role) {
+func (c *handlerConfigurer) produces(m dogma.Message, r message.Role, verb string) {
 	mt := message.TypeOf(m)
 	c.guardAgainstRoleMismatch(mt, r)
 
 	if c.target.types.Produced.Has(mt) {
 		Panicf(
-			"%s is configured to produce the %s %s more than once, should this refer to different message types?",
+			"%s is configured to %s the %s %s more than once, should this refer to different message types?",
 			c.target.rt.String(),
+			verb,
 			mt,
 			r,
 		)
