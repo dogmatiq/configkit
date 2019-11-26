@@ -1,6 +1,10 @@
 package configkit
 
 import (
+	"context"
+	"reflect"
+
+	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
 
@@ -17,4 +21,49 @@ type RichProcess interface {
 
 	// Handler returns the underlying message handler.
 	Handler() dogma.ProcessMessageHandler
+}
+
+// FromProcess returns the configuration for an process message handler.
+//
+// It panics if the handler is configured incorrectly. Use Recover() to convert
+// configuration related panic values to errors.
+func FromProcess(h dogma.ProcessMessageHandler) RichProcess {
+	cfg := &process{
+		handler: handler{
+			rt: reflect.TypeOf(h),
+			ht: ProcessHandlerType,
+		},
+		impl: h,
+	}
+
+	c := &handlerConfigurer{
+		interfaceName: "ProcessConfigurer",
+		target:        &cfg.handler,
+	}
+
+	h.Configure(c)
+
+	c.validate()
+	c.mustConsume(message.EventRole)
+	c.mustProduce(message.CommandRole)
+
+	return cfg
+}
+
+// process is an implementation of RichProcess.
+type process struct {
+	handler
+	impl dogma.ProcessMessageHandler
+}
+
+func (h *process) AcceptVisitor(ctx context.Context, v Visitor) error {
+	return v.VisitProcess(ctx, h)
+}
+
+func (h *process) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
+	return v.VisitRichProcess(ctx, h)
+}
+
+func (h *process) Handler() dogma.ProcessMessageHandler {
+	return h.impl
 }

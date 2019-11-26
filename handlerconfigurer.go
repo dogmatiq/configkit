@@ -8,7 +8,7 @@ import (
 )
 
 // handlerConfigurer is an implementation of the the configurer interfaces for
-// each of the Dogma handler types.
+// all of the Dogma handler types.
 //
 // - dogma.AggregateConfigurer
 // - dogma.ProcessConfigurer
@@ -55,11 +55,82 @@ func (c *handlerConfigurer) ConsumesEventType(m dogma.Message) {
 	c.consumes(m, message.EventRole)
 }
 
+func (c *handlerConfigurer) ProducesCommandType(m dogma.Message) {
+	c.produces(m, message.CommandRole)
+}
+
 func (c *handlerConfigurer) ProducesEventType(m dogma.Message) {
 	c.produces(m, message.EventRole)
 }
 
+func (c *handlerConfigurer) SchedulesTimeoutType(m dogma.Message) {
+	mt := message.TypeOf(m)
+
+	if x, ok := c.target.types.Roles[mt]; ok {
+		verb := "TODO"
+		if x == message.TimeoutRole {
+			verb = "Schedules"
+		}
+
+		Panicf(
+			"%s.Configure() has already called %s.%s%sType(%s)",
+			c.target.rt.String(),
+			c.interfaceName,
+			verb,
+			strings.Title(x.String()),
+			mt,
+		)
+	}
+
+	c.producesType(mt, message.TimeoutRole)
+	c.consumesType(mt, message.TimeoutRole)
+}
+
 func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role) {
+	mt := message.TypeOf(m)
+
+	if x, ok := c.target.types.Roles[mt]; ok {
+		verb := "Consumes"
+		if x == message.TimeoutRole {
+			verb = "Schedules"
+		}
+
+		Panicf(
+			"%s.Configure() has already called %s.%s%sType(%s)",
+			c.target.rt.String(),
+			c.interfaceName,
+			verb,
+			strings.Title(x.String()),
+			mt,
+		)
+	}
+
+	c.consumesType(mt, r)
+}
+
+func (c *handlerConfigurer) produces(m dogma.Message, r message.Role) {
+	mt := message.TypeOf(m)
+
+	if x, ok := c.target.types.Roles[mt]; ok {
+		verb := "Produces"
+		if x == message.TimeoutRole {
+			verb = "Schedules"
+		}
+
+		Panicf(
+			"%s.Configure() has already called %s.%s%sType(%s)",
+			c.target.rt.String(),
+			c.interfaceName,
+			verb,
+			strings.Title(x.String()),
+			mt,
+		)
+	}
+
+	c.producesType(mt, r)
+}
+
+func (c *handlerConfigurer) consumesType(mt message.Type, r message.Role) {
 	if c.target.names.Roles == nil {
 		c.target.names.Roles = message.NameRoles{}
 		c.target.types.Roles = message.TypeRoles{}
@@ -70,28 +141,14 @@ func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role) {
 		c.target.types.Consumed = message.TypeSet{}
 	}
 
-	mt := message.TypeOf(m)
 	n := mt.Name()
-
-	if x, ok := c.target.names.Roles[n]; ok {
-		if x == r {
-			Panicf(
-				"%s.Configure() has already called %s.Consumes%sType(%s)",
-				c.target.rt.String(),
-				c.interfaceName,
-				strings.Title(r.String()),
-				mt,
-			)
-		}
-	}
-
 	c.target.names.Roles[n] = r
 	c.target.names.Consumed.Add(n)
 	c.target.types.Roles[mt] = r
 	c.target.types.Consumed.Add(mt)
 }
 
-func (c *handlerConfigurer) produces(m dogma.Message, r message.Role) {
+func (c *handlerConfigurer) producesType(mt message.Type, r message.Role) {
 	if c.target.names.Roles == nil {
 		c.target.names.Roles = message.NameRoles{}
 		c.target.types.Roles = message.TypeRoles{}
@@ -102,21 +159,7 @@ func (c *handlerConfigurer) produces(m dogma.Message, r message.Role) {
 		c.target.types.Produced = message.TypeSet{}
 	}
 
-	mt := message.TypeOf(m)
 	n := mt.Name()
-
-	if x, ok := c.target.names.Roles[n]; ok {
-		if x == r {
-			Panicf(
-				"%s.Configure() has already called %s.Produces%sType(%s)",
-				c.target.rt.String(),
-				c.interfaceName,
-				strings.Title(r.String()),
-				mt,
-			)
-		}
-	}
-
 	c.target.names.Roles[n] = r
 	c.target.names.Produced.Add(n)
 	c.target.types.Roles[mt] = r
