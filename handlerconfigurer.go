@@ -73,9 +73,10 @@ func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role) {
 
 	if c.target.types.Consumed.Has(mt) {
 		Panicf(
-			"%s is configured to consume %s more than once, should this refer to different message types?",
+			"%s is configured to consume the %s %s more than once, should this refer to different message types?",
 			c.target.rt.String(),
 			mt,
+			r,
 		)
 	}
 
@@ -102,9 +103,10 @@ func (c *handlerConfigurer) produces(m dogma.Message, r message.Role) {
 
 	if c.target.types.Produced.Has(mt) {
 		Panicf(
-			"%s is configured to produce %s more than once, should this refer to different message types?",
+			"%s is configured to produce the %s %s more than once, should this refer to different message types?",
 			c.target.rt.String(),
 			mt,
+			r,
 		)
 	}
 	if c.target.names.Roles == nil {

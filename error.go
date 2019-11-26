@@ -39,7 +39,8 @@ func Panicf(f string, v ...interface{}) {
 // Errorf returns a new Error.
 func Errorf(f string, v ...interface{}) Error {
 	m := fmt.Sprintf(f, v...)
-	m = strings.Replace(m, "an command", "a command", -1)
-	m = strings.Replace(m, "a event", "an event", -1)
+	m = strings.ReplaceAll(m, "an command", "a command")
+	m = strings.ReplaceAll(m, "a event", "an event")
+	m = strings.ReplaceAll(m, "an timeout", "a timeout")
 	return Error(m)
 }

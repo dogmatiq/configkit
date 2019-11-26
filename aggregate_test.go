@@ -209,7 +209,7 @@ var _ = Describe("func FromAggregate()", func() {
 		),
 		Entry(
 			"when the handler configures the same consumed command type multiple times",
-			`*fixtures.AggregateMessageHandler is configured to consume fixtures.MessageA more than once, should this refer to different message types?`,
+			`*fixtures.AggregateMessageHandler is configured to consume the fixtures.MessageA command more than once, should this refer to different message types?`,
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", "<key>")
 				c.ConsumesCommandType(fixtures.MessageA{})
@@ -227,7 +227,7 @@ var _ = Describe("func FromAggregate()", func() {
 		),
 		Entry(
 			"when the handler configures the same produced event type multiple times",
-			`*fixtures.AggregateMessageHandler is configured to produce fixtures.MessageE more than once, should this refer to different message types?`,
+			`*fixtures.AggregateMessageHandler is configured to produce the fixtures.MessageE event more than once, should this refer to different message types?`,
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", "<key>")
 				c.ConsumesCommandType(fixtures.MessageA{})
