@@ -7,17 +7,17 @@ import (
 
 // Role is an enumeration of the roles a message can perform within an
 // application.
-type Role byte
+type Role string
 
 const (
 	// CommandRole is the role for command messages.
-	CommandRole Role = 'C'
+	CommandRole Role = "command"
 
 	// EventRole is the role for event messages.
-	EventRole Role = 'E'
+	EventRole Role = "event"
 
 	// TimeoutRole is the role for timeout messages.
-	TimeoutRole Role = 'T'
+	TimeoutRole Role = "timeout"
 )
 
 // MessageRoles is a slice of the valid message roles.
@@ -28,10 +28,6 @@ var MessageRoles = []Role{
 }
 
 const (
-	commandRoleString = "command"
-	eventRoleString   = "event"
-	timeoutRoleString = "timeout"
-
 	commandRoleShortString = "CMD"
 	eventRoleShortString   = "EVT"
 	timeoutRoleShortString = "TMO"
@@ -42,9 +38,9 @@ const (
 )
 
 var (
-	commandRoleBytes = []byte(commandRoleString)
-	eventRoleBytes   = []byte(eventRoleString)
-	timeoutRoleBytes = []byte(timeoutRoleString)
+	commandRoleBinary = []byte{'C'}
+	eventRoleBinary   = []byte{'E'}
+	timeoutRoleBinary = []byte{'T'}
 )
 
 // Validate return an error if r is not a valid message role.
@@ -55,7 +51,7 @@ func (r Role) Validate() error {
 		TimeoutRole:
 		return nil
 	default:
-		return fmt.Errorf("invalid message role: %#v", r)
+		return fmt.Errorf("invalid message role: %s", string(r))
 	}
 }
 
@@ -125,60 +121,57 @@ func (r Role) ShortString() string {
 }
 
 func (r Role) String() string {
-	switch r {
-	case CommandRole:
-		return commandRoleString
-	case EventRole:
-		return eventRoleString
-	case TimeoutRole:
-		return timeoutRoleString
-	default:
-		return fmt.Sprintf("<invalid message role %#v>", r)
+	if err := r.Validate(); err != nil {
+		return "<" + err.Error() + ">"
 	}
+
+	return string(r)
 }
 
 // MarshalText returns a UTF-8 representation of the message role.
 func (r Role) MarshalText() ([]byte, error) {
+	return []byte(r), r.Validate()
+}
+
+// UnmarshalText unmarshals a role from its UTF-8 representation.
+func (r *Role) UnmarshalText(text []byte) error {
+	x := Role(text)
+
+	if err := x.Validate(); err != nil {
+		return fmt.Errorf("invalid text representation of message role: %s", text)
+	}
+
+	*r = x
+	return nil
+}
+
+// MarshalBinary returns a binary representation of the message role.
+func (r Role) MarshalBinary() ([]byte, error) {
 	if err := r.Validate(); err != nil {
 		return nil, err
 	}
 
 	switch r {
 	case CommandRole:
-		return commandRoleBytes, nil
+		return commandRoleBinary, nil
 	case EventRole:
-		return eventRoleBytes, nil
+		return eventRoleBinary, nil
 	default: // TimeoutRole
-		return timeoutRoleBytes, nil
+		return timeoutRoleBinary, nil
 	}
-}
-
-// UnmarshalText unmarshals a role from its UTF-8 representation.
-func (r *Role) UnmarshalText(text []byte) error {
-	if bytes.Equal(text, commandRoleBytes) {
-		*r = CommandRole
-	} else if bytes.Equal(text, eventRoleBytes) {
-		*r = EventRole
-	} else if bytes.Equal(text, timeoutRoleBytes) {
-		*r = TimeoutRole
-	} else {
-		return fmt.Errorf("invalid text representation of message role: %s", text)
-	}
-
-	return nil
-}
-
-// MarshalBinary returns a binary representation of the message role.
-func (r Role) MarshalBinary() ([]byte, error) {
-	return []byte{byte(r)}, r.Validate()
 }
 
 // UnmarshalBinary unmarshals a role from its binary representation.
 func (r *Role) UnmarshalBinary(data []byte) error {
-	if len(data) != 1 {
-		return fmt.Errorf("invalid binary representation of message role, expected exactly 1 byte")
+	if bytes.Equal(data, commandRoleBinary) {
+		*r = CommandRole
+	} else if bytes.Equal(data, eventRoleBinary) {
+		*r = EventRole
+	} else if bytes.Equal(data, timeoutRoleBinary) {
+		*r = TimeoutRole
+	} else {
+		return fmt.Errorf("invalid binary representation of message role: %s", data)
 	}
 
-	*r = Role(data[0])
-	return r.Validate()
+	return nil
 }

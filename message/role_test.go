@@ -16,7 +16,7 @@ var _ = Describe("type Role", func() {
 
 		It("panics when the role is not valid", func() {
 			Expect(func() {
-				Role(0).MustValidate()
+				Role("<invalid>").MustValidate()
 			}).To(Panic())
 		})
 	})
@@ -76,7 +76,7 @@ var _ = Describe("type Role", func() {
 			Expect(CommandRole.String()).To(Equal("command"))
 			Expect(EventRole.String()).To(Equal("event"))
 			Expect(TimeoutRole.String()).To(Equal("timeout"))
-			Expect(Role(0).String()).To(Equal("<invalid message role 0x0>"))
+			Expect(Role("<invalid>").String()).To(Equal("<invalid message role: <invalid>>"))
 		})
 	})
 
@@ -88,7 +88,7 @@ var _ = Describe("type Role", func() {
 		})
 
 		It("returns an error if the role is invalid", func() {
-			_, err := Role(0).MarshalText()
+			_, err := Role("<invalid>").MarshalText()
 			Expect(err).Should(HaveOccurred())
 		})
 	})
@@ -126,7 +126,7 @@ var _ = Describe("type Role", func() {
 		})
 
 		It("returns an error if the role is invalid", func() {
-			_, err := Role(0).MarshalBinary()
+			_, err := Role("<invalid>").MarshalBinary()
 			Expect(err).Should(HaveOccurred())
 		})
 	})
