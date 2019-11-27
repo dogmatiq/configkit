@@ -58,7 +58,7 @@ func FromApplication(a dogma.Application) RichApplication {
 
 	c := &applicationConfigurer{
 		entityConfigurer: entityConfigurer{
-			target: &cfg.entity,
+			entity: &cfg.entity,
 		},
 		target: cfg,
 	}

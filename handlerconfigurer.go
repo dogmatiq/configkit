@@ -54,7 +54,7 @@ func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role, verb strin
 	mt := message.TypeOf(m)
 	c.guardAgainstRoleMismatch(mt, r)
 
-	if c.target.types.Consumed.Has(mt) {
+	if c.entity.types.Consumed.Has(mt) {
 		Panicf(
 			"%s is configured to %s the %s %s more than once, should this refer to different message types?",
 			c.displayName(),
@@ -64,21 +64,21 @@ func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role, verb strin
 		)
 	}
 
-	if c.target.names.Roles == nil {
-		c.target.names.Roles = message.NameRoles{}
-		c.target.types.Roles = message.TypeRoles{}
+	if c.entity.names.Roles == nil {
+		c.entity.names.Roles = message.NameRoles{}
+		c.entity.types.Roles = message.TypeRoles{}
 	}
 
-	if c.target.names.Consumed == nil {
-		c.target.names.Consumed = message.NameRoles{}
-		c.target.types.Consumed = message.TypeRoles{}
+	if c.entity.names.Consumed == nil {
+		c.entity.names.Consumed = message.NameRoles{}
+		c.entity.types.Consumed = message.TypeRoles{}
 	}
 
 	n := mt.Name()
-	c.target.names.Roles.Add(n, r)
-	c.target.names.Consumed.Add(n, r)
-	c.target.types.Roles.Add(mt, r)
-	c.target.types.Consumed.Add(mt, r)
+	c.entity.names.Roles.Add(n, r)
+	c.entity.names.Consumed.Add(n, r)
+	c.entity.types.Roles.Add(mt, r)
+	c.entity.types.Consumed.Add(mt, r)
 }
 
 // produces marks the handler as a consumer of messages of the same type as m.
@@ -86,7 +86,7 @@ func (c *handlerConfigurer) produces(m dogma.Message, r message.Role, verb strin
 	mt := message.TypeOf(m)
 	c.guardAgainstRoleMismatch(mt, r)
 
-	if c.target.types.Produced.Has(mt) {
+	if c.entity.types.Produced.Has(mt) {
 		Panicf(
 			"%s is configured to %s the %s %s more than once, should this refer to different message types?",
 			c.displayName(),
@@ -95,26 +95,26 @@ func (c *handlerConfigurer) produces(m dogma.Message, r message.Role, verb strin
 			r,
 		)
 	}
-	if c.target.names.Roles == nil {
-		c.target.names.Roles = message.NameRoles{}
-		c.target.types.Roles = message.TypeRoles{}
+	if c.entity.names.Roles == nil {
+		c.entity.names.Roles = message.NameRoles{}
+		c.entity.types.Roles = message.TypeRoles{}
 	}
 
-	if c.target.names.Produced == nil {
-		c.target.names.Produced = message.NameRoles{}
-		c.target.types.Produced = message.TypeRoles{}
+	if c.entity.names.Produced == nil {
+		c.entity.names.Produced = message.NameRoles{}
+		c.entity.types.Produced = message.TypeRoles{}
 	}
 
 	n := mt.Name()
-	c.target.names.Roles.Add(n, r)
-	c.target.names.Produced.Add(n, r)
-	c.target.types.Roles.Add(mt, r)
-	c.target.types.Produced.Add(mt, r)
+	c.entity.names.Roles.Add(n, r)
+	c.entity.names.Produced.Add(n, r)
+	c.entity.types.Roles.Add(mt, r)
+	c.entity.types.Produced.Add(mt, r)
 }
 
 // guardAgainstRoleMismatch panics if mt is already used in some role other than r.
 func (c *handlerConfigurer) guardAgainstRoleMismatch(mt message.Type, r message.Role) {
-	x, ok := c.target.types.Roles[mt]
+	x, ok := c.entity.types.Roles[mt]
 
 	if !ok || x == r {
 		return
@@ -131,16 +131,16 @@ func (c *handlerConfigurer) guardAgainstRoleMismatch(mt message.Type, r message.
 
 // mustConsume panics if the handler does not consume any messages of the given role.
 func (c *handlerConfigurer) mustConsume(r message.Role) {
-	for mt := range c.target.names.Consumed {
-		if r == c.target.names.Roles[mt] {
+	for mt := range c.entity.names.Consumed {
+		if r == c.entity.names.Roles[mt] {
 			return
 		}
 	}
 
 	Panicf(
 		`%s (%s) is not configured to consume any %ss, Consumes%sType() must be called at least once within Configure()`,
-		c.target.rt,
-		c.target.ident.Name,
+		c.entity.rt,
+		c.entity.ident.Name,
 		r,
 		strings.Title(r.String()),
 	)
@@ -148,8 +148,8 @@ func (c *handlerConfigurer) mustConsume(r message.Role) {
 
 // mustProduce panics if the handler does not produce any messages of the given role.
 func (c *handlerConfigurer) mustProduce(r message.Role) {
-	for mt := range c.target.names.Produced {
-		if r == c.target.names.Roles[mt] {
+	for mt := range c.entity.names.Produced {
+		if r == c.entity.names.Roles[mt] {
 			return
 		}
 	}
@@ -163,10 +163,10 @@ func (c *handlerConfigurer) mustProduce(r message.Role) {
 }
 
 func (c *handlerConfigurer) displayName() string {
-	s := c.target.rt.String()
+	s := c.entity.rt.String()
 
-	if !c.target.ident.IsZero() {
-		s += " (" + c.target.ident.Name + ")"
+	if !c.entity.ident.IsZero() {
+		s += " (" + c.entity.ident.Name + ")"
 	}
 
 	return s
