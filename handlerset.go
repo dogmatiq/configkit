@@ -114,7 +114,7 @@ func (s HandlerSet) Filter(fn func(Handler) bool) HandlerSet {
 // RichHandlerSet is a collection of rich handlers.
 type RichHandlerSet map[Identity]RichHandler
 
-// NewRichHandlerSet returns a HandlerSet containing the given handlers.
+// NewRichHandlerSet returns a RichHandlerSet containing the given handlers.
 //
 // It panics if any of the handler identities conflict.
 func NewRichHandlerSet(handlers ...RichHandler) RichHandlerSet {
