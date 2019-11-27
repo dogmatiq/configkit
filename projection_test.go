@@ -52,10 +52,10 @@ var _ = Describe("func FromProjection()", func() {
 							cfixtures.MessageBTypeName: message.EventRole,
 						},
 						Produced: nil,
-						Consumed: message.NewNameSet(
-							cfixtures.MessageATypeName,
-							cfixtures.MessageBTypeName,
-						),
+						Consumed: message.NameRoles{
+							cfixtures.MessageATypeName: message.EventRole,
+							cfixtures.MessageBTypeName: message.EventRole,
+						},
 					},
 				))
 			})
@@ -70,10 +70,10 @@ var _ = Describe("func FromProjection()", func() {
 							cfixtures.MessageBType: message.EventRole,
 						},
 						Produced: nil,
-						Consumed: message.NewTypeSet(
-							cfixtures.MessageAType,
-							cfixtures.MessageBType,
-						),
+						Consumed: message.TypeRoles{
+							cfixtures.MessageAType: message.EventRole,
+							cfixtures.MessageBType: message.EventRole,
+						},
 					},
 				))
 			})

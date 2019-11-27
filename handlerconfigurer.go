@@ -70,15 +70,15 @@ func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role, verb strin
 	}
 
 	if c.target.names.Consumed == nil {
-		c.target.names.Consumed = message.NameSet{}
-		c.target.types.Consumed = message.TypeSet{}
+		c.target.names.Consumed = message.NameRoles{}
+		c.target.types.Consumed = message.TypeRoles{}
 	}
 
 	n := mt.Name()
-	c.target.names.Roles[n] = r
-	c.target.names.Consumed.Add(n)
-	c.target.types.Roles[mt] = r
-	c.target.types.Consumed.Add(mt)
+	c.target.names.Roles.Add(n, r)
+	c.target.names.Consumed.Add(n, r)
+	c.target.types.Roles.Add(mt, r)
+	c.target.types.Consumed.Add(mt, r)
 }
 
 // produces marks the handler as a consumer of messages of the same type as m.
@@ -101,15 +101,15 @@ func (c *handlerConfigurer) produces(m dogma.Message, r message.Role, verb strin
 	}
 
 	if c.target.names.Produced == nil {
-		c.target.names.Produced = message.NameSet{}
-		c.target.types.Produced = message.TypeSet{}
+		c.target.names.Produced = message.NameRoles{}
+		c.target.types.Produced = message.TypeRoles{}
 	}
 
 	n := mt.Name()
-	c.target.names.Roles[n] = r
-	c.target.names.Produced.Add(n)
-	c.target.types.Roles[mt] = r
-	c.target.types.Produced.Add(mt)
+	c.target.names.Roles.Add(n, r)
+	c.target.names.Produced.Add(n, r)
+	c.target.types.Roles.Add(mt, r)
+	c.target.types.Produced.Add(mt, r)
 }
 
 // guardAgainstRoleMismatch panics if mt is already used in some role other than r.

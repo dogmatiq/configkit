@@ -50,10 +50,10 @@ type EntityMessageNames struct {
 	Roles message.NameRoles
 
 	// Produced is a set of message names produced by the entity.
-	Produced message.NameSet
+	Produced message.NameRoles
 
 	// Consumed is a set of message names consumed by the entity.
-	Consumed message.NameSet
+	Consumed message.NameRoles
 }
 
 // EntityMessageTypes describes how messages are used within a Dogma entity
@@ -63,10 +63,10 @@ type EntityMessageTypes struct {
 	Roles message.TypeRoles
 
 	// Produced is a set of message types produced by the entity.
-	Produced message.TypeSet
+	Produced message.TypeRoles
 
 	// Consumed is a set of message types consumed by the entity.
-	Consumed message.TypeSet
+	Consumed message.TypeRoles
 }
 
 // entity is a partial implementation of RichEntity.
