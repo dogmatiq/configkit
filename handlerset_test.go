@@ -35,6 +35,24 @@ var _ = Describe("type HandlerSet", func() {
 		})
 	})
 
+	Describe("func NewHandlerSet()", func() {
+		It("returns a set containing the given handlers", func() {
+			s := NewHandlerSet(aggregate, projection)
+			Expect(s).To(HaveLen(2))
+			Expect(s.Has(aggregate)).To(BeTrue())
+			Expect(s.Has(projection)).To(BeTrue())
+		})
+
+		It("panics if the handler identities conflict", func() {
+			Expect(func() {
+				NewHandlerSet(
+					aggregate,
+					FromAggregate(aggregate.Handler()),
+				)
+			}).To(Panic())
+		})
+	})
+
 	Describe("func Add()", func() {
 		It("adds the handler to the set", func() {
 			ok := set.Add(aggregate)
@@ -215,6 +233,24 @@ var _ = Describe("type RichHandlerSet", func() {
 				c.Identity("<proj-name>", "<proj-key>")
 				c.ConsumesEventType(fixtures.MessageE{})
 			},
+		})
+	})
+
+	Describe("func NewRichHandlerSet()", func() {
+		It("returns a set containing the given handlers", func() {
+			s := NewRichHandlerSet(aggregate, projection)
+			Expect(s).To(HaveLen(2))
+			Expect(s.Has(aggregate)).To(BeTrue())
+			Expect(s.Has(projection)).To(BeTrue())
+		})
+
+		It("panics if the handler identities conflict", func() {
+			Expect(func() {
+				NewRichHandlerSet(
+					aggregate,
+					FromAggregate(aggregate.Handler()),
+				)
+			}).To(Panic())
 		})
 	})
 

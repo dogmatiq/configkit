@@ -5,6 +5,21 @@ import "github.com/dogmatiq/configkit/message"
 // HandlerSet is a collection of handlers.
 type HandlerSet map[Identity]Handler
 
+// NewHandlerSet returns a HandlerSet containing the given handlers.
+//
+// It panics if any of the handler identities conflict.
+func NewHandlerSet(handlers ...Handler) HandlerSet {
+	s := HandlerSet{}
+
+	for _, h := range handlers {
+		if !s.Add(h) {
+			panic("handler set contains conflicting identities")
+		}
+	}
+
+	return s
+}
+
 // Add adds a handler to the set.
 //
 // It returns true if the handler was added, or false if the set already
@@ -98,6 +113,21 @@ func (s HandlerSet) Filter(fn func(Handler) bool) HandlerSet {
 
 // RichHandlerSet is a collection of rich handlers.
 type RichHandlerSet map[Identity]RichHandler
+
+// NewRichHandlerSet returns a HandlerSet containing the given handlers.
+//
+// It panics if any of the handler identities conflict.
+func NewRichHandlerSet(handlers ...RichHandler) RichHandlerSet {
+	s := RichHandlerSet{}
+
+	for _, h := range handlers {
+		if !s.Add(h) {
+			panic("handler set contains conflicting identities")
+		}
+	}
+
+	return s
+}
 
 // Add adds a handler to the set.
 //
