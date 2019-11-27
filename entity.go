@@ -4,6 +4,7 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/dogmatiq/configkit/internal/typename"
 	"github.com/dogmatiq/configkit/message"
 )
 
@@ -66,4 +67,33 @@ type EntityMessageTypes struct {
 
 	// Consumed is a set of message types consumed by the entity.
 	Consumed message.TypeSet
+}
+
+// entity is a partial implementation of RichEntity.
+type entity struct {
+	rt reflect.Type
+
+	ident Identity
+	names EntityMessageNames
+	types EntityMessageTypes
+}
+
+func (e *entity) Identity() Identity {
+	return e.ident
+}
+
+func (e *entity) MessageNames() EntityMessageNames {
+	return e.names
+}
+
+func (e *entity) MessageTypes() EntityMessageTypes {
+	return e.types
+}
+
+func (e *entity) TypeName() string {
+	return typename.Of(e.ReflectType())
+}
+
+func (e *entity) ReflectType() reflect.Type {
+	return e.rt
 }

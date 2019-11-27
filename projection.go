@@ -29,15 +29,16 @@ type RichProjection interface {
 // configuration related panic values to errors.
 func FromProjection(h dogma.ProjectionMessageHandler) RichProjection {
 	cfg := &projection{
-		handler: handler{
+		entity: entity{
 			rt: reflect.TypeOf(h),
-			ht: ProjectionHandlerType,
 		},
 		impl: h,
 	}
 
 	c := &handlerConfigurer{
-		target: &cfg.handler,
+		entityConfigurer: entityConfigurer{
+			target: &cfg.entity,
+		},
 	}
 
 	h.Configure(c)
@@ -50,7 +51,8 @@ func FromProjection(h dogma.ProjectionMessageHandler) RichProjection {
 
 // projection is an implementation of RichProjection.
 type projection struct {
-	handler
+	entity
+
 	impl dogma.ProjectionMessageHandler
 }
 
@@ -60,6 +62,10 @@ func (h *projection) AcceptVisitor(ctx context.Context, v Visitor) error {
 
 func (h *projection) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
 	return v.VisitRichProjection(ctx, h)
+}
+
+func (h *projection) HandlerType() HandlerType {
+	return ProjectionHandlerType
 }
 
 func (h *projection) Handler() dogma.ProjectionMessageHandler {
