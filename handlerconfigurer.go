@@ -15,32 +15,7 @@ import (
 // - dogma.IntegrationConfigurer
 // - dogma.ProjectionConfigurer
 type handlerConfigurer struct {
-	// target is the entity to populate with the configuration values.
-	target *entity
-}
-
-// Identity sets the handler's identity.
-func (c *handlerConfigurer) Identity(name string, key string) {
-	if !c.target.ident.IsZero() {
-		Panicf(
-			"%s is configured with multiple identities (%s and %s/%s), Identity() must be called exactly once within Configure()",
-			c.target.rt.String(),
-			c.target.ident,
-			name,
-			key,
-		)
-	}
-
-	var err error
-	c.target.ident, err = NewIdentity(name, key)
-
-	if err != nil {
-		Panicf(
-			"%s is configured with an invalid identity, %s",
-			c.target.rt.String(),
-			err,
-		)
-	}
+	entityConfigurer
 }
 
 // ConsumesCommandTypes marks the handler as a consumer of command messages of
@@ -152,16 +127,6 @@ func (c *handlerConfigurer) guardAgainstRoleMismatch(mt message.Type, r message.
 		x,
 		r,
 	)
-}
-
-// validate panics if the configuration is invalid.
-func (c *handlerConfigurer) validate() {
-	if c.target.ident.IsZero() {
-		Panicf(
-			"%s is configured without an identity, Identity() must be called exactly once within Configure()",
-			c.target.rt.String(),
-		)
-	}
 }
 
 // mustConsume panics if the handler does not consume any messages of the given role.
