@@ -57,6 +57,40 @@ var _ = Describe("type Identity", func() {
 		})
 	})
 
+	Describe("func ConflictsWith()", func() {
+		DescribeTable(
+			"it indicates whether the identities are in conflict",
+			func(expect bool, a, b Identity) {
+				Expect(a.ConflictsWith(b)).To(Equal(expect))
+				Expect(b.ConflictsWith(a)).To(Equal(expect))
+			},
+			Entry(
+				"same identity",
+				true,
+				Identity{"<name>", "<key>"},
+				Identity{"<name>", "<key>"},
+			),
+			Entry(
+				"conflicting name",
+				true,
+				Identity{"<name>", "<key-1>"},
+				Identity{"<name>", "<key-2>"},
+			),
+			Entry(
+				"conflicting key",
+				true,
+				Identity{"<name-1>", "<key>"},
+				Identity{"<name-2>", "<key>"},
+			),
+			Entry(
+				"no conflict",
+				false,
+				Identity{"<name-1>", "<key-1>"},
+				Identity{"<name-2>", "<key-2>"},
+			),
+		)
+	})
+
 	Describe("func Validate()", func() {
 		DescribeTable(
 			"it returns nil if the name and key are valid",

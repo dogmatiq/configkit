@@ -49,6 +49,19 @@ func (i Identity) IsZero() bool {
 	return i.Name == "" && i.Key == ""
 }
 
+// ConflictsWith returns true if i has the same name or key as ident.
+func (i Identity) ConflictsWith(ident Identity) bool {
+	if i.Name == ident.Name {
+		return true
+	}
+
+	if i.Key == ident.Key {
+		return true
+	}
+
+	return false
+}
+
 // Validate returns an error if i is not a valid identity.
 func (i Identity) Validate() error {
 	if !isValidIdentityComponent(i.Name) {
