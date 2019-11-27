@@ -29,15 +29,14 @@ type RichProcess interface {
 // configuration related panic values to errors.
 func FromProcess(h dogma.ProcessMessageHandler) RichProcess {
 	cfg := &process{
-		handler: handler{
+		entity: entity{
 			rt: reflect.TypeOf(h),
-			ht: ProcessHandlerType,
 		},
 		impl: h,
 	}
 
 	c := &handlerConfigurer{
-		target: &cfg.handler,
+		target: &cfg.entity,
 	}
 
 	h.Configure(c)
@@ -51,7 +50,8 @@ func FromProcess(h dogma.ProcessMessageHandler) RichProcess {
 
 // process is an implementation of RichProcess.
 type process struct {
-	handler
+	entity
+
 	impl dogma.ProcessMessageHandler
 }
 
@@ -61,6 +61,10 @@ func (h *process) AcceptVisitor(ctx context.Context, v Visitor) error {
 
 func (h *process) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
 	return v.VisitRichProcess(ctx, h)
+}
+
+func (h *process) HandlerType() HandlerType {
+	return ProcessHandlerType
 }
 
 func (h *process) Handler() dogma.ProcessMessageHandler {

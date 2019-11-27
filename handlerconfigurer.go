@@ -15,8 +15,8 @@ import (
 // - dogma.IntegrationConfigurer
 // - dogma.ProjectionConfigurer
 type handlerConfigurer struct {
-	// target is the handler to populate with the configuration values.
-	target *handler
+	// target is the entity to populate with the configuration values.
+	target *entity
 }
 
 // Identity sets the handler's identity.
