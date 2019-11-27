@@ -3,57 +3,215 @@ package configkit
 import "github.com/dogmatiq/configkit/message"
 
 // HandlerSet is a collection of handlers.
-type HandlerSet []Handler
+type HandlerSet map[Identity]Handler
+
+// Add adds a handler to the set.
+//
+// It returns true if the handler was added, or false if the set already
+// contained a handler with the same name or key as h.
+func (s HandlerSet) Add(h Handler) bool {
+	i := h.Identity()
+	for x := range s {
+		if i.ConflictsWith(x) {
+			return false
+		}
+	}
+
+	s[i] = h
+	return true
+}
+
+// Has returns true if s contains h.
+func (s HandlerSet) Has(h Handler) bool {
+	x, ok := s[h.Identity()]
+	return ok && x == h
+}
 
 // ByIdentity returns the handler with the given identity.
-func (s HandlerSet) ByIdentity(Identity) (Handler, bool) {
-	panic("not implemented")
+func (s HandlerSet) ByIdentity(i Identity) (Handler, bool) {
+	h, ok := s[i]
+	return h, ok
 }
 
 // ByName returns the handler with the given name.
-func (s HandlerSet) ByName(string) (Handler, bool) {
-	panic("not implemented")
+func (s HandlerSet) ByName(n string) (Handler, bool) {
+	return s.Find(func(h Handler) bool {
+		return h.Identity().Name == n
+	})
 }
 
 // ByKey returns the handler with the given key.
-func (s HandlerSet) ByKey(string) (Handler, bool) {
-	panic("not implemented")
+func (s HandlerSet) ByKey(k string) (Handler, bool) {
+	return s.Find(func(h Handler) bool {
+		return h.Identity().Key == k
+	})
 }
 
-// ConsumersOf returns the handlers that consume messages with the given name.
-func (s HandlerSet) ConsumersOf(message.Name) HandlerSet {
-	panic("not implemented")
+// ByType returns the subset of handlers of the given type.
+func (s HandlerSet) ByType(t HandlerType) HandlerSet {
+	return s.Filter(func(h Handler) bool {
+		return h.HandlerType() == t
+	})
 }
 
-// ProducersOf returns the handlers that produce messages with the given name.
-func (s HandlerSet) ProducersOf(message.Name) HandlerSet {
-	panic("not implemented")
+// ConsumersOf returns the subset of handlers that consume messages with the
+// given name.
+func (s HandlerSet) ConsumersOf(n message.Name) HandlerSet {
+	return s.Filter(func(h Handler) bool {
+		return h.MessageNames().Consumed.Has(n)
+	})
+}
+
+// ProducersOf returns the subset of handlers that produce messages with the
+// given name.
+func (s HandlerSet) ProducersOf(n message.Name) HandlerSet {
+	return s.Filter(func(h Handler) bool {
+		return h.MessageNames().Produced.Has(n)
+	})
+}
+
+// Find returns a handler from the set for which the given predicate function
+// returns true.
+func (s HandlerSet) Find(fn func(Handler) bool) (Handler, bool) {
+	for _, h := range s {
+		if fn(h) {
+			return h, true
+		}
+	}
+
+	return nil, false
+}
+
+// Filter returns the subset of handlers for which the given predicate function
+// returns true.
+func (s HandlerSet) Filter(fn func(Handler) bool) HandlerSet {
+	subset := HandlerSet{}
+
+	for i, h := range s {
+		if fn(h) {
+			subset[i] = h
+		}
+	}
+
+	return subset
 }
 
 // RichHandlerSet is a collection of rich handlers.
-type RichHandlerSet []RichHandler
+type RichHandlerSet map[Identity]RichHandler
+
+// Add adds a handler to the set.
+//
+// It returns true if the handler was added, or false if the set already
+// contained a handler with the same name or key as h.
+func (s RichHandlerSet) Add(h RichHandler) bool {
+	i := h.Identity()
+	for x := range s {
+		if i.ConflictsWith(x) {
+			return false
+		}
+	}
+
+	s[i] = h
+	return true
+}
+
+// Has returns true if s contains h.
+func (s RichHandlerSet) Has(h RichHandler) bool {
+	x, ok := s[h.Identity()]
+	return ok && x == h
+}
 
 // ByIdentity returns the handler with the given identity.
-func (s RichHandlerSet) ByIdentity(Identity) (Handler, bool) {
-	panic("not implemented")
+func (s RichHandlerSet) ByIdentity(i Identity) (RichHandler, bool) {
+	h, ok := s[i]
+	return h, ok
 }
 
 // ByName returns the handler with the given name.
-func (s RichHandlerSet) ByName(string) (Handler, bool) {
-	panic("not implemented")
+func (s RichHandlerSet) ByName(n string) (RichHandler, bool) {
+	for i, h := range s {
+		if i.Name == n {
+			return h, true
+		}
+	}
+
+	return nil, false
 }
 
 // ByKey returns the handler with the given key.
-func (s RichHandlerSet) ByKey(string) (Handler, bool) {
-	panic("not implemented")
+func (s RichHandlerSet) ByKey(k string) (RichHandler, bool) {
+	for i, h := range s {
+		if i.Key == k {
+			return h, true
+		}
+	}
+
+	return nil, false
 }
 
-// ConsumersOf returns the handlers that consume messages of the given type.
-func (s RichHandlerSet) ConsumersOf(message.Type) RichHandlerSet {
-	panic("not implemented")
+// ByType returns the subset of handlers of the given type.
+func (s RichHandlerSet) ByType(t HandlerType) RichHandlerSet {
+	subset := RichHandlerSet{}
+
+	for i, h := range s {
+		if h.HandlerType() == t {
+			subset[i] = h
+		}
+	}
+
+	return subset
 }
 
-// ProducersOf returns the handlers that produce messages of the given type.
-func (s RichHandlerSet) ProducersOf(message.Type) RichHandlerSet {
-	panic("not implemented")
+// ConsumersOf returns the subset of handlers that consume messages of the given
+// type.
+func (s RichHandlerSet) ConsumersOf(t message.Type) RichHandlerSet {
+	subset := RichHandlerSet{}
+
+	for i, h := range s {
+		if h.MessageTypes().Consumed.Has(t) {
+			subset[i] = h
+		}
+	}
+
+	return subset
+}
+
+// ProducersOf returns the subset of handlers that produce messages of the given
+// type.
+func (s RichHandlerSet) ProducersOf(t message.Type) RichHandlerSet {
+	subset := RichHandlerSet{}
+
+	for i, h := range s {
+		if h.MessageTypes().Produced.Has(t) {
+			subset[i] = h
+		}
+	}
+
+	return subset
+}
+
+// Find returns a handler from the set for which the given predicate function
+// returns true.
+func (s RichHandlerSet) Find(fn func(RichHandler) bool) (RichHandler, bool) {
+	for _, h := range s {
+		if fn(h) {
+			return h, true
+		}
+	}
+
+	return nil, false
+}
+
+// Filter returns the subset of handlers for which the given predicate function
+// returns true.
+func (s RichHandlerSet) Filter(fn func(RichHandler) bool) RichHandlerSet {
+	subset := RichHandlerSet{}
+
+	for i, h := range s {
+		if fn(h) {
+			subset[i] = h
+		}
+	}
+
+	return subset
 }
