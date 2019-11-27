@@ -57,7 +57,7 @@ func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role, verb strin
 	if c.target.types.Consumed.Has(mt) {
 		Panicf(
 			"%s is configured to %s the %s %s more than once, should this refer to different message types?",
-			c.target.rt.String(),
+			c.target.rt,
 			verb,
 			mt,
 			r,
@@ -89,7 +89,7 @@ func (c *handlerConfigurer) produces(m dogma.Message, r message.Role, verb strin
 	if c.target.types.Produced.Has(mt) {
 		Panicf(
 			"%s is configured to %s the %s %s more than once, should this refer to different message types?",
-			c.target.rt.String(),
+			c.target.rt,
 			verb,
 			mt,
 			r,
@@ -122,7 +122,7 @@ func (c *handlerConfigurer) guardAgainstRoleMismatch(mt message.Type, r message.
 
 	Panicf(
 		"%s is configured to use %s as both a %s and a %s",
-		c.target.rt.String(),
+		c.target.rt,
 		mt,
 		x,
 		r,
@@ -139,8 +139,8 @@ func (c *handlerConfigurer) mustConsume(r message.Role) {
 
 	Panicf(
 		`%s is not configured to consume any %ss, Consumes%sType() must be called at least once within Configure()`,
-		c.target.rt.String(),
-		r.String(),
+		c.target.rt,
+		r,
 		strings.Title(r.String()),
 	)
 }
@@ -155,8 +155,8 @@ func (c *handlerConfigurer) mustProduce(r message.Role) {
 
 	Panicf(
 		`%s is not configured to produce any %ss, Produces%sType() must be called at least once within Configure()`,
-		c.target.rt.String(),
-		r.String(),
+		c.target.rt,
+		r,
 		strings.Title(r.String()),
 	)
 }

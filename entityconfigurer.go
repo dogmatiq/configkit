@@ -18,7 +18,7 @@ func (c *entityConfigurer) Identity(name string, key string) {
 	if !c.target.ident.IsZero() {
 		Panicf(
 			"%s is configured with multiple identities (%s and %s/%s), Identity() must be called exactly once within Configure()",
-			c.target.rt.String(),
+			c.target.rt,
 			c.target.ident,
 			name,
 			key,
@@ -31,7 +31,7 @@ func (c *entityConfigurer) Identity(name string, key string) {
 	if err != nil {
 		Panicf(
 			"%s is configured with an invalid identity, %s",
-			c.target.rt.String(),
+			c.target.rt,
 			err,
 		)
 	}
@@ -42,7 +42,7 @@ func (c *entityConfigurer) validate() {
 	if c.target.ident.IsZero() {
 		Panicf(
 			"%s is configured without an identity, Identity() must be called exactly once within Configure()",
-			c.target.rt.String(),
+			c.target.rt,
 		)
 	}
 }
