@@ -197,7 +197,7 @@ var _ = Describe("func FromApplication()", func() {
 			})
 		})
 
-		XDescribe("func Handlers()", func() {
+		Describe("func Handlers()", func() {
 			It("returns a set containing all handlers in the application", func() {
 				Expect(cfg.Handlers()).To(Equal(
 					NewHandlerSet(

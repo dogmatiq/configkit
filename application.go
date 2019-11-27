@@ -60,6 +60,7 @@ func FromApplication(a dogma.Application) RichApplication {
 		entityConfigurer: entityConfigurer{
 			target: &cfg.entity,
 		},
+		target: cfg,
 	}
 
 	a.Configure(c)
@@ -72,7 +73,9 @@ func FromApplication(a dogma.Application) RichApplication {
 type application struct {
 	entity
 
-	impl dogma.Application
+	handlers     HandlerSet
+	richHandlers RichHandlerSet
+	impl         dogma.Application
 }
 
 func (a *application) AcceptVisitor(ctx context.Context, v Visitor) error {
@@ -84,11 +87,11 @@ func (a *application) AcceptRichVisitor(ctx context.Context, v RichVisitor) erro
 }
 
 func (a *application) Handlers() HandlerSet {
-	return nil
+	return a.handlers
 }
 
 func (a *application) RichHandlers() RichHandlerSet {
-	return nil
+	return a.richHandlers
 }
 
 func (a *application) ForeignMessageNames() message.NameRoles {
