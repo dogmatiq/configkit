@@ -60,7 +60,7 @@ func FromApplication(a dogma.Application) RichApplication {
 		entityConfigurer: entityConfigurer{
 			entity: &cfg.entity,
 		},
-		target: cfg,
+		app: cfg,
 	}
 
 	a.Configure(c)
@@ -75,6 +75,8 @@ type application struct {
 
 	handlers     HandlerSet
 	richHandlers RichHandlerSet
+	foreignNames message.NameRoles
+	foreignTypes message.TypeRoles
 	impl         dogma.Application
 }
 
@@ -95,11 +97,11 @@ func (a *application) RichHandlers() RichHandlerSet {
 }
 
 func (a *application) ForeignMessageNames() message.NameRoles {
-	return nil
+	return a.foreignNames
 }
 
 func (a *application) ForeignMessageTypes() message.TypeRoles {
-	return nil
+	return a.foreignTypes
 }
 
 func (a *application) Application() dogma.Application {
