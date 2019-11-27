@@ -137,7 +137,7 @@ func (r Role) MarshalText() ([]byte, error) {
 func (r *Role) UnmarshalText(text []byte) error {
 	x := Role(text)
 
-	if err := x.Validate(); err != nil {
+	if x.Validate() != nil {
 		return fmt.Errorf("invalid text representation of message role: %s", text)
 	}
 

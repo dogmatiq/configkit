@@ -18,7 +18,7 @@ var _ = Describe("type HandlerType", func() {
 
 		It("panics when the type is not valid", func() {
 			Expect(func() {
-				HandlerType(0).MustValidate()
+				HandlerType("<invalid>").MustValidate()
 			}).To(Panic())
 		})
 	})
@@ -152,7 +152,7 @@ var _ = Describe("type HandlerType", func() {
 			Expect(ProcessHandlerType.String()).To(Equal("process"))
 			Expect(IntegrationHandlerType.String()).To(Equal("integration"))
 			Expect(ProjectionHandlerType.String()).To(Equal("projection"))
-			Expect(HandlerType(0).String()).To(Equal("<invalid handler type 0x0>"))
+			Expect(HandlerType("<invalid>").String()).To(Equal("<invalid handler type: <invalid>>"))
 		})
 	})
 
@@ -165,7 +165,7 @@ var _ = Describe("type HandlerType", func() {
 		})
 
 		It("returns an error if the type is invalid", func() {
-			_, err := HandlerType(0).MarshalText()
+			_, err := HandlerType("<invalid>").MarshalText()
 			Expect(err).Should(HaveOccurred())
 		})
 	})
@@ -208,7 +208,7 @@ var _ = Describe("type HandlerType", func() {
 		})
 
 		It("returns an error if the type is invalid", func() {
-			_, err := HandlerType(0).MarshalBinary()
+			_, err := HandlerType("<invalid>").MarshalBinary()
 			Expect(err).Should(HaveOccurred())
 		})
 	})

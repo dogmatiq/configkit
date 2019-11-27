@@ -8,20 +8,20 @@ import (
 )
 
 // HandlerType is an enumeration of the types of handlers.
-type HandlerType byte
+type HandlerType string
 
 const (
 	// AggregateHandlerType is the handler type for dogma.AggregateMessageHandler.
-	AggregateHandlerType HandlerType = 'A'
+	AggregateHandlerType HandlerType = "aggregate"
 
 	// ProcessHandlerType is the handler type for dogma.ProcessMessageHandler.
-	ProcessHandlerType HandlerType = 'P'
+	ProcessHandlerType HandlerType = "process"
 
 	// IntegrationHandlerType is the handler type for dogma.IntegrationMessageHandler.
-	IntegrationHandlerType HandlerType = 'I'
+	IntegrationHandlerType HandlerType = "integration"
 
 	// ProjectionHandlerType is the handler type for dogma.ProjectionMessageHandler.
-	ProjectionHandlerType HandlerType = 'R'
+	ProjectionHandlerType HandlerType = "projection"
 )
 
 // HandlerTypes is a slice of the valid handler types.
@@ -33,11 +33,6 @@ var HandlerTypes = []HandlerType{
 }
 
 const (
-	aggregateHandlerTypeString   = "aggregate"
-	processHandlerTypeString     = "process"
-	integrationHandlerTypeString = "integration"
-	projectionHandlerTypeString  = "projection"
-
 	aggregateHandlerTypeShortString   = "AGG"
 	processHandlerTypeShortString     = "PRC"
 	integrationHandlerTypeShortString = "INT"
@@ -45,10 +40,10 @@ const (
 )
 
 var (
-	aggregateHandlerTypeBytes   = []byte(aggregateHandlerTypeString)
-	processHandlerTypeBytes     = []byte(processHandlerTypeString)
-	integrationHandlerTypeBytes = []byte(integrationHandlerTypeString)
-	projectionHandlerTypeBytes  = []byte(projectionHandlerTypeString)
+	aggregateHandlerTypeBinary   = []byte{'A'}
+	processHandlerTypeBinary     = []byte{'P'}
+	integrationHandlerTypeBinary = []byte{'I'}
+	projectionHandlerTypeBinary  = []byte{'R'}
 )
 
 // Validate returns an error if t is not a valid handler type.
@@ -60,7 +55,7 @@ func (t HandlerType) Validate() error {
 		ProjectionHandlerType:
 		return nil
 	default:
-		return fmt.Errorf("invalid handler type: %#v", t)
+		return fmt.Errorf("invalid handler type: %s", string(t))
 	}
 }
 
@@ -164,68 +159,63 @@ func (t HandlerType) ShortString() string {
 
 // String returns a string representation of the handler type.
 func (t HandlerType) String() string {
-	switch t {
-	case AggregateHandlerType:
-		return aggregateHandlerTypeString
-	case ProcessHandlerType:
-		return processHandlerTypeString
-	case IntegrationHandlerType:
-		return integrationHandlerTypeString
-	case ProjectionHandlerType:
-		return projectionHandlerTypeString
-	default:
-		return fmt.Sprintf("<invalid handler type %#v>", t)
+	if err := t.Validate(); err != nil {
+		return "<" + err.Error() + ">"
 	}
+
+	return string(t)
 }
 
 // MarshalText returns a UTF-8 representation of the handler type.
 func (t HandlerType) MarshalText() ([]byte, error) {
+	return []byte(t), t.Validate()
+}
+
+// UnmarshalText unmarshals a type from its UTF-8 representation.
+func (t *HandlerType) UnmarshalText(text []byte) error {
+	x := HandlerType(text)
+
+	if x.Validate() != nil {
+		return fmt.Errorf("invalid text representation of handler type: %s", text)
+	}
+
+	*t = x
+	return nil
+}
+
+// MarshalBinary returns a binary representation of the handler type.
+func (t HandlerType) MarshalBinary() ([]byte, error) {
 	if err := t.Validate(); err != nil {
 		return nil, err
 	}
 
 	switch t {
 	case AggregateHandlerType:
-		return aggregateHandlerTypeBytes, nil
+		return aggregateHandlerTypeBinary, nil
 	case ProcessHandlerType:
-		return processHandlerTypeBytes, nil
+		return processHandlerTypeBinary, nil
 	case IntegrationHandlerType:
-		return integrationHandlerTypeBytes, nil
+		return integrationHandlerTypeBinary, nil
 	default: // ProjectionHandlerType
-		return projectionHandlerTypeBytes, nil
+		return projectionHandlerTypeBinary, nil
 	}
-}
-
-// UnmarshalText unmarshals a type from its UTF-8 representation.
-func (t *HandlerType) UnmarshalText(text []byte) error {
-	if bytes.Equal(text, aggregateHandlerTypeBytes) {
-		*t = AggregateHandlerType
-	} else if bytes.Equal(text, processHandlerTypeBytes) {
-		*t = ProcessHandlerType
-	} else if bytes.Equal(text, integrationHandlerTypeBytes) {
-		*t = IntegrationHandlerType
-	} else if bytes.Equal(text, projectionHandlerTypeBytes) {
-		*t = ProjectionHandlerType
-	} else {
-		return fmt.Errorf("invalid text representation of handler type: %s", text)
-	}
-
-	return nil
-}
-
-// MarshalBinary returns a binary representation of the handler type.
-func (t HandlerType) MarshalBinary() ([]byte, error) {
-	return []byte{byte(t)}, t.Validate()
 }
 
 // UnmarshalBinary unmarshals a type from its binary representation.
 func (t *HandlerType) UnmarshalBinary(data []byte) error {
-	if len(data) != 1 {
-		return fmt.Errorf("invalid binary representation of handler type, expected exactly 1 byte")
+	if bytes.Equal(data, aggregateHandlerTypeBinary) {
+		*t = AggregateHandlerType
+	} else if bytes.Equal(data, processHandlerTypeBinary) {
+		*t = ProcessHandlerType
+	} else if bytes.Equal(data, integrationHandlerTypeBinary) {
+		*t = IntegrationHandlerType
+	} else if bytes.Equal(data, projectionHandlerTypeBinary) {
+		*t = ProjectionHandlerType
+	} else {
+		return fmt.Errorf("invalid binary representation of handler type: %s", data)
 	}
 
-	*t = HandlerType(data[0])
-	return t.Validate()
+	return nil
 }
 
 // ConsumersOf returns the handler types that can consume messages with the
