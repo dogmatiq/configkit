@@ -53,13 +53,13 @@ var _ = Describe("func FromAggregate()", func() {
 							cfixtures.MessageBTypeName: message.CommandRole,
 							cfixtures.MessageETypeName: message.EventRole,
 						},
-						Produced: message.NewNameSet(
-							cfixtures.MessageETypeName,
-						),
-						Consumed: message.NewNameSet(
-							cfixtures.MessageATypeName,
-							cfixtures.MessageBTypeName,
-						),
+						Produced: message.NameRoles{
+							cfixtures.MessageETypeName: message.EventRole,
+						},
+						Consumed: message.NameRoles{
+							cfixtures.MessageATypeName: message.CommandRole,
+							cfixtures.MessageBTypeName: message.CommandRole,
+						},
 					},
 				))
 			})
@@ -74,13 +74,13 @@ var _ = Describe("func FromAggregate()", func() {
 							cfixtures.MessageBType: message.CommandRole,
 							cfixtures.MessageEType: message.EventRole,
 						},
-						Produced: message.NewTypeSet(
-							cfixtures.MessageEType,
-						),
-						Consumed: message.NewTypeSet(
-							cfixtures.MessageAType,
-							cfixtures.MessageBType,
-						),
+						Produced: message.TypeRoles{
+							cfixtures.MessageEType: message.EventRole,
+						},
+						Consumed: message.TypeRoles{
+							cfixtures.MessageAType: message.CommandRole,
+							cfixtures.MessageBType: message.CommandRole,
+						},
 					},
 				))
 			})

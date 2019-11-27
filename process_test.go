@@ -55,15 +55,15 @@ var _ = Describe("func FromProcess()", func() {
 							cfixtures.MessageCTypeName: message.CommandRole,
 							cfixtures.MessageTTypeName: message.TimeoutRole,
 						},
-						Produced: message.NewNameSet(
-							cfixtures.MessageCTypeName,
-							cfixtures.MessageTTypeName,
-						),
-						Consumed: message.NewNameSet(
-							cfixtures.MessageATypeName,
-							cfixtures.MessageBTypeName,
-							cfixtures.MessageTTypeName,
-						),
+						Produced: message.NameRoles{
+							cfixtures.MessageCTypeName: message.CommandRole,
+							cfixtures.MessageTTypeName: message.TimeoutRole,
+						},
+						Consumed: message.NameRoles{
+							cfixtures.MessageATypeName: message.EventRole,
+							cfixtures.MessageBTypeName: message.EventRole,
+							cfixtures.MessageTTypeName: message.TimeoutRole,
+						},
 					},
 				))
 			})
@@ -79,15 +79,15 @@ var _ = Describe("func FromProcess()", func() {
 							cfixtures.MessageCType: message.CommandRole,
 							cfixtures.MessageTType: message.TimeoutRole,
 						},
-						Produced: message.NewTypeSet(
-							cfixtures.MessageCType,
-							cfixtures.MessageTType,
-						),
-						Consumed: message.NewTypeSet(
-							cfixtures.MessageAType,
-							cfixtures.MessageBType,
-							cfixtures.MessageTType,
-						),
+						Produced: message.TypeRoles{
+							cfixtures.MessageCType: message.CommandRole,
+							cfixtures.MessageTType: message.TimeoutRole,
+						},
+						Consumed: message.TypeRoles{
+							cfixtures.MessageAType: message.EventRole,
+							cfixtures.MessageBType: message.EventRole,
+							cfixtures.MessageTType: message.TimeoutRole,
+						},
 					},
 				))
 			})
