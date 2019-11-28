@@ -70,6 +70,7 @@ func FromApplication(a dogma.Application) RichApplication {
 	return cfg
 }
 
+// application is an implementation of RichApplication.
 type application struct {
 	entity
 

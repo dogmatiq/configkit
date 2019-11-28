@@ -46,3 +46,15 @@ func (c *entityConfigurer) validate() {
 		)
 	}
 }
+
+// displayName returns a human-readable string used to refer to the entity in
+// error messages.
+func (c *entityConfigurer) displayName() string {
+	s := c.entity.rt.String()
+
+	if !c.entity.ident.IsZero() {
+		s += " (" + c.entity.ident.Name + ")"
+	}
+
+	return s
+}

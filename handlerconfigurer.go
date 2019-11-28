@@ -161,13 +161,3 @@ func (c *handlerConfigurer) mustProduce(r message.Role) {
 		strings.Title(r.String()),
 	)
 }
-
-func (c *handlerConfigurer) displayName() string {
-	s := c.entity.rt.String()
-
-	if !c.entity.ident.IsZero() {
-		s += " (" + c.entity.ident.Name + ")"
-	}
-
-	return s
-}
