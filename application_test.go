@@ -249,6 +249,36 @@ var _ = Describe("func FromApplication()", func() {
 				Expect(cfg.Application()).To(BeIdenticalTo(app))
 			})
 		})
+
+		It("does not panic when the app contains multiple processes that schedule the same timeout", func() {
+			process1 := &fixtures.ProcessMessageHandler{
+				ConfigureFunc: func(c dogma.ProcessConfigurer) {
+					c.Identity("<process-1>", "<process-1-key>")
+					c.ConsumesEventType(fixtures.MessageB{})
+					c.ProducesCommandType(fixtures.MessageC{})
+					c.SchedulesTimeoutType(fixtures.MessageT{})
+				},
+			}
+
+			process2 := &fixtures.ProcessMessageHandler{
+				ConfigureFunc: func(c dogma.ProcessConfigurer) {
+					c.Identity("<process-2>", "<process-2-key>")
+					c.ConsumesEventType(fixtures.MessageB{})
+					c.ProducesCommandType(fixtures.MessageC{})
+					c.SchedulesTimeoutType(fixtures.MessageT{})
+				},
+			}
+
+			app := &fixtures.Application{
+				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
+					c.Identity("<app>", "<app-key>")
+					c.RegisterProcess(process1)
+					c.RegisterProcess(process2)
+				},
+			}
+
+			FromApplication(app)
+		})
 	})
 
 	DescribeTable(
