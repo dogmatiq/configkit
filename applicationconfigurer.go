@@ -45,6 +45,7 @@ func (c *applicationConfigurer) RegisterProjection(h dogma.ProjectionMessageHand
 	c.register(cfg)
 }
 
+// register adds a handler configuration to the application.
 func (c *applicationConfigurer) register(h RichHandler) {
 	c.guardAgainstConflictingIdentities(h)
 	c.guardAgainstConflictingRoles(h)
@@ -91,6 +92,7 @@ func (c *applicationConfigurer) register(h RichHandler) {
 	}
 }
 
+// validate panics if the configuration is invalid.
 func (c *applicationConfigurer) validate() {
 	c.entityConfigurer.validate()
 
