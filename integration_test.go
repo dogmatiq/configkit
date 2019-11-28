@@ -214,7 +214,7 @@ var _ = Describe("func FromIntegration()", func() {
 		),
 		Entry(
 			"when the handler does not configure any consumed command types",
-			`*fixtures.IntegrationMessageHandler is not configured to consume any commands, ConsumesCommandType() must be called at least once within Configure()`,
+			`*fixtures.IntegrationMessageHandler (<name>) is not configured to consume any commands, ConsumesCommandType() must be called at least once within Configure()`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", "<key>")
 				c.ProducesEventType(fixtures.MessageE{})
@@ -222,7 +222,7 @@ var _ = Describe("func FromIntegration()", func() {
 		),
 		Entry(
 			"when the handler configures the same consumed command type multiple times",
-			`*fixtures.IntegrationMessageHandler is configured to consume the fixtures.MessageA command more than once, should this refer to different message types?`,
+			`*fixtures.IntegrationMessageHandler (<name>) is configured to consume the fixtures.MessageA command more than once, should this refer to different message types?`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", "<key>")
 				c.ConsumesCommandType(fixtures.MessageA{})
@@ -232,7 +232,7 @@ var _ = Describe("func FromIntegration()", func() {
 		),
 		Entry(
 			"when the handler configures the same produced event type multiple times",
-			`*fixtures.IntegrationMessageHandler is configured to produce the fixtures.MessageE event more than once, should this refer to different message types?`,
+			`*fixtures.IntegrationMessageHandler (<name>) is configured to produce the fixtures.MessageE event more than once, should this refer to different message types?`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", "<key>")
 				c.ConsumesCommandType(fixtures.MessageA{})
@@ -242,7 +242,7 @@ var _ = Describe("func FromIntegration()", func() {
 		),
 		Entry(
 			"when the handler configures the same message type with different roles",
-			`*fixtures.IntegrationMessageHandler is configured to use fixtures.MessageA as both a command and an event`,
+			`*fixtures.IntegrationMessageHandler (<name>) is configured to use fixtures.MessageA as both a command and an event`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", "<key>")
 				c.ConsumesCommandType(fixtures.MessageA{})

@@ -208,7 +208,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when the handler does not configure any consumed event types",
-			`*fixtures.ProcessMessageHandler is not configured to consume any events, ConsumesEventType() must be called at least once within Configure()`,
+			`*fixtures.ProcessMessageHandler (<name>) is not configured to consume any events, ConsumesEventType() must be called at least once within Configure()`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", "<key>")
 				c.ProducesCommandType(fixtures.MessageC{})
@@ -216,7 +216,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when the handler configures the same consumed event type multiple times",
-			`*fixtures.ProcessMessageHandler is configured to consume the fixtures.MessageA event more than once, should this refer to different message types?`,
+			`*fixtures.ProcessMessageHandler (<name>) is configured to consume the fixtures.MessageA event more than once, should this refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", "<key>")
 				c.ConsumesEventType(fixtures.MessageA{})
@@ -226,7 +226,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when the handler does not configure any produced commands",
-			`*fixtures.ProcessMessageHandler is not configured to produce any commands, ProducesCommandType() must be called at least once within Configure()`,
+			`*fixtures.ProcessMessageHandler (<name>) is not configured to produce any commands, ProducesCommandType() must be called at least once within Configure()`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", "<key>")
 				c.ConsumesEventType(fixtures.MessageA{})
@@ -234,7 +234,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when the handler configures the same produced command type multiple times",
-			`*fixtures.ProcessMessageHandler is configured to produce the fixtures.MessageC command more than once, should this refer to different message types?`,
+			`*fixtures.ProcessMessageHandler (<name>) is configured to produce the fixtures.MessageC command more than once, should this refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", "<key>")
 				c.ConsumesEventType(fixtures.MessageA{})
@@ -244,7 +244,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when the handler configures the same scheudled timeout type multiple times",
-			`*fixtures.ProcessMessageHandler is configured to schedule the fixtures.MessageT timeout more than once, should this refer to different message types?`,
+			`*fixtures.ProcessMessageHandler (<name>) is configured to schedule the fixtures.MessageT timeout more than once, should this refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", "<key>")
 				c.ConsumesEventType(fixtures.MessageA{})
@@ -255,7 +255,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when the handler configures the same message type with different roles",
-			`*fixtures.ProcessMessageHandler is configured to use fixtures.MessageA as both an event and a timeout`,
+			`*fixtures.ProcessMessageHandler (<name>) is configured to use fixtures.MessageA as both an event and a timeout`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", "<key>")
 				c.ConsumesEventType(fixtures.MessageA{})

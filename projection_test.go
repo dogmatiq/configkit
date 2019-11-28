@@ -190,14 +190,14 @@ var _ = Describe("func FromProjection()", func() {
 		),
 		Entry(
 			"when the handler does not configure any consumed event types",
-			`*fixtures.ProjectionMessageHandler is not configured to consume any events, ConsumesEventType() must be called at least once within Configure()`,
+			`*fixtures.ProjectionMessageHandler (<name>) is not configured to consume any events, ConsumesEventType() must be called at least once within Configure()`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", "<key>")
 			},
 		),
 		Entry(
 			"when the handler configures the same consumed event type multiple times",
-			`*fixtures.ProjectionMessageHandler is configured to consume the fixtures.MessageA event more than once, should this refer to different message types?`,
+			`*fixtures.ProjectionMessageHandler (<name>) is configured to consume the fixtures.MessageA event more than once, should this refer to different message types?`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", "<key>")
 				c.ConsumesEventType(fixtures.MessageA{})
