@@ -250,6 +250,18 @@ var _ = Describe("func FromApplication()", func() {
 			})
 		})
 
+		It("does not panic when the app name is shared with handler", func() {
+			aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
+				c.Identity("<app>", "<aggregate-key>")
+				c.ConsumesCommandType(fixtures.MessageA{})
+				c.ProducesEventType(fixtures.MessageE{})
+			}
+
+			Expect(func() {
+				FromApplication(app)
+			}).NotTo(Panic())
+		})
+
 		It("does not panic when the app contains multiple processes that schedule the same timeout", func() {
 			process1 := &fixtures.ProcessMessageHandler{
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
@@ -277,7 +289,9 @@ var _ = Describe("func FromApplication()", func() {
 				},
 			}
 
-			FromApplication(app)
+			Expect(func() {
+				FromApplication(app)
+			}).NotTo(Panic())
 		})
 	})
 
