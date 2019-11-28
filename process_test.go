@@ -262,5 +262,13 @@ var _ = Describe("func FromProcess()", func() {
 				c.SchedulesTimeoutType(fixtures.MessageA{})
 			},
 		),
+		Entry(
+			"when an error occurs before the identity is configured it omits the handler name",
+			`*fixtures.ProcessMessageHandler is configured to consume the fixtures.MessageA event more than once, should this refer to different message types?`,
+			func(c dogma.ProcessConfigurer) {
+				c.ConsumesEventType(fixtures.MessageA{})
+				c.ConsumesEventType(fixtures.MessageA{})
+			},
+		),
 	)
 })

@@ -249,5 +249,13 @@ var _ = Describe("func FromIntegration()", func() {
 				c.ProducesEventType(fixtures.MessageA{})
 			},
 		),
+		Entry(
+			"when an error occurs before the identity is configured it omits the handler name",
+			`*fixtures.IntegrationMessageHandler is configured to consume the fixtures.MessageA command more than once, should this refer to different message types?`,
+			func(c dogma.IntegrationConfigurer) {
+				c.ConsumesCommandType(fixtures.MessageA{})
+				c.ConsumesCommandType(fixtures.MessageA{})
+			},
+		),
 	)
 })
