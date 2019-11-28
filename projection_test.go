@@ -204,5 +204,13 @@ var _ = Describe("func FromProjection()", func() {
 				c.ConsumesEventType(fixtures.MessageA{})
 			},
 		),
+		Entry(
+			"when an error occurs before the identity is configured it omits the handler name",
+			`*fixtures.ProjectionMessageHandler is configured to consume the fixtures.MessageA event more than once, should this refer to different message types?`,
+			func(c dogma.ProjectionConfigurer) {
+				c.ConsumesEventType(fixtures.MessageA{})
+				c.ConsumesEventType(fixtures.MessageA{})
+			},
+		),
 	)
 })

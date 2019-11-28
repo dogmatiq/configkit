@@ -56,9 +56,8 @@ func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role, verb strin
 
 	if c.target.types.Consumed.Has(mt) {
 		Panicf(
-			"%s (%s) is configured to %s the %s %s more than once, should this refer to different message types?",
-			c.target.rt,
-			c.target.ident.Name,
+			"%s is configured to %s the %s %s more than once, should this refer to different message types?",
+			c.displayName(),
 			verb,
 			mt,
 			r,
@@ -89,9 +88,8 @@ func (c *handlerConfigurer) produces(m dogma.Message, r message.Role, verb strin
 
 	if c.target.types.Produced.Has(mt) {
 		Panicf(
-			"%s (%s) is configured to %s the %s %s more than once, should this refer to different message types?",
-			c.target.rt,
-			c.target.ident.Name,
+			"%s is configured to %s the %s %s more than once, should this refer to different message types?",
+			c.displayName(),
 			verb,
 			mt,
 			r,
@@ -123,9 +121,8 @@ func (c *handlerConfigurer) guardAgainstRoleMismatch(mt message.Type, r message.
 	}
 
 	Panicf(
-		"%s (%s) is configured to use %s as both a %s and a %s",
-		c.target.rt,
-		c.target.ident.Name,
+		"%s is configured to use %s as both a %s and a %s",
+		c.displayName(),
 		mt,
 		x,
 		r,
@@ -158,10 +155,19 @@ func (c *handlerConfigurer) mustProduce(r message.Role) {
 	}
 
 	Panicf(
-		`%s (%s) is not configured to produce any %ss, Produces%sType() must be called at least once within Configure()`,
-		c.target.rt,
-		c.target.ident.Name,
+		`%s is not configured to produce any %ss, Produces%sType() must be called at least once within Configure()`,
+		c.displayName(),
 		r,
 		strings.Title(r.String()),
 	)
+}
+
+func (c *handlerConfigurer) displayName() string {
+	s := c.target.rt.String()
+
+	if !c.target.ident.IsZero() {
+		s += " (" + c.target.ident.Name + ")"
+	}
+
+	return s
 }
