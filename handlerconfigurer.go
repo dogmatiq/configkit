@@ -52,7 +52,7 @@ func (c *handlerConfigurer) SchedulesTimeoutType(m dogma.Message) {
 // consumes marks the handler as a consumer of messages of the same type as m.
 func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role, verb string) {
 	mt := message.TypeOf(m)
-	c.guardAgainstRoleMismatch(mt, r)
+	c.guardAgainstConflictingRoles(mt, r)
 
 	if c.entity.types.Consumed.Has(mt) {
 		Panicf(
@@ -84,7 +84,7 @@ func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role, verb strin
 // produces marks the handler as a consumer of messages of the same type as m.
 func (c *handlerConfigurer) produces(m dogma.Message, r message.Role, verb string) {
 	mt := message.TypeOf(m)
-	c.guardAgainstRoleMismatch(mt, r)
+	c.guardAgainstConflictingRoles(mt, r)
 
 	if c.entity.types.Produced.Has(mt) {
 		Panicf(
@@ -112,8 +112,8 @@ func (c *handlerConfigurer) produces(m dogma.Message, r message.Role, verb strin
 	c.entity.types.Produced.Add(mt, r)
 }
 
-// guardAgainstRoleMismatch panics if mt is already used in some role other than r.
-func (c *handlerConfigurer) guardAgainstRoleMismatch(mt message.Type, r message.Role) {
+// guardAgainstConflictingRoles panics if mt is already used in some role other than r.
+func (c *handlerConfigurer) guardAgainstConflictingRoles(mt message.Type, r message.Role) {
 	x, ok := c.entity.types.Roles[mt]
 
 	if !ok || x == r {
