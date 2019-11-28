@@ -314,347 +314,173 @@ var _ = Describe("func FromApplication()", func() {
 				Expect(err).To(MatchError(msg))
 			}
 		},
-		// 	When("the app does not configure an identity", func() {
-		// 		BeforeEach(func() {
-		// 			app.ConfigureFunc = nil
-		// 		})
-
-		// 		It("returns a descriptive error", func() {
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).To(Equal(
-		// 				Error(
-		// 					"*fixtures.Application.Configure() did not call ApplicationConfigurer.Identity()",
-		// 				),
-		// 			))
-		// 		})
-		// 	})
-
-		// 	When("the app configures multiple identities", func() {
-		// 		BeforeEach(func() {
-		// 			app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
-		// 				c.Identity("<name>", "<key>")
-		// 				c.Identity("<other>", "<key>")
-		// 			}
-		// 		})
-
-		// 		It("returns a descriptive error", func() {
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).To(Equal(
-		// 				Error(
-		// 					`*fixtures.Application.Configure() has already called ApplicationConfigurer.Identity("<name>", "<key>")`,
-		// 				),
-		// 			))
-		// 		})
-		// 	})
-
-		// 	When("the app configures an invalid application name", func() {
-		// 		BeforeEach(func() {
-		// 			app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
-		// 				c.Identity("\t \n", "<app-key>")
-		// 			}
-		// 		})
-
-		// 		It("returns a descriptive error", func() {
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).To(Equal(
-		// 				Error(
-		// 					`*fixtures.Application.Configure() called ApplicationConfigurer.Identity() with an invalid name "\t \n", names must be non-empty, printable UTF-8 strings with no whitespace`,
-		// 				),
-		// 			))
-		// 		})
-		// 	})
-
-		// 	When("the app configures an invalid application key", func() {
-		// 		BeforeEach(func() {
-		// 			app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
-		// 				c.Identity("<app>", "\t \n")
-		// 			}
-		// 		})
-
-		// 		It("returns a descriptive error", func() {
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).To(Equal(
-		// 				Error(
-		// 					`*fixtures.Application.Configure() called ApplicationConfigurer.Identity() with an invalid key "\t \n", keys must be non-empty, printable UTF-8 strings with no whitespace`,
-		// 				),
-		// 			))
-		// 		})
-		// 	})
-
-		// 	When("the app contains an invalid handler configurations", func() {
-		// 		It("returns an error when an aggregate is misconfigured", func() {
-		// 			aggregate.ConfigureFunc = nil
-
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).Should(HaveOccurred())
-		// 		})
-
-		// 		It("returns an error when a process is misconfigured", func() {
-		// 			process.ConfigureFunc = nil
-
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).Should(HaveOccurred())
-		// 		})
-
-		// 		It("returns an error when an integration is misconfigured", func() {
-		// 			integration.ConfigureFunc = nil
-
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).Should(HaveOccurred())
-		// 		})
-
-		// 		It("returns an error when a projection is misconfigured", func() {
-		// 			projection.ConfigureFunc = nil
-
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).Should(HaveOccurred())
-		// 		})
-		// 	})
-
-		// 	When("the app contains conflicting handler identities", func() {
-		// 		It("returns an error when an aggregate name is in conflict", func() {
-		// 			aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
-		// 				c.Identity("<process>", "<aggregate-key>") // conflict!
-		// 				c.ConsumesCommandType(fixtures.MessageA{})
-		// 				c.ProducesEventType(fixtures.MessageE{})
-		// 			}
-
-		// 			app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
-		// 				c.Identity("<app>", "<app-key>")
-		// 				c.RegisterProcess(process)
-		// 				c.RegisterAggregate(aggregate) // register the conflicting aggregate last
-		// 			}
-
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).To(Equal(
-		// 				Error(
-		// 					`*fixtures.AggregateMessageHandler can not use the handler name "<process>", because it is already used by *fixtures.ProcessMessageHandler`,
-		// 				),
-		// 			))
-		// 		})
-
-		// 		It("returns an error when an aggregate key is in conflict", func() {
-		// 			aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
-		// 				c.Identity("<aggregate>", "<process-key>") // conflict!
-		// 				c.ConsumesCommandType(fixtures.MessageA{})
-		// 				c.ProducesEventType(fixtures.MessageE{})
-		// 			}
-
-		// 			app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
-		// 				c.Identity("<app>", "<app-key>")
-		// 				c.RegisterProcess(process)
-		// 				c.RegisterAggregate(aggregate) // register the conflicting aggregate last
-		// 			}
-
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).To(Equal(
-		// 				Error(
-		// 					`*fixtures.AggregateMessageHandler can not use the handler key "<process-key>", because it is already used by *fixtures.ProcessMessageHandler`,
-		// 				),
-		// 			))
-		// 		})
-
-		// 		It("returns an error when a process name is in conflict", func() {
-		// 			process.ConfigureFunc = func(c dogma.ProcessConfigurer) {
-		// 				c.Identity("<aggregate>", "<process-key>") // conflict!
-		// 				c.ConsumesEventType(fixtures.MessageB{})
-		// 				c.ProducesCommandType(fixtures.MessageC{})
-		// 			}
-
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).To(Equal(
-		// 				Error(
-		// 					`*fixtures.ProcessMessageHandler can not use the handler name "<aggregate>", because it is already used by *fixtures.AggregateMessageHandler`,
-		// 				),
-		// 			))
-		// 		})
-
-		// 		It("returns an error when a process key is in conflict", func() {
-		// 			process.ConfigureFunc = func(c dogma.ProcessConfigurer) {
-		// 				c.Identity("<process>", "<aggregate-key>") // conflict!
-		// 				c.ConsumesEventType(fixtures.MessageB{})
-		// 				c.ProducesCommandType(fixtures.MessageC{})
-		// 			}
-
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).To(Equal(
-		// 				Error(
-		// 					`*fixtures.ProcessMessageHandler can not use the handler key "<aggregate-key>", because it is already used by *fixtures.AggregateMessageHandler`,
-		// 				),
-		// 			))
-		// 		})
-
-		// 		It("returns an error when an integration name is in conflict", func() {
-		// 			integration.ConfigureFunc = func(c dogma.IntegrationConfigurer) {
-		// 				c.Identity("<process>", "<integration-key>") // conflict!
-		// 				c.ConsumesCommandType(fixtures.MessageC{})
-		// 				c.ProducesEventType(fixtures.MessageF{})
-		// 			}
-
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).To(Equal(
-		// 				Error(
-		// 					`*fixtures.IntegrationMessageHandler can not use the handler name "<process>", because it is already used by *fixtures.ProcessMessageHandler`,
-		// 				),
-		// 			))
-		// 		})
-
-		// 		It("returns an error when an integration key is in conflict", func() {
-		// 			integration.ConfigureFunc = func(c dogma.IntegrationConfigurer) {
-		// 				c.Identity("<integration>", "<process-key>") // conflict!
-		// 				c.ConsumesCommandType(fixtures.MessageC{})
-		// 				c.ProducesEventType(fixtures.MessageF{})
-		// 			}
-
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).To(Equal(
-		// 				Error(
-		// 					`*fixtures.IntegrationMessageHandler can not use the handler key "<process-key>", because it is already used by *fixtures.ProcessMessageHandler`,
-		// 				),
-		// 			))
-		// 		})
-
-		// 		It("returns an error when a projection name is in conflict", func() {
-		// 			projection.ConfigureFunc = func(c dogma.ProjectionConfigurer) {
-		// 				c.Identity("<integration>", "<projection-key>") // conflict!
-		// 				c.ConsumesEventType(fixtures.MessageD{})
-		// 			}
-
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).To(Equal(
-		// 				Error(
-		// 					`*fixtures.ProjectionMessageHandler can not use the handler name "<integration>", because it is already used by *fixtures.IntegrationMessageHandler`,
-		// 				),
-		// 			))
-		// 		})
-
-		// 		It("returns an error when a projection key is in conflict", func() {
-		// 			projection.ConfigureFunc = func(c dogma.ProjectionConfigurer) {
-		// 				c.Identity("<projection>", "<integration-key>") // conflict!
-		// 				c.ConsumesEventType(fixtures.MessageD{})
-		// 			}
-
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).To(Equal(
-		// 				Error(
-		// 					`*fixtures.ProjectionMessageHandler can not use the handler key "<integration-key>", because it is already used by *fixtures.IntegrationMessageHandler`,
-		// 				),
-		// 			))
-		// 		})
-		// 	})
-
-		// 	It("returns an error when the app contains multiple consumers of the same command", func() {
-		// 		integration.ConfigureFunc = func(c dogma.IntegrationConfigurer) {
-		// 			c.Identity("<integration>", "<integration-key>")
-		// 			c.ConsumesCommandType(fixtures.MessageA{}) // conflict with <aggregate>
-		// 			c.ProducesEventType(fixtures.MessageF{})
-		// 		}
-
-		// 		_, err := FromApplication(app)
-
-		// 		Expect(err).To(Equal(
-		// 			Error(
-		// 				`the "<integration>" handler can not consume fixtures.MessageA commands because they are already consumed by "<aggregate>"`,
-		// 			),
-		// 		))
-		// 	})
-
-		// 	It("returns an error when the app contains multiple producers of the same event", func() {
-		// 		integration.ConfigureFunc = func(c dogma.IntegrationConfigurer) {
-		// 			c.Identity("<integration>", "<integration-key>")
-		// 			c.ConsumesCommandType(fixtures.MessageC{})
-		// 			c.ProducesEventType(fixtures.MessageE{}) // conflict with <aggregate>
-		// 		}
-
-		// 		_, err := FromApplication(app)
-
-		// 		Expect(err).To(Equal(
-		// 			Error(
-		// 				`the "<integration>" handler can not produce fixtures.MessageE events because they are already produced by "<aggregate>"`,
-		// 			),
-		// 		))
-		// 	})
-
-		// 	It("does not return an error when the app contains multiple processes that schedule the same timeout", func() {
-		// 		process1 := &fixtures.ProcessMessageHandler{
-		// 			ConfigureFunc: func(c dogma.ProcessConfigurer) {
-		// 				c.Identity("<process-1>", "<process-1-key>")
-		// 				c.ConsumesEventType(fixtures.MessageB{})
-		// 				c.ProducesCommandType(fixtures.MessageC{})
-		// 				c.SchedulesTimeoutType(fixtures.MessageT{})
-		// 			},
-		// 		}
-
-		// 		process2 := &fixtures.ProcessMessageHandler{
-		// 			ConfigureFunc: func(c dogma.ProcessConfigurer) {
-		// 				c.Identity("<process-2>", "<process-2-key>")
-		// 				c.ConsumesEventType(fixtures.MessageB{})
-		// 				c.ProducesCommandType(fixtures.MessageC{})
-		// 				c.SchedulesTimeoutType(fixtures.MessageT{})
-		// 			},
-		// 		}
-
-		// 		app := &fixtures.Application{
-		// 			ConfigureFunc: func(c dogma.ApplicationConfigurer) {
-		// 				c.Identity("<app>", "<app-key>")
-		// 				c.RegisterProcess(process1)
-		// 				c.RegisterProcess(process2)
-		// 			},
-		// 		}
-
-		// 		_, err := FromApplication(app)
-
-		// 		Expect(err).ShouldNot(HaveOccurred())
-		// 	})
-
-		// 	When("multiple handlers use a single message type in differing roles", func() {
-		// 		It("returns an error when a conflict occurs with a consumed message", func() {
-		// 			process.ConfigureFunc = func(c dogma.ProcessConfigurer) {
-		// 				c.Identity("<process>", "<process-key>")
-		// 				c.ConsumesEventType(fixtures.MessageA{}) // conflict with <aggregate>
-		// 				c.ProducesCommandType(fixtures.MessageC{})
-		// 			}
-
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).To(Equal(
-		// 				Error(
-		// 					`the "<process>" handler configures fixtures.MessageA as an event but "<aggregate>" configures it as a command`,
-		// 				),
-		// 			))
-		// 		})
-
-		// 		It("returns an error when a conflict occurs with a produced message", func() {
-		// 			process.ConfigureFunc = func(c dogma.ProcessConfigurer) {
-		// 				c.Identity("<process>", "<process-key>")
-		// 				c.ConsumesEventType(fixtures.MessageB{})
-		// 				c.ProducesCommandType(fixtures.MessageE{}) // conflict with <aggregate>
-		// 			}
-
-		// 			_, err := FromApplication(app)
-
-		// 			Expect(err).To(Equal(
-		// 				Error(
-		// 					`the "<process>" handler configures fixtures.MessageE as a command but "<aggregate>" configures it as an event`,
-		// 				),
-		// 			))
-		// 		})
-		// 	})
+		Entry(
+			"when the app does not configure anything",
+			"", // any error
+			func() {
+				app.ConfigureFunc = nil
+			},
+		),
+		Entry(
+			"when the app does not configure an identity",
+			`*fixtures.Application is configured without an identity, Identity() must be called exactly once within Configure()`,
+			func() {
+				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
+					c.RegisterAggregate(aggregate)
+				}
+			},
+		),
+		Entry(
+			"when the app configures multiple identities",
+			`*fixtures.Application is configured with multiple identities (<name>/<key> and <other>/<key>), Identity() must be called exactly once within Configure()`,
+			func() {
+				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
+					c.Identity("<name>", "<key>")
+					c.Identity("<other>", "<key>")
+					c.RegisterAggregate(aggregate)
+				}
+			},
+		),
+		Entry(
+			"when the app configures an invalid name",
+			`*fixtures.Application is configured with an invalid identity, invalid name "\t \n", names must be non-empty, printable UTF-8 strings with no whitespace`,
+			func() {
+				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
+					c.Identity("\t \n", "<key>")
+					c.RegisterAggregate(aggregate)
+				}
+			},
+		),
+		Entry(
+			"when the app configures an invalid key",
+			`*fixtures.Application is configured with an invalid identity, invalid key "\t \n", keys must be non-empty, printable UTF-8 strings with no whitespace`,
+			func() {
+				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
+					c.Identity("<name>", "\t \n")
+					c.RegisterAggregate(aggregate)
+				}
+			},
+		),
+		Entry(
+			"when the app configures an identity that conflicts with a handler",
+			`*fixtures.Application can not use the application key "<aggregate-key>", because it is already used by *fixtures.AggregateMessageHandler`,
+			func() {
+				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
+					c.RegisterAggregate(aggregate)
+					c.Identity("<app>", "<aggregate-key>") // conflict
+				}
+			},
+		),
+		Entry(
+			"when a handler is registered with a key that conflicts with the app",
+			`*fixtures.AggregateMessageHandler can not use the handler key "<app-key>", because it is already used by *fixtures.Application`,
+			func() {
+				aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
+					c.Identity("<aggregate>", "<app-key>") // conflict!
+					c.ConsumesCommandType(fixtures.MessageA{})
+					c.ProducesEventType(fixtures.MessageE{})
+				}
+			},
+		),
+		Entry(
+			"when the app contains an invalid aggregate configuration",
+			"", // any error
+			func() {
+				aggregate.ConfigureFunc = nil
+			},
+		),
+		Entry(
+			"when the app contains an invalid process configuration",
+			"", // any error
+			func() {
+				process.ConfigureFunc = nil
+			},
+		),
+		Entry(
+			"when the app contains an invalid integration configuration",
+			"", // any error
+			func() {
+				integration.ConfigureFunc = nil
+			},
+		),
+		Entry(
+			"when the app contains an invalid projection configuration",
+			"", // any error
+			func() {
+				projection.ConfigureFunc = nil
+			},
+		),
+		Entry(
+			"the app contains handlers with conflicting names",
+			`*fixtures.AggregateMessageHandler can not use the handler name "<process>", because it is already used by *fixtures.ProcessMessageHandler`,
+			func() {
+				aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
+					c.Identity("<process>", "<aggregate-key>") // conflict!
+					c.ConsumesCommandType(fixtures.MessageA{})
+					c.ProducesEventType(fixtures.MessageE{})
+				}
+
+				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
+					c.Identity("<app>", "<app-key>")
+					c.RegisterProcess(process)
+					c.RegisterAggregate(aggregate) // register the conflicting aggregate last
+				}
+			},
+		),
+		Entry(
+			"the app contains handlers with conflicting keys",
+			`*fixtures.AggregateMessageHandler can not use the handler key "<process-key>", because it is already used by *fixtures.ProcessMessageHandler`,
+			func() {
+				aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
+					c.Identity("<aggregate>", "<process-key>") // conflict!
+					c.ConsumesCommandType(fixtures.MessageA{})
+					c.ProducesEventType(fixtures.MessageE{})
+				}
+
+				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
+					c.Identity("<app>", "<app-key>")
+					c.RegisterProcess(process)
+					c.RegisterAggregate(aggregate) // register the conflicting aggregate last
+				}
+			},
+		),
+		Entry(
+			"when the app contains multiple consumers of the same command",
+			`*fixtures.IntegrationMessageHandler (<integration>) can not consume fixtures.MessageA commands because they are already consumed by *fixtures.AggregateMessageHandler (<aggregate>)`,
+			func() {
+				integration.ConfigureFunc = func(c dogma.IntegrationConfigurer) {
+					c.Identity("<integration>", "<integration-key>")
+					c.ConsumesCommandType(fixtures.MessageA{}) // conflict with <aggregate>
+					c.ProducesEventType(fixtures.MessageF{})
+				}
+			},
+		),
+		Entry(
+			"when the app contains multiple producers of the same event",
+			`*fixtures.IntegrationMessageHandler (<integration>) can not produce fixtures.MessageE events because they are already produced by *fixtures.AggregateMessageHandler (<aggregate>)`,
+			func() {
+				integration.ConfigureFunc = func(c dogma.IntegrationConfigurer) {
+					c.Identity("<integration>", "<integration-key>")
+					c.ConsumesCommandType(fixtures.MessageC{})
+					c.ProducesEventType(fixtures.MessageE{}) // conflict with <aggregate>
+				}
+			},
+		),
+		Entry(
+			"when multiple handlers use a single message type in differing roles",
+			`*fixtures.ProjectionMessageHandler (<projection>) configures fixtures.MessageA as an event but *fixtures.AggregateMessageHandler (<aggregate>) configures it as a command`,
+			func() {
+				projection.ConfigureFunc = func(c dogma.ProjectionConfigurer) {
+					c.Identity("<projection>", "<projection-key>")
+					c.ConsumesEventType(fixtures.MessageA{}) // conflict with <aggregate>
+				}
+
+				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
+					c.Identity("<app>", "<app-key>")
+					c.RegisterAggregate(aggregate)
+					c.RegisterProjection(projection)
+				}
+			},
+		),
 	)
 })
