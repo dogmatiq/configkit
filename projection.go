@@ -37,7 +37,7 @@ func FromProjection(h dogma.ProjectionMessageHandler) RichProjection {
 
 	c := &handlerConfigurer{
 		entityConfigurer: entityConfigurer{
-			target: &cfg.entity,
+			entity: &cfg.entity,
 		},
 	}
 

@@ -37,7 +37,7 @@ func FromIntegration(h dogma.IntegrationMessageHandler) RichIntegration {
 
 	c := &handlerConfigurer{
 		entityConfigurer: entityConfigurer{
-			target: &cfg.entity,
+			entity: &cfg.entity,
 		},
 	}
 

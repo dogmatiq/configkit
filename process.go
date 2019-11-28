@@ -37,7 +37,7 @@ func FromProcess(h dogma.ProcessMessageHandler) RichProcess {
 
 	c := &handlerConfigurer{
 		entityConfigurer: entityConfigurer{
-			target: &cfg.entity,
+			entity: &cfg.entity,
 		},
 	}
 
