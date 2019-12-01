@@ -17,7 +17,12 @@ type Application interface {
 	Handlers() HandlerSet
 
 	// ForeignMessageNames returns the message names that this application
-	// uses that must be communicated to some other Dogma application.
+	// uses that must be communicated beyond the scope of the application.
+	//
+	// This includes:
+	//	- commands that are produced by this application, but consumed elsewhere
+	//	- commands that are consumed by this application, but produced elsewhere
+	//	- events that are consumed by this application, but produced elsewhere
 	ForeignMessageNames() message.NameRoles
 }
 
@@ -33,11 +38,21 @@ type RichApplication interface {
 	RichHandlers() RichHandlerSet
 
 	// ForeignMessageNames returns the message names that this application
-	// uses that must be communicated to some other Dogma application.
+	// uses that must be communicated beyond the scope of the application.
+	//
+	// This includes:
+	//	- commands that are produced by this application, but consumed elsewhere
+	//	- commands that are consumed by this application, but produced elsewhere
+	//	- events that are consumed by this application, but produced elsewhere
 	ForeignMessageNames() message.NameRoles
 
 	// ForeignMessageTypes returns the message types that this application
-	// uses that must be communicated to some other Dogma application.
+	// uses that must be communicated beyond the scope of the application.
+	//
+	// This includes:
+	//	- commands that are produced by this application, but consumed elsewhere
+	//	- commands that are consumed by this application, but produced elsewhere
+	//	- events that are consumed by this application, but produced elsewhere
 	ForeignMessageTypes() message.TypeRoles
 
 	// Application returns the underlying application.

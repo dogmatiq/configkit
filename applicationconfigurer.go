@@ -110,19 +110,22 @@ func (c *applicationConfigurer) validate() {
 }
 
 // isForeign returns true if mt is "foreign", meaning that it needs to be
-// obtained from or sent to a different application.
+// obtained from or sent outside the application.
 func (c *applicationConfigurer) isForeign(mt message.Type, r message.Role) bool {
 	produced := c.entity.types.Produced.Has(mt)
 	consumed := c.entity.types.Consumed.Has(mt)
 
-	switch r {
-	case message.CommandRole:
-		return produced && !consumed
-	case message.EventRole:
-		return consumed && !produced
-	default:
-		return false
+	// Commands must always have a handler, therefore any command that is not
+	// both produced and consumed by this application is considered foreign.
+	if r == message.CommandRole {
+		return produced != consumed
 	}
+
+	// Events that are only considered foreign if they need to be obtained from
+	// elsewhere. There is no requirement that a given event MUST have a
+	// handler, therefore any events produced by this app but not consumed are
+	// not considered foreign.
+	return consumed && !produced
 }
 
 // guardAgainstConflictingIdentities panics if h's identity conflicts with the
