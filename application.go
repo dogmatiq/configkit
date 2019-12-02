@@ -128,6 +128,7 @@ func (a *application) Application() dogma.Application {
 	return a.impl
 }
 
+// initForeign initializes a.foreignNames and a.foreignTypes.
 func (a *application) initForeign() {
 	a.foreignNames = EntityMessageNames{
 		Roles:    message.NameRoles{},
@@ -146,15 +147,15 @@ func (a *application) initForeign() {
 			continue
 		}
 
-		if r != message.CommandRole {
-			continue
+		// Commands MUST always have a handler. Therefore, any command that is
+		// produced by this application, but not consumed by this application is
+		// considered foreign.
+		if r == message.CommandRole {
+			a.foreignNames.Roles.Add(mt.Name(), r)
+			a.foreignTypes.Roles.Add(mt, r)
+			a.foreignNames.Produced.Add(mt.Name(), r)
+			a.foreignTypes.Produced.Add(mt, r)
 		}
-
-		a.foreignNames.Roles.Add(mt.Name(), r)
-		a.foreignTypes.Roles.Add(mt, r)
-
-		a.foreignNames.Produced.Add(mt.Name(), r)
-		a.foreignTypes.Produced.Add(mt, r)
 	}
 
 	for mt, r := range a.entity.types.Consumed {
@@ -162,9 +163,10 @@ func (a *application) initForeign() {
 			continue
 		}
 
+		// Any message type is considered foreign if it needs to be obtained from
+		// elsewhere.
 		a.foreignNames.Roles.Add(mt.Name(), r)
 		a.foreignTypes.Roles.Add(mt, r)
-
 		a.foreignNames.Consumed.Add(mt.Name(), r)
 		a.foreignTypes.Consumed.Add(mt, r)
 	}
