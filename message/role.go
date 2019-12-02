@@ -20,8 +20,8 @@ const (
 	TimeoutRole Role = "timeout"
 )
 
-// MessageRoles is a slice of the valid message roles.
-var MessageRoles = []Role{
+// Roles is a slice of the valid message roles.
+var Roles = []Role{
 	CommandRole,
 	EventRole,
 	TimeoutRole,
