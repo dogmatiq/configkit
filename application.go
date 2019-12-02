@@ -3,6 +3,7 @@ package configkit
 import (
 	"context"
 	"reflect"
+	"sync"
 
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
@@ -17,8 +18,13 @@ type Application interface {
 	Handlers() HandlerSet
 
 	// ForeignMessageNames returns the message names that this application
-	// uses that must be communicated to some other Dogma application.
-	ForeignMessageNames() message.NameRoles
+	// uses that must be communicated beyond the scope of the application.
+	//
+	// This includes:
+	//	- commands that are produced by this application, but consumed elsewhere
+	//	- commands that are consumed by this application, but produced elsewhere
+	//	- events that are consumed by this application, but produced elsewhere
+	ForeignMessageNames() EntityMessageNames
 }
 
 // RichApplication is a specialization of Application that exposes information
@@ -33,12 +39,22 @@ type RichApplication interface {
 	RichHandlers() RichHandlerSet
 
 	// ForeignMessageNames returns the message names that this application
-	// uses that must be communicated to some other Dogma application.
-	ForeignMessageNames() message.NameRoles
+	// uses that must be communicated beyond the scope of the application.
+	//
+	// This includes:
+	//	- commands that are produced by this application, but consumed elsewhere
+	//	- commands that are consumed by this application, but produced elsewhere
+	//	- events that are consumed by this application, but produced elsewhere
+	ForeignMessageNames() EntityMessageNames
 
 	// ForeignMessageTypes returns the message types that this application
-	// uses that must be communicated to some other Dogma application.
-	ForeignMessageTypes() message.TypeRoles
+	// uses that must be communicated beyond the scope of the application.
+	//
+	// This includes:
+	//	- commands that are produced by this application, but consumed elsewhere
+	//	- commands that are consumed by this application, but produced elsewhere
+	//	- events that are consumed by this application, but produced elsewhere
+	ForeignMessageTypes() EntityMessageTypes
 
 	// Application returns the underlying application.
 	Application() dogma.Application
@@ -76,9 +92,10 @@ type application struct {
 
 	handlers     HandlerSet
 	richHandlers RichHandlerSet
-	foreignNames message.NameRoles
-	foreignTypes message.TypeRoles
+	foreignNames EntityMessageNames
+	foreignTypes EntityMessageTypes
 	impl         dogma.Application
+	once         sync.Once
 }
 
 func (a *application) AcceptVisitor(ctx context.Context, v Visitor) error {
@@ -97,14 +114,60 @@ func (a *application) RichHandlers() RichHandlerSet {
 	return a.richHandlers
 }
 
-func (a *application) ForeignMessageNames() message.NameRoles {
+func (a *application) ForeignMessageNames() EntityMessageNames {
+	a.once.Do(a.initForeign)
 	return a.foreignNames
 }
 
-func (a *application) ForeignMessageTypes() message.TypeRoles {
+func (a *application) ForeignMessageTypes() EntityMessageTypes {
+	a.once.Do(a.initForeign)
 	return a.foreignTypes
 }
 
 func (a *application) Application() dogma.Application {
 	return a.impl
+}
+
+// initForeign initializes a.foreignNames and a.foreignTypes.
+func (a *application) initForeign() {
+	a.foreignNames = EntityMessageNames{
+		Roles:    message.NameRoles{},
+		Produced: message.NameRoles{},
+		Consumed: message.NameRoles{},
+	}
+
+	a.foreignTypes = EntityMessageTypes{
+		Roles:    message.TypeRoles{},
+		Produced: message.TypeRoles{},
+		Consumed: message.TypeRoles{},
+	}
+
+	for mt, r := range a.entity.types.Produced {
+		if a.entity.types.Consumed.Has(mt) {
+			continue
+		}
+
+		// Commands MUST always have a handler. Therefore, any command that is
+		// produced by this application, but not consumed by this application is
+		// considered foreign.
+		if r == message.CommandRole {
+			a.foreignNames.Roles.Add(mt.Name(), r)
+			a.foreignTypes.Roles.Add(mt, r)
+			a.foreignNames.Produced.Add(mt.Name(), r)
+			a.foreignTypes.Produced.Add(mt, r)
+		}
+	}
+
+	for mt, r := range a.entity.types.Consumed {
+		if a.entity.types.Produced.Has(mt) {
+			continue
+		}
+
+		// Any message type is considered foreign if it needs to be obtained from
+		// elsewhere.
+		a.foreignNames.Roles.Add(mt.Name(), r)
+		a.foreignTypes.Roles.Add(mt, r)
+		a.foreignNames.Consumed.Add(mt.Name(), r)
+		a.foreignTypes.Consumed.Add(mt, r)
+	}
 }

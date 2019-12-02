@@ -28,7 +28,7 @@ var _ = Describe("func FromApplication()", func() {
 		aggregate = &fixtures.AggregateMessageHandler{
 			ConfigureFunc: func(c dogma.AggregateConfigurer) {
 				c.Identity("<aggregate>", "<aggregate-key>")
-				c.ConsumesCommandType(fixtures.MessageA{})
+				c.ConsumesCommandType(fixtures.MessageA{}) // foreign produced command
 				c.ProducesEventType(fixtures.MessageE{})
 			},
 		}
@@ -36,10 +36,10 @@ var _ = Describe("func FromApplication()", func() {
 		process = &fixtures.ProcessMessageHandler{
 			ConfigureFunc: func(c dogma.ProcessConfigurer) {
 				c.Identity("<process>", "<process-key>")
-				c.ConsumesEventType(fixtures.MessageB{}) // foreign event
+				c.ConsumesEventType(fixtures.MessageB{}) // foreign produced event
 				c.ConsumesEventType(fixtures.MessageE{}) // shared with <projection>
 				c.ProducesCommandType(fixtures.MessageC{})
-				c.ProducesCommandType(fixtures.MessageX{}) // foreign command
+				c.ProducesCommandType(fixtures.MessageX{}) // foreign consumed command
 				c.SchedulesTimeoutType(fixtures.MessageT{})
 			},
 		}
@@ -223,10 +223,21 @@ var _ = Describe("func FromApplication()", func() {
 		Describe("func ForeignMessageNames()", func() {
 			It("returns the set of messages that belong to another application", func() {
 				Expect(cfg.ForeignMessageNames()).To(Equal(
-					message.NameRoles{
-						cfixtures.MessageBTypeName: message.EventRole,
-						cfixtures.MessageDTypeName: message.EventRole,
-						cfixtures.MessageXTypeName: message.CommandRole,
+					EntityMessageNames{
+						Roles: message.NameRoles{
+							cfixtures.MessageATypeName: message.CommandRole,
+							cfixtures.MessageBTypeName: message.EventRole,
+							cfixtures.MessageDTypeName: message.EventRole,
+							cfixtures.MessageXTypeName: message.CommandRole,
+						},
+						Produced: message.NameRoles{
+							cfixtures.MessageXTypeName: message.CommandRole,
+						},
+						Consumed: message.NameRoles{
+							cfixtures.MessageATypeName: message.CommandRole,
+							cfixtures.MessageBTypeName: message.EventRole,
+							cfixtures.MessageDTypeName: message.EventRole,
+						},
 					},
 				))
 			})
@@ -235,10 +246,21 @@ var _ = Describe("func FromApplication()", func() {
 		Describe("func ForeignMessageTypes()", func() {
 			It("returns the set of messages that belong to another application", func() {
 				Expect(cfg.ForeignMessageTypes()).To(Equal(
-					message.TypeRoles{
-						cfixtures.MessageBType: message.EventRole,
-						cfixtures.MessageDType: message.EventRole,
-						cfixtures.MessageXType: message.CommandRole,
+					EntityMessageTypes{
+						Roles: message.TypeRoles{
+							cfixtures.MessageAType: message.CommandRole,
+							cfixtures.MessageBType: message.EventRole,
+							cfixtures.MessageDType: message.EventRole,
+							cfixtures.MessageXType: message.CommandRole,
+						},
+						Produced: message.TypeRoles{
+							cfixtures.MessageXType: message.CommandRole,
+						},
+						Consumed: message.TypeRoles{
+							cfixtures.MessageAType: message.CommandRole,
+							cfixtures.MessageBType: message.EventRole,
+							cfixtures.MessageDType: message.EventRole,
+						},
 					},
 				))
 			})
