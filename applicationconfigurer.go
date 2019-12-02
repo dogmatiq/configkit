@@ -92,23 +92,6 @@ func (c *applicationConfigurer) register(h RichHandler) {
 	}
 }
 
-// validate panics if the configuration is invalid.
-func (c *applicationConfigurer) validate() {
-	c.entityConfigurer.validate()
-
-	for mt, r := range c.entity.types.Roles {
-		if c.isForeign(mt, r) {
-			if c.app.foreignNames == nil {
-				c.app.foreignNames = message.NameRoles{}
-				c.app.foreignTypes = message.TypeRoles{}
-			}
-
-			c.app.foreignNames.Add(mt.Name(), r)
-			c.app.foreignTypes.Add(mt, r)
-		}
-	}
-}
-
 // isForeign returns true if mt is "foreign", meaning that it needs to be
 // obtained from or sent outside the application.
 func (c *applicationConfigurer) isForeign(mt message.Type, r message.Role) bool {

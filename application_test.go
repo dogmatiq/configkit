@@ -223,11 +223,21 @@ var _ = Describe("func FromApplication()", func() {
 		Describe("func ForeignMessageNames()", func() {
 			It("returns the set of messages that belong to another application", func() {
 				Expect(cfg.ForeignMessageNames()).To(Equal(
-					message.NameRoles{
-						cfixtures.MessageATypeName: message.CommandRole,
-						cfixtures.MessageBTypeName: message.EventRole,
-						cfixtures.MessageDTypeName: message.EventRole,
-						cfixtures.MessageXTypeName: message.CommandRole,
+					EntityMessageNames{
+						Roles: message.NameRoles{
+							cfixtures.MessageATypeName: message.CommandRole,
+							cfixtures.MessageBTypeName: message.EventRole,
+							cfixtures.MessageDTypeName: message.EventRole,
+							cfixtures.MessageXTypeName: message.CommandRole,
+						},
+						Produced: message.NameRoles{
+							cfixtures.MessageXTypeName: message.CommandRole,
+						},
+						Consumed: message.NameRoles{
+							cfixtures.MessageATypeName: message.CommandRole,
+							cfixtures.MessageBTypeName: message.EventRole,
+							cfixtures.MessageDTypeName: message.EventRole,
+						},
 					},
 				))
 			})
@@ -236,11 +246,21 @@ var _ = Describe("func FromApplication()", func() {
 		Describe("func ForeignMessageTypes()", func() {
 			It("returns the set of messages that belong to another application", func() {
 				Expect(cfg.ForeignMessageTypes()).To(Equal(
-					message.TypeRoles{
-						cfixtures.MessageAType: message.CommandRole,
-						cfixtures.MessageBType: message.EventRole,
-						cfixtures.MessageDType: message.EventRole,
-						cfixtures.MessageXType: message.CommandRole,
+					EntityMessageTypes{
+						Roles: message.TypeRoles{
+							cfixtures.MessageAType: message.CommandRole,
+							cfixtures.MessageBType: message.EventRole,
+							cfixtures.MessageDType: message.EventRole,
+							cfixtures.MessageXType: message.CommandRole,
+						},
+						Produced: message.TypeRoles{
+							cfixtures.MessageXType: message.CommandRole,
+						},
+						Consumed: message.TypeRoles{
+							cfixtures.MessageAType: message.CommandRole,
+							cfixtures.MessageBType: message.EventRole,
+							cfixtures.MessageDType: message.EventRole,
+						},
 					},
 				))
 			})
