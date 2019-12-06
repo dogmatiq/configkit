@@ -1,6 +1,10 @@
 package configkit
 
-import "github.com/dogmatiq/configkit/message"
+import (
+	"context"
+
+	"github.com/dogmatiq/configkit/message"
+)
 
 // HandlerSet is a collection of handlers.
 type HandlerSet map[Identity]Handler
@@ -109,6 +113,22 @@ func (s HandlerSet) Filter(fn func(Handler) bool) HandlerSet {
 	}
 
 	return subset
+}
+
+// AcceptVisitor visits each handler in the set.
+//
+// It returns the error returned by the first handler to return a non-nil error.
+// It returns nil if all handlers accept the visitor without failure.
+//
+// The order in which handlers are visited is not guaranteed.
+func (s HandlerSet) AcceptVisitor(ctx context.Context, v Visitor) error {
+	for _, h := range s {
+		if err := h.AcceptVisitor(ctx, v); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // RichHandlerSet is a collection of rich handlers.
@@ -244,4 +264,20 @@ func (s RichHandlerSet) Filter(fn func(RichHandler) bool) RichHandlerSet {
 	}
 
 	return subset
+}
+
+// AcceptRichVisitor visits each handler in the set.
+//
+// It returns the error returned by the first handler to return a non-nil error.
+// It returns nil if all handlers accept the visitor without failure.
+//
+// The order in which handlers are visited is not guaranteed.
+func (s RichHandlerSet) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
+	for _, h := range s {
+		if err := h.AcceptRichVisitor(ctx, v); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
