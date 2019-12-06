@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/dogmatiq/configkit"
 	. "github.com/dogmatiq/configkit"
 	cfixtures "github.com/dogmatiq/configkit/fixtures"
 	"github.com/dogmatiq/dogma"
@@ -225,12 +224,12 @@ var _ = Describe("type HandlerSet", func() {
 			err := set.AcceptVisitor(
 				context.Background(),
 				&cfixtures.Visitor{
-					VisitAggregateFunc: func(_ context.Context, cfg configkit.Aggregate) error {
+					VisitAggregateFunc: func(_ context.Context, cfg Aggregate) error {
 						Expect(cfg).To(BeIdenticalTo(aggregate))
 						visited = append(visited, cfg)
 						return nil
 					},
-					VisitProjectionFunc: func(_ context.Context, cfg configkit.Projection) error {
+					VisitProjectionFunc: func(_ context.Context, cfg Projection) error {
 						Expect(cfg).To(BeIdenticalTo(projection))
 						visited = append(visited, cfg)
 						return nil
@@ -246,7 +245,7 @@ var _ = Describe("type HandlerSet", func() {
 			err := set.AcceptVisitor(
 				context.Background(),
 				&cfixtures.Visitor{
-					VisitProjectionFunc: func(_ context.Context, cfg configkit.Projection) error {
+					VisitProjectionFunc: func(_ context.Context, cfg Projection) error {
 						return errors.New("<error>")
 					},
 				},
@@ -469,12 +468,12 @@ var _ = Describe("type RichHandlerSet", func() {
 			err := set.AcceptRichVisitor(
 				context.Background(),
 				&cfixtures.RichVisitor{
-					VisitRichAggregateFunc: func(_ context.Context, cfg configkit.RichAggregate) error {
+					VisitRichAggregateFunc: func(_ context.Context, cfg RichAggregate) error {
 						Expect(cfg).To(BeIdenticalTo(aggregate))
 						visited = append(visited, cfg)
 						return nil
 					},
-					VisitRichProjectionFunc: func(_ context.Context, cfg configkit.RichProjection) error {
+					VisitRichProjectionFunc: func(_ context.Context, cfg RichProjection) error {
 						Expect(cfg).To(BeIdenticalTo(projection))
 						visited = append(visited, cfg)
 						return nil
@@ -490,7 +489,7 @@ var _ = Describe("type RichHandlerSet", func() {
 			err := set.AcceptRichVisitor(
 				context.Background(),
 				&cfixtures.RichVisitor{
-					VisitRichProjectionFunc: func(_ context.Context, cfg configkit.RichProjection) error {
+					VisitRichProjectionFunc: func(_ context.Context, cfg RichProjection) error {
 						return errors.New("<error>")
 					},
 				},
