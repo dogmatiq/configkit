@@ -1,6 +1,10 @@
 package configkit_test
 
 import (
+	"context"
+	"errors"
+
+	"github.com/dogmatiq/configkit"
 	. "github.com/dogmatiq/configkit"
 	cfixtures "github.com/dogmatiq/configkit/fixtures"
 	"github.com/dogmatiq/dogma"
@@ -208,6 +212,49 @@ var _ = Describe("type HandlerSet", func() {
 			Expect(set.Has(projection)).To(BeTrue())
 		})
 	})
+
+	Describe("func AcceptVisitor()", func() {
+		BeforeEach(func() {
+			set.Add(aggregate)
+			set.Add(projection)
+		})
+
+		It("visits each handler in the set", func() {
+			var visited []Handler
+
+			err := set.AcceptVisitor(
+				context.Background(),
+				&cfixtures.Visitor{
+					VisitAggregateFunc: func(_ context.Context, cfg configkit.Aggregate) error {
+						Expect(cfg).To(BeIdenticalTo(aggregate))
+						visited = append(visited, cfg)
+						return nil
+					},
+					VisitProjectionFunc: func(_ context.Context, cfg configkit.Projection) error {
+						Expect(cfg).To(BeIdenticalTo(projection))
+						visited = append(visited, cfg)
+						return nil
+					},
+				},
+			)
+
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(visited).To(ConsistOf(aggregate, projection))
+		})
+
+		It("returns an error if one of the handlers fails", func() {
+			err := set.AcceptVisitor(
+				context.Background(),
+				&cfixtures.Visitor{
+					VisitProjectionFunc: func(_ context.Context, cfg configkit.Projection) error {
+						return errors.New("<error>")
+					},
+				},
+			)
+
+			Expect(err).To(MatchError("<error>"))
+		})
+	})
 })
 
 var _ = Describe("type RichHandlerSet", func() {
@@ -407,6 +454,49 @@ var _ = Describe("type RichHandlerSet", func() {
 			})
 			Expect(subset).To(HaveLen(1))
 			Expect(set.Has(projection)).To(BeTrue())
+		})
+	})
+
+	Describe("func AcceptRichVisitor()", func() {
+		BeforeEach(func() {
+			set.Add(aggregate)
+			set.Add(projection)
+		})
+
+		It("visits each handler in the set", func() {
+			var visited []RichHandler
+
+			err := set.AcceptRichVisitor(
+				context.Background(),
+				&cfixtures.RichVisitor{
+					VisitRichAggregateFunc: func(_ context.Context, cfg configkit.RichAggregate) error {
+						Expect(cfg).To(BeIdenticalTo(aggregate))
+						visited = append(visited, cfg)
+						return nil
+					},
+					VisitRichProjectionFunc: func(_ context.Context, cfg configkit.RichProjection) error {
+						Expect(cfg).To(BeIdenticalTo(projection))
+						visited = append(visited, cfg)
+						return nil
+					},
+				},
+			)
+
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(visited).To(ConsistOf(aggregate, projection))
+		})
+
+		It("returns an error if one of the handlers fails", func() {
+			err := set.AcceptRichVisitor(
+				context.Background(),
+				&cfixtures.RichVisitor{
+					VisitRichProjectionFunc: func(_ context.Context, cfg configkit.RichProjection) error {
+						return errors.New("<error>")
+					},
+				},
+			)
+
+			Expect(err).To(MatchError("<error>"))
 		})
 	})
 })
