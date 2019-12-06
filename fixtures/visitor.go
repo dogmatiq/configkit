@@ -25,13 +25,7 @@ func (v *Visitor) VisitApplication(ctx context.Context, cfg configkit.Applicatio
 		return v.VisitApplicationFunc(ctx, cfg)
 	}
 
-	for _, h := range cfg.Handlers() {
-		if err := h.AcceptVisitor(ctx, v); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return cfg.Handlers().AcceptVisitor(ctx, v)
 }
 
 // VisitAggregate calls v.VisitAggregateFunc(ctx, cfg) if it is non-nil.
@@ -89,13 +83,7 @@ func (v *RichVisitor) VisitRichApplication(ctx context.Context, cfg configkit.Ri
 		return v.VisitRichApplicationFunc(ctx, cfg)
 	}
 
-	for _, h := range cfg.RichHandlers() {
-		if err := h.AcceptRichVisitor(ctx, v); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return cfg.RichHandlers().AcceptRichVisitor(ctx, v)
 }
 
 // VisitRichAggregate calls v.VisitAggregateFunc(ctx, cfg) if it is non-nil.
