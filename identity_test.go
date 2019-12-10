@@ -144,4 +144,67 @@ var _ = Describe("type Identity", func() {
 			Expect(i.String()).To(Equal("<name>/<key>"))
 		})
 	})
+
+	Describe("func MarshalText()", func() {
+		It("marshals the identity to text", func() {
+			Expect(Identity{"<name>", "<key>"}.MarshalText()).To(Equal([]byte("<name> <key>")))
+		})
+
+		It("returns an error if the identity is invalid", func() {
+			_, err := Identity{}.MarshalText()
+			Expect(err).Should(HaveOccurred())
+		})
+	})
+
+	Describe("func UnmarshalText()", func() {
+		It("unmarshals the type from text", func() {
+			var i Identity
+
+			err := i.UnmarshalText([]byte("<name> <key>"))
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(i).To(Equal(Identity{"<name>", "<key>"}))
+		})
+
+		It("returns an error if there is no space separator", func() {
+			var i Identity
+
+			err := i.UnmarshalText([]byte("<invalid>"))
+			Expect(err).Should(HaveOccurred())
+		})
+
+		It("returns an error if the data is invalid", func() {
+			var i Identity
+
+			err := i.UnmarshalText([]byte("<name> \u200B"))
+			Expect(err).Should(HaveOccurred())
+		})
+	})
+
+	Describe("func MarshalBinary() and UnmarshalBinary()", func() {
+		It("marshals and unmarshals the identity", func() {
+			in := Identity{"<name>", "<key>"}
+
+			data, err := in.MarshalBinary()
+			Expect(err).ShouldNot(HaveOccurred())
+
+			var out Identity
+			err = out.UnmarshalBinary(data)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(out).To(Equal(in))
+		})
+
+		It("returns an error if the identity is invalid", func() {
+			_, err := Identity{}.MarshalBinary()
+			Expect(err).Should(HaveOccurred())
+		})
+	})
+
+	Describe("func UnmarshalBinary()", func() {
+		It("returns an error if the data is invalid", func() {
+			var i Identity
+
+			err := i.UnmarshalBinary([]byte("\u200B"))
+			Expect(err).Should(HaveOccurred())
+		})
+	})
 })
