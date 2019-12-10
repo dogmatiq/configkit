@@ -61,6 +61,22 @@ func (tr TypeRoles) RemoveM(m dogma.Message) bool {
 	return tr.Remove(TypeOf(m))
 }
 
+// IsEqual returns true if o contains the same types with the same roles as s.
+func (tr TypeRoles) IsEqual(o TypeRoles) bool {
+	if len(tr) != len(o) {
+		return false
+	}
+
+	for t, r := range tr {
+		x, ok := o[t]
+		if !ok || x != r {
+			return false
+		}
+	}
+
+	return true
+}
+
 // Each invokes fn once for each type in the container.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all
