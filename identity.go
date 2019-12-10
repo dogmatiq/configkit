@@ -1,6 +1,8 @@
 package configkit
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
 	"unicode"
 )
@@ -83,6 +85,43 @@ func (i Identity) Validate() error {
 
 func (i Identity) String() string {
 	return fmt.Sprintf("%s/%s", i.Name, i.Key)
+}
+
+// MarshalText returns a UTF-8 representation of the identity.
+func (i Identity) MarshalText() ([]byte, error) {
+	if err := i.Validate(); err != nil {
+		return nil, err
+	}
+
+	var buf bytes.Buffer
+	buf.WriteString(i.Name)
+	buf.WriteRune(' ')
+	buf.WriteString(i.Key)
+
+	return buf.Bytes(), nil
+}
+
+// UnmarshalText unmarshals an identity from its UTF-8 representation.
+func (i *Identity) UnmarshalText(text []byte) error {
+	n := bytes.IndexRune(text, ' ')
+	if n == -1 {
+		return errors.New("could not decode identity, no name/key separator found")
+	}
+
+	i.Name = string(text[:n])
+	i.Key = string(text[n+1:])
+
+	return i.Validate()
+}
+
+// MarshalBinary returns a binary representation of the identity.
+func (i Identity) MarshalBinary() ([]byte, error) {
+	return i.MarshalText()
+}
+
+// UnmarshalBinary unmarshals an identity from its binary representation.
+func (i *Identity) UnmarshalBinary(data []byte) error {
+	return i.UnmarshalText(data)
 }
 
 // isValidIdentityComponent returns true if n is a valid application or handler
