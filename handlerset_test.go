@@ -9,33 +9,30 @@ import (
 	"github.com/dogmatiq/dogma"
 	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflicts
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("type HandlerSet", func() {
-	var (
-		set        *HandlerSet
-		aggregate  RichAggregate
-		projection RichProjection
-	)
+	var set *HandlerSet
+
+	aggregate := FromAggregate(&fixtures.AggregateMessageHandler{
+		ConfigureFunc: func(c dogma.AggregateConfigurer) {
+			c.Identity("<agg-name>", "<agg-key>")
+			c.ConsumesCommandType(fixtures.MessageC{})
+			c.ProducesEventType(fixtures.MessageE{})
+		},
+	})
+
+	projection := FromProjection(&fixtures.ProjectionMessageHandler{
+		ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+			c.Identity("<proj-name>", "<proj-key>")
+			c.ConsumesEventType(fixtures.MessageE{})
+		},
+	})
 
 	BeforeEach(func() {
 		set = &HandlerSet{}
-
-		aggregate = FromAggregate(&fixtures.AggregateMessageHandler{
-			ConfigureFunc: func(c dogma.AggregateConfigurer) {
-				c.Identity("<name>", "<key>")
-				c.ConsumesCommandType(fixtures.MessageC{})
-				c.ProducesEventType(fixtures.MessageE{})
-			},
-		})
-
-		projection = FromProjection(&fixtures.ProjectionMessageHandler{
-			ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-				c.Identity("<proj-name>", "<proj-key>")
-				c.ConsumesEventType(fixtures.MessageE{})
-			},
-		})
 	})
 
 	Describe("func NewHandlerSet()", func() {
@@ -95,13 +92,13 @@ var _ = Describe("type HandlerSet", func() {
 		It("returns the handler with the given identity", func() {
 			set.Add(aggregate)
 
-			h, ok := set.ByIdentity(MustNewIdentity("<name>", "<key>"))
+			h, ok := set.ByIdentity(MustNewIdentity("<agg-name>", "<agg-key>"))
 			Expect(ok).To(BeTrue())
 			Expect(h).To(Equal(aggregate))
 		})
 
 		It("returns false if no such handler is in the set", func() {
-			_, ok := set.ByIdentity(MustNewIdentity("<name>", "<key>"))
+			_, ok := set.ByIdentity(MustNewIdentity("<agg-name>", "<agg-key>"))
 			Expect(ok).To(BeFalse())
 		})
 	})
@@ -110,13 +107,13 @@ var _ = Describe("type HandlerSet", func() {
 		It("returns the handler with the given name", func() {
 			set.Add(aggregate)
 
-			h, ok := set.ByName("<name>")
+			h, ok := set.ByName("<agg-name>")
 			Expect(ok).To(BeTrue())
 			Expect(h).To(Equal(aggregate))
 		})
 
 		It("returns false if no such handler is in the set", func() {
-			_, ok := set.ByName("<name>")
+			_, ok := set.ByName("<agg-name>")
 			Expect(ok).To(BeFalse())
 		})
 	})
@@ -125,13 +122,13 @@ var _ = Describe("type HandlerSet", func() {
 		It("returns the handler with the given key", func() {
 			set.Add(aggregate)
 
-			h, ok := set.ByKey("<key>")
+			h, ok := set.ByKey("<agg-key>")
 			Expect(ok).To(BeTrue())
 			Expect(h).To(Equal(aggregate))
 		})
 
 		It("returns false if no such handler is in the set", func() {
-			_, ok := set.ByKey("<key>")
+			_, ok := set.ByKey("<agg-key>")
 			Expect(ok).To(BeFalse())
 		})
 	})
@@ -173,6 +170,56 @@ var _ = Describe("type HandlerSet", func() {
 			Expect(subset).To(HaveLen(1))
 			Expect(set.Has(aggregate)).To(BeTrue())
 		})
+	})
+
+	Describe("func IsEqual()", func() {
+		DescribeTable(
+			"returns true if the sets are equivalent",
+			func(a, b HandlerSet) {
+				Expect(a.IsEqual(b)).To(BeTrue())
+			},
+			Entry(
+				"equivalent",
+				NewHandlerSet(aggregate, projection),
+				NewHandlerSet(aggregate, projection),
+			),
+			Entry(
+				"nil and empty",
+				HandlerSet{},
+				HandlerSet(nil),
+			),
+		)
+
+		DescribeTable(
+			"returns false if the sets are not equivalent",
+			func(b HandlerSet) {
+				a := NewHandlerSet(aggregate, projection)
+
+				Expect(a.IsEqual(b)).To(BeFalse())
+			},
+			Entry(
+				"subset",
+				NewHandlerSet(aggregate),
+			),
+			Entry(
+				"superset",
+				NewHandlerSet(aggregate, projection, FromIntegration(&fixtures.IntegrationMessageHandler{
+					ConfigureFunc: func(c dogma.IntegrationConfigurer) {
+						c.Identity("<int-name>", "<int-key>")
+						c.ConsumesCommandType(fixtures.MessageX{})
+					},
+				})),
+			),
+			Entry(
+				"same-length, disjoint handler",
+				NewHandlerSet(aggregate, FromProjection(&fixtures.ProjectionMessageHandler{
+					ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+						c.Identity("<proj-name>", "<proj-key>")
+						c.ConsumesEventType(fixtures.MessageF{}) // diff
+					},
+				})),
+			),
+		)
 	})
 
 	Describe("func Find()", func() {
@@ -257,29 +304,25 @@ var _ = Describe("type HandlerSet", func() {
 })
 
 var _ = Describe("type RichHandlerSet", func() {
-	var (
-		set        *RichHandlerSet
-		aggregate  RichAggregate
-		projection RichProjection
-	)
+	var set *RichHandlerSet
+
+	aggregate := FromAggregate(&fixtures.AggregateMessageHandler{
+		ConfigureFunc: func(c dogma.AggregateConfigurer) {
+			c.Identity("<agg-name>", "<agg-key>")
+			c.ConsumesCommandType(fixtures.MessageC{})
+			c.ProducesEventType(fixtures.MessageE{})
+		},
+	})
+
+	projection := FromProjection(&fixtures.ProjectionMessageHandler{
+		ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+			c.Identity("<proj-name>", "<proj-key>")
+			c.ConsumesEventType(fixtures.MessageE{})
+		},
+	})
 
 	BeforeEach(func() {
 		set = &RichHandlerSet{}
-
-		aggregate = FromAggregate(&fixtures.AggregateMessageHandler{
-			ConfigureFunc: func(c dogma.AggregateConfigurer) {
-				c.Identity("<name>", "<key>")
-				c.ConsumesCommandType(fixtures.MessageC{})
-				c.ProducesEventType(fixtures.MessageE{})
-			},
-		})
-
-		projection = FromProjection(&fixtures.ProjectionMessageHandler{
-			ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-				c.Identity("<proj-name>", "<proj-key>")
-				c.ConsumesEventType(fixtures.MessageE{})
-			},
-		})
 	})
 
 	Describe("func NewRichHandlerSet()", func() {
@@ -339,13 +382,13 @@ var _ = Describe("type RichHandlerSet", func() {
 		It("returns the handler with the given identity", func() {
 			set.Add(aggregate)
 
-			h, ok := set.ByIdentity(MustNewIdentity("<name>", "<key>"))
+			h, ok := set.ByIdentity(MustNewIdentity("<agg-name>", "<agg-key>"))
 			Expect(ok).To(BeTrue())
 			Expect(h).To(Equal(aggregate))
 		})
 
 		It("returns false if no such handler is in the set", func() {
-			_, ok := set.ByIdentity(MustNewIdentity("<name>", "<key>"))
+			_, ok := set.ByIdentity(MustNewIdentity("<agg-name>", "<agg-key>"))
 			Expect(ok).To(BeFalse())
 		})
 	})
@@ -354,13 +397,13 @@ var _ = Describe("type RichHandlerSet", func() {
 		It("returns the handler with the given name", func() {
 			set.Add(aggregate)
 
-			h, ok := set.ByName("<name>")
+			h, ok := set.ByName("<agg-name>")
 			Expect(ok).To(BeTrue())
 			Expect(h).To(Equal(aggregate))
 		})
 
 		It("returns false if no such handler is in the set", func() {
-			_, ok := set.ByName("<name>")
+			_, ok := set.ByName("<agg-name>")
 			Expect(ok).To(BeFalse())
 		})
 	})
@@ -369,13 +412,13 @@ var _ = Describe("type RichHandlerSet", func() {
 		It("returns the handler with the given key", func() {
 			set.Add(aggregate)
 
-			h, ok := set.ByKey("<key>")
+			h, ok := set.ByKey("<agg-key>")
 			Expect(ok).To(BeTrue())
 			Expect(h).To(Equal(aggregate))
 		})
 
 		It("returns false if no such handler is in the set", func() {
-			_, ok := set.ByKey("<key>")
+			_, ok := set.ByKey("<agg-key>")
 			Expect(ok).To(BeFalse())
 		})
 	})
@@ -417,6 +460,56 @@ var _ = Describe("type RichHandlerSet", func() {
 			Expect(subset).To(HaveLen(1))
 			Expect(set.Has(aggregate)).To(BeTrue())
 		})
+	})
+
+	Describe("func IsEqual()", func() {
+		DescribeTable(
+			"returns true if the sets are equivalent",
+			func(a, b RichHandlerSet) {
+				Expect(a.IsEqual(b)).To(BeTrue())
+			},
+			Entry(
+				"equivalent",
+				NewRichHandlerSet(aggregate, projection),
+				NewRichHandlerSet(aggregate, projection),
+			),
+			Entry(
+				"nil and empty",
+				RichHandlerSet{},
+				RichHandlerSet(nil),
+			),
+		)
+
+		DescribeTable(
+			"returns false if the sets are not equivalent",
+			func(b RichHandlerSet) {
+				a := NewRichHandlerSet(aggregate, projection)
+
+				Expect(a.IsEqual(b)).To(BeFalse())
+			},
+			Entry(
+				"subset",
+				NewRichHandlerSet(aggregate),
+			),
+			Entry(
+				"superset",
+				NewRichHandlerSet(aggregate, projection, FromIntegration(&fixtures.IntegrationMessageHandler{
+					ConfigureFunc: func(c dogma.IntegrationConfigurer) {
+						c.Identity("<int-name>", "<int-key>")
+						c.ConsumesCommandType(fixtures.MessageX{})
+					},
+				})),
+			),
+			Entry(
+				"same-length, disjoint handler",
+				NewRichHandlerSet(aggregate, FromProjection(&fixtures.ProjectionMessageHandler{
+					ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+						c.Identity("<proj-name>", "<proj-key>")
+						c.ConsumesEventType(fixtures.MessageF{}) // diff
+					},
+				})),
+			),
+		)
 	})
 
 	Describe("func Find()", func() {
