@@ -9,6 +9,107 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+var _ = Describe("type EntityMessageNames", func() {
+	Describe("func IsEqual()", func() {
+		It("returns true if the sets are equivalent", func() {
+			a := EntityMessageNames{
+				Roles: message.NameRoles{
+					fixtures.MessageATypeName: message.CommandRole,
+					fixtures.MessageBTypeName: message.EventRole,
+				},
+				Produced: message.NameRoles{
+					fixtures.MessageBTypeName: message.EventRole,
+				},
+				Consumed: message.NameRoles{
+					fixtures.MessageATypeName: message.CommandRole,
+				},
+			}
+
+			b := EntityMessageNames{
+				Roles: message.NameRoles{
+					fixtures.MessageATypeName: message.CommandRole,
+					fixtures.MessageBTypeName: message.EventRole,
+				},
+				Produced: message.NameRoles{
+					fixtures.MessageBTypeName: message.EventRole,
+				},
+				Consumed: message.NameRoles{
+					fixtures.MessageATypeName: message.CommandRole,
+				},
+			}
+
+			Expect(a.IsEqual(b)).To(BeTrue())
+		})
+
+		DescribeTable(
+			"returns false if the sets are not equivalent",
+			func(b EntityMessageNames) {
+				a := EntityMessageNames{
+					Roles: message.NameRoles{
+						fixtures.MessageATypeName: message.CommandRole,
+						fixtures.MessageBTypeName: message.EventRole,
+					},
+					Produced: message.NameRoles{
+						fixtures.MessageBTypeName: message.EventRole,
+					},
+					Consumed: message.NameRoles{
+						fixtures.MessageATypeName: message.CommandRole,
+					},
+				}
+				Expect(a.IsEqual(b)).To(BeFalse())
+			},
+			Entry(
+				"roles differ",
+				EntityMessageNames{
+					Roles: message.NameRoles{
+						fixtures.MessageATypeName: message.CommandRole,
+						fixtures.MessageBTypeName: message.EventRole,
+						fixtures.MessageCTypeName: message.TimeoutRole, // diff
+					},
+					Produced: message.NameRoles{
+						fixtures.MessageBTypeName: message.EventRole,
+					},
+					Consumed: message.NameRoles{
+						fixtures.MessageATypeName: message.CommandRole,
+					},
+				},
+			),
+			Entry(
+				"produced messages differ",
+				EntityMessageNames{
+					Roles: message.NameRoles{
+						fixtures.MessageATypeName: message.CommandRole,
+						fixtures.MessageBTypeName: message.EventRole,
+					},
+					Produced: message.NameRoles{
+						fixtures.MessageBTypeName: message.EventRole,
+						fixtures.MessageCTypeName: message.TimeoutRole, // diff
+					},
+					Consumed: message.NameRoles{
+						fixtures.MessageATypeName: message.CommandRole,
+					},
+				},
+			),
+			Entry(
+				"consumed messages differ",
+				EntityMessageNames{
+					Roles: message.NameRoles{
+						fixtures.MessageATypeName: message.CommandRole,
+						fixtures.MessageBTypeName: message.EventRole,
+					},
+					Produced: message.NameRoles{
+						fixtures.MessageBTypeName: message.EventRole,
+					},
+					Consumed: message.NameRoles{
+						fixtures.MessageATypeName: message.CommandRole,
+						fixtures.MessageCTypeName: message.TimeoutRole, // diff
+					},
+				},
+			),
+		)
+	})
+})
+
 var _ = Describe("type EntityMessageTypes", func() {
 	Describe("func IsEqual()", func() {
 		It("returns true if the sets are equivalent", func() {

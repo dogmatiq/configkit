@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 - Add `NameSet.IsEqual()`
 - Add `TypeRoles.IsEqual()`
 - Add `TypeSet.IsEqual()`
+- Add `EntityMessageNames.IsEqual()`
 - Add `EntityMessageTypes.IsEqual()`
 
 ## [0.1.1]

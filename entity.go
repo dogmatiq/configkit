@@ -56,6 +56,13 @@ type EntityMessageNames struct {
 	Consumed message.NameRoles
 }
 
+// IsEqual returns true if m is equal to o.
+func (m EntityMessageNames) IsEqual(o EntityMessageNames) bool {
+	return m.Roles.IsEqual(o.Roles) &&
+		m.Produced.IsEqual(o.Produced) &&
+		m.Consumed.IsEqual(o.Consumed)
+}
+
 // EntityMessageTypes describes how messages are used within a Dogma entity
 // where each message is identified by its type.
 type EntityMessageTypes struct {
