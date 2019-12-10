@@ -83,6 +83,21 @@ func (s NameSet) RemoveM(m dogma.Message) bool {
 	return s.Remove(NameOf(m))
 }
 
+// IsEqual returns true if o contains the same names as s.
+func (s NameSet) IsEqual(o NameSet) bool {
+	if len(s) != len(o) {
+		return false
+	}
+
+	for t := range s {
+		if _, ok := o[t]; !ok {
+			return false
+		}
+	}
+
+	return true
+}
+
 // Each invokes fn once for each name in the container.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all

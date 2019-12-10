@@ -5,6 +5,7 @@ import (
 	. "github.com/dogmatiq/configkit/message"
 	. "github.com/dogmatiq/dogma/fixtures"
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 )
 
@@ -165,6 +166,70 @@ var _ = Describe("type TypeRoles", func() {
 				tr.RemoveM(MessageA1),
 			).To(BeFalse())
 		})
+	})
+
+	Describe("func IsEqual()", func() {
+		DescribeTable(
+			"returns true if the sets are equivalent",
+			func(a, b TypeRoles) {
+				Expect(a.IsEqual(b)).To(BeTrue())
+			},
+			Entry(
+				"equivalent",
+				TypeRoles{
+					MessageAType: CommandRole,
+					MessageBType: EventRole,
+				},
+				TypeRoles{
+					MessageAType: CommandRole,
+					MessageBType: EventRole,
+				},
+			),
+			Entry(
+				"nil and empty",
+				TypeRoles{},
+				TypeRoles(nil),
+			),
+		)
+
+		DescribeTable(
+			"returns false if the sets are not equivalent",
+			func(b TypeRoles) {
+				a := TypeRoles{
+					MessageAType: CommandRole,
+					MessageBType: EventRole,
+				}
+				Expect(a.IsEqual(b)).To(BeFalse())
+			},
+			Entry(
+				"subset",
+				TypeRoles{
+					MessageAType: CommandRole,
+				},
+			),
+			Entry(
+				"superset",
+				TypeRoles{
+					MessageAType: CommandRole,
+					MessageBType: EventRole,
+					MessageCType: TimeoutRole,
+				},
+			),
+			Entry(
+				"same-length, disjoint type",
+				TypeRoles{
+					MessageAType: CommandRole,
+					MessageCType: EventRole,
+				},
+			),
+			Entry(
+				"same-length, disjoint role",
+				TypeRoles{
+					MessageAType: CommandRole,
+					MessageBType: TimeoutRole,
+				},
+			),
+		)
 	})
 
 	Describe("func Each()", func() {

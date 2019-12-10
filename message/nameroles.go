@@ -61,6 +61,22 @@ func (nr NameRoles) RemoveM(m dogma.Message) bool {
 	return nr.Remove(NameOf(m))
 }
 
+// IsEqual returns true if o contains the same names with the same roles as s.
+func (nr NameRoles) IsEqual(o NameRoles) bool {
+	if len(nr) != len(o) {
+		return false
+	}
+
+	for n, r := range nr {
+		x, ok := o[n]
+		if !ok || x != r {
+			return false
+		}
+	}
+
+	return true
+}
+
 // Each invokes fn once for each name in the container.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all

@@ -83,6 +83,21 @@ func (s TypeSet) RemoveM(m dogma.Message) bool {
 	return s.Remove(TypeOf(m))
 }
 
+// IsEqual returns true if o contains the same types as s.
+func (s TypeSet) IsEqual(o TypeSet) bool {
+	if len(s) != len(o) {
+		return false
+	}
+
+	for t := range s {
+		if _, ok := o[t]; !ok {
+			return false
+		}
+	}
+
+	return true
+}
+
 // Each invokes fn once for each type in the container.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all
