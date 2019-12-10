@@ -61,7 +61,7 @@ func (tr TypeRoles) RemoveM(m dogma.Message) bool {
 	return tr.Remove(TypeOf(m))
 }
 
-// IsEqual returns true if o contains the same types with the same roles as s.
+// IsEqual returns true if o contains the same types with the same roles as tr.
 func (tr TypeRoles) IsEqual(o TypeRoles) bool {
 	if len(tr) != len(o) {
 		return false
