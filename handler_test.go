@@ -10,7 +10,7 @@ import (
 )
 
 var _ = Describe("func IsHandlerEqual()", func() {
-	It("returns true if the two entities are equivalent", func() {
+	It("returns true if the two handlers are equivalent", func() {
 		h := &fixtures.AggregateMessageHandler{
 			ConfigureFunc: func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", "<key>")
@@ -27,7 +27,7 @@ var _ = Describe("func IsHandlerEqual()", func() {
 	})
 
 	DescribeTable(
-		"returns false if the entities are not equivalent",
+		"returns false if the handlers are not equivalent",
 		func(b Handler) {
 			h := &fixtures.AggregateMessageHandler{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
