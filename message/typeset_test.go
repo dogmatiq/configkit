@@ -5,6 +5,7 @@ import (
 	. "github.com/dogmatiq/configkit/message"
 	. "github.com/dogmatiq/dogma/fixtures"
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 )
 
@@ -183,6 +184,48 @@ var _ = Describe("type TypeSet", func() {
 				s.RemoveM(MessageA1),
 			).To(BeFalse())
 		})
+	})
+
+	Describe("func IsEqual()", func() {
+		DescribeTable(
+			"returns true if the sets are equivalent",
+			func(a, b TypeSet) {
+				Expect(a.IsEqual(b)).To(BeTrue())
+			},
+			Entry(
+				"equivalent",
+				NewTypeSet(MessageAType, MessageBType),
+				NewTypeSet(MessageAType, MessageBType),
+			),
+			Entry(
+				"nil and empty",
+				NewTypeSet(),
+				TypeSet(nil),
+			),
+		)
+
+		DescribeTable(
+			"returns false if the sets are not equivalent",
+			func(b TypeSet) {
+				a := NewTypeSet(
+					MessageAType,
+					MessageBType,
+				)
+				Expect(a.IsEqual(b)).To(BeFalse())
+			},
+			Entry(
+				"subset",
+				NewTypeSet(MessageAType),
+			),
+			Entry(
+				"superset",
+				NewTypeSet(MessageAType, MessageBType, MessageCType),
+			),
+			Entry(
+				"same-length, disjoint",
+				NewTypeSet(MessageAType, MessageCType),
+			),
+		)
 	})
 
 	Describe("func Each()", func() {
