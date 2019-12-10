@@ -69,6 +69,13 @@ type EntityMessageTypes struct {
 	Consumed message.TypeRoles
 }
 
+// IsEqual returns true if m is equal to o.
+func (m EntityMessageTypes) IsEqual(o EntityMessageTypes) bool {
+	return m.Roles.IsEqual(o.Roles) &&
+		m.Produced.IsEqual(o.Produced) &&
+		m.Consumed.IsEqual(o.Consumed)
+}
+
 // entity is a partial implementation of RichEntity.
 type entity struct {
 	rt reflect.Type
