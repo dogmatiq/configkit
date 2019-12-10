@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ### Added
 
+- Add `NameSet.IsEqual()`
 - Add `TypeSet.IsEqual()`
 
 ## [0.1.1]
