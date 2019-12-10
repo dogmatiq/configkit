@@ -13,12 +13,10 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ### Added
 
-- Add `NameRoles.IsEqual()`
-- Add `NameSet.IsEqual()`
-- Add `TypeRoles.IsEqual()`
-- Add `TypeSet.IsEqual()`
-- Add `EntityMessageNames.IsEqual()`
-- Add `EntityMessageTypes.IsEqual()`
+- Add `Identity.[Un]MarshalText()` and `[Un]MarshalBinary()`
+- Add `NameRoles.IsEqual()` and `TypeRoles.IsEqual()`
+- Add `NameSet.IsEqual()` and `TypeSet.IsEqual()`
+- Add `EntityMessageNames.IsEqual()` and `EntityMessageTypes.IsEqual()`
 
 ## [0.1.1]
 
