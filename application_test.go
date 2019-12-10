@@ -506,3 +506,125 @@ var _ = Describe("func FromApplication()", func() {
 		),
 	)
 })
+
+var _ = Describe("func IsApplicationEqual()", func() {
+	It("returns true if the two applications are equivalent", func() {
+		app := &fixtures.Application{
+			ConfigureFunc: func(c dogma.ApplicationConfigurer) {
+				c.Identity("<app>", "<app-key>")
+				c.RegisterProjection(&fixtures.ProjectionMessageHandler{
+					ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+						c.Identity("<projection>", "<projection-key>")
+						c.ConsumesEventType(fixtures.MessageE{})
+					},
+				})
+			},
+		}
+
+		a := FromApplication(app)
+		b := FromApplication(app)
+
+		Expect(IsApplicationEqual(a, b)).To(BeTrue())
+	})
+
+	// aliasedApplication is a mock of dogma.Application that has a different Go
+	// type name to fixtures.Application, used to test the type-name comparison
+	// logic in IsApplicationEqual().
+	type aliasedApplication struct {
+		fixtures.Application
+	}
+
+	DescribeTable(
+		"returns false if the applications are not equivalent",
+		func(b Application) {
+			app := &fixtures.Application{
+				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
+					c.Identity("<app>", "<app-key>")
+					c.RegisterProjection(&fixtures.ProjectionMessageHandler{
+						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+							c.Identity("<projection>", "<projection-key>")
+							c.ConsumesEventType(fixtures.MessageE{})
+						},
+					})
+				},
+			}
+
+			a := FromApplication(app)
+
+			Expect(IsApplicationEqual(a, b)).To(BeFalse())
+		},
+		Entry(
+			"type differs",
+			FromApplication(&aliasedApplication{
+				Application: fixtures.Application{
+					ConfigureFunc: func(c dogma.ApplicationConfigurer) {
+						c.Identity("<app>", "<app-key>")
+						c.RegisterProjection(&fixtures.ProjectionMessageHandler{
+							ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+								c.Identity("<projection>", "<projection-key>")
+								c.ConsumesEventType(fixtures.MessageE{})
+							},
+						})
+					},
+				},
+			}),
+		),
+		Entry(
+			"identity name differs",
+			FromApplication(&fixtures.Application{
+				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
+					c.Identity("<app-different>", "<app-key>") // diff
+					c.RegisterProjection(&fixtures.ProjectionMessageHandler{
+						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+							c.Identity("<projection>", "<projection-key>")
+							c.ConsumesEventType(fixtures.MessageE{})
+						},
+					})
+				},
+			}),
+		),
+		Entry(
+			"identity key differs",
+			FromApplication(&fixtures.Application{
+				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
+					c.Identity("<app>", "<app-key-different>") // diff
+					c.RegisterProjection(&fixtures.ProjectionMessageHandler{
+						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+							c.Identity("<projection>", "<projection-key>")
+							c.ConsumesEventType(fixtures.MessageE{})
+						},
+					})
+				},
+			}),
+		),
+		Entry(
+			"messages differ",
+			FromApplication(&fixtures.Application{
+				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
+					c.Identity("<app>", "<app-key>")
+					c.RegisterProjection(&fixtures.ProjectionMessageHandler{
+						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+							c.Identity("<projection-different>", "<projection-key>")
+							c.ConsumesEventType(fixtures.MessageE{})
+							c.ConsumesEventType(fixtures.MessageX{}) // diff
+						},
+					})
+				},
+			}),
+		),
+		Entry(
+			"handlers differ",
+			FromApplication(&fixtures.Application{
+				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
+					c.Identity("<app>", "<app-key>")
+					c.RegisterProjection(&fixtures.ProjectionMessageHandler{
+						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+							c.Identity("<projection-different>", "<projection-key>") // diff
+							c.ConsumesEventType(fixtures.MessageE{})
+						},
+					})
+				},
+			}),
+		),
+	)
+})

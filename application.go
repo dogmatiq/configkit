@@ -86,6 +86,24 @@ func FromApplication(a dogma.Application) RichApplication {
 	return cfg
 }
 
+// IsApplicationEqual compares two applications for equality.
+//
+// It returns true if both applications:
+//
+//  1. have the same identity
+//  2. produce and consume the same messages, with the same roles
+//  3. are implemented using the same Go types
+//  4. contain equivalent handlers
+//
+// Point 3. refers to the type used to implement the dogma.Application interface
+// (not the type used to configkit.Application interface).
+func IsApplicationEqual(a, b Application) bool {
+	return a.Identity() == b.Identity() &&
+		a.TypeName() == b.TypeName() &&
+		a.MessageNames().IsEqual(b.MessageNames()) &&
+		a.Handlers().IsEqual(b.Handlers())
+}
+
 // application is an implementation of RichApplication.
 type application struct {
 	entity
