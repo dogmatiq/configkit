@@ -27,19 +27,13 @@ type RichHandler interface {
 //
 // Point 3. refers to the type used to implement the dogma.Aggregate,
 // dogma.Process, dogma.Integration or dogma.Projection interface (not the type
-// used to implement the Entity interface).
+// used to implement the configkit.Handler interface).
 //
 // This definition of equality relies on the fact that no single Go type can
-// implement more than one the handler interfaces because they all contain a
-// Configure() method with different signatures.
+// implement more than one the Dogma handler interfaces because they all contain
+// a Configure() method with different signatures.
 func IsHandlerEqual(a, b Handler) bool {
-	if a.Identity() != b.Identity() {
-		return false
-	}
-
-	if a.TypeName() != b.TypeName() {
-		return false
-	}
-
-	return a.MessageNames().IsEqual(b.MessageNames())
+	return a.Identity() == b.Identity() &&
+		a.TypeName() == b.TypeName() &&
+		a.MessageNames().IsEqual(b.MessageNames())
 }
