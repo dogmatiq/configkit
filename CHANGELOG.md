@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ### Added
 
+- Add `NameRoles.IsEqual()`
 - Add `NameSet.IsEqual()`
 - Add `TypeRoles.IsEqual()`
 - Add `TypeSet.IsEqual()`
