@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ### Added
 
-- Add `IsEqual()`
+- Add `IsHandlerEqual()`
 - Add `HandlerSet.IsEqual()`
 - Add `RichHandlerSet.IsEqual()`
 - Add `Identity.[Un]MarshalText()` and `[Un]MarshalBinary()`

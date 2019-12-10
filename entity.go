@@ -111,30 +111,3 @@ func (e *entity) TypeName() string {
 func (e *entity) ReflectType() reflect.Type {
 	return e.rt
 }
-
-// IsEqual compares two entities for equality.
-//
-// It returns true if both entities:
-//
-//  1. have the same identity
-//  2. produce and consume the same messages, with the same roles
-//  3. are implemented using the same Go types
-//
-// Point 3. refers to the type used to implement the dogma.Application,
-// dogma.Aggregate, dogma.Process, dogma.Integration or dogma.Projection
-// interface (not the type used to implement the Entity interface).
-//
-// This definition of equality relies on the fact that no single Go type can
-// implement more than one these interfaces because they all contain a
-// Configure() method with different signatures.
-func IsEqual(a, b Entity) bool {
-	if a.Identity() != b.Identity() {
-		return false
-	}
-
-	if a.TypeName() != b.TypeName() {
-		return false
-	}
-
-	return a.MessageNames().IsEqual(b.MessageNames())
-}

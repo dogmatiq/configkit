@@ -97,7 +97,7 @@ func (s HandlerSet) IsEqual(o HandlerSet) bool {
 
 	for i, h := range s {
 		x, ok := o[i]
-		if !ok || !IsEqual(x, h) {
+		if !ok || !IsHandlerEqual(x, h) {
 			return false
 		}
 	}
@@ -264,7 +264,7 @@ func (s RichHandlerSet) IsEqual(o RichHandlerSet) bool {
 
 	for i, h := range s {
 		x, ok := o[i]
-		if !ok || !IsEqual(x, h) {
+		if !ok || !IsHandlerEqual(x, h) {
 			return false
 		}
 	}
