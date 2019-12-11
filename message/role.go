@@ -51,7 +51,7 @@ func (r Role) Validate() error {
 		TimeoutRole:
 		return nil
 	default:
-		return fmt.Errorf("invalid message role: %s", string(r))
+		return Errorf("invalid message role: %s", string(r))
 	}
 }
 

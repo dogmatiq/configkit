@@ -55,7 +55,7 @@ func (t HandlerType) Validate() error {
 		ProjectionHandlerType:
 		return nil
 	default:
-		return fmt.Errorf("invalid handler type: %s", string(t))
+		return Errorf("invalid handler type: %s", string(t))
 	}
 }
 
