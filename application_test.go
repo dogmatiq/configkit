@@ -604,7 +604,7 @@ var _ = Describe("func IsApplicationEqual()", func() {
 					c.Identity("<app>", "<app-key>")
 					c.RegisterProjection(&fixtures.ProjectionMessageHandler{
 						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-							c.Identity("<projection-different>", "<projection-key>")
+							c.Identity("<projection>", "<projection-key>")
 							c.ConsumesEventType(fixtures.MessageE{})
 							c.ConsumesEventType(fixtures.MessageX{}) // diff
 						},
