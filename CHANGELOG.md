@@ -11,8 +11,15 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## [Unreleased]
 
+### Removed
+
+- **[BC]** Remove `Application.ForeignMessageNames()`
+- **[BC]** Remove `RichApplication.ForeignMessageTypes()`
+
 ### Added
 
+- Add `ForeignMessageNames()`
+- Add `ForeignMessageTypes()`
 - Add `IsApplicationEqual()` and `IsHandlerEqual()`
 - Add `HandlerSet.IsEqual()`
 - Add `RichHandlerSet.IsEqual()`
