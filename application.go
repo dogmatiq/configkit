@@ -92,29 +92,23 @@ func ForeignMessageNames(app Application) EntityMessageNames {
 		Consumed: message.NameRoles{},
 	}
 
-	for mt, r := range m.Produced {
-		if m.Consumed.Has(mt) {
-			continue
-		}
-
+	for n, r := range m.Produced {
 		// Commands MUST always have a handler. Therefore, any command that is
 		// produced by this application, but not consumed by this application is
 		// considered foreign.
-		if r == message.CommandRole {
-			f.Roles.Add(mt, r)
-			f.Produced.Add(mt, r)
+		if r == message.CommandRole && !m.Consumed.Has(n) {
+			f.Roles.Add(n, r)
+			f.Produced.Add(n, r)
 		}
 	}
 
-	for mt, r := range m.Consumed {
-		if m.Produced.Has(mt) {
-			continue
+	for n, r := range m.Consumed {
+		// Any message, of any role, that is consumed by this application but
+		// not produced by this application is considered foreign.
+		if !m.Produced.Has(n) {
+			f.Roles.Add(n, r)
+			f.Consumed.Add(n, r)
 		}
-
-		// Any message type is considered foreign if it needs to be obtained from
-		// elsewhere.
-		f.Roles.Add(mt, r)
-		f.Consumed.Add(mt, r)
 	}
 
 	return f
@@ -135,29 +129,23 @@ func ForeignMessageTypes(app RichApplication) EntityMessageTypes {
 		Consumed: message.TypeRoles{},
 	}
 
-	for mt, r := range m.Produced {
-		if m.Consumed.Has(mt) {
-			continue
-		}
-
+	for t, r := range m.Produced {
 		// Commands MUST always have a handler. Therefore, any command that is
 		// produced by this application, but not consumed by this application is
 		// considered foreign.
-		if r == message.CommandRole {
-			f.Roles.Add(mt, r)
-			f.Produced.Add(mt, r)
+		if r == message.CommandRole && !m.Consumed.Has(t) {
+			f.Roles.Add(t, r)
+			f.Produced.Add(t, r)
 		}
 	}
 
-	for mt, r := range m.Consumed {
-		if m.Produced.Has(mt) {
-			continue
+	for t, r := range m.Consumed {
+		// Any message, of any role, that is consumed by this application but
+		// not produced by this application is considered foreign.
+		if !m.Produced.Has(t) {
+			f.Roles.Add(t, r)
+			f.Consumed.Add(t, r)
 		}
-
-		// Any message type is considered foreign if it needs to be obtained from
-		// elsewhere.
-		f.Roles.Add(mt, r)
-		f.Consumed.Add(mt, r)
 	}
 
 	return f
