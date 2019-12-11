@@ -89,6 +89,22 @@ func (s HandlerSet) ProducersOf(n message.Name) HandlerSet {
 	})
 }
 
+// IsEqual returns true if o contains the same handlers as s.
+func (s HandlerSet) IsEqual(o HandlerSet) bool {
+	if len(s) != len(o) {
+		return false
+	}
+
+	for i, h := range s {
+		x, ok := o[i]
+		if !ok || !IsHandlerEqual(x, h) {
+			return false
+		}
+	}
+
+	return true
+}
+
 // Find returns a handler from the set for which the given predicate function
 // returns true.
 func (s HandlerSet) Find(fn func(Handler) bool) (Handler, bool) {
@@ -238,6 +254,22 @@ func (s RichHandlerSet) ProducersOf(t message.Type) RichHandlerSet {
 	}
 
 	return subset
+}
+
+// IsEqual returns true if o contains the same handlers as s.
+func (s RichHandlerSet) IsEqual(o RichHandlerSet) bool {
+	if len(s) != len(o) {
+		return false
+	}
+
+	for i, h := range s {
+		x, ok := o[i]
+		if !ok || !IsHandlerEqual(x, h) {
+			return false
+		}
+	}
+
+	return true
 }
 
 // Find returns a handler from the set for which the given predicate function

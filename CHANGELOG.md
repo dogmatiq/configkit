@@ -13,6 +13,9 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ### Added
 
+- Add `IsApplicationEqual()` and `IsHandlerEqual()`
+- Add `HandlerSet.IsEqual()`
+- Add `RichHandlerSet.IsEqual()`
 - Add `Identity.[Un]MarshalText()` and `[Un]MarshalBinary()`
 - Add `NameRoles.IsEqual()` and `TypeRoles.IsEqual()`
 - Add `NameSet.IsEqual()` and `TypeSet.IsEqual()`

@@ -16,3 +16,24 @@ type RichHandler interface {
 	// HandlerType returns the type of handler.
 	HandlerType() HandlerType
 }
+
+// IsHandlerEqual compares two handlers for equality.
+//
+// It returns true if both handlers:
+//
+//  1. have the same identity
+//  2. produce and consume the same messages, with the same roles
+//  3. are implemented using the same Go types
+//
+// Point 3. refers to the type used to implement the dogma.Aggregate,
+// dogma.Process, dogma.Integration or dogma.Projection interface (not the type
+// used to implement the configkit.Handler interface).
+//
+// This definition of equality relies on the fact that no single Go type can
+// implement more than one Dogma handler interface because they all contain
+// a Configure() method with different signatures.
+func IsHandlerEqual(a, b Handler) bool {
+	return a.Identity() == b.Identity() &&
+		a.TypeName() == b.TypeName() &&
+		a.MessageNames().IsEqual(b.MessageNames())
+}
