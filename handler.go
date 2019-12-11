@@ -30,7 +30,7 @@ type RichHandler interface {
 // used to implement the configkit.Handler interface).
 //
 // This definition of equality relies on the fact that no single Go type can
-// implement more than one the Dogma handler interfaces because they all contain
+// implement more than one Dogma handler interface because they all contain
 // a Configure() method with different signatures.
 func IsHandlerEqual(a, b Handler) bool {
 	return a.Identity() == b.Identity() &&

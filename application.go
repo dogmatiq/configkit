@@ -96,7 +96,7 @@ func FromApplication(a dogma.Application) RichApplication {
 //  4. contain equivalent handlers
 //
 // Point 3. refers to the type used to implement the dogma.Application interface
-// (not the type used to configkit.Application interface).
+// (not the type used to implement the configkit.Application interface).
 func IsApplicationEqual(a, b Application) bool {
 	return a.Identity() == b.Identity() &&
 		a.TypeName() == b.TypeName() &&
