@@ -2,8 +2,8 @@ package configkit_test
 
 import (
 	. "github.com/dogmatiq/configkit"
-	cfixtures "github.com/dogmatiq/configkit/fixtures" // can't dot-import due to conflicts
-	"github.com/dogmatiq/configkit/message"            // can't dot-import due to conflicts
+	"github.com/dogmatiq/configkit/fixtures" // can't dot-import due to conflicts
+	"github.com/dogmatiq/configkit/message"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -14,27 +14,27 @@ var _ = Describe("type EntityMessageNames", func() {
 		It("returns true if the sets are equivalent", func() {
 			a := EntityMessageNames{
 				Roles: message.NameRoles{
-					cfixtures.MessageATypeName: message.CommandRole,
-					cfixtures.MessageBTypeName: message.EventRole,
+					fixtures.MessageATypeName: message.CommandRole,
+					fixtures.MessageBTypeName: message.EventRole,
 				},
 				Produced: message.NameRoles{
-					cfixtures.MessageBTypeName: message.EventRole,
+					fixtures.MessageBTypeName: message.EventRole,
 				},
 				Consumed: message.NameRoles{
-					cfixtures.MessageATypeName: message.CommandRole,
+					fixtures.MessageATypeName: message.CommandRole,
 				},
 			}
 
 			b := EntityMessageNames{
 				Roles: message.NameRoles{
-					cfixtures.MessageATypeName: message.CommandRole,
-					cfixtures.MessageBTypeName: message.EventRole,
+					fixtures.MessageATypeName: message.CommandRole,
+					fixtures.MessageBTypeName: message.EventRole,
 				},
 				Produced: message.NameRoles{
-					cfixtures.MessageBTypeName: message.EventRole,
+					fixtures.MessageBTypeName: message.EventRole,
 				},
 				Consumed: message.NameRoles{
-					cfixtures.MessageATypeName: message.CommandRole,
+					fixtures.MessageATypeName: message.CommandRole,
 				},
 			}
 
@@ -46,14 +46,14 @@ var _ = Describe("type EntityMessageNames", func() {
 			func(b EntityMessageNames) {
 				a := EntityMessageNames{
 					Roles: message.NameRoles{
-						cfixtures.MessageATypeName: message.CommandRole,
-						cfixtures.MessageBTypeName: message.EventRole,
+						fixtures.MessageATypeName: message.CommandRole,
+						fixtures.MessageBTypeName: message.EventRole,
 					},
 					Produced: message.NameRoles{
-						cfixtures.MessageBTypeName: message.EventRole,
+						fixtures.MessageBTypeName: message.EventRole,
 					},
 					Consumed: message.NameRoles{
-						cfixtures.MessageATypeName: message.CommandRole,
+						fixtures.MessageATypeName: message.CommandRole,
 					},
 				}
 				Expect(a.IsEqual(b)).To(BeFalse())
@@ -62,15 +62,15 @@ var _ = Describe("type EntityMessageNames", func() {
 				"roles differ",
 				EntityMessageNames{
 					Roles: message.NameRoles{
-						cfixtures.MessageATypeName: message.CommandRole,
-						cfixtures.MessageBTypeName: message.EventRole,
-						cfixtures.MessageCTypeName: message.TimeoutRole, // diff
+						fixtures.MessageATypeName: message.CommandRole,
+						fixtures.MessageBTypeName: message.EventRole,
+						fixtures.MessageCTypeName: message.TimeoutRole, // diff
 					},
 					Produced: message.NameRoles{
-						cfixtures.MessageBTypeName: message.EventRole,
+						fixtures.MessageBTypeName: message.EventRole,
 					},
 					Consumed: message.NameRoles{
-						cfixtures.MessageATypeName: message.CommandRole,
+						fixtures.MessageATypeName: message.CommandRole,
 					},
 				},
 			),
@@ -78,15 +78,15 @@ var _ = Describe("type EntityMessageNames", func() {
 				"produced messages differ",
 				EntityMessageNames{
 					Roles: message.NameRoles{
-						cfixtures.MessageATypeName: message.CommandRole,
-						cfixtures.MessageBTypeName: message.EventRole,
+						fixtures.MessageATypeName: message.CommandRole,
+						fixtures.MessageBTypeName: message.EventRole,
 					},
 					Produced: message.NameRoles{
-						cfixtures.MessageBTypeName: message.EventRole,
-						cfixtures.MessageCTypeName: message.TimeoutRole, // diff
+						fixtures.MessageBTypeName: message.EventRole,
+						fixtures.MessageCTypeName: message.TimeoutRole, // diff
 					},
 					Consumed: message.NameRoles{
-						cfixtures.MessageATypeName: message.CommandRole,
+						fixtures.MessageATypeName: message.CommandRole,
 					},
 				},
 			),
@@ -94,15 +94,15 @@ var _ = Describe("type EntityMessageNames", func() {
 				"consumed messages differ",
 				EntityMessageNames{
 					Roles: message.NameRoles{
-						cfixtures.MessageATypeName: message.CommandRole,
-						cfixtures.MessageBTypeName: message.EventRole,
+						fixtures.MessageATypeName: message.CommandRole,
+						fixtures.MessageBTypeName: message.EventRole,
 					},
 					Produced: message.NameRoles{
-						cfixtures.MessageBTypeName: message.EventRole,
+						fixtures.MessageBTypeName: message.EventRole,
 					},
 					Consumed: message.NameRoles{
-						cfixtures.MessageATypeName: message.CommandRole,
-						cfixtures.MessageCTypeName: message.TimeoutRole, // diff
+						fixtures.MessageATypeName: message.CommandRole,
+						fixtures.MessageCTypeName: message.TimeoutRole, // diff
 					},
 				},
 			),
@@ -115,27 +115,27 @@ var _ = Describe("type EntityMessageTypes", func() {
 		It("returns true if the sets are equivalent", func() {
 			a := EntityMessageTypes{
 				Roles: message.TypeRoles{
-					cfixtures.MessageAType: message.CommandRole,
-					cfixtures.MessageBType: message.EventRole,
+					fixtures.MessageAType: message.CommandRole,
+					fixtures.MessageBType: message.EventRole,
 				},
 				Produced: message.TypeRoles{
-					cfixtures.MessageBType: message.EventRole,
+					fixtures.MessageBType: message.EventRole,
 				},
 				Consumed: message.TypeRoles{
-					cfixtures.MessageAType: message.CommandRole,
+					fixtures.MessageAType: message.CommandRole,
 				},
 			}
 
 			b := EntityMessageTypes{
 				Roles: message.TypeRoles{
-					cfixtures.MessageAType: message.CommandRole,
-					cfixtures.MessageBType: message.EventRole,
+					fixtures.MessageAType: message.CommandRole,
+					fixtures.MessageBType: message.EventRole,
 				},
 				Produced: message.TypeRoles{
-					cfixtures.MessageBType: message.EventRole,
+					fixtures.MessageBType: message.EventRole,
 				},
 				Consumed: message.TypeRoles{
-					cfixtures.MessageAType: message.CommandRole,
+					fixtures.MessageAType: message.CommandRole,
 				},
 			}
 
@@ -147,14 +147,14 @@ var _ = Describe("type EntityMessageTypes", func() {
 			func(b EntityMessageTypes) {
 				a := EntityMessageTypes{
 					Roles: message.TypeRoles{
-						cfixtures.MessageAType: message.CommandRole,
-						cfixtures.MessageBType: message.EventRole,
+						fixtures.MessageAType: message.CommandRole,
+						fixtures.MessageBType: message.EventRole,
 					},
 					Produced: message.TypeRoles{
-						cfixtures.MessageBType: message.EventRole,
+						fixtures.MessageBType: message.EventRole,
 					},
 					Consumed: message.TypeRoles{
-						cfixtures.MessageAType: message.CommandRole,
+						fixtures.MessageAType: message.CommandRole,
 					},
 				}
 				Expect(a.IsEqual(b)).To(BeFalse())
@@ -163,15 +163,15 @@ var _ = Describe("type EntityMessageTypes", func() {
 				"roles differ",
 				EntityMessageTypes{
 					Roles: message.TypeRoles{
-						cfixtures.MessageAType: message.CommandRole,
-						cfixtures.MessageBType: message.EventRole,
-						cfixtures.MessageCType: message.TimeoutRole, // diff
+						fixtures.MessageAType: message.CommandRole,
+						fixtures.MessageBType: message.EventRole,
+						fixtures.MessageCType: message.TimeoutRole, // diff
 					},
 					Produced: message.TypeRoles{
-						cfixtures.MessageBType: message.EventRole,
+						fixtures.MessageBType: message.EventRole,
 					},
 					Consumed: message.TypeRoles{
-						cfixtures.MessageAType: message.CommandRole,
+						fixtures.MessageAType: message.CommandRole,
 					},
 				},
 			),
@@ -179,15 +179,15 @@ var _ = Describe("type EntityMessageTypes", func() {
 				"produced messages differ",
 				EntityMessageTypes{
 					Roles: message.TypeRoles{
-						cfixtures.MessageAType: message.CommandRole,
-						cfixtures.MessageBType: message.EventRole,
+						fixtures.MessageAType: message.CommandRole,
+						fixtures.MessageBType: message.EventRole,
 					},
 					Produced: message.TypeRoles{
-						cfixtures.MessageBType: message.EventRole,
-						cfixtures.MessageCType: message.TimeoutRole, // diff
+						fixtures.MessageBType: message.EventRole,
+						fixtures.MessageCType: message.TimeoutRole, // diff
 					},
 					Consumed: message.TypeRoles{
-						cfixtures.MessageAType: message.CommandRole,
+						fixtures.MessageAType: message.CommandRole,
 					},
 				},
 			),
@@ -195,15 +195,15 @@ var _ = Describe("type EntityMessageTypes", func() {
 				"consumed messages differ",
 				EntityMessageTypes{
 					Roles: message.TypeRoles{
-						cfixtures.MessageAType: message.CommandRole,
-						cfixtures.MessageBType: message.EventRole,
+						fixtures.MessageAType: message.CommandRole,
+						fixtures.MessageBType: message.EventRole,
 					},
 					Produced: message.TypeRoles{
-						cfixtures.MessageBType: message.EventRole,
+						fixtures.MessageBType: message.EventRole,
 					},
 					Consumed: message.TypeRoles{
-						cfixtures.MessageAType: message.CommandRole,
-						cfixtures.MessageCType: message.TimeoutRole, // diff
+						fixtures.MessageAType: message.CommandRole,
+						fixtures.MessageCType: message.TimeoutRole, // diff
 					},
 				},
 			),
