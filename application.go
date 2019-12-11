@@ -16,15 +16,6 @@ type Application interface {
 
 	// Handlers returns the handlers within this application.
 	Handlers() HandlerSet
-
-	// ForeignMessageNames returns the message names that this application
-	// uses that must be communicated beyond the scope of the application.
-	//
-	// This includes:
-	//	- commands that are produced by this application, but consumed elsewhere
-	//	- commands that are consumed by this application, but produced elsewhere
-	//	- events that are consumed by this application, but produced elsewhere
-	ForeignMessageNames() EntityMessageNames
 }
 
 // RichApplication is a specialization of Application that exposes information
@@ -37,24 +28,6 @@ type RichApplication interface {
 
 	// RichHandlers returns the handlers within this application.
 	RichHandlers() RichHandlerSet
-
-	// ForeignMessageNames returns the message names that this application
-	// uses that must be communicated beyond the scope of the application.
-	//
-	// This includes:
-	//	- commands that are produced by this application, but consumed elsewhere
-	//	- commands that are consumed by this application, but produced elsewhere
-	//	- events that are consumed by this application, but produced elsewhere
-	ForeignMessageNames() EntityMessageNames
-
-	// ForeignMessageTypes returns the message types that this application
-	// uses that must be communicated beyond the scope of the application.
-	//
-	// This includes:
-	//	- commands that are produced by this application, but consumed elsewhere
-	//	- commands that are consumed by this application, but produced elsewhere
-	//	- events that are consumed by this application, but produced elsewhere
-	ForeignMessageTypes() EntityMessageTypes
 
 	// Application returns the underlying application.
 	Application() dogma.Application
@@ -104,6 +77,80 @@ func IsApplicationEqual(a, b Application) bool {
 		a.Handlers().IsEqual(b.Handlers())
 }
 
+// ForeignMessageNames returns the subset of message names used by an
+// application that must be communicated beyond the scope of that application.
+//
+// This includes:
+//  - commands that are produced by the application, but consumed elsewhere
+//  - commands that are consumed by the application, but produced elsewhere
+//  - events that are consumed by the application, but produced elsewhere
+func ForeignMessageNames(app Application) EntityMessageNames {
+	m := app.MessageNames()
+	f := EntityMessageNames{
+		Roles:    message.NameRoles{},
+		Produced: message.NameRoles{},
+		Consumed: message.NameRoles{},
+	}
+
+	for n, r := range m.Produced {
+		// Commands MUST always have a handler. Therefore, any command that is
+		// produced by this application, but not consumed by this application is
+		// considered foreign.
+		if r == message.CommandRole && !m.Consumed.Has(n) {
+			f.Roles.Add(n, r)
+			f.Produced.Add(n, r)
+		}
+	}
+
+	for n, r := range m.Consumed {
+		// Any message, of any role, that is consumed by this application but
+		// not produced by this application is considered foreign.
+		if !m.Produced.Has(n) {
+			f.Roles.Add(n, r)
+			f.Consumed.Add(n, r)
+		}
+	}
+
+	return f
+}
+
+// ForeignMessageTypes returns the subset of message types used by an
+// application that must be communicated beyond the scope of that application.
+//
+// This includes:
+//	- commands that are produced by this application, but consumed elsewhere
+//	- commands that are consumed by this application, but produced elsewhere
+//	- events that are consumed by this application, but produced elsewhere
+func ForeignMessageTypes(app RichApplication) EntityMessageTypes {
+	m := app.MessageTypes()
+	f := EntityMessageTypes{
+		Roles:    message.TypeRoles{},
+		Produced: message.TypeRoles{},
+		Consumed: message.TypeRoles{},
+	}
+
+	for t, r := range m.Produced {
+		// Commands MUST always have a handler. Therefore, any command that is
+		// produced by this application, but not consumed by this application is
+		// considered foreign.
+		if r == message.CommandRole && !m.Consumed.Has(t) {
+			f.Roles.Add(t, r)
+			f.Produced.Add(t, r)
+		}
+	}
+
+	for t, r := range m.Consumed {
+		// Any message, of any role, that is consumed by this application but
+		// not produced by this application is considered foreign.
+		if !m.Produced.Has(t) {
+			f.Roles.Add(t, r)
+			f.Consumed.Add(t, r)
+		}
+	}
+
+	return f
+}
+
 // application is an implementation of RichApplication.
 type application struct {
 	entity
@@ -132,60 +179,6 @@ func (a *application) RichHandlers() RichHandlerSet {
 	return a.richHandlers
 }
 
-func (a *application) ForeignMessageNames() EntityMessageNames {
-	a.once.Do(a.initForeign)
-	return a.foreignNames
-}
-
-func (a *application) ForeignMessageTypes() EntityMessageTypes {
-	a.once.Do(a.initForeign)
-	return a.foreignTypes
-}
-
 func (a *application) Application() dogma.Application {
 	return a.impl
-}
-
-// initForeign initializes a.foreignNames and a.foreignTypes.
-func (a *application) initForeign() {
-	a.foreignNames = EntityMessageNames{
-		Roles:    message.NameRoles{},
-		Produced: message.NameRoles{},
-		Consumed: message.NameRoles{},
-	}
-
-	a.foreignTypes = EntityMessageTypes{
-		Roles:    message.TypeRoles{},
-		Produced: message.TypeRoles{},
-		Consumed: message.TypeRoles{},
-	}
-
-	for mt, r := range a.entity.types.Produced {
-		if a.entity.types.Consumed.Has(mt) {
-			continue
-		}
-
-		// Commands MUST always have a handler. Therefore, any command that is
-		// produced by this application, but not consumed by this application is
-		// considered foreign.
-		if r == message.CommandRole {
-			a.foreignNames.Roles.Add(mt.Name(), r)
-			a.foreignTypes.Roles.Add(mt, r)
-			a.foreignNames.Produced.Add(mt.Name(), r)
-			a.foreignTypes.Produced.Add(mt, r)
-		}
-	}
-
-	for mt, r := range a.entity.types.Consumed {
-		if a.entity.types.Produced.Has(mt) {
-			continue
-		}
-
-		// Any message type is considered foreign if it needs to be obtained from
-		// elsewhere.
-		a.foreignNames.Roles.Add(mt.Name(), r)
-		a.foreignTypes.Roles.Add(mt, r)
-		a.foreignNames.Consumed.Add(mt.Name(), r)
-		a.foreignTypes.Consumed.Add(mt, r)
-	}
 }
