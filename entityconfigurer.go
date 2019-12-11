@@ -1,5 +1,7 @@
 package configkit
 
+import "github.com/dogmatiq/configkit/internal/validation"
+
 // handlerConfigurer is a partial implementation of the configurer interfaces for
 // all of the Dogma entity types.
 //
@@ -16,7 +18,7 @@ type entityConfigurer struct {
 // Identity sets the handler's identity.
 func (c *entityConfigurer) Identity(name string, key string) {
 	if !c.entity.ident.IsZero() {
-		Panicf(
+		validation.Panicf(
 			"%s is configured with multiple identities (%s and %s/%s), Identity() must be called exactly once within Configure()",
 			c.entity.rt,
 			c.entity.ident,
@@ -29,7 +31,7 @@ func (c *entityConfigurer) Identity(name string, key string) {
 	c.entity.ident, err = NewIdentity(name, key)
 
 	if err != nil {
-		Panicf(
+		validation.Panicf(
 			"%s is configured with an invalid identity, %s",
 			c.entity.rt,
 			err,
@@ -40,7 +42,7 @@ func (c *entityConfigurer) Identity(name string, key string) {
 // validate panics if the configuration is invalid.
 func (c *entityConfigurer) validate() {
 	if c.entity.ident.IsZero() {
-		Panicf(
+		validation.Panicf(
 			"%s is configured without an identity, Identity() must be called exactly once within Configure()",
 			c.entity.rt,
 		)

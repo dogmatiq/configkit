@@ -3,6 +3,8 @@ package message
 import (
 	"bytes"
 	"fmt"
+
+	"github.com/dogmatiq/configkit/internal/validation"
 )
 
 // Role is an enumeration of the roles a message can perform within an
@@ -51,7 +53,7 @@ func (r Role) Validate() error {
 		TimeoutRole:
 		return nil
 	default:
-		return Errorf("invalid message role: %s", string(r))
+		return validation.Errorf("invalid message role: %s", string(r))
 	}
 }
 

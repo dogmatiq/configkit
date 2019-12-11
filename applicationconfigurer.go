@@ -1,6 +1,7 @@
 package configkit
 
 import (
+	"github.com/dogmatiq/configkit/internal/validation"
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
@@ -14,7 +15,7 @@ type applicationConfigurer struct {
 
 func (c *applicationConfigurer) Identity(name, key string) {
 	if h, ok := c.app.richHandlers.ByKey(key); ok {
-		Panicf(
+		validation.Panicf(
 			`%s can not use the application key "%s", because it is already used by %s`,
 			c.entity.rt,
 			key,
@@ -98,7 +99,7 @@ func (c *applicationConfigurer) guardAgainstConflictingIdentities(h RichHandler)
 	i := h.Identity()
 
 	if i.Key == c.entity.ident.Key {
-		Panicf(
+		validation.Panicf(
 			`%s can not use the handler key "%s", because it is already used by %s`,
 			h.ReflectType(),
 			i.Key,
@@ -107,7 +108,7 @@ func (c *applicationConfigurer) guardAgainstConflictingIdentities(h RichHandler)
 	}
 
 	if x, ok := c.app.richHandlers.ByName(i.Name); ok {
-		Panicf(
+		validation.Panicf(
 			`%s can not use the handler name "%s", because it is already used by %s`,
 			h.ReflectType(),
 			i.Name,
@@ -116,7 +117,7 @@ func (c *applicationConfigurer) guardAgainstConflictingIdentities(h RichHandler)
 	}
 
 	if x, ok := c.app.richHandlers.ByKey(i.Key); ok {
-		Panicf(
+		validation.Panicf(
 			`%s can not use the handler key "%s", because it is already used by %s`,
 			h.ReflectType(),
 			i.Key,
@@ -141,7 +142,7 @@ func (c *applicationConfigurer) guardAgainstConflictingRoles(h RichHandler) {
 			return h.MessageTypes().Roles[mt] != r
 		})
 
-		Panicf(
+		validation.Panicf(
 			`%s (%s) configures %s as a %s but %s (%s) configures it as a %s`,
 			h.ReflectType(),
 			h.Identity().Name,
@@ -165,7 +166,7 @@ func (c *applicationConfigurer) guardAgainstConflictingRoutes(h RichHandler) {
 		}
 
 		for _, x := range c.app.richHandlers.ConsumersOf(mt) {
-			Panicf(
+			validation.Panicf(
 				`%s (%s) can not consume %s commands because they are already consumed by %s (%s)`,
 				h.ReflectType(),
 				h.Identity().Name,
@@ -182,7 +183,7 @@ func (c *applicationConfigurer) guardAgainstConflictingRoutes(h RichHandler) {
 		}
 
 		for _, x := range c.app.richHandlers.ProducersOf(mt) {
-			Panicf(
+			validation.Panicf(
 				`%s (%s) can not produce %s events because they are already produced by %s (%s)`,
 				h.ReflectType(),
 				h.Identity().Name,

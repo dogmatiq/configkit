@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"unicode"
+
+	"github.com/dogmatiq/configkit/internal/validation"
 )
 
 // Identity is the application-defined identity of a Dogma entity.
@@ -67,14 +69,14 @@ func (i Identity) ConflictsWith(ident Identity) bool {
 // Validate returns an error if i is not a valid identity.
 func (i Identity) Validate() error {
 	if !isValidIdentityComponent(i.Name) {
-		return Errorf(
+		return validation.Errorf(
 			"invalid name %#v, names must be non-empty, printable UTF-8 strings with no whitespace",
 			i.Name,
 		)
 	}
 
 	if !isValidIdentityComponent(i.Key) {
-		return Errorf(
+		return validation.Errorf(
 			"invalid key %#v, keys must be non-empty, printable UTF-8 strings with no whitespace",
 			i.Key,
 		)

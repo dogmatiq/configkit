@@ -3,6 +3,7 @@ package configkit
 import (
 	"strings"
 
+	"github.com/dogmatiq/configkit/internal/validation"
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
@@ -55,7 +56,7 @@ func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role, verb strin
 	c.guardAgainstConflictingRoles(mt, r)
 
 	if c.entity.types.Consumed.Has(mt) {
-		Panicf(
+		validation.Panicf(
 			"%s is configured to %s the %s %s more than once, should this refer to different message types?",
 			c.displayName(),
 			verb,
@@ -87,7 +88,7 @@ func (c *handlerConfigurer) produces(m dogma.Message, r message.Role, verb strin
 	c.guardAgainstConflictingRoles(mt, r)
 
 	if c.entity.types.Produced.Has(mt) {
-		Panicf(
+		validation.Panicf(
 			"%s is configured to %s the %s %s more than once, should this refer to different message types?",
 			c.displayName(),
 			verb,
@@ -120,7 +121,7 @@ func (c *handlerConfigurer) guardAgainstConflictingRoles(mt message.Type, r mess
 		return
 	}
 
-	Panicf(
+	validation.Panicf(
 		"%s is configured to use %s as both a %s and a %s",
 		c.displayName(),
 		mt,
@@ -137,7 +138,7 @@ func (c *handlerConfigurer) mustConsume(r message.Role) {
 		}
 	}
 
-	Panicf(
+	validation.Panicf(
 		`%s (%s) is not configured to consume any %ss, Consumes%sType() must be called at least once within Configure()`,
 		c.entity.rt,
 		c.entity.ident.Name,
@@ -154,7 +155,7 @@ func (c *handlerConfigurer) mustProduce(r message.Role) {
 		}
 	}
 
-	Panicf(
+	validation.Panicf(
 		`%s is not configured to produce any %ss, Produces%sType() must be called at least once within Configure()`,
 		c.displayName(),
 		r,

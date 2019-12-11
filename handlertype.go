@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/dogmatiq/configkit/internal/validation"
 	"github.com/dogmatiq/configkit/message"
 )
 
@@ -55,7 +56,7 @@ func (t HandlerType) Validate() error {
 		ProjectionHandlerType:
 		return nil
 	default:
-		return Errorf("invalid handler type: %s", string(t))
+		return validation.Errorf("invalid handler type: %s", string(t))
 	}
 }
 

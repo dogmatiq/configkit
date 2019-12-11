@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 - **[BC]** Remove `Application.ForeignMessageNames()`
 - **[BC]** Remove `RichApplication.ForeignMessageTypes()`
+- **[BC]** Remove `Errorf` and `Panicf()`
 
 ### Added
 

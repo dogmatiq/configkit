@@ -2,6 +2,7 @@ package configkit_test
 
 import (
 	. "github.com/dogmatiq/configkit"
+	"github.com/dogmatiq/configkit/internal/validation"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -19,7 +20,7 @@ var _ = Describe("func Recover()", func() {
 	It("recovers from config related panics", func() {
 		err := func() (err error) {
 			defer Recover(&err)
-			Panicf("<value>")
+			validation.Panicf("<value>")
 			return nil
 		}()
 

@@ -1,16 +1,11 @@
 package configkit
 
 import (
-	"fmt"
-	"strings"
+	"github.com/dogmatiq/configkit/internal/validation"
 )
 
 // Error is an error representing a fault in an entity's configuration.
-type Error string
-
-func (e Error) Error() string {
-	return string(e)
-}
+type Error = validation.Error
 
 // Recover recovers from a configuration related panic.
 //
@@ -29,18 +24,4 @@ func Recover(err *error) {
 	default:
 		panic(v)
 	}
-}
-
-// Panicf panics with a new Error.
-func Panicf(f string, v ...interface{}) {
-	panic(Errorf(f, v...))
-}
-
-// Errorf returns a new Error.
-func Errorf(f string, v ...interface{}) Error {
-	m := fmt.Sprintf(f, v...)
-	m = strings.ReplaceAll(m, "an command", "a command")
-	m = strings.ReplaceAll(m, "a event", "an event")
-	m = strings.ReplaceAll(m, "an timeout", "a timeout")
-	return Error(m)
 }
