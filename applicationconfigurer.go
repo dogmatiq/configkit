@@ -62,16 +62,6 @@ func (c *applicationConfigurer) register(h RichHandler) {
 
 	types := h.MessageTypes()
 
-	for mt, r := range types.Roles {
-		if c.entity.names.Roles == nil {
-			c.entity.names.Roles = message.NameRoles{}
-			c.entity.types.Roles = message.TypeRoles{}
-		}
-
-		c.entity.names.Roles.Add(mt.Name(), r)
-		c.entity.types.Roles.Add(mt, r)
-	}
-
 	for mt, r := range types.Produced {
 		if c.entity.names.Produced == nil {
 			c.entity.names.Produced = message.NameRoles{}
@@ -129,8 +119,8 @@ func (c *applicationConfigurer) guardAgainstConflictingIdentities(h RichHandler)
 // guardAgainstConflictingRoles panics if h configures any messages in roles
 // contrary to the way they are configured by any other handler.
 func (c *applicationConfigurer) guardAgainstConflictingRoles(h RichHandler) {
-	for mt, r := range h.MessageTypes().Roles {
-		xr, ok := c.entity.types.Roles[mt]
+	for mt, r := range h.MessageTypes().All() {
+		xr, ok := c.entity.types.RoleOf(mt)
 
 		if !ok || xr == r {
 			continue
@@ -139,7 +129,8 @@ func (c *applicationConfigurer) guardAgainstConflictingRoles(h RichHandler) {
 		// we know there's a conflict, now we just need to find a handler that
 		// refers to this message type as some other role.
 		xh, _ := c.app.richHandlers.Find(func(h RichHandler) bool {
-			return h.MessageTypes().Roles[mt] != r
+			x, ok := h.MessageTypes().RoleOf(mt)
+			return ok && x != r
 		})
 
 		validation.Panicf(

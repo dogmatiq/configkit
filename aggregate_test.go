@@ -48,11 +48,6 @@ var _ = Describe("func FromAggregate()", func() {
 			It("returns the expected message names", func() {
 				Expect(cfg.MessageNames()).To(Equal(
 					EntityMessageNames{
-						Roles: message.NameRoles{
-							cfixtures.MessageATypeName: message.CommandRole,
-							cfixtures.MessageBTypeName: message.CommandRole,
-							cfixtures.MessageETypeName: message.EventRole,
-						},
 						Produced: message.NameRoles{
 							cfixtures.MessageETypeName: message.EventRole,
 						},
@@ -69,11 +64,6 @@ var _ = Describe("func FromAggregate()", func() {
 			It("returns the expected message types", func() {
 				Expect(cfg.MessageTypes()).To(Equal(
 					EntityMessageTypes{
-						Roles: message.TypeRoles{
-							cfixtures.MessageAType: message.CommandRole,
-							cfixtures.MessageBType: message.CommandRole,
-							cfixtures.MessageEType: message.EventRole,
-						},
 						Produced: message.TypeRoles{
 							cfixtures.MessageEType: message.EventRole,
 						},

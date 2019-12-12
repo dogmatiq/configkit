@@ -65,20 +65,13 @@ func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role, verb strin
 		)
 	}
 
-	if c.entity.names.Roles == nil {
-		c.entity.names.Roles = message.NameRoles{}
-		c.entity.types.Roles = message.TypeRoles{}
-	}
-
 	if c.entity.names.Consumed == nil {
 		c.entity.names.Consumed = message.NameRoles{}
 		c.entity.types.Consumed = message.TypeRoles{}
 	}
 
 	n := mt.Name()
-	c.entity.names.Roles.Add(n, r)
 	c.entity.names.Consumed.Add(n, r)
-	c.entity.types.Roles.Add(mt, r)
 	c.entity.types.Consumed.Add(mt, r)
 }
 
@@ -96,10 +89,6 @@ func (c *handlerConfigurer) produces(m dogma.Message, r message.Role, verb strin
 			r,
 		)
 	}
-	if c.entity.names.Roles == nil {
-		c.entity.names.Roles = message.NameRoles{}
-		c.entity.types.Roles = message.TypeRoles{}
-	}
 
 	if c.entity.names.Produced == nil {
 		c.entity.names.Produced = message.NameRoles{}
@@ -107,15 +96,13 @@ func (c *handlerConfigurer) produces(m dogma.Message, r message.Role, verb strin
 	}
 
 	n := mt.Name()
-	c.entity.names.Roles.Add(n, r)
 	c.entity.names.Produced.Add(n, r)
-	c.entity.types.Roles.Add(mt, r)
 	c.entity.types.Produced.Add(mt, r)
 }
 
 // guardAgainstConflictingRoles panics if mt is already used in some role other than r.
 func (c *handlerConfigurer) guardAgainstConflictingRoles(mt message.Type, r message.Role) {
-	x, ok := c.entity.types.Roles[mt]
+	x, ok := c.entity.types.RoleOf(mt)
 
 	if !ok || x == r {
 		return
@@ -133,8 +120,10 @@ func (c *handlerConfigurer) guardAgainstConflictingRoles(mt message.Type, r mess
 // mustConsume panics if the handler does not consume any messages of the given role.
 func (c *handlerConfigurer) mustConsume(r message.Role) {
 	for mt := range c.entity.names.Consumed {
-		if r == c.entity.names.Roles[mt] {
-			return
+		if x, ok := c.entity.names.RoleOf(mt); ok {
+			if x == r {
+				return
+			}
 		}
 	}
 
@@ -150,8 +139,10 @@ func (c *handlerConfigurer) mustConsume(r message.Role) {
 // mustProduce panics if the handler does not produce any messages of the given role.
 func (c *handlerConfigurer) mustProduce(r message.Role) {
 	for mt := range c.entity.names.Produced {
-		if r == c.entity.names.Roles[mt] {
-			return
+		if x, ok := c.entity.names.RoleOf(mt); ok {
+			if x == r {
+				return
+			}
 		}
 	}
 

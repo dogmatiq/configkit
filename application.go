@@ -87,7 +87,6 @@ func IsApplicationEqual(a, b Application) bool {
 func ForeignMessageNames(app Application) EntityMessageNames {
 	m := app.MessageNames()
 	f := EntityMessageNames{
-		Roles:    message.NameRoles{},
 		Produced: message.NameRoles{},
 		Consumed: message.NameRoles{},
 	}
@@ -97,7 +96,6 @@ func ForeignMessageNames(app Application) EntityMessageNames {
 		// produced by this application, but not consumed by this application is
 		// considered foreign.
 		if r == message.CommandRole && !m.Consumed.Has(n) {
-			f.Roles.Add(n, r)
 			f.Produced.Add(n, r)
 		}
 	}
@@ -106,7 +104,6 @@ func ForeignMessageNames(app Application) EntityMessageNames {
 		// Any message, of any role, that is consumed by this application but
 		// not produced by this application is considered foreign.
 		if !m.Produced.Has(n) {
-			f.Roles.Add(n, r)
 			f.Consumed.Add(n, r)
 		}
 	}
@@ -124,7 +121,6 @@ func ForeignMessageNames(app Application) EntityMessageNames {
 func ForeignMessageTypes(app RichApplication) EntityMessageTypes {
 	m := app.MessageTypes()
 	f := EntityMessageTypes{
-		Roles:    message.TypeRoles{},
 		Produced: message.TypeRoles{},
 		Consumed: message.TypeRoles{},
 	}
@@ -134,7 +130,6 @@ func ForeignMessageTypes(app RichApplication) EntityMessageTypes {
 		// produced by this application, but not consumed by this application is
 		// considered foreign.
 		if r == message.CommandRole && !m.Consumed.Has(t) {
-			f.Roles.Add(t, r)
 			f.Produced.Add(t, r)
 		}
 	}
@@ -143,7 +138,6 @@ func ForeignMessageTypes(app RichApplication) EntityMessageTypes {
 		// Any message, of any role, that is consumed by this application but
 		// not produced by this application is considered foreign.
 		if !m.Produced.Has(t) {
-			f.Roles.Add(t, r)
 			f.Consumed.Add(t, r)
 		}
 	}

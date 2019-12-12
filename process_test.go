@@ -49,12 +49,6 @@ var _ = Describe("func FromProcess()", func() {
 			It("returns the expected message names", func() {
 				Expect(cfg.MessageNames()).To(Equal(
 					EntityMessageNames{
-						Roles: message.NameRoles{
-							cfixtures.MessageATypeName: message.EventRole,
-							cfixtures.MessageBTypeName: message.EventRole,
-							cfixtures.MessageCTypeName: message.CommandRole,
-							cfixtures.MessageTTypeName: message.TimeoutRole,
-						},
 						Produced: message.NameRoles{
 							cfixtures.MessageCTypeName: message.CommandRole,
 							cfixtures.MessageTTypeName: message.TimeoutRole,
@@ -73,12 +67,6 @@ var _ = Describe("func FromProcess()", func() {
 			It("returns the expected message types", func() {
 				Expect(cfg.MessageTypes()).To(Equal(
 					EntityMessageTypes{
-						Roles: message.TypeRoles{
-							cfixtures.MessageAType: message.EventRole,
-							cfixtures.MessageBType: message.EventRole,
-							cfixtures.MessageCType: message.CommandRole,
-							cfixtures.MessageTType: message.TimeoutRole,
-						},
 						Produced: message.TypeRoles{
 							cfixtures.MessageCType: message.CommandRole,
 							cfixtures.MessageTType: message.TimeoutRole,
