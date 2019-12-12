@@ -35,7 +35,7 @@ var _ = Describe("type EntityMessageNames", func() {
 			Expect(r).To(Equal(message.CommandRole))
 		})
 
-		It("returns false if the message is neither produced or consumed", func() {
+		It("returns false if the message is neither produced nor consumed", func() {
 			m := EntityMessageNames{}
 
 			_, ok := m.RoleOf(fixtures.MessageATypeName)
@@ -153,7 +153,7 @@ var _ = Describe("type EntityMessageTypes", func() {
 			Expect(r).To(Equal(message.CommandRole))
 		})
 
-		It("returns false if the message is neither produced or consumed", func() {
+		It("returns false if the message is neither produced nor consumed", func() {
 			m := EntityMessageTypes{}
 
 			_, ok := m.RoleOf(fixtures.MessageAType)
