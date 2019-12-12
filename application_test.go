@@ -89,15 +89,6 @@ var _ = Describe("func FromApplication()", func() {
 			It("returns the expected message names", func() {
 				Expect(cfg.MessageNames()).To(Equal(
 					EntityMessageNames{
-						Roles: message.NameRoles{
-							cfixtures.MessageATypeName: message.CommandRole,
-							cfixtures.MessageBTypeName: message.EventRole,
-							cfixtures.MessageCTypeName: message.CommandRole,
-							cfixtures.MessageDTypeName: message.EventRole,
-							cfixtures.MessageETypeName: message.EventRole,
-							cfixtures.MessageFTypeName: message.EventRole,
-							cfixtures.MessageTTypeName: message.TimeoutRole,
-						},
 						Produced: message.NameRoles{
 							cfixtures.MessageCTypeName: message.CommandRole,
 							cfixtures.MessageETypeName: message.EventRole,
@@ -121,15 +112,6 @@ var _ = Describe("func FromApplication()", func() {
 			It("returns the expected message types", func() {
 				Expect(cfg.MessageTypes()).To(Equal(
 					EntityMessageTypes{
-						Roles: message.TypeRoles{
-							cfixtures.MessageAType: message.CommandRole,
-							cfixtures.MessageBType: message.EventRole,
-							cfixtures.MessageCType: message.CommandRole,
-							cfixtures.MessageDType: message.EventRole,
-							cfixtures.MessageEType: message.EventRole,
-							cfixtures.MessageFType: message.EventRole,
-							cfixtures.MessageTType: message.TimeoutRole,
-						},
 						Produced: message.TypeRoles{
 							cfixtures.MessageCType: message.CommandRole,
 							cfixtures.MessageEType: message.EventRole,
@@ -608,11 +590,6 @@ var _ = Context("foreign messages", func() {
 		It("returns the set of messages that belong to another application", func() {
 			Expect(ForeignMessageNames(cfg)).To(Equal(
 				EntityMessageNames{
-					Roles: message.NameRoles{
-						cfixtures.MessageCTypeName: message.CommandRole,
-						cfixtures.MessageFTypeName: message.EventRole,
-						cfixtures.MessageDTypeName: message.CommandRole,
-					},
 					Produced: message.NameRoles{
 						cfixtures.MessageDTypeName: message.CommandRole,
 					},
@@ -629,11 +606,6 @@ var _ = Context("foreign messages", func() {
 		It("returns the set of messages that belong to another application", func() {
 			Expect(ForeignMessageTypes(cfg)).To(Equal(
 				EntityMessageTypes{
-					Roles: message.TypeRoles{
-						cfixtures.MessageCType: message.CommandRole,
-						cfixtures.MessageFType: message.EventRole,
-						cfixtures.MessageDType: message.CommandRole,
-					},
 					Produced: message.TypeRoles{
 						cfixtures.MessageDType: message.CommandRole,
 					},

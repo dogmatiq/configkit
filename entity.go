@@ -46,9 +46,6 @@ type RichEntity interface {
 // EntityMessageNames describes how messages are used within a Dogma entity
 // where each message is identified by its name.
 type EntityMessageNames struct {
-	// Roles is a map of message name to its role within the entity.
-	Roles message.NameRoles
-
 	// Produced is a set of message names produced by the entity.
 	Produced message.NameRoles
 
@@ -56,19 +53,40 @@ type EntityMessageNames struct {
 	Consumed message.NameRoles
 }
 
+// RoleOf returns the role associated with n, if any.
+func (m EntityMessageNames) RoleOf(n message.Name) (message.Role, bool) {
+	if r, ok := m.Produced[n]; ok {
+		return r, true
+	}
+
+	r, ok := m.Consumed[n]
+	return r, ok
+}
+
+// All returns the type roles of all messages, both produced and consumed.
+func (m EntityMessageNames) All() message.NameRoles {
+	roles := message.NameRoles{}
+
+	for n, r := range m.Produced {
+		roles[n] = r
+	}
+
+	for n, r := range m.Consumed {
+		roles[n] = r
+	}
+
+	return roles
+}
+
 // IsEqual returns true if m is equal to o.
 func (m EntityMessageNames) IsEqual(o EntityMessageNames) bool {
-	return m.Roles.IsEqual(o.Roles) &&
-		m.Produced.IsEqual(o.Produced) &&
+	return m.Produced.IsEqual(o.Produced) &&
 		m.Consumed.IsEqual(o.Consumed)
 }
 
 // EntityMessageTypes describes how messages are used within a Dogma entity
 // where each message is identified by its type.
 type EntityMessageTypes struct {
-	// Roles is a map of message type to its role within the entity.
-	Roles message.TypeRoles
-
 	// Produced is a set of message types produced by the entity.
 	Produced message.TypeRoles
 
@@ -76,10 +94,34 @@ type EntityMessageTypes struct {
 	Consumed message.TypeRoles
 }
 
+// RoleOf returns the role associated with t, if any.
+func (m EntityMessageTypes) RoleOf(t message.Type) (message.Role, bool) {
+	if r, ok := m.Produced[t]; ok {
+		return r, true
+	}
+
+	r, ok := m.Consumed[t]
+	return r, ok
+}
+
+// All returns the type roles of all messages, both produced and consumed.
+func (m EntityMessageTypes) All() message.TypeRoles {
+	roles := message.TypeRoles{}
+
+	for t, r := range m.Produced {
+		roles[t] = r
+	}
+
+	for t, r := range m.Consumed {
+		roles[t] = r
+	}
+
+	return roles
+}
+
 // IsEqual returns true if m is equal to o.
 func (m EntityMessageTypes) IsEqual(o EntityMessageTypes) bool {
-	return m.Roles.IsEqual(o.Roles) &&
-		m.Produced.IsEqual(o.Produced) &&
+	return m.Produced.IsEqual(o.Produced) &&
 		m.Consumed.IsEqual(o.Consumed)
 }
 
