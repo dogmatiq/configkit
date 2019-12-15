@@ -3,7 +3,7 @@ package configkit_test
 import (
 	"strings"
 
-	. "github.com/dogmatiq/configkit" // can't dot-import due to conflicts
+	. "github.com/dogmatiq/configkit"
 	"github.com/dogmatiq/dogma"
 	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflicts
 	. "github.com/onsi/ginkgo"
