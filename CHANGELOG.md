@@ -16,18 +16,17 @@ The format is based on [Keep a Changelog], and this project adheres to
 - **[BC]** Remove `Application.ForeignMessageNames()`
 - **[BC]** Remove `RichApplication.ForeignMessageTypes()`
 - **[BC]** Remove `Errorf` and `Panicf()`
+- **[BC]** Remove `Roles` field from `EntityMessageNames` and `EntityMessageTypes`
 
 ### Added
 
-- Add `ForeignMessageNames()`
-- Add `ForeignMessageTypes()`
+- Add `ForeignMessageNames()` and `ForeignMessageTypes()`
 - Add `IsApplicationEqual()` and `IsHandlerEqual()`
-- Add `HandlerSet.IsEqual()`
-- Add `RichHandlerSet.IsEqual()`
+- Add `ToString()`
+- Add `IsEqual()` method to `HandlerSet` and `RichHandlerSet`
 - Add `Identity.[Un]MarshalText()` and `[Un]MarshalBinary()`
-- Add `NameRoles.IsEqual()` and `TypeRoles.IsEqual()`
-- Add `NameSet.IsEqual()` and `TypeSet.IsEqual()`
-- Add `EntityMessageNames.IsEqual()` and `EntityMessageTypes.IsEqual()`
+- Add `IsEqual()` method to `NameRoles`, `NameSet`, `TypeRoles` and `TypeSet`
+- Add `IsEqual()`, `All()` and `RoleOf()` methods to `EntityMessageNames` and `EntityMessageTypes`
 
 ## [0.1.1]
 
