@@ -13,6 +13,12 @@ var _ = Describe("type Name", func() {
 			n := NameOf(fixtures.MessageA1)
 			Expect(n.String()).To(Equal("github.com/dogmatiq/dogma/fixtures.MessageA"))
 		})
+
+		It("panics if the message is nil", func() {
+			Expect(func() {
+				NameOf(nil)
+			}).To(Panic())
+		})
 	})
 
 	Describe("func MarshalText()", func() {

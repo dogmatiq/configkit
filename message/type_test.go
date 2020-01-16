@@ -26,6 +26,12 @@ var _ = Describe("type Type", func() {
 			Expect(ta).NotTo(Equal(tb))
 			Expect(ta != tb).To(BeTrue()) // we're testing != here specifically, hence not using NotTo(Equal())
 		})
+
+		It("panics if the message is nil", func() {
+			Expect(func() {
+				TypeOf(nil)
+			}).To(Panic())
+		})
 	})
 
 	Describe("func Name()", func() {

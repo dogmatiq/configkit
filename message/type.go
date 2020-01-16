@@ -32,6 +32,10 @@ type Type struct {
 
 // TypeOf returns the message type of m.
 func TypeOf(m dogma.Message) Type {
+	if m == nil {
+		panic("message must not be nil")
+	}
+
 	rt := reflect.TypeOf(m)
 	n := typename.Of(rt)
 
