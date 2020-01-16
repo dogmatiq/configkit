@@ -31,8 +31,12 @@ type Name struct {
 }
 
 // NameOf returns the fully-qualified type name of v.
-func NameOf(v dogma.Message) Name {
-	rt := reflect.TypeOf(v)
+func NameOf(m dogma.Message) Name {
+	if m == nil {
+		panic("message must not be nil")
+	}
+
+	rt := reflect.TypeOf(m)
 	n := typename.Of(rt)
 	return Name{n}
 }
