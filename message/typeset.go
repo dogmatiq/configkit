@@ -30,6 +30,65 @@ func TypesOf(messages ...dogma.Message) TypeSet {
 	return s
 }
 
+// IntersectionT returns the intersection of the given collections.
+//
+// That is, it returns a set containing only those types that are present in all
+// of the given collections.
+func IntersectionT(collections ...TypeCollection) TypeSet {
+	r := TypeSet{}
+
+	if len(collections) > 0 {
+		collections[0].Each(func(t Type) bool {
+			for _, c := range collections[1:] {
+				if !c.Has(t) {
+					return true
+				}
+			}
+
+			r.Add(t)
+
+			return true
+		})
+	}
+
+	return r
+}
+
+// UnionT returns the union of the given collections.
+//
+// That is, it returns a set containing all of the types present in all of the
+// given collections.
+func UnionT(collections ...TypeCollection) TypeSet {
+	r := TypeSet{}
+
+	for _, c := range collections {
+		c.Each(func(t Type) bool {
+			r.Add(t)
+			return true
+		})
+	}
+
+	return r
+}
+
+// DiffT returns the difference between a and b.
+//
+// That is, it returns a set containing all of the types present in a that are
+// not present in b.
+func DiffT(a, b TypeCollection) TypeSet {
+	r := TypeSet{}
+
+	a.Each(func(t Type) bool {
+		if !b.Has(t) {
+			r.Add(t)
+		}
+
+		return true
+	})
+
+	return r
+}
+
 // Has returns true if s contains t.
 func (s TypeSet) Has(t Type) bool {
 	_, ok := s[t]

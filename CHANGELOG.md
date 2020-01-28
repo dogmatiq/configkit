@@ -13,8 +13,8 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ### Added
 
-- Add `message.IsIntersectingN()` and `IsSubsetN()`
-- Add `message.IntersectionN()` and `UnionN()` and `DiffN()`
+- Add `message.IsIntersectingN()`, `IsSubsetN()`, `IntersectionN()`, `UnionN()` and `DiffN()`
+- Add `message.IsIntersectingT()`, `IsSubsetT()`, `IntersectionT()`, `UnionT()` and `DiffT()`
 
 ## [0.2.1] - 2020-01-16
 

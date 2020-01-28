@@ -24,6 +24,24 @@ type TypeCollection interface {
 	Each(fn func(Type) bool) bool
 }
 
+// IsIntersectingT returns true if a and b are intersecting.
+//
+// That is, it returns true if a and b contain any of the same types.
+func IsIntersectingT(a, b TypeCollection) bool {
+	return !a.Each(func(t Type) bool {
+		return !b.Has(t)
+	})
+}
+
+// IsSubsetT returns true if sub is a (non-strict) subset of sup.
+//
+// That is, it returns true if sup contains all of the types in sub.
+func IsSubsetT(sub, sup TypeCollection) bool {
+	return sub.Each(func(t Type) bool {
+		return sup.Has(t)
+	})
+}
+
 // Type represents the type of a Dogma message.
 type Type struct {
 	n  Name

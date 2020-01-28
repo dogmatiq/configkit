@@ -3,6 +3,7 @@ package message_test
 import (
 	. "github.com/dogmatiq/configkit/fixtures"
 	. "github.com/dogmatiq/configkit/message"
+	"github.com/dogmatiq/dogma/fixtures"
 	. "github.com/dogmatiq/dogma/fixtures"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -33,6 +34,90 @@ var _ = Describe("type TypeSet", func() {
 				MessageAType: struct{}{},
 				MessageBType: struct{}{},
 			}))
+		})
+	})
+
+	Describe("func IntersectionT()", func() {
+		It("returns an empty set if no sets are given", func() {
+			Expect(IntersectionT()).To(BeEmpty())
+		})
+
+		It("returns the original set if a single set is given", func() {
+			a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+			Expect(IntersectionT(a)).To(Equal(a))
+		})
+
+		It("returns the original set for identical sets", func() {
+			a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+			b := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+			c := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+			Expect(IntersectionT(a, b, c)).To(Equal(a))
+		})
+
+		It("returns an empty set for disjoint sets", func() {
+			a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+			b := TypesOf(fixtures.MessageC1, fixtures.MessageD1) // disjoint to a
+			c := TypesOf(fixtures.MessageC1, fixtures.MessageD1) // same as c
+			Expect(IntersectionT(a, b, c)).To(BeEmpty())
+		})
+
+		It("returns the intersection", func() {
+			a := TypesOf(fixtures.MessageA1, fixtures.MessageB1, fixtures.MessageC1)
+			b := TypesOf(fixtures.MessageB1, fixtures.MessageC1, fixtures.MessageD1)
+			c := TypesOf(fixtures.MessageC1, fixtures.MessageD1, fixtures.MessageE1)
+			Expect(IntersectionT(a, b, c)).To(Equal(TypesOf(fixtures.MessageC1)))
+		})
+	})
+
+	Describe("func UnionT()", func() {
+		It("returns an empty set if no sets are given", func() {
+			Expect(UnionT()).To(BeEmpty())
+		})
+
+		It("returns the original set if a single set is given", func() {
+			a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+			Expect(UnionT(a)).To(Equal(a))
+		})
+
+		It("returns the original set for identical sets", func() {
+			a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+			b := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+			c := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+			Expect(UnionT(a, b, c)).To(Equal(a))
+		})
+
+		It("returns the union", func() {
+			a := TypesOf(fixtures.MessageA1, fixtures.MessageB1, fixtures.MessageC1)
+			b := TypesOf(fixtures.MessageB1, fixtures.MessageC1, fixtures.MessageD1)
+			c := TypesOf(fixtures.MessageC1, fixtures.MessageD1, fixtures.MessageE1)
+
+			Expect(UnionT(a, b, c)).To(Equal(TypesOf(
+				fixtures.MessageA1,
+				fixtures.MessageB1,
+				fixtures.MessageC1,
+				fixtures.MessageD1,
+				fixtures.MessageE1,
+			)))
+		})
+	})
+
+	Describe("func DiffT()", func() {
+		It("returns an empty set for identical sets", func() {
+			a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+			b := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+			Expect(DiffT(a, b)).To(BeEmpty())
+		})
+
+		It("returns an the original set for disjoint sets", func() {
+			a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+			b := TypesOf(fixtures.MessageC1, fixtures.MessageD1)
+			Expect(DiffT(a, b)).To(Equal(a))
+		})
+
+		It("returns the diff", func() {
+			a := TypesOf(fixtures.MessageA1, fixtures.MessageB1, fixtures.MessageC1)
+			b := TypesOf(fixtures.MessageB1, fixtures.MessageC1)
+			Expect(DiffT(a, b)).To(Equal(TypesOf(fixtures.MessageA1)))
 		})
 	})
 

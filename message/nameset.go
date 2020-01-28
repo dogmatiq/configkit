@@ -82,6 +82,7 @@ func DiffN(a, b NameCollection) NameSet {
 		if !b.Has(n) {
 			r.Add(n)
 		}
+
 		return true
 	})
 
