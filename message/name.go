@@ -25,6 +25,20 @@ type NameCollection interface {
 	Each(fn func(Name) bool) bool
 }
 
+// IsIntersectingN returns true if a and b contain any of the same names.
+func IsIntersectingN(a, b NameCollection) bool {
+	return !a.Each(func(n Name) bool {
+		return !b.Has(n)
+	})
+}
+
+// IsSubsetN returns true if sub is a (non-strict) subset of sup.
+func IsSubsetN(sub, sup NameCollection) bool {
+	return sub.Each(func(n Name) bool {
+		return sup.Has(n)
+	})
+}
+
 // Name is the fully-qualified name of a message type.
 type Name struct {
 	n string
