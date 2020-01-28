@@ -27,6 +27,8 @@ type TypeCollection interface {
 // IsIntersectingT returns true if a and b are intersecting.
 //
 // That is, it returns true if a and b contain any of the same types.
+//
+// See https://en.wikipedia.org/wiki/Set_(mathematics)#Intersections.
 func IsIntersectingT(a, b TypeCollection) bool {
 	return !a.Each(func(t Type) bool {
 		return !b.Has(t)
@@ -36,6 +38,8 @@ func IsIntersectingT(a, b TypeCollection) bool {
 // IsSubsetT returns true if sub is a (non-strict) subset of sup.
 //
 // That is, it returns true if sup contains all of the types in sub.
+//
+// See https://en.wikipedia.org/wiki/Set_(mathematics)#Subsets.
 func IsSubsetT(sub, sup TypeCollection) bool {
 	return sub.Each(func(t Type) bool {
 		return sup.Has(t)

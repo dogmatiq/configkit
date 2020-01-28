@@ -33,7 +33,10 @@ func NamesOf(messages ...dogma.Message) NameSet {
 // IntersectionN returns the intersection of the given collections.
 //
 // That is, it returns a set containing only those names that are present in all
-// of the given collections.
+// of the given collections. It returns an empty set if no collections are
+// given.
+//
+// See https://en.wikipedia.org/wiki/Intersection_(set_theory).
 func IntersectionN(collections ...NameCollection) NameSet {
 	r := NameSet{}
 
@@ -57,7 +60,9 @@ func IntersectionN(collections ...NameCollection) NameSet {
 // UnionN returns the union of the given collections.
 //
 // That is, it returns a set containing all of the names present in all of the
-// given collections.
+// given collections. It returns an empty set if no collections are given.
+//
+// See https://en.wikipedia.org/wiki/Union_(set_theory).
 func UnionN(collections ...NameCollection) NameSet {
 	r := NameSet{}
 
@@ -75,6 +80,8 @@ func UnionN(collections ...NameCollection) NameSet {
 //
 // That is, it returns a set containing all of the names present in a that are
 // not present in b.
+//
+// See https://en.wikipedia.org/wiki/Complement_(set_theory)#Relative_complement.
 func DiffN(a, b NameCollection) NameSet {
 	r := NameSet{}
 

@@ -28,6 +28,8 @@ type NameCollection interface {
 // IsIntersectingN returns true if a and b are intersecting.
 //
 // That is, it returns true if a and b contain any of the same names.
+//
+// See https://en.wikipedia.org/wiki/Set_(mathematics)#Intersections.
 func IsIntersectingN(a, b NameCollection) bool {
 	return !a.Each(func(n Name) bool {
 		return !b.Has(n)
@@ -37,6 +39,8 @@ func IsIntersectingN(a, b NameCollection) bool {
 // IsSubsetN returns true if sub is a (non-strict) subset of sup.
 //
 // That is, it returns true if sup contains all of the names in sub.
+//
+// See https://en.wikipedia.org/wiki/Set_(mathematics)#Subsets.
 func IsSubsetN(sub, sup NameCollection) bool {
 	return sub.Each(func(n Name) bool {
 		return sup.Has(n)

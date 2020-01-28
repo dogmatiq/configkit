@@ -33,7 +33,10 @@ func TypesOf(messages ...dogma.Message) TypeSet {
 // IntersectionT returns the intersection of the given collections.
 //
 // That is, it returns a set containing only those types that are present in all
-// of the given collections.
+// of the given collections. It returns an empty set if no collections are
+// given.
+//
+// See https://en.wikipedia.org/wiki/Intersection_(set_theory).
 func IntersectionT(collections ...TypeCollection) TypeSet {
 	r := TypeSet{}
 
@@ -57,7 +60,9 @@ func IntersectionT(collections ...TypeCollection) TypeSet {
 // UnionT returns the union of the given collections.
 //
 // That is, it returns a set containing all of the types present in all of the
-// given collections.
+// given collections. It returns an empty set if no collections are given.
+//
+// See https://en.wikipedia.org/wiki/Union_(set_theory).
 func UnionT(collections ...TypeCollection) TypeSet {
 	r := TypeSet{}
 
@@ -75,6 +80,8 @@ func UnionT(collections ...TypeCollection) TypeSet {
 //
 // That is, it returns a set containing all of the types present in a that are
 // not present in b.
+//
+// See https://en.wikipedia.org/wiki/Complement_(set_theory)#Relative_complement.
 func DiffT(a, b TypeCollection) TypeSet {
 	r := TypeSet{}
 
