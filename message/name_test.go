@@ -7,6 +7,52 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+var _ = Describe("func IsIntersectingN()", func() {
+	It("returns true for identical sets", func() {
+		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+		Expect(IsIntersectingN(a, b)).To(BeTrue())
+	})
+
+	It("returns false for disjoint sets", func() {
+		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := NamesOf(fixtures.MessageC1, fixtures.MessageD1)
+		Expect(IsIntersectingN(a, b)).To(BeFalse())
+	})
+
+	It("returns true for intersecting sets", func() {
+		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := NamesOf(fixtures.MessageB1, fixtures.MessageC1)
+		Expect(IsIntersectingN(a, b)).To(BeTrue())
+	})
+})
+
+var _ = Describe("func IsSubsetN()", func() {
+	It("returns true for identical sets", func() {
+		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+		Expect(IsSubsetN(a, b)).To(BeTrue())
+	})
+
+	It("returns true for strict subsets", func() {
+		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := NamesOf(fixtures.MessageA1, fixtures.MessageB1, fixtures.MessageC1)
+		Expect(IsSubsetN(a, b)).To(BeTrue())
+	})
+
+	It("returns false for supersets", func() {
+		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1, fixtures.MessageC1)
+		b := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+		Expect(IsSubsetN(a, b)).To(BeFalse())
+	})
+
+	It("returns false for disjoint sets", func() {
+		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := NamesOf(fixtures.MessageC1, fixtures.MessageD1)
+		Expect(IsSubsetN(a, b)).To(BeFalse())
+	})
+})
+
 var _ = Describe("type Name", func() {
 	Describe("func NameOf()", func() {
 		It("returns the fully-qualified name", func() {

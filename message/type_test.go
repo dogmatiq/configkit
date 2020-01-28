@@ -9,6 +9,52 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+var _ = Describe("func IsIntersectingT()", func() {
+	It("returns true for identical sets", func() {
+		a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+		Expect(IsIntersectingT(a, b)).To(BeTrue())
+	})
+
+	It("returns false for disjoint sets", func() {
+		a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := TypesOf(fixtures.MessageC1, fixtures.MessageD1)
+		Expect(IsIntersectingT(a, b)).To(BeFalse())
+	})
+
+	It("returns true for intersecting sets", func() {
+		a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := TypesOf(fixtures.MessageB1, fixtures.MessageC1)
+		Expect(IsIntersectingT(a, b)).To(BeTrue())
+	})
+})
+
+var _ = Describe("func IsSubsetT()", func() {
+	It("returns true for identical sets", func() {
+		a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+		Expect(IsSubsetT(a, b)).To(BeTrue())
+	})
+
+	It("returns true for strict subsets", func() {
+		a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := TypesOf(fixtures.MessageA1, fixtures.MessageB1, fixtures.MessageC1)
+		Expect(IsSubsetT(a, b)).To(BeTrue())
+	})
+
+	It("returns false for supersets", func() {
+		a := TypesOf(fixtures.MessageA1, fixtures.MessageB1, fixtures.MessageC1)
+		b := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+		Expect(IsSubsetT(a, b)).To(BeFalse())
+	})
+
+	It("returns false for disjoint sets", func() {
+		a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := TypesOf(fixtures.MessageC1, fixtures.MessageD1)
+		Expect(IsSubsetT(a, b)).To(BeFalse())
+	})
+})
+
 var _ = Describe("type Type", func() {
 	Describe("func TypeOf()", func() {
 		It("returns values that compare as equal for messages of the same type", func() {

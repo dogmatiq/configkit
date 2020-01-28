@@ -30,6 +30,72 @@ func NamesOf(messages ...dogma.Message) NameSet {
 	return s
 }
 
+// IntersectionN returns the intersection of the given collections.
+//
+// That is, it returns a set containing only those names that are present in all
+// of the given collections. It returns an empty set if no collections are
+// given.
+//
+// See https://en.wikipedia.org/wiki/Intersection_(set_theory).
+func IntersectionN(collections ...NameCollection) NameSet {
+	r := NameSet{}
+
+	if len(collections) > 0 {
+		collections[0].Each(func(n Name) bool {
+			for _, c := range collections[1:] {
+				if !c.Has(n) {
+					return true
+				}
+			}
+
+			r.Add(n)
+
+			return true
+		})
+	}
+
+	return r
+}
+
+// UnionN returns the union of the given collections.
+//
+// That is, it returns a set containing all of the names present in all of the
+// given collections. It returns an empty set if no collections are given.
+//
+// See https://en.wikipedia.org/wiki/Union_(set_theory).
+func UnionN(collections ...NameCollection) NameSet {
+	r := NameSet{}
+
+	for _, c := range collections {
+		c.Each(func(n Name) bool {
+			r.Add(n)
+			return true
+		})
+	}
+
+	return r
+}
+
+// DiffN returns the difference between a and b.
+//
+// That is, it returns a set containing all of the names present in a that are
+// not present in b.
+//
+// See https://en.wikipedia.org/wiki/Complement_(set_theory)#Relative_complement.
+func DiffN(a, b NameCollection) NameSet {
+	r := NameSet{}
+
+	a.Each(func(n Name) bool {
+		if !b.Has(n) {
+			r.Add(n)
+		}
+
+		return true
+	})
+
+	return r
+}
+
 // Has returns true if s contains n.
 func (s NameSet) Has(n Name) bool {
 	_, ok := s[n]
