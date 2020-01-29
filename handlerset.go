@@ -147,6 +147,58 @@ func (s HandlerSet) AcceptVisitor(ctx context.Context, v Visitor) error {
 	return nil
 }
 
+// Aggregates returns a slice containing the aggregate handlers in the set.
+func (s HandlerSet) Aggregates() []Aggregate {
+	var r []Aggregate
+
+	for _, h := range s {
+		if h.HandlerType() == AggregateHandlerType {
+			r = append(r, h)
+		}
+	}
+
+	return r
+}
+
+// Processes returns a slice containing the process handlers in the set.
+func (s HandlerSet) Processes() []Process {
+	var r []Process
+
+	for _, h := range s {
+		if h.HandlerType() == ProcessHandlerType {
+			r = append(r, h)
+		}
+	}
+
+	return r
+}
+
+// Integrations returns a slice containing the integration handlers in the set.
+func (s HandlerSet) Integrations() []Integration {
+	var r []Integration
+
+	for _, h := range s {
+		if h.HandlerType() == IntegrationHandlerType {
+			r = append(r, h)
+		}
+	}
+
+	return r
+}
+
+// Projections returns a slice containing the projection handlers in the set.
+func (s HandlerSet) Projections() []Projection {
+	var r []Projection
+
+	for _, h := range s {
+		if h.HandlerType() == ProjectionHandlerType {
+			r = append(r, h)
+		}
+	}
+
+	return r
+}
+
 // RangeAggregates invokes fn once for each aggregate handler in the set.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all
@@ -384,6 +436,58 @@ func (s RichHandlerSet) AcceptRichVisitor(ctx context.Context, v RichVisitor) er
 	}
 
 	return nil
+}
+
+// Aggregates returns a slice containing the aggregate handlers in the set.
+func (s RichHandlerSet) Aggregates() []RichAggregate {
+	var r []RichAggregate
+
+	for _, h := range s {
+		if x, ok := h.(RichAggregate); ok {
+			r = append(r, x)
+		}
+	}
+
+	return r
+}
+
+// Processes returns a slice containing the process handlers in the set.
+func (s RichHandlerSet) Processes() []RichProcess {
+	var r []RichProcess
+
+	for _, h := range s {
+		if x, ok := h.(RichProcess); ok {
+			r = append(r, x)
+		}
+	}
+
+	return r
+}
+
+// Integrations returns a slice containing the integration handlers in the set.
+func (s RichHandlerSet) Integrations() []RichIntegration {
+	var r []RichIntegration
+
+	for _, h := range s {
+		if x, ok := h.(RichIntegration); ok {
+			r = append(r, x)
+		}
+	}
+
+	return r
+}
+
+// Projections returns a slice containing the projection handlers in the set.
+func (s RichHandlerSet) Projections() []RichProjection {
+	var r []RichProjection
+
+	for _, h := range s {
+		if x, ok := h.(RichProjection); ok {
+			r = append(r, x)
+		}
+	}
+
+	return r
 }
 
 // RangeAggregates invokes fn once for each aggregate handler in the set.
