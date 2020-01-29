@@ -147,6 +147,78 @@ func (s HandlerSet) AcceptVisitor(ctx context.Context, v Visitor) error {
 	return nil
 }
 
+// RangeAggregates invokes fn once for each aggregate handler in the set.
+//
+// Iteration stops when fn returns false or once fn has been invoked for all
+// aggregate handlers in the set.
+//
+// It returns true if fn returned true for all aggregate handlers.
+func (s HandlerSet) RangeAggregates(fn func(Aggregate) bool) bool {
+	for _, h := range s {
+		if h.HandlerType() == AggregateHandlerType {
+			if !fn(h) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+// RangeProcesses invokes fn once for each process handler in the set.
+//
+// Iteration stops when fn returns false or once fn has been invoked for all
+// process handlers in the set.
+//
+// It returns true if fn returned true for all process handlers.
+func (s HandlerSet) RangeProcesses(fn func(Process) bool) bool {
+	for _, h := range s {
+		if h.HandlerType() == ProcessHandlerType {
+			if !fn(h) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+// RangeIntegrations invokes fn once for each integration handler in the set.
+//
+// Iteration stops when fn returns false or once fn has been invoked for all
+// integration handlers in the set.
+//
+// It returns true if fn returned true for all integration handlers.
+func (s HandlerSet) RangeIntegrations(fn func(Integration) bool) bool {
+	for _, h := range s {
+		if h.HandlerType() == IntegrationHandlerType {
+			if !fn(h) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+// RangeProjections invokes fn once for each projection handler in the set.
+//
+// Iteration stops when fn returns false or once fn has been invoked for all
+// projection handlers in the set.
+//
+// It returns true if fn returned true for all projection handlers.
+func (s HandlerSet) RangeProjections(fn func(Projection) bool) bool {
+	for _, h := range s {
+		if h.HandlerType() == ProjectionHandlerType {
+			if !fn(h) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
 // RichHandlerSet is a collection of rich handlers.
 type RichHandlerSet map[Identity]RichHandler
 
@@ -312,4 +384,76 @@ func (s RichHandlerSet) AcceptRichVisitor(ctx context.Context, v RichVisitor) er
 	}
 
 	return nil
+}
+
+// RangeAggregates invokes fn once for each aggregate handler in the set.
+//
+// Iteration stops when fn returns false or once fn has been invoked for all
+// aggregate handlers in the set.
+//
+// It returns true if fn returned true for all aggregate handlers.
+func (s RichHandlerSet) RangeAggregates(fn func(RichAggregate) bool) bool {
+	for _, h := range s {
+		if x, ok := h.(RichAggregate); ok {
+			if !fn(x) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+// RangeProcesses invokes fn once for each process handler in the set.
+//
+// Iteration stops when fn returns false or once fn has been invoked for all
+// process handlers in the set.
+//
+// It returns true if fn returned true for all process handlers.
+func (s RichHandlerSet) RangeProcesses(fn func(RichProcess) bool) bool {
+	for _, h := range s {
+		if x, ok := h.(RichProcess); ok {
+			if !fn(x) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+// RangeIntegrations invokes fn once for each integration handler in the set.
+//
+// Iteration stops when fn returns false or once fn has been invoked for all
+// integration handlers in the set.
+//
+// It returns true if fn returned true for all integration handlers.
+func (s RichHandlerSet) RangeIntegrations(fn func(RichIntegration) bool) bool {
+	for _, h := range s {
+		if x, ok := h.(RichIntegration); ok {
+			if !fn(x) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+// RangeProjections invokes fn once for each projection handler in the set.
+//
+// Iteration stops when fn returns false or once fn has been invoked for all
+// projection handlers in the set.
+//
+// It returns true if fn returned true for all projection handlers.
+func (s RichHandlerSet) RangeProjections(fn func(RichProjection) bool) bool {
+	for _, h := range s {
+		if x, ok := h.(RichProjection); ok {
+			if !fn(x) {
+				return false
+			}
+		}
+	}
+
+	return true
 }

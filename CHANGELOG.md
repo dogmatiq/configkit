@@ -16,6 +16,11 @@ The format is based on [Keep a Changelog], and this project adheres to
 - **[BC]** Rename `message.NameCollection.Each()` to `Range()` for consistency with the Go standard library
 - **[BC]** Rename `message.TypeCollection.Each()` to `Range()` for consistency with the Go standard library
 
+### Added
+
+- Add `HandlerSet.Range[Aggregates|Processes|Integrations|Projections]()`
+- Add `RichHandlerSet.Range[Aggregates|Processes|Integrations|Projections]()`
+
 ## [0.2.2] - 2020-01-29
 
 ### Added
