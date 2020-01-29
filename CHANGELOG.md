@@ -18,8 +18,10 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ### Added
 
-- Add `HandlerSet.Range[Aggregates|Processes|Integrations|Projections]()`
-- Add `RichHandlerSet.Range[Aggregates|Processes|Integrations|Projections]()`
+- Add `HandlerSet.RangeAggregates()`, `RangeProcesses()`, `RangeIntegrations()` and `RangeProjections()`
+- Add `HandlerSet.Aggregates()`, `Processes()`, `Integrations()` and `Projections()`
+- Add `RichHandlerSet.Aggregates()`, `Processes()`, `Integrations()` and `Projections()`
+- Add `RichHandlerSet.RangeAggregates()`, `RangeProcesses()`, `RangeIntegrations()` and `RangeProjections()`
 
 ## [0.2.2] - 2020-01-29
 

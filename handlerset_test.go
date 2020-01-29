@@ -302,7 +302,7 @@ var _ = Describe("type HandlerSet", func() {
 		})
 	})
 
-	Context("ranging functions", func() {
+	Context("type-specific filtering", func() {
 		var (
 			aggregate1, aggregate2     Aggregate
 			process1, process2         Process
@@ -381,6 +381,30 @@ var _ = Describe("type HandlerSet", func() {
 			set.Add(integration2)
 			set.Add(projection1)
 			set.Add(projection2)
+		})
+
+		Describe("func Aggregates()", func() {
+			It("returns a slice containing the aggregates", func() {
+				Expect(set.Aggregates()).To(ConsistOf(aggregate1, aggregate2))
+			})
+		})
+
+		Describe("func Processes()", func() {
+			It("returns a slice containing the processes", func() {
+				Expect(set.Processes()).To(ConsistOf(process1, process2))
+			})
+		})
+
+		Describe("func Integrations()", func() {
+			It("returns a slice containing the integrations", func() {
+				Expect(set.Integrations()).To(ConsistOf(integration1, integration2))
+			})
+		})
+
+		Describe("func Projections()", func() {
+			It("returns a slice containing the projections", func() {
+				Expect(set.Projections()).To(ConsistOf(projection1, projection2))
+			})
 		})
 
 		Describe("func RangeAggregates()", func() {
@@ -778,7 +802,7 @@ var _ = Describe("type RichHandlerSet", func() {
 		})
 	})
 
-	Context("ranging functions", func() {
+	Context("type-specific filtering", func() {
 		var (
 			aggregate1, aggregate2     RichAggregate
 			process1, process2         RichProcess
@@ -857,6 +881,30 @@ var _ = Describe("type RichHandlerSet", func() {
 			set.Add(integration2)
 			set.Add(projection1)
 			set.Add(projection2)
+		})
+
+		Describe("func Aggregates()", func() {
+			It("returns a slice containing the aggregates", func() {
+				Expect(set.Aggregates()).To(ConsistOf(aggregate1, aggregate2))
+			})
+		})
+
+		Describe("func Processes()", func() {
+			It("returns a slice containing the processes", func() {
+				Expect(set.Processes()).To(ConsistOf(process1, process2))
+			})
+		})
+
+		Describe("func Integrations()", func() {
+			It("returns a slice containing the integrations", func() {
+				Expect(set.Integrations()).To(ConsistOf(integration1, integration2))
+			})
+		})
+
+		Describe("func Projections()", func() {
+			It("returns a slice containing the projections", func() {
+				Expect(set.Projections()).To(ConsistOf(projection1, projection2))
+			})
 		})
 
 		Describe("func RangeAggregates()", func() {
