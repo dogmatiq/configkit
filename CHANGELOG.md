@@ -9,6 +9,13 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+### Changed
+
+- **[BC]** Rename `message.NameCollection.Each()` to `Range()` for consistency with the Go standard library
+- **[BC]** Rename `message.TypeCollection.Each()` to `Range()` for consistency with the Go standard library
+
 ## [0.2.2] - 2020-01-29
 
 ### Added
