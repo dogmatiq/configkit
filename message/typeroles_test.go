@@ -232,7 +232,7 @@ var _ = Describe("type TypeRoles", func() {
 		)
 	})
 
-	Describe("func Each()", func() {
+	Describe("func Range()", func() {
 		tr := TypeRoles{
 			MessageAType: CommandRole,
 			MessageBType: EventRole,
@@ -241,7 +241,7 @@ var _ = Describe("type TypeRoles", func() {
 		It("calls fn for each type in the container", func() {
 			var types []Type
 
-			all := tr.Each(func(t Type) bool {
+			all := tr.Range(func(t Type) bool {
 				types = append(types, t)
 				return true
 			})
@@ -253,7 +253,7 @@ var _ = Describe("type TypeRoles", func() {
 		It("stops iterating if fn returns false", func() {
 			count := 0
 
-			all := tr.Each(func(t Type) bool {
+			all := tr.Range(func(t Type) bool {
 				count++
 				return false
 			})

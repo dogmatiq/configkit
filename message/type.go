@@ -15,13 +15,13 @@ type TypeCollection interface {
 	// HasM returns true if TypeOf(m) is in the container.
 	HasM(m dogma.Message) bool
 
-	// Each invokes fn once for each type in the container.
+	// Range invokes fn once for each type in the container.
 	//
 	// Iteration stops when fn returns false or once fn has been invoked for all
 	// types in the container.
 	//
 	// It returns true if fn returned true for all types.
-	Each(fn func(Type) bool) bool
+	Range(fn func(Type) bool) bool
 }
 
 // IsIntersectingT returns true if a and b are intersecting.
@@ -30,7 +30,7 @@ type TypeCollection interface {
 //
 // See https://en.wikipedia.org/wiki/Set_(mathematics)#Intersections.
 func IsIntersectingT(a, b TypeCollection) bool {
-	return !a.Each(func(t Type) bool {
+	return !a.Range(func(t Type) bool {
 		return !b.Has(t)
 	})
 }
@@ -41,7 +41,7 @@ func IsIntersectingT(a, b TypeCollection) bool {
 //
 // See https://en.wikipedia.org/wiki/Set_(mathematics)#Subsets.
 func IsSubsetT(sub, sup TypeCollection) bool {
-	return sub.Each(func(t Type) bool {
+	return sub.Range(func(t Type) bool {
 		return sup.Has(t)
 	})
 }

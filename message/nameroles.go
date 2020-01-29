@@ -77,13 +77,13 @@ func (nr NameRoles) IsEqual(o NameRoles) bool {
 	return true
 }
 
-// Each invokes fn once for each name in the container.
+// Range invokes fn once for each name in the container.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all
 // types in the container.
 //
 // It returns true if fn returned true for all types.
-func (nr NameRoles) Each(fn func(Name) bool) bool {
+func (nr NameRoles) Range(fn func(Name) bool) bool {
 	for n := range nr {
 		if !fn(n) {
 			return false

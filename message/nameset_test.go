@@ -313,7 +313,7 @@ var _ = Describe("type NameSet", func() {
 		)
 	})
 
-	Describe("func Each()", func() {
+	Describe("func Range()", func() {
 		s := NewNameSet(
 			MessageATypeName,
 			MessageBTypeName,
@@ -322,7 +322,7 @@ var _ = Describe("type NameSet", func() {
 		It("calls fn for each name in the container", func() {
 			var names []Name
 
-			all := s.Each(func(n Name) bool {
+			all := s.Range(func(n Name) bool {
 				names = append(names, n)
 				return true
 			})
@@ -334,7 +334,7 @@ var _ = Describe("type NameSet", func() {
 		It("stops iterating if fn returns false", func() {
 			count := 0
 
-			all := s.Each(func(n Name) bool {
+			all := s.Range(func(n Name) bool {
 				count++
 				return false
 			})

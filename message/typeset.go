@@ -41,7 +41,7 @@ func IntersectionT(collections ...TypeCollection) TypeSet {
 	r := TypeSet{}
 
 	if len(collections) > 0 {
-		collections[0].Each(func(t Type) bool {
+		collections[0].Range(func(t Type) bool {
 			for _, c := range collections[1:] {
 				if !c.Has(t) {
 					return true
@@ -67,7 +67,7 @@ func UnionT(collections ...TypeCollection) TypeSet {
 	r := TypeSet{}
 
 	for _, c := range collections {
-		c.Each(func(t Type) bool {
+		c.Range(func(t Type) bool {
 			r.Add(t)
 			return true
 		})
@@ -85,7 +85,7 @@ func UnionT(collections ...TypeCollection) TypeSet {
 func DiffT(a, b TypeCollection) TypeSet {
 	r := TypeSet{}
 
-	a.Each(func(t Type) bool {
+	a.Range(func(t Type) bool {
 		if !b.Has(t) {
 			r.Add(t)
 		}
@@ -164,13 +164,13 @@ func (s TypeSet) IsEqual(o TypeSet) bool {
 	return true
 }
 
-// Each invokes fn once for each type in the container.
+// Range invokes fn once for each type in the container.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all
 // types in the container.
 //
 // It returns true if fn returned true for all types.
-func (s TypeSet) Each(fn func(Type) bool) bool {
+func (s TypeSet) Range(fn func(Type) bool) bool {
 	for t := range s {
 		if !fn(t) {
 			return false

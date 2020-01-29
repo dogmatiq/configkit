@@ -41,7 +41,7 @@ func IntersectionN(collections ...NameCollection) NameSet {
 	r := NameSet{}
 
 	if len(collections) > 0 {
-		collections[0].Each(func(n Name) bool {
+		collections[0].Range(func(n Name) bool {
 			for _, c := range collections[1:] {
 				if !c.Has(n) {
 					return true
@@ -67,7 +67,7 @@ func UnionN(collections ...NameCollection) NameSet {
 	r := NameSet{}
 
 	for _, c := range collections {
-		c.Each(func(n Name) bool {
+		c.Range(func(n Name) bool {
 			r.Add(n)
 			return true
 		})
@@ -85,7 +85,7 @@ func UnionN(collections ...NameCollection) NameSet {
 func DiffN(a, b NameCollection) NameSet {
 	r := NameSet{}
 
-	a.Each(func(n Name) bool {
+	a.Range(func(n Name) bool {
 		if !b.Has(n) {
 			r.Add(n)
 		}
@@ -164,13 +164,13 @@ func (s NameSet) IsEqual(o NameSet) bool {
 	return true
 }
 
-// Each invokes fn once for each name in the container.
+// Range invokes fn once for each name in the container.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all
 // names in the container.
 //
 // It returns true if fn returned true for all names.
-func (s NameSet) Each(fn func(Name) bool) bool {
+func (s NameSet) Range(fn func(Name) bool) bool {
 	for n := range s {
 		if !fn(n) {
 			return false

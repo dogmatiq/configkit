@@ -16,13 +16,13 @@ type NameCollection interface {
 	// HasM returns true if NameOf(m) is in the container.
 	HasM(m dogma.Message) bool
 
-	// Each invokes fn once for each name in the container.
+	// Range invokes fn once for each name in the container.
 	//
 	// Iteration stops when fn returns false or once fn has been invoked for all
 	// names in the container.
 	//
 	// It returns true if fn returned true for all names.
-	Each(fn func(Name) bool) bool
+	Range(fn func(Name) bool) bool
 }
 
 // IsIntersectingN returns true if a and b are intersecting.
@@ -31,7 +31,7 @@ type NameCollection interface {
 //
 // See https://en.wikipedia.org/wiki/Set_(mathematics)#Intersections.
 func IsIntersectingN(a, b NameCollection) bool {
-	return !a.Each(func(n Name) bool {
+	return !a.Range(func(n Name) bool {
 		return !b.Has(n)
 	})
 }
@@ -42,7 +42,7 @@ func IsIntersectingN(a, b NameCollection) bool {
 //
 // See https://en.wikipedia.org/wiki/Set_(mathematics)#Subsets.
 func IsSubsetN(sub, sup NameCollection) bool {
-	return sub.Each(func(n Name) bool {
+	return sub.Range(func(n Name) bool {
 		return sup.Has(n)
 	})
 }

@@ -77,13 +77,13 @@ func (tr TypeRoles) IsEqual(o TypeRoles) bool {
 	return true
 }
 
-// Each invokes fn once for each type in the container.
+// Range invokes fn once for each type in the container.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all
 // types in the container.
 //
 // It returns true if fn returned true for all types.
-func (tr TypeRoles) Each(fn func(Type) bool) bool {
+func (tr TypeRoles) Range(fn func(Type) bool) bool {
 	for t := range tr {
 		if !fn(t) {
 			return false
