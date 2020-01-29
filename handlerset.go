@@ -147,10 +147,10 @@ func (s HandlerSet) AcceptVisitor(ctx context.Context, v Visitor) error {
 	return nil
 }
 
-// RangeAggregates invokes fn once for each aggregate handler in the container.
+// RangeAggregates invokes fn once for each aggregate handler in the set.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all
-// aggregate handlers in the container.
+// aggregate handlers in the set.
 //
 // It returns true if fn returned true for all aggregate handlers.
 func (s HandlerSet) RangeAggregates(fn func(Aggregate) bool) bool {
@@ -165,10 +165,10 @@ func (s HandlerSet) RangeAggregates(fn func(Aggregate) bool) bool {
 	return true
 }
 
-// RangeProcesses invokes fn once for each process handler in the container.
+// RangeProcesses invokes fn once for each process handler in the set.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all
-// process handlers in the container.
+// process handlers in the set.
 //
 // It returns true if fn returned true for all process handlers.
 func (s HandlerSet) RangeProcesses(fn func(Process) bool) bool {
@@ -183,11 +183,10 @@ func (s HandlerSet) RangeProcesses(fn func(Process) bool) bool {
 	return true
 }
 
-// RangeIntegrations invokes fn once for each integration handler in the
-// container.
+// RangeIntegrations invokes fn once for each integration handler in the set.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all
-// integration handlers in the container.
+// integration handlers in the set.
 //
 // It returns true if fn returned true for all integration handlers.
 func (s HandlerSet) RangeIntegrations(fn func(Integration) bool) bool {
@@ -202,11 +201,10 @@ func (s HandlerSet) RangeIntegrations(fn func(Integration) bool) bool {
 	return true
 }
 
-// RangeProjections invokes fn once for each projection handler in the
-// container.
+// RangeProjections invokes fn once for each projection handler in the set.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all
-// projection handlers in the container.
+// projection handlers in the set.
 //
 // It returns true if fn returned true for all projection handlers.
 func (s HandlerSet) RangeProjections(fn func(Projection) bool) bool {
@@ -388,10 +386,10 @@ func (s RichHandlerSet) AcceptRichVisitor(ctx context.Context, v RichVisitor) er
 	return nil
 }
 
-// RangeAggregates invokes fn once for each aggregate handler in the container.
+// RangeAggregates invokes fn once for each aggregate handler in the set.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all
-// aggregate handlers in the container.
+// aggregate handlers in the set.
 //
 // It returns true if fn returned true for all aggregate handlers.
 func (s RichHandlerSet) RangeAggregates(fn func(RichAggregate) bool) bool {
@@ -406,10 +404,10 @@ func (s RichHandlerSet) RangeAggregates(fn func(RichAggregate) bool) bool {
 	return true
 }
 
-// RangeProcesses invokes fn once for each process handler in the container.
+// RangeProcesses invokes fn once for each process handler in the set.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all
-// process handlers in the container.
+// process handlers in the set.
 //
 // It returns true if fn returned true for all process handlers.
 func (s RichHandlerSet) RangeProcesses(fn func(RichProcess) bool) bool {
@@ -424,11 +422,10 @@ func (s RichHandlerSet) RangeProcesses(fn func(RichProcess) bool) bool {
 	return true
 }
 
-// RangeIntegrations invokes fn once for each integration handler in the
-// container.
+// RangeIntegrations invokes fn once for each integration handler in the set.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all
-// integration handlers in the container.
+// integration handlers in the set.
 //
 // It returns true if fn returned true for all integration handlers.
 func (s RichHandlerSet) RangeIntegrations(fn func(RichIntegration) bool) bool {
@@ -443,11 +440,10 @@ func (s RichHandlerSet) RangeIntegrations(fn func(RichIntegration) bool) bool {
 	return true
 }
 
-// RangeProjections invokes fn once for each projection handler in the
-// container.
+// RangeProjections invokes fn once for each projection handler in the set.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all
-// projection handlers in the container.
+// projection handlers in the set.
 //
 // It returns true if fn returned true for all projection handlers.
 func (s RichHandlerSet) RangeProjections(fn func(RichProjection) bool) bool {
