@@ -387,3 +387,77 @@ func (s RichHandlerSet) AcceptRichVisitor(ctx context.Context, v RichVisitor) er
 
 	return nil
 }
+
+// RangeAggregates invokes fn once for each aggregate handler in the container.
+//
+// Iteration stops when fn returns false or once fn has been invoked for all
+// aggregate handlers in the container.
+//
+// It returns true if fn returned true for all aggregate handlers.
+func (s RichHandlerSet) RangeAggregates(fn func(RichAggregate) bool) bool {
+	for _, h := range s {
+		if x, ok := h.(RichAggregate); ok {
+			if !fn(x) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+// RangeProcesses invokes fn once for each process handler in the container.
+//
+// Iteration stops when fn returns false or once fn has been invoked for all
+// process handlers in the container.
+//
+// It returns true if fn returned true for all process handlers.
+func (s RichHandlerSet) RangeProcesses(fn func(RichProcess) bool) bool {
+	for _, h := range s {
+		if x, ok := h.(RichProcess); ok {
+			if !fn(x) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+// RangeIntegrations invokes fn once for each integration handler in the
+// container.
+//
+// Iteration stops when fn returns false or once fn has been invoked for all
+// integration handlers in the container.
+//
+// It returns true if fn returned true for all integration handlers.
+func (s RichHandlerSet) RangeIntegrations(fn func(RichIntegration) bool) bool {
+	for _, h := range s {
+		if x, ok := h.(RichIntegration); ok {
+			if !fn(x) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+// RangeProjections invokes fn once for each projection handler in the
+// container.
+//
+// Iteration stops when fn returns false or once fn has been invoked for all
+// projection handlers in the container.
+//
+// It returns true if fn returned true for all projection handlers.
+func (s RichHandlerSet) RangeProjections(fn func(RichProjection) bool) bool {
+	for _, h := range s {
+		if x, ok := h.(RichProjection); ok {
+			if !fn(x) {
+				return false
+			}
+		}
+	}
+
+	return true
+}

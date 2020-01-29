@@ -302,7 +302,7 @@ var _ = Describe("type HandlerSet", func() {
 		})
 	})
 
-	Context("each functions", func() {
+	Context("ranging functions", func() {
 		var (
 			aggregate1, aggregate2     Aggregate
 			process1, process2         Process
@@ -775,6 +775,192 @@ var _ = Describe("type RichHandlerSet", func() {
 			)
 
 			Expect(err).To(MatchError("<error>"))
+		})
+	})
+
+	Context("ranging functions", func() {
+		var (
+			aggregate1, aggregate2     RichAggregate
+			process1, process2         RichProcess
+			integration1, integration2 RichIntegration
+			projection1, projection2   RichProjection
+		)
+
+		BeforeEach(func() {
+			aggregate1 = FromAggregate(&fixtures.AggregateMessageHandler{
+				ConfigureFunc: func(c dogma.AggregateConfigurer) {
+					c.Identity("<agg1-name>", "<agg1-key>")
+					c.ConsumesCommandType(fixtures.MessageC{})
+					c.ProducesEventType(fixtures.MessageD{})
+				},
+			})
+
+			aggregate2 = FromAggregate(&fixtures.AggregateMessageHandler{
+				ConfigureFunc: func(c dogma.AggregateConfigurer) {
+					c.Identity("<agg2-name>", "<agg2-key>")
+					c.ConsumesCommandType(fixtures.MessageC{})
+					c.ProducesEventType(fixtures.MessageD{})
+				},
+			})
+
+			process1 = FromProcess(&fixtures.ProcessMessageHandler{
+				ConfigureFunc: func(c dogma.ProcessConfigurer) {
+					c.Identity("<proc1-name>", "<proc1-key>")
+					c.ConsumesEventType(fixtures.MessageE{})
+					c.ProducesCommandType(fixtures.MessageC{})
+				},
+			})
+
+			process2 = FromProcess(&fixtures.ProcessMessageHandler{
+				ConfigureFunc: func(c dogma.ProcessConfigurer) {
+					c.Identity("<proc2-name>", "<proc2-key>")
+					c.ConsumesEventType(fixtures.MessageE{})
+					c.ProducesCommandType(fixtures.MessageC{})
+				},
+			})
+
+			integration1 = FromIntegration(&fixtures.IntegrationMessageHandler{
+				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
+					c.Identity("<int1-name>", "<int1-key>")
+					c.ConsumesCommandType(fixtures.MessageC{})
+					c.ProducesEventType(fixtures.MessageD{})
+				},
+			})
+
+			integration2 = FromIntegration(&fixtures.IntegrationMessageHandler{
+				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
+					c.Identity("<int2-name>", "<int2-key>")
+					c.ConsumesCommandType(fixtures.MessageC{})
+					c.ProducesEventType(fixtures.MessageD{})
+				},
+			})
+
+			projection1 = FromProjection(&fixtures.ProjectionMessageHandler{
+				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+					c.Identity("<proj1-name>", "<proj1-key>")
+					c.ConsumesEventType(fixtures.MessageE{})
+				},
+			})
+
+			projection2 = FromProjection(&fixtures.ProjectionMessageHandler{
+				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+					c.Identity("<proj2-name>", "<proj2-key>")
+					c.ConsumesEventType(fixtures.MessageE{})
+				},
+			})
+
+			set.Add(aggregate1)
+			set.Add(aggregate2)
+			set.Add(process1)
+			set.Add(process2)
+			set.Add(integration1)
+			set.Add(integration2)
+			set.Add(projection1)
+			set.Add(projection2)
+		})
+
+		Describe("func RangeAggregates()", func() {
+			It("calls fn for each aggregate in the set", func() {
+				var names []string
+
+				all := set.RangeAggregates(func(h RichAggregate) bool {
+					names = append(names, h.Identity().Name)
+					return true
+				})
+
+				Expect(names).To(ConsistOf("<agg1-name>", "<agg2-name>"))
+				Expect(all).To(BeTrue())
+			})
+
+			It("stops iterating if fn returns false", func() {
+				count := 0
+
+				all := set.RangeAggregates(func(h RichAggregate) bool {
+					count++
+					return false
+				})
+
+				Expect(count).To(BeNumerically("==", 1))
+				Expect(all).To(BeFalse())
+			})
+		})
+
+		Describe("func RangeProcesses()", func() {
+			It("calls fn for each process in the set", func() {
+				var names []string
+
+				all := set.RangeProcesses(func(h RichProcess) bool {
+					names = append(names, h.Identity().Name)
+					return true
+				})
+
+				Expect(names).To(ConsistOf("<proc1-name>", "<proc2-name>"))
+				Expect(all).To(BeTrue())
+			})
+
+			It("stops iterating if fn returns false", func() {
+				count := 0
+
+				all := set.RangeProcesses(func(h RichProcess) bool {
+					count++
+					return false
+				})
+
+				Expect(count).To(BeNumerically("==", 1))
+				Expect(all).To(BeFalse())
+			})
+		})
+
+		Describe("func RangeIntegrations()", func() {
+			It("calls fn for each integration in the set", func() {
+				var names []string
+
+				all := set.RangeIntegrations(func(h RichIntegration) bool {
+					names = append(names, h.Identity().Name)
+					return true
+				})
+
+				Expect(names).To(ConsistOf("<int1-name>", "<int2-name>"))
+				Expect(all).To(BeTrue())
+			})
+
+			It("stops iterating if fn returns false", func() {
+				count := 0
+
+				all := set.RangeIntegrations(func(h RichIntegration) bool {
+					count++
+					return false
+				})
+
+				Expect(count).To(BeNumerically("==", 1))
+				Expect(all).To(BeFalse())
+			})
+		})
+
+		Describe("func RangeProjections()", func() {
+			It("calls fn for each projection in the set", func() {
+				var names []string
+
+				all := set.RangeProjections(func(h RichProjection) bool {
+					names = append(names, h.Identity().Name)
+					return true
+				})
+
+				Expect(names).To(ConsistOf("<proj1-name>", "<proj2-name>"))
+				Expect(all).To(BeTrue())
+			})
+
+			It("stops iterating if fn returns false", func() {
+				count := 0
+
+				all := set.RangeProjections(func(h RichProjection) bool {
+					count++
+					return false
+				})
+
+				Expect(count).To(BeNumerically("==", 1))
+				Expect(all).To(BeFalse())
+			})
 		})
 	})
 })
