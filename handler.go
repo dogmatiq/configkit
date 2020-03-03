@@ -35,5 +35,6 @@ type RichHandler interface {
 func IsHandlerEqual(a, b Handler) bool {
 	return a.Identity() == b.Identity() &&
 		a.TypeName() == b.TypeName() &&
+		a.HandlerType() == b.HandlerType() &&
 		a.MessageNames().IsEqual(b.MessageNames())
 }
