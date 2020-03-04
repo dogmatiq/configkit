@@ -62,7 +62,7 @@ var _ = Describe("type handler", func() {
 			})
 		})
 
-		Context("when the handler is an process", func() {
+		Context("when the handler is a process", func() {
 			BeforeEach(func() {
 				hnd.handlerType = configkit.ProcessHandlerType
 			})
@@ -94,7 +94,7 @@ var _ = Describe("type handler", func() {
 			})
 		})
 
-		Context("when the handler is an projection", func() {
+		Context("when the handler is a projection", func() {
 			BeforeEach(func() {
 				hnd.handlerType = configkit.ProjectionHandlerType
 			})
