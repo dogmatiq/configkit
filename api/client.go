@@ -25,7 +25,7 @@ func (c *Client) ListApplicationIdentities(
 	}
 
 	var idents []configkit.Identity
-	for _, in := range res.Identities {
+	for _, in := range res.GetIdentities() {
 		out, err := unmarshalIdentity(in)
 		if err != nil {
 			return nil, err
@@ -49,7 +49,7 @@ func (c *Client) ListApplications(
 	}
 
 	var configs []configkit.Application
-	for _, in := range res.Applications {
+	for _, in := range res.GetApplications() {
 		out, err := unmarshalApplication(in)
 		if err != nil {
 			return nil, err
