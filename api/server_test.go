@@ -7,7 +7,7 @@ import (
 )
 
 var _ = Describe("func RegisterServer()", func() {
-	It("panics if the one of the applications can not be marshaled", func() {
+	It("panics if one of the applications can not be marshaled", func() {
 		Expect(func() {
 			s := grpc.NewServer()
 			RegisterServer(s, &application{})
