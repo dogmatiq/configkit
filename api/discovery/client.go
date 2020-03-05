@@ -6,18 +6,6 @@ import (
 	"github.com/dogmatiq/configkit/api"
 )
 
-// ClientObserver is notified when connections to config API servers are
-// established and severed.
-type ClientObserver interface {
-	// ClientConnected is called when a connection to a config API server is
-	// established.
-	ClientConnected(*api.Client)
-
-	// ClientDisconnected is called when a connection to a config API server is
-	// severed.
-	ClientDisconnected(*api.Client)
-}
-
 // ClientPublisher is an interface that allows client observers to be registered to
 // receive notifications.
 type ClientPublisher interface {
@@ -30,7 +18,19 @@ type ClientPublisher interface {
 	UnregisterClientObserver(o ClientObserver)
 }
 
-// ClientObserverSet is an client observer that publishes to other observers.
+// ClientObserver is notified when connections to config API servers are
+// established and severed.
+type ClientObserver interface {
+	// ClientConnected is called when a connection to a config API server is
+	// established.
+	ClientConnected(*api.Client)
+
+	// ClientDisconnected is called when a connection to a config API server is
+	// severed.
+	ClientDisconnected(*api.Client)
+}
+
+// ClientObserverSet is a client observer that publishes to other observers.
 //
 // It implements both the ClientObserver and ClientPublisher interfaces.
 type ClientObserverSet struct {
@@ -69,8 +69,7 @@ func (s *ClientObserverSet) UnregisterClientObserver(o ClientObserver) {
 	s.notifyOne(ClientObserver.ClientDisconnected, o)
 }
 
-// ClientConnected is called when a connection to a config API server is
-// established.
+// ClientConnected notifies the registered observers that c has connected.
 func (s *ClientObserverSet) ClientConnected(c *api.Client) {
 	s.m.Lock()
 	defer s.m.Unlock()
@@ -85,8 +84,7 @@ func (s *ClientObserverSet) ClientConnected(c *api.Client) {
 	s.notifyAll(ClientObserver.ClientConnected, c)
 }
 
-// ClientDisconnected is called when a connection to a config API server is
-// servered.
+// ClientDisconnected notifies the registered observers that c has disconnected.
 func (s *ClientObserverSet) ClientDisconnected(c *api.Client) {
 	s.m.Lock()
 	defer s.m.Unlock()
