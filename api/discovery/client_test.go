@@ -1,10 +1,9 @@
 package discovery_test
 
 import (
-	"sync"
-
 	"github.com/dogmatiq/configkit/api"
 	. "github.com/dogmatiq/configkit/api/discovery"
+	"github.com/dogmatiq/configkit/api/discovery/fixtures" // can't dot-import due to conflict
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -17,15 +16,15 @@ var (
 var _ = Describe("type ClientObserverSet", func() {
 	var (
 		set              *ClientObserverSet
-		obs1, obs2       *clientObserver
+		obs1, obs2       *fixtures.ClientObserver
 		client1, client2 *api.Client
 	)
 
 	BeforeEach(func() {
 		set = &ClientObserverSet{}
 
-		obs1 = &clientObserver{}
-		obs2 = &clientObserver{}
+		obs1 = &fixtures.ClientObserver{}
+		obs2 = &fixtures.ClientObserver{}
 
 		client1 = &api.Client{}
 		client2 = &api.Client{}
@@ -176,25 +175,3 @@ var _ = Describe("type ClientObserverSet", func() {
 		})
 	})
 })
-
-type clientObserver struct {
-	m                      sync.Mutex
-	ClientConnectedFunc    func(*api.Client)
-	ClientDisconnectedFunc func(*api.Client)
-}
-
-func (o *clientObserver) ClientConnected(c *api.Client) {
-	if o.ClientConnectedFunc != nil {
-		o.m.Lock()
-		defer o.m.Unlock()
-		o.ClientConnectedFunc(c)
-	}
-}
-
-func (o *clientObserver) ClientDisconnected(c *api.Client) {
-	if o.ClientDisconnectedFunc != nil {
-		o.m.Lock()
-		defer o.m.Unlock()
-		o.ClientDisconnectedFunc(c)
-	}
-}
