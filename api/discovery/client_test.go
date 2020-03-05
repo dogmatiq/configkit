@@ -31,7 +31,7 @@ var _ = Describe("type ClientObserverSet", func() {
 		client2 = &api.Client{}
 	})
 
-	Describe("func Connected()", func() {
+	Describe("func ClientConnected()", func() {
 		It("notifies the observers about the connection", func() {
 			var observers []ClientObserver
 
@@ -69,7 +69,7 @@ var _ = Describe("type ClientObserverSet", func() {
 		})
 	})
 
-	Describe("func Disconnected()", func() {
+	Describe("func ClientDisconnected()", func() {
 		It("notifies the observers about the disconnection", func() {
 			var observers []ClientObserver
 
@@ -107,7 +107,7 @@ var _ = Describe("type ClientObserverSet", func() {
 		})
 	})
 
-	Describe("func Add()", func() {
+	Describe("func RegisterClientObserver()", func() {
 		It("notifies the observer about existing connections", func() {
 			set.ClientConnected(client1)
 			set.ClientConnected(client2)
@@ -136,7 +136,7 @@ var _ = Describe("type ClientObserverSet", func() {
 		})
 	})
 
-	Describe("func Remove()", func() {
+	Describe("func UnregisterClientObserver()", func() {
 		It("synthesizes a disconnection notification for existing connections", func() {
 			set.ClientConnected(client1)
 			set.ClientConnected(client2)
