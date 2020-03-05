@@ -6,18 +6,6 @@ import (
 	"github.com/dogmatiq/configkit/api"
 )
 
-// ClientPublisher is an interface that allows client observers to be registered to
-// receive notifications.
-type ClientPublisher interface {
-	// RegisterClientObserver registers o to be notified when connections to
-	// config API servers are established and servered.
-	RegisterClientObserver(o ClientObserver)
-
-	// UnregisterClientObserver stops o from being notified when connections to
-	// config API servers are established and servered.
-	UnregisterClientObserver(o ClientObserver)
-}
-
 // ClientObserver is notified when connections to config API servers are
 // established and severed.
 type ClientObserver interface {

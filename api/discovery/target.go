@@ -23,18 +23,6 @@ type Target struct {
 	MetaData MetaData
 }
 
-// TargetPublisher is an interface that allows target observers to be registered
-// to receive notifications.
-type TargetPublisher interface {
-	// RegisterTargetObserver registers o to be notified when targets become
-	// available and unavailable.
-	RegisterTargetObserver(o TargetObserver)
-
-	// UnregisterTargetObserver stops o from being notified when targets become
-	// available and unavailable.
-	UnregisterTargetObserver(o TargetObserver)
-}
-
 // TargetObserver is notified when config API targets are discovered.
 type TargetObserver interface {
 	// TargetAvailable is called when a target is becomes available.

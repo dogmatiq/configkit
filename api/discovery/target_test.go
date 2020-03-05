@@ -7,10 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var (
-	_ TargetPublisher = (*TargetObserverSet)(nil)
-	_ TargetObserver  = (*TargetObserverSet)(nil)
-)
+var _ TargetObserver = (*TargetObserverSet)(nil)
 
 var _ = Describe("type TargetObserverSet", func() {
 	var (
