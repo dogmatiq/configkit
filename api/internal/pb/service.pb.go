@@ -171,7 +171,9 @@ func init() {
 	proto.RegisterType((*ListApplicationsResponse)(nil), "dogma.configkit.v1.ListApplicationsResponse")
 }
 
-func init() { proto.RegisterFile("api/internal/pb/service.proto", fileDescriptor_cbf1bd0c00876e46) }
+func init() {
+	proto.RegisterFile("api/internal/pb/service.proto", fileDescriptor_cbf1bd0c00876e46)
+}
 
 var fileDescriptor_cbf1bd0c00876e46 = []byte{
 	// 267 bytes of a gzipped FileDescriptorProto
