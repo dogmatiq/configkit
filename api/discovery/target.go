@@ -41,6 +41,18 @@ type TargetObserverSet struct {
 	targets   map[*Target]struct{}
 }
 
+// NewTargetObserverSet registers the given observers with a new observer set
+// and returns it.
+func NewTargetObserverSet(observers ...TargetObserver) *TargetObserverSet {
+	s := &TargetObserverSet{}
+
+	for _, o := range observers {
+		s.RegisterTargetObserver(o)
+	}
+
+	return s
+}
+
 // RegisterTargetObserver registers o to be notified when targets become
 // available and unavailable.
 func (s *TargetObserverSet) RegisterTargetObserver(o TargetObserver) {

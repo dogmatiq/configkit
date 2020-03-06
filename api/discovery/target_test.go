@@ -26,6 +26,17 @@ var _ = Describe("type TargetObserverSet", func() {
 		target2 = &Target{}
 	})
 
+	Describe("func NewClientObserverSet()", func() {
+		It("returns a set containing the given observers", func() {
+			set.RegisterTargetObserver(obs1)
+			set.RegisterTargetObserver(obs2)
+
+			Expect(
+				NewTargetObserverSet(obs1, obs2),
+			).To(Equal(set))
+		})
+	})
+
 	Describe("func TargetAvailable()", func() {
 		It("notifies the observers about the target availability", func() {
 			var observers []TargetObserver

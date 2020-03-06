@@ -35,7 +35,9 @@ func (c *Connector) TargetAvailable(t *Target) {
 	c.m.Lock()
 	defer c.m.Unlock()
 
-	if _, ok := c.cancels[t]; ok {
+	if c.cancels == nil {
+		c.cancels = map[*Target]context.CancelFunc{}
+	} else if _, ok := c.cancels[t]; ok {
 		return
 	}
 

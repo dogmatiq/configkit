@@ -27,6 +27,18 @@ type ClientObserverSet struct {
 	clients   map[*api.Client]struct{}
 }
 
+// NewClientObserverSet registers the given observers with a new observer set
+// and returns it.
+func NewClientObserverSet(observers ...ClientObserver) *ClientObserverSet {
+	s := &ClientObserverSet{}
+
+	for _, o := range observers {
+		s.RegisterClientObserver(o)
+	}
+
+	return s
+}
+
 // RegisterClientObserver registers o to be notified when connections to config
 // API servers are established and servered.
 func (s *ClientObserverSet) RegisterClientObserver(o ClientObserver) {

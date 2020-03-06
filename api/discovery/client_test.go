@@ -27,6 +27,17 @@ var _ = Describe("type ClientObserverSet", func() {
 		client2 = &api.Client{}
 	})
 
+	Describe("func NewClientObserverSet()", func() {
+		It("returns a set containing the given observers", func() {
+			set.RegisterClientObserver(obs1)
+			set.RegisterClientObserver(obs2)
+
+			Expect(
+				NewClientObserverSet(obs1, obs2),
+			).To(Equal(set))
+		})
+	})
+
 	Describe("func ClientConnected()", func() {
 		It("notifies the observers about the connection", func() {
 			var observers []ClientObserver
