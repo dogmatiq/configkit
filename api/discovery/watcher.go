@@ -89,7 +89,11 @@ func (w *watcher) watch(
 		return err
 	}
 
-	client := api.NewClient(conn)
+	client := &Client{
+		Client: api.NewClient(conn),
+		Target: w.Target,
+	}
+
 	w.Observer.ClientConnected(client)
 	defer w.Observer.ClientDisconnected(client)
 

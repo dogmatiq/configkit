@@ -1,7 +1,6 @@
 package discovery_test
 
 import (
-	"github.com/dogmatiq/configkit/api"
 	. "github.com/dogmatiq/configkit/api/discovery"
 	"github.com/dogmatiq/configkit/api/discovery/fixtures" // can't dot-import due to conflict
 	. "github.com/onsi/ginkgo"
@@ -14,7 +13,7 @@ var _ = Describe("type ClientObserverSet", func() {
 	var (
 		set              *ClientObserverSet
 		obs1, obs2       *fixtures.ClientObserver
-		client1, client2 *api.Client
+		client1, client2 *Client
 	)
 
 	BeforeEach(func() {
@@ -23,8 +22,8 @@ var _ = Describe("type ClientObserverSet", func() {
 		obs1 = &fixtures.ClientObserver{}
 		obs2 = &fixtures.ClientObserver{}
 
-		client1 = &api.Client{}
-		client2 = &api.Client{}
+		client1 = &Client{}
+		client2 = &Client{}
 	})
 
 	Describe("func NewClientObserverSet()", func() {
@@ -42,14 +41,14 @@ var _ = Describe("type ClientObserverSet", func() {
 		It("notifies the observers about the connection", func() {
 			var observers []ClientObserver
 
-			obs1.ClientConnectedFunc = func(c *api.Client) {
+			obs1.ClientConnectedFunc = func(c *Client) {
 				defer GinkgoRecover()
 				Expect(c).To(BeIdenticalTo(client1))
 
 				observers = append(observers, obs1)
 			}
 
-			obs2.ClientConnectedFunc = func(c *api.Client) {
+			obs2.ClientConnectedFunc = func(c *Client) {
 				defer GinkgoRecover()
 				Expect(c).To(BeIdenticalTo(client1))
 
@@ -67,7 +66,7 @@ var _ = Describe("type ClientObserverSet", func() {
 			set.RegisterClientObserver(obs1)
 			set.ClientConnected(client1)
 
-			obs1.ClientConnectedFunc = func(c *api.Client) {
+			obs1.ClientConnectedFunc = func(c *Client) {
 				defer GinkgoRecover()
 				Fail("observer unexpectedly notified of the same connection")
 			}
@@ -80,14 +79,14 @@ var _ = Describe("type ClientObserverSet", func() {
 		It("notifies the observers about the disconnection", func() {
 			var observers []ClientObserver
 
-			obs1.ClientDisconnectedFunc = func(c *api.Client) {
+			obs1.ClientDisconnectedFunc = func(c *Client) {
 				defer GinkgoRecover()
 				Expect(c).To(BeIdenticalTo(client1))
 
 				observers = append(observers, obs1)
 			}
 
-			obs2.ClientDisconnectedFunc = func(c *api.Client) {
+			obs2.ClientDisconnectedFunc = func(c *Client) {
 				defer GinkgoRecover()
 				Expect(c).To(BeIdenticalTo(client1))
 
@@ -105,7 +104,7 @@ var _ = Describe("type ClientObserverSet", func() {
 		It("does nothing if the client is not in the registry", func() {
 			set.RegisterClientObserver(obs1)
 
-			obs1.ClientDisconnectedFunc = func(c *api.Client) {
+			obs1.ClientDisconnectedFunc = func(c *Client) {
 				defer GinkgoRecover()
 				Fail("observer unexpectedly notified of unknown client")
 			}
@@ -119,9 +118,9 @@ var _ = Describe("type ClientObserverSet", func() {
 			set.ClientConnected(client1)
 			set.ClientConnected(client2)
 
-			var clients []*api.Client
+			var clients []*Client
 
-			obs1.ClientConnectedFunc = func(c *api.Client) {
+			obs1.ClientConnectedFunc = func(c *Client) {
 				clients = append(clients, c)
 			}
 
@@ -134,7 +133,7 @@ var _ = Describe("type ClientObserverSet", func() {
 			set.ClientConnected(client1)
 			set.RegisterClientObserver(obs1)
 
-			obs1.ClientConnectedFunc = func(c *api.Client) {
+			obs1.ClientConnectedFunc = func(c *Client) {
 				defer GinkgoRecover()
 				Fail("observer unexpectedly notified when registered twice")
 			}
@@ -149,9 +148,9 @@ var _ = Describe("type ClientObserverSet", func() {
 			set.ClientConnected(client2)
 			set.RegisterClientObserver(obs1)
 
-			var clients []*api.Client
+			var clients []*Client
 
-			obs1.ClientDisconnectedFunc = func(c *api.Client) {
+			obs1.ClientDisconnectedFunc = func(c *Client) {
 				clients = append(clients, c)
 			}
 
@@ -161,7 +160,7 @@ var _ = Describe("type ClientObserverSet", func() {
 		})
 
 		It("prevents the observer from receiving further notifications", func() {
-			obs1.ClientConnectedFunc = func(c *api.Client) {
+			obs1.ClientConnectedFunc = func(c *Client) {
 				defer GinkgoRecover()
 				Fail("unregistered observer unexpectedly notified")
 			}
@@ -174,7 +173,7 @@ var _ = Describe("type ClientObserverSet", func() {
 		It("does nothing if the observer is not already registered", func() {
 			set.ClientConnected(client1)
 
-			obs1.ClientDisconnectedFunc = func(c *api.Client) {
+			obs1.ClientDisconnectedFunc = func(c *Client) {
 				defer GinkgoRecover()
 				Fail("observer unexpectedly notified when not registered")
 			}

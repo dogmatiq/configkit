@@ -6,16 +6,24 @@ import (
 	"github.com/dogmatiq/configkit/api"
 )
 
+// Client is an API client that knows the target it connects to.
+type Client struct {
+	*api.Client
+
+	// Target is the discovered gRPC target that the client connects to.
+	Target *Target
+}
+
 // ClientObserver is notified when connections to config API servers are
 // established and severed.
 type ClientObserver interface {
 	// ClientConnected is called when a connection to a config API server is
 	// established.
-	ClientConnected(*api.Client)
+	ClientConnected(*Client)
 
 	// ClientDisconnected is called when a connection to a config API server is
 	// severed.
-	ClientDisconnected(*api.Client)
+	ClientDisconnected(*Client)
 }
 
 // ClientObserverSet is a client observer that publishes to other observers.
@@ -24,7 +32,7 @@ type ClientObserver interface {
 type ClientObserverSet struct {
 	m         sync.RWMutex
 	observers map[ClientObserver]struct{}
-	clients   map[*api.Client]struct{}
+	clients   map[*Client]struct{}
 }
 
 // NewClientObserverSet registers the given observers with a new observer set
@@ -70,12 +78,12 @@ func (s *ClientObserverSet) UnregisterClientObserver(o ClientObserver) {
 }
 
 // ClientConnected notifies the registered observers that c has connected.
-func (s *ClientObserverSet) ClientConnected(c *api.Client) {
+func (s *ClientObserverSet) ClientConnected(c *Client) {
 	s.m.Lock()
 	defer s.m.Unlock()
 
 	if s.clients == nil {
-		s.clients = map[*api.Client]struct{}{}
+		s.clients = map[*Client]struct{}{}
 	} else if _, ok := s.clients[c]; ok {
 		return
 	}
@@ -85,7 +93,7 @@ func (s *ClientObserverSet) ClientConnected(c *api.Client) {
 }
 
 // ClientDisconnected notifies the registered observers that c has disconnected.
-func (s *ClientObserverSet) ClientDisconnected(c *api.Client) {
+func (s *ClientObserverSet) ClientDisconnected(c *Client) {
 	s.m.Lock()
 	defer s.m.Unlock()
 
@@ -99,8 +107,8 @@ func (s *ClientObserverSet) ClientDisconnected(c *api.Client) {
 
 // notifyAll notifies all observers about a change to one client.
 func (s *ClientObserverSet) notifyAll(
-	fn func(ClientObserver, *api.Client),
-	c *api.Client,
+	fn func(ClientObserver, *Client),
+	c *Client,
 ) {
 	var g sync.WaitGroup
 
@@ -120,7 +128,7 @@ func (s *ClientObserverSet) notifyAll(
 
 // notifyOne notifies one observer about a change to all clients.
 func (s *ClientObserverSet) notifyOne(
-	fn func(ClientObserver, *api.Client),
+	fn func(ClientObserver, *Client),
 	o ClientObserver,
 ) {
 	var g sync.WaitGroup
