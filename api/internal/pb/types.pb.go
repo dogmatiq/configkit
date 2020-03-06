@@ -354,7 +354,9 @@ func init() {
 	proto.RegisterType((*Handler)(nil), "dogma.configkit.v1.Handler")
 }
 
-func init() { proto.RegisterFile("api/internal/pb/types.proto", fileDescriptor_565b712cd72dd24a) }
+func init() {
+	proto.RegisterFile("api/internal/pb/types.proto", fileDescriptor_565b712cd72dd24a)
+}
 
 var fileDescriptor_565b712cd72dd24a = []byte{
 	// 460 bytes of a gzipped FileDescriptorProto
