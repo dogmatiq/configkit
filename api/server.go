@@ -57,3 +57,9 @@ func (s *server) ListApplications(
 ) (*pb.ListApplicationsResponse, error) {
 	return &s.ListApplicationsResponse, nil
 }
+
+// Watch blocks until the calling context is canceled.
+func (s *server) Watch(_ *pb.WatchRequest, cs pb.Config_WatchServer) error {
+	<-cs.Context().Done()
+	return nil
+}

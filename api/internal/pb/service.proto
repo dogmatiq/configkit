@@ -13,6 +13,10 @@ service Config {
 
   // ListApplications returns the full configuration of all applications.
   rpc ListApplications(ListApplicationsRequest) returns (ListApplicationsResponse);
+
+  // Watch opens a stream that sends no content, simply to detect when the
+  // server goes away.
+  rpc Watch(WatchRequest) returns (stream WatchResponse);
 }
 
 message ListApplicationIdentitiesRequest{
@@ -27,4 +31,10 @@ message ListApplicationsRequest{
 
 message ListApplicationsResponse{
   repeated Application applications = 1;
+}
+
+message WatchRequest{
+}
+
+message WatchResponse{
 }
