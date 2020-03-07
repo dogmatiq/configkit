@@ -36,6 +36,13 @@ func (s *invalidServer) ListApplications(
 	}, nil
 }
 
+func (s *invalidServer) Watch(
+	*pb.WatchRequest,
+	pb.Config_WatchServer,
+) error {
+	panic("not implemented")
+}
+
 var _ = Describe("type Client", func() {
 	var (
 		ctx      context.Context
@@ -63,9 +70,7 @@ var _ = Describe("type Client", func() {
 		)
 		Expect(err).ShouldNot(HaveOccurred())
 
-		client = &Client{
-			conn,
-		}
+		client = NewClient(conn)
 	})
 
 	AfterEach(func() {

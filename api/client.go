@@ -10,7 +10,14 @@ import (
 
 // Client is used to query a server about its application configurations.
 type Client struct {
-	Connection grpc.ClientConnInterface
+	client pb.ConfigClient
+}
+
+// NewClient returns a new configuration client for the given connection.
+func NewClient(conn grpc.ClientConnInterface) *Client {
+	return &Client{
+		pb.NewConfigClient(conn),
+	}
 }
 
 // ListApplicationIdentities returns the identities of applications hosted by
@@ -19,7 +26,7 @@ func (c *Client) ListApplicationIdentities(
 	ctx context.Context,
 ) (_ []configkit.Identity, err error) {
 	req := &pb.ListApplicationIdentitiesRequest{}
-	res, err := pb.NewConfigClient(c.Connection).ListApplicationIdentities(ctx, req)
+	res, err := c.client.ListApplicationIdentities(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +50,7 @@ func (c *Client) ListApplications(
 	ctx context.Context,
 ) ([]configkit.Application, error) {
 	req := &pb.ListApplicationsRequest{}
-	res, err := pb.NewConfigClient(c.Connection).ListApplications(ctx, req)
+	res, err := c.client.ListApplications(ctx, req)
 	if err != nil {
 		return nil, err
 	}

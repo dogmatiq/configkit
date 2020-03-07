@@ -91,9 +91,7 @@ var _ = Describe("type Client", func() {
 		)
 		Expect(err).ShouldNot(HaveOccurred())
 
-		client = &Client{
-			conn,
-		}
+		client = NewClient(conn)
 	})
 
 	AfterEach(func() {
