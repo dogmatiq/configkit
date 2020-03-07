@@ -75,6 +75,9 @@ var _ = Describe("type server", func() {
 			Expect(err).ShouldNot(HaveOccurred())
 
 			_, err = stream.Recv()
+			Expect(err).ShouldNot(HaveOccurred())
+
+			_, err = stream.Recv()
 			Expect(err).Should(HaveOccurred())
 			Expect(status.Code(err)).To(Equal(codes.Unavailable))
 		})

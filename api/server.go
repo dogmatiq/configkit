@@ -60,6 +60,14 @@ func (s *server) ListApplications(
 
 // Watch blocks until the calling context is canceled.
 func (s *server) Watch(_ *pb.WatchRequest, cs pb.Config_WatchServer) error {
+	// Always send a single response, then wait till the client goes away or the
+	// server is stopped.
+	//
+	// At least one response is necessary so that the client can determine
+	// whether the config API is implemented by the server at all, after which
+	// it will block waiting for the next response which will only return with
+	// an error indicating that the server is gone.
+	cs.Send(&pb.WatchResponse{})
 	<-cs.Context().Done()
 	return nil
 }
