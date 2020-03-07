@@ -105,7 +105,7 @@ var _ = Describe("type Connector", func() {
 		})
 	})
 
-	Context("when the server is does not implement the config API", func() {
+	Context("when the server does not implement the config API", func() {
 		It("does not notify the observer", func() {
 			connector.TargetAvailable(target)
 			defer connector.TargetUnavailable(target)
