@@ -25,7 +25,7 @@ type Target struct {
 
 // TargetObserver is notified when config API targets are discovered.
 type TargetObserver interface {
-	// TargetAvailable is called when a target is becomes available.
+	// TargetAvailable is called when a target becomes available.
 	TargetAvailable(*Target)
 
 	// TargetUnavailable is called when a target becomes unavailable.

@@ -1,2 +1,2 @@
-// Package discovery provides mechanisms for discovery config API servers.
+// Package discovery provides mechanisms for discovery of config API servers.
 package discovery

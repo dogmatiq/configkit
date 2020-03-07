@@ -146,7 +146,7 @@ func (w *watcher) watch(
 	ctx context.Context,
 	conn *grpc.ClientConn,
 ) error {
-	// Make a context that closes the gRPC stream when this function exists, as
+	// Make a context that closes the gRPC stream when this function exits, as
 	// streams have no Close() method.
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
