@@ -137,10 +137,11 @@ func (w *watcher) dial(ctx context.Context) error {
 	return w.watch(ctx, conn)
 }
 
-// watch checks if conn supports the config API and notifies obs accordingly.
+// watch checks if conn supports the config API and notifies the observer
+// accordingly.
 //
 // It blocks until ctx is canceled or the connection is severed, at which point
-// the obs is notified of the disconnection.
+// the observer is notified of the disconnection.
 func (w *watcher) watch(
 	ctx context.Context,
 	conn *grpc.ClientConn,
