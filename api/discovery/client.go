@@ -4,14 +4,18 @@ import (
 	"sync"
 
 	"github.com/dogmatiq/configkit/api"
+	"google.golang.org/grpc"
 )
 
-// Client is an API client that knows the target it connects to.
+// Client is an API client that is aware of the target it connects to.
 type Client struct {
 	*api.Client
 
 	// Target is the discovered gRPC target that the client connects to.
 	Target *Target
+
+	// Connection is the gRPC connection to the target.
+	Connection *grpc.ClientConn
 }
 
 // ClientObserver is notified when connections to config API servers are
