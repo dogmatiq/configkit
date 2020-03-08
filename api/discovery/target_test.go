@@ -200,7 +200,7 @@ var _ = Describe("type TargetExecutor", func() {
 		ctx, cancel = context.WithTimeout(context.Background(), 250*time.Millisecond)
 
 		exec = &TargetExecutor{
-			Func: func(context.Context, *Target) {},
+			Task: func(context.Context, *Target) {},
 		}
 
 		target = &Target{}
@@ -214,7 +214,7 @@ var _ = Describe("type TargetExecutor", func() {
 		It("starts a goroutine for the given target", func() {
 			barrier := make(chan struct{})
 
-			exec.Func = func(_ context.Context, t *Target) {
+			exec.Task = func(_ context.Context, t *Target) {
 				defer GinkgoRecover()
 				defer close(barrier)
 
@@ -243,7 +243,7 @@ var _ = Describe("type TargetExecutor", func() {
 		It("cancels the context associated with the goroutine and waits for the function to finish", func() {
 			barrier := make(chan struct{})
 
-			exec.Func = func(funcCtx context.Context, t *Target) {
+			exec.Task = func(funcCtx context.Context, t *Target) {
 				defer GinkgoRecover()
 				defer close(barrier)
 

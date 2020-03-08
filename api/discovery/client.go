@@ -152,14 +152,17 @@ func (s *ClientObserverSet) notifyOne(
 	g.Wait()
 }
 
+// ClientTask is a function executed by a ClientExecutor.
+type ClientTask func(context.Context, *Client)
+
 // ClientExecutor is a ClientObserver that executes a function in a new
 // goroutine whenever a client connects.
 type ClientExecutor struct {
 	executor
 
-	// Func is the function to execute when a client connects.
+	// Task is the function to execute when a client connects.
 	// The context is canceled when the target becomes unavailable.
-	Func func(context.Context, *Client)
+	Task ClientTask
 
 	// Parent is the parent context under which the function is called.
 	// If it is nil, context.Background() is used.
@@ -169,7 +172,7 @@ type ClientExecutor struct {
 // ClientConnected starts a new goroutine for the given client.
 func (e *ClientExecutor) ClientConnected(c *Client) {
 	e.start(e.Parent, c, func(ctx context.Context) {
-		e.Func(ctx, c)
+		e.Task(ctx, c)
 	})
 }
 

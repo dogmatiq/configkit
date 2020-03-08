@@ -200,7 +200,7 @@ var _ = Describe("type ClientExecutor", func() {
 		ctx, cancel = context.WithTimeout(context.Background(), 250*time.Millisecond)
 
 		exec = &ClientExecutor{
-			Func: func(context.Context, *Client) {},
+			Task: func(context.Context, *Client) {},
 		}
 
 		client = &Client{}
@@ -214,7 +214,7 @@ var _ = Describe("type ClientExecutor", func() {
 		It("starts a goroutine for the given client", func() {
 			barrier := make(chan struct{})
 
-			exec.Func = func(_ context.Context, c *Client) {
+			exec.Task = func(_ context.Context, c *Client) {
 				defer GinkgoRecover()
 				defer close(barrier)
 
@@ -243,7 +243,7 @@ var _ = Describe("type ClientExecutor", func() {
 		It("cancels the context associated with the goroutine and waits for the function to finish", func() {
 			barrier := make(chan struct{})
 
-			exec.Func = func(funcCtx context.Context, c *Client) {
+			exec.Task = func(funcCtx context.Context, c *Client) {
 				defer GinkgoRecover()
 				defer close(barrier)
 
