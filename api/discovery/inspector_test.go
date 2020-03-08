@@ -5,31 +5,30 @@ import (
 	"net"
 	"time"
 
-	"google.golang.org/grpc/status"
-
 	"github.com/dogmatiq/configkit"
 	"github.com/dogmatiq/configkit/api"
 	. "github.com/dogmatiq/configkit/api/discovery"
 	dfixtures "github.com/dogmatiq/configkit/api/discovery/fixtures" // can't dot-import due to conflict
 	"github.com/dogmatiq/dogma"
-	"github.com/dogmatiq/dogma/fixtures"
+	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflict
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var _ = Describe("type Inspector", func() {
 	var (
-		ctx       context.Context
-		cancel    func()
-		listener  net.Listener
-		gserver   *grpc.Server
-		gconn     *grpc.ClientConn
-		cfg       configkit.Application
-		obs       *dfixtures.ApplicationObserver
-		inspector *Inspector
-		client    *Client
+		ctx        context.Context
+		cancel     func()
+		listener   net.Listener
+		gserver    *grpc.Server
+		gconn      *grpc.ClientConn
+		cfg1, cfg2 configkit.Application
+		obs        *dfixtures.ApplicationObserver
+		inspector  *Inspector
+		client     *Client
 	)
 
 	BeforeEach(func() {
@@ -41,14 +40,19 @@ var _ = Describe("type Inspector", func() {
 
 		gserver = grpc.NewServer()
 
-		app := &fixtures.Application{
+		cfg1 = configkit.FromApplication(&fixtures.Application{
 			ConfigureFunc: func(c dogma.ApplicationConfigurer) {
-				c.Identity("<app>", "<app-key>")
+				c.Identity("<app-1>", "<app-key-1>")
 			},
-		}
+		})
 
-		cfg = configkit.FromApplication(app)
-		api.RegisterServer(gserver, cfg)
+		cfg2 = configkit.FromApplication(&fixtures.Application{
+			ConfigureFunc: func(c dogma.ApplicationConfigurer) {
+				c.Identity("<app-2>", "<app-key-2>")
+			},
+		})
+
+		api.RegisterServer(gserver, cfg1, cfg2)
 
 		go gserver.Serve(listener)
 
@@ -98,70 +102,69 @@ var _ = Describe("type Inspector", func() {
 
 	Describe("Inspect()", func() {
 		It("notifies the observer", func() {
-			available := make(chan struct{})
-			unavailable := make(chan struct{})
-
-			obs.ApplicationAvailableFunc = func(a *Application) {
-				defer GinkgoRecover()
-
-				Expect(a.Client).To(Equal(client))
-				close(available)
-			}
-
-			obs.ApplicationUnavailableFunc = func(a *Application) {
-				defer GinkgoRecover()
-
-				Expect(a.Client).To(Equal(client))
-				close(unavailable)
-			}
-
 			inspectCtx, cancelInspect := context.WithCancel(ctx)
 			defer cancelInspect()
 
-			go inspector.Inspect(inspectCtx, client)
+			var available, unavailable []*Application
 
-			select {
-			case <-available:
-			case <-ctx.Done():
-				Expect(ctx.Err()).ShouldNot(HaveOccurred())
+			obs.ApplicationAvailableFunc = func(a *Application) {
+				available = append(available, a)
+
+				if len(available) == 2 {
+					cancelInspect()
+				}
 			}
 
-			cancelInspect()
-
-			select {
-			case <-unavailable:
-			case <-ctx.Done():
-				Expect(ctx.Err()).ShouldNot(HaveOccurred())
+			obs.ApplicationUnavailableFunc = func(a *Application) {
+				unavailable = append(unavailable, a)
 			}
+
+			err := inspector.Inspect(inspectCtx, client)
+			Expect(err).To(Equal(context.Canceled))
+			Expect(available).To(HaveLen(2))
+			Expect(unavailable).To(ConsistOf(available))
+
+			Expect(
+				configkit.IsApplicationEqual(available[0], cfg1),
+			).To(BeTrue())
+
+			Expect(
+				configkit.IsApplicationEqual(available[1], cfg2),
+			).To(BeTrue())
 		})
 
 		It("does not notify the observer if the application is ignored", func() {
 			inspector.Ignore = func(a configkit.Application) bool {
-				return a.Identity().Key == "<app-key>"
+				return a.Identity().Key == "<app-key-1>"
 			}
 
-			err := inspector.Inspect(ctx, client)
-			Expect(err).To(Equal(context.DeadlineExceeded))
-		})
-
-		It("inspects the application", func() {
 			inspectCtx, cancelInspect := context.WithCancel(ctx)
 			defer cancelInspect()
 
-			obs.ApplicationAvailableFunc = func(a *Application) {
-				defer GinkgoRecover()
-				defer cancelInspect()
+			var available []*Application
 
-				Expect(configkit.IsApplicationEqual(
-					a,
-					cfg,
-				))
+			obs.ApplicationAvailableFunc = func(a *Application) {
+				available = append(available, a)
 			}
 
 			obs.ApplicationUnavailableFunc = nil
 
 			err := inspector.Inspect(inspectCtx, client)
-			Expect(err).To(Equal(context.Canceled))
+			Expect(err).To(Equal(context.DeadlineExceeded))
+			Expect(available).To(HaveLen(1))
+
+			Expect(
+				configkit.IsApplicationEqual(available[0], cfg2),
+			).To(BeTrue())
+		})
+
+		It("returns immediately of all applications are ignored", func() {
+			inspector.Ignore = func(a configkit.Application) bool {
+				return true
+			}
+
+			err := inspector.Inspect(ctx, client)
+			Expect(err).ShouldNot(HaveOccurred())
 		})
 
 		It("returns an error if the query fails", func() {

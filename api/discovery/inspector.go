@@ -16,8 +16,6 @@ type Inspector struct {
 	// Ignore is a predicate function that returns true if the given application
 	// should be ignored.
 	Ignore func(configkit.Application) bool
-
-	apps []*Application
 }
 
 // Inspect queries a client in order to publish application
@@ -30,11 +28,7 @@ func (i *Inspector) Inspect(ctx context.Context, c *Client) error {
 		return err
 	}
 
-	defer func() {
-		for _, a := range i.apps {
-			i.Observer.ApplicationUnavailable(a)
-		}
-	}()
+	empty := true
 
 	for _, a := range apps {
 		if i.Ignore != nil && i.Ignore(a) {
@@ -46,8 +40,13 @@ func (i *Inspector) Inspect(ctx context.Context, c *Client) error {
 			Client:      c,
 		}
 
-		i.apps = append(i.apps, x)
+		empty = false
 		i.Observer.ApplicationAvailable(x)
+		defer i.Observer.ApplicationUnavailable(x)
+	}
+
+	if empty {
+		return nil
 	}
 
 	<-ctx.Done()
