@@ -1,8 +1,6 @@
 package discovery
 
 import (
-	"sync"
-
 	"github.com/dogmatiq/configkit/api"
 	"google.golang.org/grpc"
 )
@@ -34,9 +32,7 @@ type ClientObserver interface {
 //
 // It implements both the ClientObserver and ClientPublisher interfaces.
 type ClientObserverSet struct {
-	m         sync.RWMutex
-	observers map[ClientObserver]struct{}
-	clients   map[*Client]struct{}
+	observerSet
 }
 
 // NewClientObserverSet registers the given observers with a new observer set
@@ -54,99 +50,29 @@ func NewClientObserverSet(observers ...ClientObserver) *ClientObserverSet {
 // RegisterClientObserver registers o to be notified when connections to config
 // API servers are established and servered.
 func (s *ClientObserverSet) RegisterClientObserver(o ClientObserver) {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	if s.observers == nil {
-		s.observers = map[ClientObserver]struct{}{}
-	} else if _, ok := s.observers[o]; ok {
-		return
-	}
-
-	s.observers[o] = struct{}{}
-	s.notifyOne(ClientObserver.ClientConnected, o)
+	s.register(o, func(e interface{}) {
+		o.ClientConnected(e.(*Client))
+	})
 }
 
 // UnregisterClientObserver stops o from being notified when connections to
 // config API servers are established and servered.
 func (s *ClientObserverSet) UnregisterClientObserver(o ClientObserver) {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	if _, ok := s.observers[o]; !ok {
-		return
-	}
-
-	delete(s.observers, o)
-	s.notifyOne(ClientObserver.ClientDisconnected, o)
+	s.unregister(o, func(e interface{}) {
+		o.ClientDisconnected(e.(*Client))
+	})
 }
 
 // ClientConnected notifies the registered observers that c has connected.
 func (s *ClientObserverSet) ClientConnected(c *Client) {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	if s.clients == nil {
-		s.clients = map[*Client]struct{}{}
-	} else if _, ok := s.clients[c]; ok {
-		return
-	}
-
-	s.clients[c] = struct{}{}
-	s.notifyAll(ClientObserver.ClientConnected, c)
+	s.add(c, func(o interface{}) {
+		o.(ClientObserver).ClientConnected(c)
+	})
 }
 
 // ClientDisconnected notifies the registered observers that c has disconnected.
 func (s *ClientObserverSet) ClientDisconnected(c *Client) {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	if _, ok := s.clients[c]; !ok {
-		return
-	}
-
-	delete(s.clients, c)
-	s.notifyAll(ClientObserver.ClientDisconnected, c)
-}
-
-// notifyAll notifies all observers about a change to one client.
-func (s *ClientObserverSet) notifyAll(
-	fn func(ClientObserver, *Client),
-	c *Client,
-) {
-	var g sync.WaitGroup
-
-	g.Add(len(s.observers))
-
-	for o := range s.observers {
-		o := o // capture loop variable
-
-		go func() {
-			defer g.Done()
-			fn(o, c)
-		}()
-	}
-
-	g.Wait()
-}
-
-// notifyOne notifies one observer about a change to all clients.
-func (s *ClientObserverSet) notifyOne(
-	fn func(ClientObserver, *Client),
-	o ClientObserver,
-) {
-	var g sync.WaitGroup
-
-	g.Add(len(s.clients))
-
-	for c := range s.clients {
-		c := c // capture loop variable
-
-		go func() {
-			defer g.Done()
-			fn(o, c)
-		}()
-	}
-
-	g.Wait()
+	s.remove(c, func(o interface{}) {
+		o.(ClientObserver).ClientDisconnected(c)
+	})
 }
