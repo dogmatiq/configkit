@@ -1,5 +1,5 @@
 syntax = "proto3";
-package dogma.configkit.v1;
+package dogma.config.v1;
 
 option go_package = "github.com/dogmatiq/configkit/api/internal/pb";
 

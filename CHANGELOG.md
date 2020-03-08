@@ -9,6 +9,12 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+### Changed
+
+- **[BC]** Change the internal gRPC API namespace from `dogma.configkit.v1` to `dogma.config.v1`
+
 ## [0.3.1] - 2020-03-08
 
 ### Added
