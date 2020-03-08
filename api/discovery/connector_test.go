@@ -77,7 +77,7 @@ var _ = Describe("type Connector", func() {
 		cancel()
 	})
 
-	Describe("Connect()", func() {
+	Describe("Watch()", func() {
 		Context("when dialing fails", func() {
 			BeforeEach(func() {
 				listener.Close()
