@@ -157,8 +157,9 @@ func (w *watcher) watch(
 	}
 
 	client := &Client{
-		Client: api.NewClient(conn),
-		Target: w.Target,
+		Client:     api.NewClient(conn),
+		Target:     w.Target,
+		Connection: conn,
 	}
 
 	// The server sends exactly one response. The result of this call will be an

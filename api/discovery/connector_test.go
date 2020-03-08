@@ -187,6 +187,29 @@ var _ = Describe("type Connector", func() {
 			<-ctx.Done()
 		})
 
+		It("provides the underlying connection", func() {
+			ctx, cancel := context.WithCancel(ctx)
+			defer cancel()
+
+			obs.ClientConnectedFunc = func(c *Client) {
+				defer GinkgoRecover()
+				defer cancel()
+
+				client := api.NewClient(c.Connection)
+				idents, err := client.ListApplicationIdentities(ctx)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(idents).To(ConsistOf(
+					configkit.MustNewIdentity("<app>", "<app-key>"),
+				))
+			}
+
+			obs.ClientDisconnectedFunc = nil
+
+			connector.TargetAvailable(target)
+			defer connector.TargetUnavailable(target)
+			<-ctx.Done()
+		})
+
 		It("notifies of a disconnection if the server goes offline", func() {
 			barrier := make(chan struct{})
 
