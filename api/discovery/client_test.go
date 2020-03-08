@@ -1,6 +1,9 @@
 package discovery_test
 
 import (
+	"context"
+	"time"
+
 	. "github.com/dogmatiq/configkit/api/discovery"
 	"github.com/dogmatiq/configkit/api/discovery/fixtures" // can't dot-import due to conflict
 	. "github.com/onsi/ginkgo"
@@ -179,6 +182,91 @@ var _ = Describe("type ClientObserverSet", func() {
 			}
 
 			set.UnregisterClientObserver(obs1)
+		})
+	})
+})
+
+var _ ClientObserver = (*ClientExecutor)(nil)
+
+var _ = Describe("type ClientExecutor", func() {
+	var (
+		ctx    context.Context
+		cancel func()
+		exec   *ClientExecutor
+		client *Client
+	)
+
+	BeforeEach(func() {
+		ctx, cancel = context.WithTimeout(context.Background(), 250*time.Millisecond)
+
+		exec = &ClientExecutor{
+			Func: func(context.Context, *Client) {},
+		}
+
+		client = &Client{}
+	})
+
+	AfterEach(func() {
+		cancel()
+	})
+
+	Describe("func ClientConnected()", func() {
+		It("starts a goroutine for the given client", func() {
+			barrier := make(chan struct{})
+
+			exec.Func = func(_ context.Context, c *Client) {
+				defer GinkgoRecover()
+				defer close(barrier)
+
+				Expect(c).To(Equal(client))
+			}
+
+			exec.ClientConnected(client)
+			defer exec.ClientDisconnected(client)
+
+			select {
+			case <-barrier:
+			case <-ctx.Done():
+				Expect(ctx.Err()).ShouldNot(HaveOccurred())
+			}
+		})
+
+		It("does not panic if the client is already connected", func() {
+			exec.ClientConnected(client)
+			defer exec.ClientDisconnected(client)
+
+			exec.ClientConnected(client)
+		})
+	})
+
+	Describe("func ClientDisconnected()", func() {
+		It("cancels the context associated with the goroutine and waits for the function to finish", func() {
+			barrier := make(chan struct{})
+
+			exec.Func = func(funcCtx context.Context, c *Client) {
+				defer GinkgoRecover()
+				defer close(barrier)
+
+				select {
+				case <-funcCtx.Done():
+					// ok
+				case <-ctx.Done():
+					Expect(ctx.Err()).ShouldNot(HaveOccurred())
+				}
+			}
+
+			exec.ClientConnected(client)
+			exec.ClientDisconnected(client)
+
+			select {
+			case <-barrier:
+			case <-ctx.Done():
+				Expect(ctx.Err()).ShouldNot(HaveOccurred())
+			}
+		})
+
+		It("does not panic if the client is already disconnected", func() {
+			exec.ClientDisconnected(client)
 		})
 	})
 })
