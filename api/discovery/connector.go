@@ -2,7 +2,6 @@ package discovery
 
 import (
 	"context"
-	"sync"
 
 	"github.com/dogmatiq/configkit/api"
 	"github.com/dogmatiq/configkit/api/internal/pb"
@@ -28,123 +27,67 @@ type Connector struct {
 
 	// Logger is the target for log messages about dialing failures.
 	Logger logging.Logger
-
-	m       sync.Mutex
-	cancels map[*Target]context.CancelFunc
 }
 
-// TargetAvailable is called when a target is becomes available.
-func (c *Connector) TargetAvailable(t *Target) {
-	c.m.Lock()
-	defer c.m.Unlock()
-
-	if c.cancels == nil {
-		c.cancels = map[*Target]context.CancelFunc{}
-	} else if _, ok := c.cancels[t]; ok {
-		return
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	c.cancels[t] = cancel
-
-	w := &watcher{
-		Target:   t,
-		Observer: c.Observer,
-		Dial:     c.Dial,
-		Failures: backoff.Counter{
-			Strategy: c.BackoffStrategy,
-		},
-		Logger: c.Logger,
-	}
-
-	go w.Run(ctx)
-}
-
-// TargetUnavailable is called when a target becomes unavailable.
-func (c *Connector) TargetUnavailable(t *Target) {
-	c.m.Lock()
-	defer c.m.Unlock()
-
-	if cancel, ok := c.cancels[t]; ok {
-		delete(c.cancels, t)
-		cancel()
-	}
-}
-
-// watcher connects to a target in order to publish client connect/disconnect
-// notifications to an observer.
-//
-// The observer is only notified if the target implements the config API.
-type watcher struct {
-	// Target is the target to dial. It must not be nil.
-	Target *Target
-
-	// Observer is notified when a config API client connects to or disconnects
-	// from the target, if the target implements the config API. It must not be
-	// nil.
-	Observer ClientObserver
-
-	// Dial is the dialer used to connect to the target. If it is nil,
-	// DefaultDialer is used.
-	Dial Dialer
-
-	// Failures keeps track of the dial failures.
-	Failures backoff.Counter
-
-	// Logger is the target for dial failure messages. If it is nil,
-	// logging.DefaultLogger is used.
-	Logger logging.Logger
-}
-
-// Run dials the target and publishes client connection/disconnection
+// Watch connects to a target in order to publish client connect/disconnect
 // notifications to the observer.
 //
-// It runs until ctx is canceled.
-func (w *watcher) Run(ctx context.Context) error {
+// It retries until ctx is canceled.
+func (c *Connector) Watch(ctx context.Context, t *Target) error {
+	ctr := &backoff.Counter{
+		Strategy: c.BackoffStrategy,
+	}
+
 	for {
-		err := w.dial(ctx)
+		err := c.dial(ctx, ctr, t)
 
 		if ctx.Err() != nil {
 			return ctx.Err()
 		}
 
 		logging.Log(
-			w.Logger,
+			c.Logger,
 			"unable to watch '%s' target: %s",
-			w.Target.Name,
+			t.Name,
 			err,
 		)
 
-		if err := w.Failures.Sleep(ctx, err); err != nil {
+		if err := ctr.Sleep(ctx, err); err != nil {
 			return err
 		}
 	}
 }
 
 // dial attempts to dial the target.
-func (w *watcher) dial(ctx context.Context) error {
-	dial := w.Dial
+func (c *Connector) dial(
+	ctx context.Context,
+	ctr *backoff.Counter,
+	t *Target,
+) error {
+	dial := c.Dial
 	if dial == nil {
 		dial = DefaultDialer
 	}
 
-	conn, err := dial(ctx, w.Target)
+	conn, err := dial(ctx, t)
 	if err != nil {
 		return err
 	}
 	defer conn.Close()
 
-	return w.watch(ctx, conn)
+	return c.publish(ctx, ctr, conn, t)
 }
 
-// watch checks if conn supports the config API and notifies the observer
+// publish checks if conn supports the config API and notifies the observer
 // accordingly.
 //
 // It blocks until ctx is canceled or the connection is severed, at which point
 // the observer is notified of the disconnection.
-func (w *watcher) watch(
+func (c *Connector) publish(
 	ctx context.Context,
+	ctr *backoff.Counter,
 	conn *grpc.ClientConn,
+	t *Target,
 ) error {
 	// Make a context that closes the gRPC stream when this function exits, as
 	// streams have no Close() method.
@@ -158,7 +101,7 @@ func (w *watcher) watch(
 
 	client := &Client{
 		Client:     api.NewClient(conn),
-		Target:     w.Target,
+		Target:     t,
 		Connection: conn,
 	}
 
@@ -169,13 +112,13 @@ func (w *watcher) watch(
 		return err
 	}
 
-	w.Observer.ClientConnected(client)
-	defer w.Observer.ClientDisconnected(client)
+	c.Observer.ClientConnected(client)
+	defer c.Observer.ClientDisconnected(client)
 
 	// We've successfully queried the server, so if there is an error now its a
 	// regular disconnection and we should retry immediately, therefore we reset
 	// the failure counter.
-	w.Failures.Reset()
+	ctr.Reset()
 
 	_, err = stream.Recv()
 	return err

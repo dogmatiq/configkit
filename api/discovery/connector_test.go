@@ -5,20 +5,17 @@ import (
 	"net"
 	"time"
 
-	"github.com/dogmatiq/dodeca/logging"
-
 	"github.com/dogmatiq/configkit"
 	"github.com/dogmatiq/configkit/api"
 	. "github.com/dogmatiq/configkit/api/discovery"
 	"github.com/dogmatiq/configkit/api/fixtures" // can't dot-import due to conflict
+	"github.com/dogmatiq/dodeca/logging"
 	"github.com/dogmatiq/dogma"
 	. "github.com/dogmatiq/dogma/fixtures"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"google.golang.org/grpc"
 )
-
-var _ TargetObserver = (*Connector)(nil)
 
 var _ = Describe("type Connector", func() {
 	var (
@@ -80,170 +77,145 @@ var _ = Describe("type Connector", func() {
 		cancel()
 	})
 
-	Context("when dialing fails", func() {
-		BeforeEach(func() {
-			listener.Close()
-			target.Options = append(target.Options, grpc.WithBlock())
+	Describe("Connect()", func() {
+		Context("when dialing fails", func() {
+			BeforeEach(func() {
+				listener.Close()
+				target.Options = append(target.Options, grpc.WithBlock())
+			})
+
+			It("does not notify the observer", func() {
+				err := connector.Watch(ctx, target)
+				Expect(err).To(Equal(context.DeadlineExceeded))
+			})
 		})
 
-		It("does not notify the observer", func() {
-			connector.TargetAvailable(target)
-			defer connector.TargetUnavailable(target)
-			<-ctx.Done() // wait out the timeout
-		})
-	})
+		Context("when the server is down", func() {
+			BeforeEach(func() {
+				listener.Close()
+			})
 
-	Context("when the server is down", func() {
-		BeforeEach(func() {
-			listener.Close()
-		})
-
-		It("does not notify the observer", func() {
-			connector.TargetAvailable(target)
-			defer connector.TargetUnavailable(target)
-			<-ctx.Done() // wait out the timeout
-		})
-	})
-
-	Context("when the server does not implement the config API", func() {
-		It("does not notify the observer", func() {
-			connector.TargetAvailable(target)
-			defer connector.TargetUnavailable(target)
-			<-ctx.Done() // wait out the timeout
-		})
-	})
-
-	Context("when the server implements the config API", func() {
-		BeforeEach(func() {
-			app := &Application{
-				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
-					c.Identity("<app>", "<app-key>")
-				},
-			}
-
-			cfg := configkit.FromApplication(app)
-			api.RegisterServer(gserver, cfg)
+			It("does not notify the observer", func() {
+				err := connector.Watch(ctx, target)
+				Expect(err).To(Equal(context.DeadlineExceeded))
+			})
 		})
 
-		It("notifies the observer", func() {
-			ctx, cancel := context.WithCancel(ctx)
-			defer cancel()
-
-			barrier := make(chan bool)
-
-			obs.ClientConnectedFunc = func(c *Client) {
-				defer GinkgoRecover()
-
-				Expect(c.Target).To(Equal(target))
-				barrier <- true
-			}
-
-			obs.ClientDisconnectedFunc = func(c *Client) {
-				defer GinkgoRecover()
-
-				Expect(c.Target).To(Equal(target))
-				barrier <- false
-			}
-
-			connector.TargetAvailable(target)
-			defer connector.TargetUnavailable(target)
-
-			select {
-			case connect := <-barrier:
-				Expect(connect).To(BeTrue())
-			case <-ctx.Done():
-				Expect(ctx.Err()).ShouldNot(HaveOccurred())
-			}
-
-			connector.TargetUnavailable(target)
-
-			select {
-			case connect := <-barrier:
-				Expect(connect).To(BeFalse())
-			case <-ctx.Done():
-				Expect(ctx.Err()).ShouldNot(HaveOccurred())
-			}
+		Context("when the server does not implement the config API", func() {
+			It("does not notify the observer", func() {
+				err := connector.Watch(ctx, target)
+				Expect(err).To(Equal(context.DeadlineExceeded))
+			})
 		})
 
-		It("connects to the server", func() {
-			ctx, cancel := context.WithCancel(ctx)
-			defer cancel()
+		Context("when the server implements the config API", func() {
+			BeforeEach(func() {
+				app := &Application{
+					ConfigureFunc: func(c dogma.ApplicationConfigurer) {
+						c.Identity("<app>", "<app-key>")
+					},
+				}
 
-			obs.ClientConnectedFunc = func(c *Client) {
-				defer GinkgoRecover()
-				defer cancel()
+				cfg := configkit.FromApplication(app)
+				api.RegisterServer(gserver, cfg)
+			})
 
-				idents, err := c.ListApplicationIdentities(ctx)
-				Expect(err).ShouldNot(HaveOccurred())
-				Expect(idents).To(ConsistOf(
-					configkit.MustNewIdentity("<app>", "<app-key>"),
-				))
-			}
+			It("notifies the observer", func() {
+				connected := make(chan struct{})
+				disconnected := make(chan struct{})
 
-			obs.ClientDisconnectedFunc = nil
+				obs.ClientConnectedFunc = func(c *Client) {
+					defer GinkgoRecover()
 
-			connector.TargetAvailable(target)
-			defer connector.TargetUnavailable(target)
-			<-ctx.Done()
-		})
+					Expect(c.Target).To(Equal(target))
+					close(connected)
+				}
 
-		It("provides the underlying connection", func() {
-			ctx, cancel := context.WithCancel(ctx)
-			defer cancel()
+				obs.ClientDisconnectedFunc = func(c *Client) {
+					defer GinkgoRecover()
 
-			obs.ClientConnectedFunc = func(c *Client) {
-				defer GinkgoRecover()
-				defer cancel()
+					Expect(c.Target).To(Equal(target))
+					close(disconnected)
+				}
 
-				client := api.NewClient(c.Connection)
-				idents, err := client.ListApplicationIdentities(ctx)
-				Expect(err).ShouldNot(HaveOccurred())
-				Expect(idents).To(ConsistOf(
-					configkit.MustNewIdentity("<app>", "<app-key>"),
-				))
-			}
+				watchCtx, cancelWatch := context.WithCancel(ctx)
+				defer cancelWatch()
 
-			obs.ClientDisconnectedFunc = nil
+				go connector.Watch(watchCtx, target)
 
-			connector.TargetAvailable(target)
-			defer connector.TargetUnavailable(target)
-			<-ctx.Done()
-		})
+				select {
+				case <-connected:
+				case <-ctx.Done():
+					Expect(ctx.Err()).ShouldNot(HaveOccurred())
+				}
 
-		It("notifies of a disconnection if the server goes offline", func() {
-			barrier := make(chan struct{})
+				cancelWatch()
 
-			obs.ClientConnectedFunc = func(c *Client) {
-				gserver.Stop()
-			}
+				select {
+				case <-disconnected:
+				case <-ctx.Done():
+					Expect(ctx.Err()).ShouldNot(HaveOccurred())
+				}
+			})
 
-			obs.ClientDisconnectedFunc = func(c *Client) {
-				barrier <- struct{}{}
-			}
+			It("connects to the server", func() {
+				watchCtx, cancelWatch := context.WithCancel(ctx)
+				defer cancelWatch()
 
-			connector.TargetAvailable(target)
-			defer connector.TargetUnavailable(target)
+				obs.ClientConnectedFunc = func(c *Client) {
+					defer GinkgoRecover()
+					defer cancelWatch()
 
-			select {
-			case <-barrier:
-			case <-ctx.Done():
-				Expect(ctx.Err()).ShouldNot(HaveOccurred())
-			}
-		})
-	})
+					idents, err := c.ListApplicationIdentities(ctx)
+					Expect(err).ShouldNot(HaveOccurred())
+					Expect(idents).To(ConsistOf(
+						configkit.MustNewIdentity("<app>", "<app-key>"),
+					))
+				}
 
-	Describe("func TargetAvailable()", func() {
-		It("does not panic if the target is already available", func() {
-			connector.TargetAvailable(target)
-			defer connector.TargetUnavailable(target)
+				obs.ClientDisconnectedFunc = nil
 
-			connector.TargetAvailable(target)
-		})
-	})
+				err := connector.Watch(watchCtx, target)
+				Expect(err).To(Equal(context.Canceled))
+			})
 
-	Describe("func TargetUnavailable()", func() {
-		It("does not panic if the target is already unavailable", func() {
-			connector.TargetUnavailable(target)
+			It("provides the underlying connection", func() {
+				watchCtx, cancelWatch := context.WithCancel(ctx)
+				defer cancelWatch()
+
+				obs.ClientConnectedFunc = func(c *Client) {
+					defer GinkgoRecover()
+					defer cancelWatch()
+
+					client := api.NewClient(c.Connection)
+					idents, err := client.ListApplicationIdentities(ctx)
+					Expect(err).ShouldNot(HaveOccurred())
+					Expect(idents).To(ConsistOf(
+						configkit.MustNewIdentity("<app>", "<app-key>"),
+					))
+				}
+
+				obs.ClientDisconnectedFunc = nil
+
+				err := connector.Watch(watchCtx, target)
+				Expect(err).To(Equal(context.Canceled))
+			})
+
+			It("notifies of a disconnection if the server goes offline", func() {
+				watchCtx, cancelWatch := context.WithCancel(ctx)
+				defer cancelWatch()
+
+				obs.ClientConnectedFunc = func(c *Client) {
+					gserver.Stop()
+				}
+
+				obs.ClientDisconnectedFunc = func(c *Client) {
+					cancel()
+				}
+
+				err := connector.Watch(watchCtx, target)
+				Expect(err).To(Equal(context.Canceled))
+			})
 		})
 	})
 })

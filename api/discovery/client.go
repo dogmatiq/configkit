@@ -1,6 +1,8 @@
 package discovery
 
 import (
+	"context"
+
 	"github.com/dogmatiq/configkit/api"
 	"google.golang.org/grpc"
 )
@@ -75,4 +77,31 @@ func (s *ClientObserverSet) ClientDisconnected(c *Client) {
 	s.remove(c, func(o interface{}) {
 		o.(ClientObserver).ClientDisconnected(c)
 	})
+}
+
+// ClientExecutor is a ClientObserver that executes a function in a new
+// goroutine whenever a client connects.
+type ClientExecutor struct {
+	executor
+
+	// Func is the function to execute when a client connects.
+	// The context is canceled when the target becomes unavailable.
+	Func func(context.Context, *Client)
+
+	// Parent is the parent context under which the function is called.
+	// If it is nil, context.Background() is used.
+	Parent context.Context
+}
+
+// ClientConnected starts a new goroutine for the given client.
+func (e *ClientExecutor) ClientConnected(c *Client) {
+	e.start(e.Parent, c, func(ctx context.Context) {
+		e.Func(ctx, c)
+	})
+}
+
+// ClientDisconnected cancels the context associated with any existing goroutine
+// for the given client and waits for the goroutine to exit.
+func (e *ClientExecutor) ClientDisconnected(c *Client) {
+	e.stop(c)
 }
