@@ -108,6 +108,19 @@ var _ = Describe("type Connector", func() {
 			})
 		})
 
+		Context("when target is ignored", func() {
+			BeforeEach(func() {
+				connector.Ignore = func(t *Target) bool {
+					return t == target
+				}
+			})
+
+			It("returns immediately", func() {
+				err := connector.Watch(ctx, target)
+				Expect(err).ShouldNot(HaveOccurred())
+			})
+		})
+
 		Context("when the server implements the config API", func() {
 			BeforeEach(func() {
 				app := &Application{

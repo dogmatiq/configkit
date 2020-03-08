@@ -21,6 +21,10 @@ type Connector struct {
 	// If it is nil, DefaultDialer is used.
 	Dial Dialer
 
+	// Ignore is a predicate function that returns true if the given target
+	// should be ignored.
+	Ignore func(*Target) bool
+
 	// BackoffStrategy controls how long to wait between failures to dial a
 	// discovered target.
 	BackoffStrategy backoff.Strategy
@@ -34,6 +38,10 @@ type Connector struct {
 //
 // It retries until ctx is canceled.
 func (c *Connector) Watch(ctx context.Context, t *Target) error {
+	if c.Ignore != nil && c.Ignore(t) {
+		return nil
+	}
+
 	ctr := &backoff.Counter{
 		Strategy: c.BackoffStrategy,
 	}
