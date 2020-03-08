@@ -81,14 +81,17 @@ func (s *TargetObserverSet) TargetUnavailable(t *Target) {
 	})
 }
 
+// TargetTask is a function executed by a TargetExecutor.
+type TargetTask func(context.Context, *Target)
+
 // TargetExecutor is a TargetObserver that executes a function in a new
 // goroutine whenever a target becomes available.
 type TargetExecutor struct {
 	executor
 
-	// Func is the function to execute when a target becomes available.
+	// Task is the function to execute when a target becomes available.
 	// The context is canceled when the target becomes unavailable.
-	Func func(context.Context, *Target)
+	Task TargetTask
 
 	// Parent is the parent context under which the function is called.
 	// If it is nil, context.Background() is used.
@@ -98,7 +101,7 @@ type TargetExecutor struct {
 // TargetAvailable starts a new goroutine for the given target.
 func (e *TargetExecutor) TargetAvailable(t *Target) {
 	e.start(e.Parent, t, func(ctx context.Context) {
-		e.Func(ctx, t)
+		e.Task(ctx, t)
 	})
 }
 
