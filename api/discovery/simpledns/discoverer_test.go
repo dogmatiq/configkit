@@ -88,11 +88,46 @@ var _ = Describe("type Discoverer", func() {
 					return []string{"<host1>", "<host2>"}, nil
 				}
 
+				return []string{"<host2>"}, nil
+			}
+
+			obs.TargetUnavailableFunc = func(t *discovery.Target) {
+				defer GinkgoRecover()
+
+				Expect(t).To(Equal(
+					&discovery.Target{
+						Name: "<host1>:https",
+						MetaData: discovery.MetaData{
+							QueryHostKey: "<query-host>",
+						},
+					},
+				))
+
+				// Prevent a failure when <host2> becomes unavailable simply
+				// because the discover is stopped.
+				obs.TargetUnavailableFunc = nil
+
 				// canceling here relies on the fact that the discoverer does
 				// not check the context while notifying the observer.
 				cancel()
+			}
 
-				return []string{"<host2>"}, nil
+			err := disc.Run(ctx)
+			Expect(err).To(Equal(context.Canceled))
+		})
+
+		It("notifies the observer when the discoverer is stopped", func() {
+			ctx, cancel := context.WithCancel(ctx)
+			defer cancel()
+
+			disc.Interval = 10 * time.Millisecond
+
+			res.LookupHostFunc = func(_ context.Context, host string) ([]string, error) {
+				// canceling here relies on the fact that the discoverer
+				// does not check the context while notifying the observer.
+				cancel()
+
+				return []string{"<host1>", "<host2>"}, nil
 			}
 
 			var targets []*discovery.Target
@@ -105,6 +140,12 @@ var _ = Describe("type Discoverer", func() {
 			Expect(targets).To(ConsistOf(
 				&discovery.Target{
 					Name: "<host1>:https",
+					MetaData: discovery.MetaData{
+						QueryHostKey: "<query-host>",
+					},
+				},
+				&discovery.Target{
+					Name: "<host2>:https",
 					MetaData: discovery.MetaData{
 						QueryHostKey: "<query-host>",
 					},

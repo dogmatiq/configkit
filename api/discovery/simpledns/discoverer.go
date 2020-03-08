@@ -37,6 +37,8 @@ type Discoverer struct {
 
 // Run performs discovery until ctx is canceled or an error occurs.
 func (d *Discoverer) Run(ctx context.Context) error {
+	defer d.update(nil)
+
 	for {
 		addrs, err := d.query(ctx)
 		if err != nil {
