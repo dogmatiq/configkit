@@ -13,8 +13,9 @@ type Inspector struct {
 	// client. It must not be nil.
 	Observer ApplicationObserver
 
-	// Ignore is a list of application identity keys to ignore.
-	Ignore []string
+	// Ignore is a predicate function that returns true if the given application
+	// should be ignored.
+	Ignore func(configkit.Application) bool
 
 	apps []*Application
 }
@@ -36,7 +37,7 @@ func (i *Inspector) Inspect(ctx context.Context, c *Client) error {
 	}()
 
 	for _, a := range apps {
-		if i.isIgnored(a) {
+		if i.Ignore != nil && i.Ignore(a) {
 			continue
 		}
 
@@ -51,15 +52,4 @@ func (i *Inspector) Inspect(ctx context.Context, c *Client) error {
 
 	<-ctx.Done()
 	return ctx.Err()
-}
-
-// isIgnored returns true if app should be ignored.
-func (i *Inspector) isIgnored(app configkit.Application) bool {
-	for _, k := range i.Ignore {
-		if k == app.Identity().Key {
-			return true
-		}
-	}
-
-	return false
 }

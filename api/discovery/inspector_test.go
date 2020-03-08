@@ -136,7 +136,9 @@ var _ = Describe("type Inspector", func() {
 		})
 
 		It("does not notify the observer if the application is ignored", func() {
-			inspector.Ignore = []string{"<app-key>"}
+			inspector.Ignore = func(a configkit.Application) bool {
+				return a.Identity().Key == "<app-key>"
+			}
 
 			err := inspector.Inspect(ctx, client)
 			Expect(err).To(Equal(context.DeadlineExceeded))
