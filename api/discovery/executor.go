@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// executor provides shared logic to TargetExecutor and ClientExecutor.
+// executor provides shared logic to the XXXExecutor types.
 type executor struct {
 	m     sync.Mutex
 	tasks map[interface{}]task

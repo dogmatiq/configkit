@@ -2,7 +2,6 @@ package discovery
 
 import (
 	"context"
-	"sync"
 
 	"github.com/dogmatiq/configkit"
 )
@@ -28,9 +27,7 @@ type ApplicationObserver interface {
 // ApplicationObserverSet is an ApplicationObserver that publishes to other
 // observers.
 type ApplicationObserverSet struct {
-	m         sync.RWMutex
-	observers map[ApplicationObserver]struct{}
-	apps      map[*Application]struct{}
+	observerSet
 }
 
 // NewApplicationObserverSet registers the given observers with a new observer
@@ -48,101 +45,31 @@ func NewApplicationObserverSet(observers ...ApplicationObserver) *ApplicationObs
 // RegisterApplicationObserver registers o to be notified when applications
 // become available and unavailable.
 func (s *ApplicationObserverSet) RegisterApplicationObserver(o ApplicationObserver) {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	if s.observers == nil {
-		s.observers = map[ApplicationObserver]struct{}{}
-	} else if _, ok := s.observers[o]; ok {
-		return
-	}
-
-	s.observers[o] = struct{}{}
-	s.notifyOne(ApplicationObserver.ApplicationAvailable, o)
+	s.register(o, func(e interface{}) {
+		o.ApplicationAvailable(e.(*Application))
+	})
 }
 
 // UnregisterApplicationObserver stops o from being notified when applications
 // become available and unavailable.
 func (s *ApplicationObserverSet) UnregisterApplicationObserver(o ApplicationObserver) {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	if _, ok := s.observers[o]; !ok {
-		return
-	}
-
-	delete(s.observers, o)
-	s.notifyOne(ApplicationObserver.ApplicationUnavailable, o)
+	s.unregister(o, func(e interface{}) {
+		o.ApplicationUnavailable(e.(*Application))
+	})
 }
 
 // ApplicationAvailable notifies the registered observers that t is available.
 func (s *ApplicationObserverSet) ApplicationAvailable(a *Application) {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	if s.apps == nil {
-		s.apps = map[*Application]struct{}{}
-	} else if _, ok := s.apps[a]; ok {
-		return
-	}
-
-	s.apps[a] = struct{}{}
-	s.notifyAll(ApplicationObserver.ApplicationAvailable, a)
+	s.add(a, func(o interface{}) {
+		o.(ApplicationObserver).ApplicationAvailable(a)
+	})
 }
 
 // ApplicationUnavailable notifies the registered observers that t is unavailable.
 func (s *ApplicationObserverSet) ApplicationUnavailable(a *Application) {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	if _, ok := s.apps[a]; !ok {
-		return
-	}
-
-	delete(s.apps, a)
-	s.notifyAll(ApplicationObserver.ApplicationUnavailable, a)
-}
-
-// notifyAll notifies all observers about a change to one application.
-func (s *ApplicationObserverSet) notifyAll(
-	fn func(ApplicationObserver, *Application),
-	a *Application,
-) {
-	var g sync.WaitGroup
-
-	g.Add(len(s.observers))
-
-	for o := range s.observers {
-		o := o // capture loop variable
-
-		go func() {
-			defer g.Done()
-			fn(o, a)
-		}()
-	}
-
-	g.Wait()
-}
-
-// notifyOne notifies one observer about a change to all applications.
-func (s *ApplicationObserverSet) notifyOne(
-	fn func(ApplicationObserver, *Application),
-	o ApplicationObserver,
-) {
-	var g sync.WaitGroup
-
-	g.Add(len(s.apps))
-
-	for t := range s.apps {
-		t := t // capture loop variable
-
-		go func() {
-			defer g.Done()
-			fn(o, t)
-		}()
-	}
-
-	g.Wait()
+	s.remove(a, func(o interface{}) {
+		o.(ApplicationObserver).ApplicationUnavailable(a)
+	})
 }
 
 // ApplicationTask is a function executed by an ApplicationExecutor.
