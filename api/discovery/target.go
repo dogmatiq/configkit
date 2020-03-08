@@ -32,9 +32,7 @@ type TargetObserver interface {
 	TargetUnavailable(*Target)
 }
 
-// TargetObserverSet is a target observer that publishes to other observers.
-//
-// It implements both the TargetObserver and TargetPublisher interfaces.
+// TargetObserverSet is a TargetObserver that publishes to other observers.
 type TargetObserverSet struct {
 	observerSet
 }
