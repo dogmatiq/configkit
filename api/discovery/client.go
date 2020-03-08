@@ -31,9 +31,7 @@ type ClientObserver interface {
 	ClientDisconnected(*Client)
 }
 
-// ClientObserverSet is a client observer that publishes to other observers.
-//
-// It implements both the ClientObserver and ClientPublisher interfaces.
+// ClientObserverSet is a ClientObserver that publishes to other observers.
 type ClientObserverSet struct {
 	m         sync.RWMutex
 	observers map[ClientObserver]struct{}

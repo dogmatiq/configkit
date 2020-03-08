@@ -8,10 +8,10 @@ import (
 	"github.com/dogmatiq/configkit"
 	"github.com/dogmatiq/configkit/api"
 	. "github.com/dogmatiq/configkit/api/discovery"
-	"github.com/dogmatiq/configkit/api/discovery/fixtures" // can't dot-import due to conflict
+	dfixtures "github.com/dogmatiq/configkit/api/discovery/fixtures" // can't dot-import due to conflict
 	"github.com/dogmatiq/dodeca/logging"
 	"github.com/dogmatiq/dogma"
-	. "github.com/dogmatiq/dogma/fixtures"
+	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflict
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"google.golang.org/grpc"
@@ -23,7 +23,7 @@ var _ = Describe("type Connector", func() {
 		cancel    func()
 		listener  net.Listener
 		gserver   *grpc.Server
-		obs       *fixtures.ClientObserver
+		obs       *dfixtures.ClientObserver
 		connector *Connector
 		target    *Target
 	)
@@ -37,7 +37,7 @@ var _ = Describe("type Connector", func() {
 
 		gserver = grpc.NewServer()
 
-		obs = &fixtures.ClientObserver{
+		obs = &dfixtures.ClientObserver{
 			ClientConnectedFunc: func(c *Client) {
 				defer GinkgoRecover()
 				Fail("unexpected client connected notification")
@@ -123,7 +123,7 @@ var _ = Describe("type Connector", func() {
 
 		Context("when the server implements the config API", func() {
 			BeforeEach(func() {
-				app := &Application{
+				app := &fixtures.Application{
 					ConfigureFunc: func(c dogma.ApplicationConfigurer) {
 						c.Identity("<app>", "<app-key>")
 					},
