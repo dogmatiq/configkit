@@ -115,7 +115,7 @@ func (c *Connector) publish(
 	c.Observer.ClientConnected(client)
 	defer c.Observer.ClientDisconnected(client)
 
-	// We've successfully queried the server, so if there is an error now its a
+	// We've successfully queried the server, so if there is an error now it's a
 	// regular disconnection and we should retry immediately, therefore we reset
 	// the failure counter.
 	ctr.Reset()
