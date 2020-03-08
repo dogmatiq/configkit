@@ -9,7 +9,7 @@ import (
 
 // Client is an API client that is aware of the target it connects to.
 type Client struct {
-	*api.Client
+	api.Client
 
 	// Target is the discovered gRPC target that the client connects to.
 	Target *Target

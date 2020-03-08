@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 ### Changed
 
 - **[BC]** Change the internal gRPC API namespace from `dogma.configkit.v1` to `dogma.config.v1`
+- **[BC]** Change `api.Client` to an interface
 
 ## [0.3.1] - 2020-03-08
 
