@@ -58,14 +58,14 @@ func (s *ApplicationObserverSet) UnregisterApplicationObserver(o ApplicationObse
 	})
 }
 
-// ApplicationAvailable notifies the registered observers that t is available.
+// ApplicationAvailable notifies the registered observers that a is available.
 func (s *ApplicationObserverSet) ApplicationAvailable(a *Application) {
 	s.add(a, func(o interface{}) {
 		o.(ApplicationObserver).ApplicationAvailable(a)
 	})
 }
 
-// ApplicationUnavailable notifies the registered observers that t is unavailable.
+// ApplicationUnavailable notifies the registered observers that a is unavailable.
 func (s *ApplicationObserverSet) ApplicationUnavailable(a *Application) {
 	s.remove(a, func(o interface{}) {
 		o.(ApplicationObserver).ApplicationUnavailable(a)
