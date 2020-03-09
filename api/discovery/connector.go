@@ -32,11 +32,11 @@ type Connector struct {
 	Logger logging.Logger
 }
 
-// Watch connects to a target in order to publish client connect/disconnect
+// Run connects to a target in order to publish client connect/disconnect
 // notifications to the observer.
 //
 // It retries until ctx is canceled.
-func (c *Connector) Watch(ctx context.Context, t *Target) error {
+func (c *Connector) Run(ctx context.Context, t *Target) error {
 	if c.Ignore != nil && c.Ignore(t) {
 		return nil
 	}
@@ -82,15 +82,15 @@ func (c *Connector) dial(
 	}
 	defer conn.Close()
 
-	return c.publish(ctx, ctr, conn, t)
+	return c.watch(ctx, ctr, conn, t)
 }
 
-// publish checks if conn supports the config API and notifies the observer
+// watch checks if conn supports the config API and notifies the observer
 // accordingly.
 //
 // It blocks until ctx is canceled or the connection is severed, at which point
 // the observer is notified of the disconnection.
-func (c *Connector) publish(
+func (c *Connector) watch(
 	ctx context.Context,
 	ctr *backoff.Counter,
 	conn *grpc.ClientConn,

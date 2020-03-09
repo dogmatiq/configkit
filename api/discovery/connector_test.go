@@ -77,7 +77,7 @@ var _ = Describe("type Connector", func() {
 		cancel()
 	})
 
-	Describe("Watch()", func() {
+	Describe("Run()", func() {
 		Context("when dialing fails", func() {
 			BeforeEach(func() {
 				listener.Close()
@@ -85,7 +85,7 @@ var _ = Describe("type Connector", func() {
 			})
 
 			It("does not notify the observer", func() {
-				err := connector.Watch(ctx, target)
+				err := connector.Run(ctx, target)
 				Expect(err).To(Equal(context.DeadlineExceeded))
 			})
 		})
@@ -96,14 +96,14 @@ var _ = Describe("type Connector", func() {
 			})
 
 			It("does not notify the observer", func() {
-				err := connector.Watch(ctx, target)
+				err := connector.Run(ctx, target)
 				Expect(err).To(Equal(context.DeadlineExceeded))
 			})
 		})
 
 		Context("when the server does not implement the config API", func() {
 			It("does not notify the observer", func() {
-				err := connector.Watch(ctx, target)
+				err := connector.Run(ctx, target)
 				Expect(err).To(Equal(context.DeadlineExceeded))
 			})
 		})
@@ -116,7 +116,7 @@ var _ = Describe("type Connector", func() {
 			})
 
 			It("returns immediately", func() {
-				err := connector.Watch(ctx, target)
+				err := connector.Run(ctx, target)
 				Expect(err).ShouldNot(HaveOccurred())
 			})
 		})
@@ -151,10 +151,10 @@ var _ = Describe("type Connector", func() {
 					close(disconnected)
 				}
 
-				watchCtx, cancelWatch := context.WithCancel(ctx)
-				defer cancelWatch()
+				runCtx, cancelRun := context.WithCancel(ctx)
+				defer cancelRun()
 
-				go connector.Watch(watchCtx, target)
+				go connector.Run(runCtx, target)
 
 				select {
 				case <-connected:
@@ -162,7 +162,7 @@ var _ = Describe("type Connector", func() {
 					Expect(ctx.Err()).ShouldNot(HaveOccurred())
 				}
 
-				cancelWatch()
+				cancelRun()
 
 				select {
 				case <-disconnected:
@@ -172,12 +172,12 @@ var _ = Describe("type Connector", func() {
 			})
 
 			It("connects to the server", func() {
-				watchCtx, cancelWatch := context.WithCancel(ctx)
-				defer cancelWatch()
+				runCtx, cancelRun := context.WithCancel(ctx)
+				defer cancelRun()
 
 				obs.ClientConnectedFunc = func(c *Client) {
 					defer GinkgoRecover()
-					defer cancelWatch()
+					defer cancelRun()
 
 					idents, err := c.ListApplicationIdentities(ctx)
 					Expect(err).ShouldNot(HaveOccurred())
@@ -188,17 +188,17 @@ var _ = Describe("type Connector", func() {
 
 				obs.ClientDisconnectedFunc = nil
 
-				err := connector.Watch(watchCtx, target)
+				err := connector.Run(runCtx, target)
 				Expect(err).To(Equal(context.Canceled))
 			})
 
 			It("provides the underlying connection", func() {
-				watchCtx, cancelWatch := context.WithCancel(ctx)
-				defer cancelWatch()
+				runCtx, cancelRun := context.WithCancel(ctx)
+				defer cancelRun()
 
 				obs.ClientConnectedFunc = func(c *Client) {
 					defer GinkgoRecover()
-					defer cancelWatch()
+					defer cancelRun()
 
 					client := api.NewClient(c.Connection)
 					idents, err := client.ListApplicationIdentities(ctx)
@@ -210,13 +210,13 @@ var _ = Describe("type Connector", func() {
 
 				obs.ClientDisconnectedFunc = nil
 
-				err := connector.Watch(watchCtx, target)
+				err := connector.Run(runCtx, target)
 				Expect(err).To(Equal(context.Canceled))
 			})
 
 			It("notifies of a disconnection if the server goes offline", func() {
-				watchCtx, cancelWatch := context.WithCancel(ctx)
-				defer cancelWatch()
+				runCtx, cancelRun := context.WithCancel(ctx)
+				defer cancelRun()
 
 				obs.ClientConnectedFunc = func(c *Client) {
 					gserver.Stop()
@@ -226,7 +226,7 @@ var _ = Describe("type Connector", func() {
 					cancel()
 				}
 
-				err := connector.Watch(watchCtx, target)
+				err := connector.Run(runCtx, target)
 				Expect(err).To(Equal(context.Canceled))
 			})
 		})
