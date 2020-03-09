@@ -1,6 +1,8 @@
 package discovery
 
 import (
+	"context"
+
 	"google.golang.org/grpc"
 )
 
@@ -77,4 +79,34 @@ func (s *TargetObserverSet) TargetUnavailable(t *Target) {
 	s.remove(t, func(o interface{}) {
 		o.(TargetObserver).TargetUnavailable(t)
 	})
+}
+
+// TargetTask is a function executed by a TargetExecutor.
+type TargetTask func(context.Context, *Target)
+
+// TargetExecutor is a TargetObserver that executes a function in a new
+// goroutine whenever a target becomes available.
+type TargetExecutor struct {
+	executor
+
+	// Task is the function to execute when a target becomes available.
+	// The context is canceled when the target becomes unavailable.
+	Task TargetTask
+
+	// Parent is the parent context under which the function is called.
+	// If it is nil, context.Background() is used.
+	Parent context.Context
+}
+
+// TargetAvailable starts a new goroutine for the given target.
+func (e *TargetExecutor) TargetAvailable(t *Target) {
+	e.start(e.Parent, t, func(ctx context.Context) {
+		e.Task(ctx, t)
+	})
+}
+
+// TargetUnavailable cancels the context associated with any existing goroutine
+// for the given target and waits for the goroutine to exit.
+func (e *TargetExecutor) TargetUnavailable(t *Target) {
+	e.stop(t)
 }

@@ -1,6 +1,9 @@
 package discovery_test
 
 import (
+	"context"
+	"time"
+
 	. "github.com/dogmatiq/configkit/api/discovery"
 	"github.com/dogmatiq/configkit/api/fixtures" // can't dot-import due to conflict
 	. "github.com/onsi/ginkgo"
@@ -179,6 +182,91 @@ var _ = Describe("type TargetObserverSet", func() {
 			}
 
 			set.UnregisterTargetObserver(obs1)
+		})
+	})
+})
+
+var _ TargetObserver = (*TargetExecutor)(nil)
+
+var _ = Describe("type TargetExecutor", func() {
+	var (
+		ctx    context.Context
+		cancel func()
+		exec   *TargetExecutor
+		target *Target
+	)
+
+	BeforeEach(func() {
+		ctx, cancel = context.WithTimeout(context.Background(), 250*time.Millisecond)
+
+		exec = &TargetExecutor{
+			Task: func(context.Context, *Target) {},
+		}
+
+		target = &Target{}
+	})
+
+	AfterEach(func() {
+		cancel()
+	})
+
+	Describe("func TargetAvailable()", func() {
+		It("starts a goroutine for the given target", func() {
+			barrier := make(chan struct{})
+
+			exec.Task = func(_ context.Context, t *Target) {
+				defer GinkgoRecover()
+				defer close(barrier)
+
+				Expect(t).To(Equal(target))
+			}
+
+			exec.TargetAvailable(target)
+			defer exec.TargetUnavailable(target)
+
+			select {
+			case <-barrier:
+			case <-ctx.Done():
+				Expect(ctx.Err()).ShouldNot(HaveOccurred())
+			}
+		})
+
+		It("does not panic if the target is already available", func() {
+			exec.TargetAvailable(target)
+			defer exec.TargetUnavailable(target)
+
+			exec.TargetAvailable(target)
+		})
+	})
+
+	Describe("func TargetUnavailable()", func() {
+		It("cancels the context associated with the goroutine and waits for the function to finish", func() {
+			barrier := make(chan struct{})
+
+			exec.Task = func(funcCtx context.Context, t *Target) {
+				defer GinkgoRecover()
+				defer close(barrier)
+
+				select {
+				case <-funcCtx.Done():
+					// ok
+				case <-ctx.Done():
+					Expect(ctx.Err()).ShouldNot(HaveOccurred())
+				}
+			}
+
+			exec.TargetAvailable(target)
+			exec.TargetUnavailable(target)
+
+			select {
+			case <-barrier:
+			case <-ctx.Done():
+				Expect(ctx.Err()).ShouldNot(HaveOccurred())
+			}
+		})
+
+		It("does not panic if the target is already unavailable", func() {
+			exec.TargetUnavailable(target)
 		})
 	})
 })
