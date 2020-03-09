@@ -20,7 +20,7 @@ func (s *invalidServer) ListApplicationIdentities(
 ) (*pb.ListApplicationIdentitiesResponse, error) {
 	return &pb.ListApplicationIdentitiesResponse{
 		Identities: []*pb.Identity{
-			&pb.Identity{}, // invalid
+			{}, // invalid
 		},
 	}, nil
 }
@@ -31,7 +31,7 @@ func (s *invalidServer) ListApplications(
 ) (*pb.ListApplicationsResponse, error) {
 	return &pb.ListApplicationsResponse{
 		Applications: []*pb.Application{
-			&pb.Application{}, // invalid
+			{}, // invalid
 		},
 	}, nil
 }
