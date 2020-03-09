@@ -1,8 +1,6 @@
 package discovery
 
 import (
-	"sync"
-
 	"google.golang.org/grpc"
 )
 
@@ -36,9 +34,7 @@ type TargetObserver interface {
 //
 // It implements both the TargetObserver and TargetPublisher interfaces.
 type TargetObserverSet struct {
-	m         sync.RWMutex
-	observers map[TargetObserver]struct{}
-	targets   map[*Target]struct{}
+	observerSet
 }
 
 // NewTargetObserverSet registers the given observers with a new observer set
@@ -56,99 +52,29 @@ func NewTargetObserverSet(observers ...TargetObserver) *TargetObserverSet {
 // RegisterTargetObserver registers o to be notified when targets become
 // available and unavailable.
 func (s *TargetObserverSet) RegisterTargetObserver(o TargetObserver) {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	if s.observers == nil {
-		s.observers = map[TargetObserver]struct{}{}
-	} else if _, ok := s.observers[o]; ok {
-		return
-	}
-
-	s.observers[o] = struct{}{}
-	s.notifyOne(TargetObserver.TargetAvailable, o)
+	s.register(o, func(e interface{}) {
+		o.TargetAvailable(e.(*Target))
+	})
 }
 
 // UnregisterTargetObserver stops o from being notified when targets become
 // available and unavailable.
 func (s *TargetObserverSet) UnregisterTargetObserver(o TargetObserver) {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	if _, ok := s.observers[o]; !ok {
-		return
-	}
-
-	delete(s.observers, o)
-	s.notifyOne(TargetObserver.TargetUnavailable, o)
+	s.unregister(o, func(e interface{}) {
+		o.TargetUnavailable(e.(*Target))
+	})
 }
 
 // TargetAvailable notifies the registered observers that t is available.
 func (s *TargetObserverSet) TargetAvailable(t *Target) {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	if s.targets == nil {
-		s.targets = map[*Target]struct{}{}
-	} else if _, ok := s.targets[t]; ok {
-		return
-	}
-
-	s.targets[t] = struct{}{}
-	s.notifyAll(TargetObserver.TargetAvailable, t)
+	s.add(t, func(o interface{}) {
+		o.(TargetObserver).TargetAvailable(t)
+	})
 }
 
 // TargetUnavailable notifies the registered observers that t is unavailable.
 func (s *TargetObserverSet) TargetUnavailable(t *Target) {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	if _, ok := s.targets[t]; !ok {
-		return
-	}
-
-	delete(s.targets, t)
-	s.notifyAll(TargetObserver.TargetUnavailable, t)
-}
-
-// notifyAll notifies all observers about a change to one target.
-func (s *TargetObserverSet) notifyAll(
-	fn func(TargetObserver, *Target),
-	t *Target,
-) {
-	var g sync.WaitGroup
-
-	g.Add(len(s.observers))
-
-	for o := range s.observers {
-		o := o // capture loop variable
-
-		go func() {
-			defer g.Done()
-			fn(o, t)
-		}()
-	}
-
-	g.Wait()
-}
-
-// notifyOne notifies one observer about a change to all targets.
-func (s *TargetObserverSet) notifyOne(
-	fn func(TargetObserver, *Target),
-	o TargetObserver,
-) {
-	var g sync.WaitGroup
-
-	g.Add(len(s.targets))
-
-	for t := range s.targets {
-		t := t // capture loop variable
-
-		go func() {
-			defer g.Done()
-			fn(o, t)
-		}()
-	}
-
-	g.Wait()
+	s.remove(t, func(o interface{}) {
+		o.(TargetObserver).TargetUnavailable(t)
+	})
 }
