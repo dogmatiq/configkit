@@ -25,8 +25,7 @@ type Connector struct {
 	// should be ignored.
 	Ignore func(*Target) bool
 
-	// BackoffStrategy controls how long to wait between failures to dial a
-	// discovered target.
+	// BackoffStrategy controls how long to wait between dialing retries.
 	BackoffStrategy backoff.Strategy
 
 	// Logger is the target for log messages about dialing failures.
