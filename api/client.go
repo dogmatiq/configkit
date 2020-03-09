@@ -9,20 +9,26 @@ import (
 )
 
 // Client is used to query a server about its application configurations.
-type Client struct {
+type Client interface {
+	ListApplicationIdentities(ctx context.Context) ([]configkit.Identity, error)
+	ListApplications(ctx context.Context) ([]configkit.Application, error)
+}
+
+// client is an implementation of Client.
+type client struct {
 	client pb.ConfigClient
 }
 
 // NewClient returns a new configuration client for the given connection.
-func NewClient(conn grpc.ClientConnInterface) *Client {
-	return &Client{
+func NewClient(conn grpc.ClientConnInterface) Client {
+	return &client{
 		pb.NewConfigClient(conn),
 	}
 }
 
 // ListApplicationIdentities returns the identities of applications hosted by
 // the server.
-func (c *Client) ListApplicationIdentities(
+func (c *client) ListApplicationIdentities(
 	ctx context.Context,
 ) (_ []configkit.Identity, err error) {
 	req := &pb.ListApplicationIdentitiesRequest{}
@@ -46,7 +52,7 @@ func (c *Client) ListApplicationIdentities(
 
 // ListApplications returns the configurations of the applications hosted by
 // the server. The handler objects in the returned configuration are nil.
-func (c *Client) ListApplications(
+func (c *client) ListApplications(
 	ctx context.Context,
 ) ([]configkit.Application, error) {
 	req := &pb.ListApplicationsRequest{}

@@ -49,7 +49,7 @@ var _ = Describe("type Client", func() {
 		cancel   func()
 		listener net.Listener
 		gserver  *grpc.Server
-		client   *Client
+		client   Client
 	)
 
 	BeforeEach(func() {

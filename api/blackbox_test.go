@@ -22,7 +22,7 @@ var _ = Describe("type Client", func() {
 		cfg1, cfg2 configkit.Application
 		listener   net.Listener
 		gserver    *grpc.Server
-		client     *Client
+		client     Client
 	)
 
 	BeforeEach(func() {
