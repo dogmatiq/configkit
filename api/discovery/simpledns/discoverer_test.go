@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/dogmatiq/configkit/api/discovery"
-	. "github.com/dogmatiq/configkit/api/discovery/fixtures"
 	. "github.com/dogmatiq/configkit/api/discovery/simpledns"
+	. "github.com/dogmatiq/configkit/api/fixtures"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

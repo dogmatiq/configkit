@@ -6,6 +6,8 @@ import (
 	"github.com/dogmatiq/configkit/api/discovery"
 )
 
+var _ discovery.TargetObserver = (*TargetObserver)(nil)
+
 // TargetObserver is a mock of the discovery.TargetObserver interface.
 type TargetObserver struct {
 	m                     sync.Mutex

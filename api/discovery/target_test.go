@@ -2,7 +2,7 @@ package discovery_test
 
 import (
 	. "github.com/dogmatiq/configkit/api/discovery"
-	"github.com/dogmatiq/configkit/api/discovery/fixtures" // can't dot-import due to conflict
+	"github.com/dogmatiq/configkit/api/fixtures" // can't dot-import due to conflict
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

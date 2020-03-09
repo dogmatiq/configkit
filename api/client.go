@@ -10,7 +10,12 @@ import (
 
 // Client is used to query a server about its application configurations.
 type Client interface {
+	// ListApplicationIdentities returns the identities of applications hosted
+	// by the server.
 	ListApplicationIdentities(ctx context.Context) ([]configkit.Identity, error)
+
+	// ListApplications returns the configurations of the applications hosted by
+	// the server. The handler objects in the returned configuration are nil.
 	ListApplications(ctx context.Context) ([]configkit.Application, error)
 }
 
