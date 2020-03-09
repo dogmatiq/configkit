@@ -108,7 +108,7 @@ var _ = Describe("type Connector", func() {
 			})
 		})
 
-		Context("when target is ignored", func() {
+		Context("when the target is ignored", func() {
 			BeforeEach(func() {
 				connector.Ignore = func(t *Target) bool {
 					return t == target
