@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 - Add `discovery.TargetExecutor` and `ClientExecutor`
 - Add `discovery.Connector.Ignore`
+- Add `discovery.ApplicationObserver`, `ApplicationObserverSet` and `ApplicationExecutor`
+- Add `discovery.Inspector`
 
 ### Changed
 
