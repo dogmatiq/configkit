@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-// RegisterServer registers a config server for the config applications.
+// RegisterServer registers a config server for the given applications.
 func RegisterServer(
 	s *grpc.Server,
 	apps ...configkit.Application,
