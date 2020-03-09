@@ -10,7 +10,7 @@ import (
 	"github.com/dogmatiq/configkit"
 	"github.com/dogmatiq/configkit/api"
 	. "github.com/dogmatiq/configkit/api/discovery"
-	"github.com/dogmatiq/configkit/api/discovery/fixtures" // can't dot-import due to conflict
+	"github.com/dogmatiq/configkit/api/fixtures" // can't dot-import due to conflict
 	"github.com/dogmatiq/dogma"
 	. "github.com/dogmatiq/dogma/fixtures"
 	. "github.com/onsi/ginkgo"
