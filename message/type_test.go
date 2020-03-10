@@ -80,6 +80,24 @@ var _ = Describe("type Type", func() {
 		})
 	})
 
+	Describe("func TypeFromReflect()", func() {
+		It("returns values that compare as equal for messages of the same type", func() {
+			tb := TypeFromReflect(reflect.TypeOf(fixtures.MessageA1))
+			ta := TypeFromReflect(reflect.TypeOf(fixtures.MessageA1))
+
+			Expect(ta).To(Equal(tb))
+			Expect(ta == tb).To(BeTrue()) // we're testing == here specifically, hence not using To(Equal())
+		})
+
+		It("returns values that do not compare as equal for messages of different types", func() {
+			ta := TypeFromReflect(reflect.TypeOf(fixtures.MessageA1))
+			tb := TypeFromReflect(reflect.TypeOf(fixtures.MessageB1))
+
+			Expect(ta).NotTo(Equal(tb))
+			Expect(ta != tb).To(BeTrue()) // we're testing != here specifically, hence not using NotTo(Equal())
+		})
+	})
+
 	Describe("func Name()", func() {
 		It("returns the fully qualified type name", func() {
 			mt := TypeOf(fixtures.MessageA1)

@@ -58,7 +58,16 @@ func TypeOf(m dogma.Message) Type {
 		panic("message must not be nil")
 	}
 
-	rt := reflect.TypeOf(m)
+	return TypeFromReflect(reflect.TypeOf(m))
+}
+
+// TypeFromReflect returns the message type of the given reflect type.
+func TypeFromReflect(rt reflect.Type) Type {
+	// This is a compile-time assertion that the dogma.Message interface is
+	// empty. If this fails to compile, this function needs additional logic to
+	// verify that the type represented by rt actually implements dogma.Message.
+	var _ interface{} = (dogma.Message)(nil)
+
 	n := typename.Of(rt)
 
 	return Type{
