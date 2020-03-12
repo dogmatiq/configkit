@@ -9,6 +9,12 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
+## [0.4.2] - 2020-03-13
+
+### Added
+
+- Add `static.Discoverer` for "discovering" static lists of targets
+
 ## [0.4.1] - 2020-03-10
 
 ### Added
@@ -103,6 +109,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [0.3.1]: https://github.com/dogmatiq/configkit/releases/v0.3.1
 [0.4.0]: https://github.com/dogmatiq/configkit/releases/v0.4.0
 [0.4.1]: https://github.com/dogmatiq/configkit/releases/v0.4.1
+[0.4.2]: https://github.com/dogmatiq/configkit/releases/v0.4.2
 
 <!-- version template
 ## [0.0.1] - YYYY-MM-DD
