@@ -66,7 +66,7 @@ var _ = Describe("type Inspector", func() {
 
 		client = &Client{
 			Client: apiClient,
-			Target: &Target{},
+			Target: &Target{Name: "<target>"},
 		}
 	})
 

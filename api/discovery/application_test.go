@@ -25,8 +25,8 @@ var _ = Describe("type ApplicationObserverSet", func() {
 		obs1 = &fixtures.ApplicationObserver{}
 		obs2 = &fixtures.ApplicationObserver{}
 
-		app1 = &Application{}
-		app2 = &Application{}
+		app1 = &Application{Client: &Client{Target: &Target{Name: "<target-1>"}}}
+		app2 = &Application{Client: &Client{Target: &Target{Name: "<target-2>"}}}
 	})
 
 	Describe("func NewApplicationObserverSet()", func() {
@@ -203,7 +203,7 @@ var _ = Describe("type ApplicationExecutor", func() {
 			Task: func(context.Context, *Application) {},
 		}
 
-		app = &Application{}
+		app = &Application{Client: &Client{Target: &Target{Name: "<target>"}}}
 	})
 
 	AfterEach(func() {

@@ -25,8 +25,8 @@ var _ = Describe("type TargetObserverSet", func() {
 		obs1 = &fixtures.TargetObserver{}
 		obs2 = &fixtures.TargetObserver{}
 
-		target1 = &Target{}
-		target2 = &Target{}
+		target1 = &Target{Name: "<target-1>"}
+		target2 = &Target{Name: "<target-2>"}
 	})
 
 	Describe("func NewClientObserverSet()", func() {
@@ -203,7 +203,7 @@ var _ = Describe("type TargetExecutor", func() {
 			Task: func(context.Context, *Target) {},
 		}
 
-		target = &Target{}
+		target = &Target{Name: "<target>"}
 	})
 
 	AfterEach(func() {
