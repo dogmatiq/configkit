@@ -3,11 +3,40 @@ package configkit_test
 import (
 	. "github.com/dogmatiq/configkit"
 	"github.com/dogmatiq/configkit/fixtures" // can't dot-import due to conflicts
+	cfixtures "github.com/dogmatiq/configkit/fixtures"
 	"github.com/dogmatiq/configkit/message"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 )
+
+// var _ = Context("foreign messages", func() {
+// 	app := &fixtures.Application{
+// 		ConfigureFunc: func(c dogma.ApplicationConfigurer) {
+// 			c.Identity("<app>", "<app-key>")
+
+// 			c.RegisterAggregate(&fixtures.AggregateMessageHandler{
+// 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
+// 					c.Identity("<aggregate>", "<aggregate-key>")
+// 					c.ConsumesCommandType(fixtures.MessageC{}) // foreign-produced command
+// 					c.ProducesEventType(fixtures.MessageE{})
+// 				},
+// 			})
+
+// 			c.RegisterProcess(&fixtures.ProcessMessageHandler{
+// 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
+// 					c.Identity("<process>", "<process-key>")
+// 					c.ConsumesEventType(fixtures.MessageF{}) // foreign-produced event
+// 					c.ConsumesEventType(fixtures.MessageE{})
+// 					c.ProducesCommandType(fixtures.MessageD{}) // foreign-consumed command
+// 				},
+// 			})
+// 		},
+// 	}
+
+// 	cfg := FromApplication(app)
+
+// })
 
 var _ = Describe("type EntityMessageNames", func() {
 	Describe("func RoleOf()", func() {
@@ -58,6 +87,34 @@ var _ = Describe("type EntityMessageNames", func() {
 				message.NameRoles{
 					fixtures.MessageCTypeName: message.CommandRole,
 					fixtures.MessageETypeName: message.EventRole,
+				},
+			))
+		})
+	})
+
+	Describe("func ForeignMessageNames()", func() {
+		It("returns the set of messages that belong to another application", func() {
+			m := EntityMessageNames{
+				Produced: message.NameRoles{
+					fixtures.MessageETypeName: message.EventRole,
+					fixtures.MessageDTypeName: message.CommandRole, // foreign-consumed command
+				},
+				Consumed: message.NameRoles{
+					fixtures.MessageCTypeName: message.CommandRole, // foreign-produced command
+					fixtures.MessageFTypeName: message.EventRole,   // foreign-produced event
+					fixtures.MessageETypeName: message.EventRole,
+				},
+			}
+
+			Expect(m.Foreign()).To(Equal(
+				EntityMessageNames{
+					Produced: message.NameRoles{
+						cfixtures.MessageDTypeName: message.CommandRole,
+					},
+					Consumed: message.NameRoles{
+						cfixtures.MessageCTypeName: message.CommandRole,
+						cfixtures.MessageFTypeName: message.EventRole,
+					},
 				},
 			))
 		})
@@ -176,6 +233,34 @@ var _ = Describe("type EntityMessageTypes", func() {
 				message.TypeRoles{
 					fixtures.MessageCType: message.CommandRole,
 					fixtures.MessageEType: message.EventRole,
+				},
+			))
+		})
+	})
+
+	Describe("func Foreign()", func() {
+		It("returns the set of messages that belong to another entity", func() {
+			m := EntityMessageTypes{
+				Produced: message.TypeRoles{
+					fixtures.MessageEType: message.EventRole,
+					fixtures.MessageDType: message.CommandRole, // foreign-consumed command
+				},
+				Consumed: message.TypeRoles{
+					fixtures.MessageCType: message.CommandRole, // foreign-produced command
+					fixtures.MessageFType: message.EventRole,   // foreign-produced event
+					fixtures.MessageEType: message.EventRole,
+				},
+			}
+
+			Expect(m.Foreign()).To(Equal(
+				EntityMessageTypes{
+					Produced: message.TypeRoles{
+						cfixtures.MessageDType: message.CommandRole,
+					},
+					Consumed: message.TypeRoles{
+						cfixtures.MessageCType: message.CommandRole,
+						cfixtures.MessageFType: message.EventRole,
+					},
 				},
 			))
 		})
