@@ -9,6 +9,12 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleaseed]
+
+### Changed
+
+- **[BC]** Changed `discovery.Inspector.Ignore()` to accept a `*discovery.Application`
+
 ## [0.5.0] - 2020-03-14
 
 ### Added

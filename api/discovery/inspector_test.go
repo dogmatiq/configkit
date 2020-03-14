@@ -111,7 +111,7 @@ var _ = Describe("type Inspector", func() {
 		})
 
 		It("does not notify the observer if the application is ignored", func() {
-			inspector.Ignore = func(a configkit.Application) bool {
+			inspector.Ignore = func(a *Application) bool {
 				return a.Identity().Key == "<app-key-1>"
 			}
 
@@ -133,7 +133,7 @@ var _ = Describe("type Inspector", func() {
 		})
 
 		It("returns immediately if all applications are ignored", func() {
-			inspector.Ignore = func(a configkit.Application) bool {
+			inspector.Ignore = func(a *Application) bool {
 				return true
 			}
 
