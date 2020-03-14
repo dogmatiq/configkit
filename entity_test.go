@@ -10,34 +10,6 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-// var _ = Context("foreign messages", func() {
-// 	app := &fixtures.Application{
-// 		ConfigureFunc: func(c dogma.ApplicationConfigurer) {
-// 			c.Identity("<app>", "<app-key>")
-
-// 			c.RegisterAggregate(&fixtures.AggregateMessageHandler{
-// 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
-// 					c.Identity("<aggregate>", "<aggregate-key>")
-// 					c.ConsumesCommandType(fixtures.MessageC{}) // foreign-produced command
-// 					c.ProducesEventType(fixtures.MessageE{})
-// 				},
-// 			})
-
-// 			c.RegisterProcess(&fixtures.ProcessMessageHandler{
-// 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
-// 					c.Identity("<process>", "<process-key>")
-// 					c.ConsumesEventType(fixtures.MessageF{}) // foreign-produced event
-// 					c.ConsumesEventType(fixtures.MessageE{})
-// 					c.ProducesCommandType(fixtures.MessageD{}) // foreign-consumed command
-// 				},
-// 			})
-// 		},
-// 	}
-
-// 	cfg := FromApplication(app)
-
-// })
-
 var _ = Describe("type EntityMessageNames", func() {
 	Describe("func RoleOf()", func() {
 		It("returns the role of a produced message", func() {
