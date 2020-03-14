@@ -3,7 +3,6 @@ package discovery
 import (
 	"context"
 
-	"github.com/dogmatiq/configkit"
 	"github.com/dogmatiq/dodeca/logging"
 	"github.com/dogmatiq/linger/backoff"
 )
@@ -17,7 +16,7 @@ type Inspector struct {
 
 	// Ignore is a predicate function that returns true if the given application
 	// should be ignored.
-	Ignore func(configkit.Application) bool
+	Ignore func(*Application) bool
 
 	// BackoffStrategy controls how long to wait between inspection retries.
 	BackoffStrategy backoff.Strategy
@@ -72,15 +71,16 @@ func (i *Inspector) list(ctx context.Context, c *Client) error {
 	empty := true
 
 	for _, cfg := range configs {
-		if i.Ignore != nil && i.Ignore(cfg) {
-			continue
-		}
-
-		empty = false
 		app := &Application{
 			Application: cfg,
 			Client:      c,
 		}
+
+		if i.Ignore != nil && i.Ignore(app) {
+			continue
+		}
+
+		empty = false
 
 		i.Observer.ApplicationAvailable(app)
 		defer i.Observer.ApplicationUnavailable(app)
