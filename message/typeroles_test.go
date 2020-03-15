@@ -262,4 +262,42 @@ var _ = Describe("type TypeRoles", func() {
 			Expect(all).To(BeFalse())
 		})
 	})
+
+	Describe("func RangeByRole()", func() {
+		tr := TypeRoles{
+			MessageAType: CommandRole,
+			MessageBType: EventRole,
+			MessageCType: CommandRole,
+		}
+
+		It("calls fn for each type in the container with the given role", func() {
+			var types []Type
+
+			all := tr.RangeByRole(
+				CommandRole,
+				func(n Type) bool {
+					types = append(types, n)
+					return true
+				},
+			)
+
+			Expect(types).To(ConsistOf(MessageAType, MessageCType))
+			Expect(all).To(BeTrue())
+		})
+
+		It("stops iterating if fn returns false", func() {
+			count := 0
+
+			all := tr.RangeByRole(
+				CommandRole,
+				func(n Type) bool {
+					count++
+					return false
+				},
+			)
+
+			Expect(count).To(BeNumerically("==", 1))
+			Expect(all).To(BeFalse())
+		})
+	})
 })

@@ -92,3 +92,25 @@ func (tr TypeRoles) Range(fn func(Type) bool) bool {
 
 	return true
 }
+
+// RangeByRole invokes fn once for each type in the container that maps to the
+// given role.
+//
+// Iteration stops when fn returns false or once fn has been invoked for all
+// types in the container.
+//
+// It returns true if fn returned true for all types.
+func (tr TypeRoles) RangeByRole(
+	r Role,
+	fn func(Type) bool,
+) bool {
+	for t, xr := range tr {
+		if xr == r {
+			if !fn(t) {
+				return false
+			}
+		}
+	}
+
+	return true
+}

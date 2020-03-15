@@ -80,13 +80,35 @@ func (nr NameRoles) IsEqual(o NameRoles) bool {
 // Range invokes fn once for each name in the container.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all
-// types in the container.
+// names in the container.
 //
-// It returns true if fn returned true for all types.
+// It returns true if fn returned true for all names.
 func (nr NameRoles) Range(fn func(Name) bool) bool {
 	for n := range nr {
 		if !fn(n) {
 			return false
+		}
+	}
+
+	return true
+}
+
+// RangeByRole invokes fn once for each name in the container that maps to the
+// given role.
+//
+// Iteration stops when fn returns false or once fn has been invoked for all
+// names in the container.
+//
+// It returns true if fn returned true for all names.
+func (nr NameRoles) RangeByRole(
+	r Role,
+	fn func(Name) bool,
+) bool {
+	for n, xr := range nr {
+		if xr == r {
+			if !fn(n) {
+				return false
+			}
 		}
 	}
 
