@@ -5,13 +5,12 @@ import (
 	"errors"
 	"time"
 
-	"github.com/dogmatiq/linger/backoff"
-
 	"github.com/dogmatiq/configkit"
 	. "github.com/dogmatiq/configkit/api/discovery"
 	apifixtures "github.com/dogmatiq/configkit/api/fixtures" // can't dot-import due to conflict
 	"github.com/dogmatiq/dogma"
 	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflict
+	"github.com/dogmatiq/linger/backoff"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -141,29 +140,65 @@ var _ = Describe("type Inspector", func() {
 			Expect(err).ShouldNot(HaveOccurred())
 		})
 
-		It("retries if the query fails", func() {
-			first := true
+		When("the query fails", func() {
+			BeforeEach(func() {
+				first := true
 
-			apiClient.ListApplicationsFunc = func(context.Context) ([]configkit.Application, error) {
-				if first {
-					first = false
-					return nil, errors.New("<error>")
+				apiClient.ListApplicationsFunc = func(context.Context) ([]configkit.Application, error) {
+					if first {
+						first = false
+						return nil, errors.New("<error>")
+					}
+
+					return []configkit.Application{cfg1, cfg2}, nil
+				}
+			})
+
+			It("retries if IsFatal() is nil", func() {
+				runCtx, cancelRun := context.WithCancel(ctx)
+				defer cancelRun()
+
+				obs.ApplicationAvailableFunc = func(a *Application) {
+					cancelRun()
 				}
 
-				return []configkit.Application{cfg1, cfg2}, nil
-			}
+				obs.ApplicationUnavailableFunc = nil
 
-			runCtx, cancelRun := context.WithCancel(ctx)
-			defer cancelRun()
+				err := inspector.Run(runCtx, client)
+				Expect(err).To(Equal(context.Canceled))
+			})
 
-			obs.ApplicationAvailableFunc = func(a *Application) {
-				cancelRun()
-			}
+			It("retries if IsFatal() returns false", func() {
+				inspector.IsFatal = func(err error) bool {
+					Expect(err).To(MatchError("<error>"))
+					return false
+				}
 
-			obs.ApplicationUnavailableFunc = nil
+				runCtx, cancelRun := context.WithCancel(ctx)
+				defer cancelRun()
 
-			err := inspector.Run(runCtx, client)
-			Expect(err).To(Equal(context.Canceled))
+				obs.ApplicationAvailableFunc = func(a *Application) {
+					cancelRun()
+				}
+
+				obs.ApplicationUnavailableFunc = nil
+
+				err := inspector.Run(runCtx, client)
+				Expect(err).To(Equal(context.Canceled))
+			})
+
+			It("returns err if IsFatal() returns true", func() {
+				inspector.IsFatal = func(err error) bool {
+					Expect(err).To(MatchError("<error>"))
+					return true
+				}
+
+				runCtx, cancelRun := context.WithCancel(ctx)
+				defer cancelRun()
+
+				err := inspector.Run(runCtx, client)
+				Expect(err).To(MatchError("<error>"))
+			})
 		})
 	})
 })

@@ -3,7 +3,6 @@ module github.com/dogmatiq/configkit
 go 1.13
 
 require (
-	github.com/dogmatiq/dodeca v0.2.1
 	github.com/dogmatiq/dogma v0.6.3
 	github.com/dogmatiq/iago v0.4.0
 	github.com/dogmatiq/linger v0.2.0

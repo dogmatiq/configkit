@@ -2,6 +2,7 @@ package discovery_test
 
 import (
 	"context"
+	"errors"
 	"net"
 	"time"
 
@@ -9,9 +10,9 @@ import (
 	"github.com/dogmatiq/configkit/api"
 	. "github.com/dogmatiq/configkit/api/discovery"
 	apifixtures "github.com/dogmatiq/configkit/api/fixtures" // can't dot-import due to conflict
-	"github.com/dogmatiq/dodeca/logging"
 	"github.com/dogmatiq/dogma"
 	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflict
+	"github.com/dogmatiq/linger/backoff"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"google.golang.org/grpc"
@@ -49,8 +50,8 @@ var _ = Describe("type Connector", func() {
 		}
 
 		connector = &Connector{
-			Observer: obs,
-			Logger:   logging.DiscardLogger{},
+			Observer:        obs,
+			BackoffStrategy: backoff.Constant(100 * time.Millisecond),
 		}
 
 		target = &Target{
@@ -78,7 +79,7 @@ var _ = Describe("type Connector", func() {
 	})
 
 	Describe("Run()", func() {
-		Context("when dialing fails", func() {
+		When("dialing fails", func() {
 			BeforeEach(func() {
 				listener.Close()
 				target.Options = append(target.Options, grpc.WithBlock())
@@ -90,7 +91,7 @@ var _ = Describe("type Connector", func() {
 			})
 		})
 
-		Context("when the server is down", func() {
+		When("the server is down", func() {
 			BeforeEach(func() {
 				listener.Close()
 			})
@@ -101,14 +102,14 @@ var _ = Describe("type Connector", func() {
 			})
 		})
 
-		Context("when the server does not implement the config API", func() {
+		When("the server does not implement the config API", func() {
 			It("does not notify the observer", func() {
 				err := connector.Run(ctx, target)
 				Expect(err).To(Equal(context.DeadlineExceeded))
 			})
 		})
 
-		Context("when the target is ignored", func() {
+		When("the target is ignored", func() {
 			BeforeEach(func() {
 				connector.Ignore = func(t *Target) bool {
 					return t == target
@@ -121,7 +122,7 @@ var _ = Describe("type Connector", func() {
 			})
 		})
 
-		Context("when the server implements the config API", func() {
+		When("the server implements the config API", func() {
 			BeforeEach(func() {
 				app := &fixtures.Application{
 					ConfigureFunc: func(c dogma.ApplicationConfigurer) {
@@ -228,6 +229,61 @@ var _ = Describe("type Connector", func() {
 
 				err := connector.Run(runCtx, target)
 				Expect(err).To(Equal(context.Canceled))
+			})
+
+			When("dialing fails", func() {
+				BeforeEach(func() {
+					connector.Dial = func(ctx context.Context, t *Target) (*grpc.ClientConn, error) {
+						connector.Dial = DefaultDialer
+						return nil, errors.New("<error>")
+					}
+				})
+
+				It("retries if IsFatal() is nil", func() {
+					runCtx, cancelRun := context.WithCancel(ctx)
+					defer cancelRun()
+
+					obs.ClientConnectedFunc = func(c *Client) {
+						cancelRun()
+					}
+
+					obs.ClientDisconnectedFunc = nil
+
+					err := connector.Run(runCtx, target)
+					Expect(err).To(Equal(context.Canceled))
+				})
+
+				It("retries if IsFatal() returns false", func() {
+					connector.IsFatal = func(err error) bool {
+						Expect(err).To(MatchError("<error>"))
+						return false
+					}
+
+					runCtx, cancelRun := context.WithCancel(ctx)
+					defer cancelRun()
+
+					obs.ClientConnectedFunc = func(c *Client) {
+						cancelRun()
+					}
+
+					obs.ClientDisconnectedFunc = nil
+
+					err := connector.Run(runCtx, target)
+					Expect(err).To(Equal(context.Canceled))
+				})
+
+				It("returns err if IsFatal() returns true", func() {
+					connector.IsFatal = func(err error) bool {
+						Expect(err).To(MatchError("<error>"))
+						return true
+					}
+
+					runCtx, cancelRun := context.WithCancel(ctx)
+					defer cancelRun()
+
+					err := connector.Run(runCtx, target)
+					Expect(err).To(MatchError("<error>"))
+				})
 			})
 		})
 	})

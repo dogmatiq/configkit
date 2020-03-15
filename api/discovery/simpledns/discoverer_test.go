@@ -177,7 +177,7 @@ var _ = Describe("type Discoverer", func() {
 			Expect(err).To(Equal(context.Canceled))
 		})
 
-		Context("when the resolver fails", func() {
+		When("the resolver fails", func() {
 			It("does not propagate not-found errors", func() {
 				ctx, cancel := context.WithCancel(ctx)
 				defer cancel()
