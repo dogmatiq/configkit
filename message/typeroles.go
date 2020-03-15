@@ -114,3 +114,16 @@ func (tr TypeRoles) RangeByRole(
 
 	return true
 }
+
+// FilterByRole returns the subset of types that have the given role.
+func (tr TypeRoles) FilterByRole(r Role) TypeRoles {
+	subset := TypeRoles{}
+
+	for n, xr := range tr {
+		if r == xr {
+			subset[n] = r
+		}
+	}
+
+	return subset
+}

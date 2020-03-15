@@ -114,3 +114,16 @@ func (nr NameRoles) RangeByRole(
 
 	return true
 }
+
+// FilterByRole returns the subset of names that have the given role.
+func (nr NameRoles) FilterByRole(r Role) NameRoles {
+	subset := NameRoles{}
+
+	for n, xr := range nr {
+		if r == xr {
+			subset[n] = r
+		}
+	}
+
+	return subset
+}

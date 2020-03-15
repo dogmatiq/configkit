@@ -300,4 +300,23 @@ var _ = Describe("type NameRoles", func() {
 			Expect(all).To(BeFalse())
 		})
 	})
+
+	Describe("func FilterByRole()", func() {
+		It("returns a subset containing only the given roles", func() {
+			nr := NameRoles{
+				MessageATypeName: CommandRole,
+				MessageBTypeName: EventRole,
+				MessageCTypeName: CommandRole,
+			}
+
+			subset := nr.FilterByRole(CommandRole)
+
+			Expect(subset).To(Equal(
+				NameRoles{
+					MessageATypeName: CommandRole,
+					MessageCTypeName: CommandRole,
+				},
+			))
+		})
+	})
 })

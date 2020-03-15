@@ -15,8 +15,8 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 - Add `discovery.Connector.IsFatal`
 - Add `discovery.Inspector.IsFatal`
-- Add `NameRoles.RangeByRole()`
-- Add `TypeRoles.RangeByRole()`
+- Add `NameRoles.RangeByRole()` and `FilterByRole()`
+- Add `TypeRoles.RangeByRole()` and `FilterByRole()`
 
 ### Removed
 
