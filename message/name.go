@@ -25,6 +25,14 @@ type NameCollection interface {
 	Range(fn func(Name) bool) bool
 }
 
+// IsEqualSetN returns true if a and b are equal.
+//
+// That is, it returns true if and only if every element of a is an element of
+// b, and vice-versa.
+func IsEqualSetN(a, b NameCollection) bool {
+	return IsSubsetN(a, b) && IsSubsetN(b, a)
+}
+
 // IsIntersectingN returns true if a and b are intersecting.
 //
 // That is, it returns true if a and b contain any of the same names.

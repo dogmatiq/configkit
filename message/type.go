@@ -24,6 +24,14 @@ type TypeCollection interface {
 	Range(fn func(Type) bool) bool
 }
 
+// IsEqualSetT returns true if a and b are equal.
+//
+// That is, it returns true if and only if every element of a is an element of
+// b, and vice-versa.
+func IsEqualSetT(a, b TypeCollection) bool {
+	return IsSubsetT(a, b) && IsSubsetT(b, a)
+}
+
 // IsIntersectingT returns true if a and b are intersecting.
 //
 // That is, it returns true if a and b contain any of the same types.
