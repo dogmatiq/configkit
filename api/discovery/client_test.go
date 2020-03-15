@@ -2,6 +2,7 @@ package discovery_test
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	. "github.com/dogmatiq/configkit/api/discovery"
@@ -42,12 +43,15 @@ var _ = Describe("type ClientObserverSet", func() {
 
 	Describe("func ClientConnected()", func() {
 		It("notifies the observers about the connection", func() {
+			var m sync.Mutex
 			var observers []ClientObserver
 
 			obs1.ClientConnectedFunc = func(c *Client) {
 				defer GinkgoRecover()
 				Expect(c).To(BeIdenticalTo(client1))
 
+				m.Lock()
+				defer m.Unlock()
 				observers = append(observers, obs1)
 			}
 
@@ -55,6 +59,8 @@ var _ = Describe("type ClientObserverSet", func() {
 				defer GinkgoRecover()
 				Expect(c).To(BeIdenticalTo(client1))
 
+				m.Lock()
+				defer m.Unlock()
 				observers = append(observers, obs2)
 			}
 
@@ -80,12 +86,15 @@ var _ = Describe("type ClientObserverSet", func() {
 
 	Describe("func ClientDisconnected()", func() {
 		It("notifies the observers about the disconnection", func() {
+			var m sync.Mutex
 			var observers []ClientObserver
 
 			obs1.ClientDisconnectedFunc = func(c *Client) {
 				defer GinkgoRecover()
 				Expect(c).To(BeIdenticalTo(client1))
 
+				m.Lock()
+				defer m.Unlock()
 				observers = append(observers, obs1)
 			}
 
@@ -93,6 +102,8 @@ var _ = Describe("type ClientObserverSet", func() {
 				defer GinkgoRecover()
 				Expect(c).To(BeIdenticalTo(client1))
 
+				m.Lock()
+				defer m.Unlock()
 				observers = append(observers, obs2)
 			}
 

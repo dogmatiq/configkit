@@ -2,6 +2,7 @@ package discovery_test
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	. "github.com/dogmatiq/configkit/api/discovery"
@@ -42,12 +43,15 @@ var _ = Describe("type ApplicationObserverSet", func() {
 
 	Describe("func ApplicationAvailable()", func() {
 		It("notifies the observers about the application availability", func() {
+			var m sync.Mutex
 			var observers []ApplicationObserver
 
 			obs1.ApplicationAvailableFunc = func(a *Application) {
 				defer GinkgoRecover()
 				Expect(a).To(BeIdenticalTo(app1))
 
+				m.Lock()
+				defer m.Unlock()
 				observers = append(observers, obs1)
 			}
 
@@ -55,6 +59,8 @@ var _ = Describe("type ApplicationObserverSet", func() {
 				defer GinkgoRecover()
 				Expect(a).To(BeIdenticalTo(app1))
 
+				m.Lock()
+				defer m.Unlock()
 				observers = append(observers, obs2)
 			}
 
@@ -80,12 +86,15 @@ var _ = Describe("type ApplicationObserverSet", func() {
 
 	Describe("func ApplicationUnavailable()", func() {
 		It("notifies the observers about the application unavailability", func() {
+			var m sync.Mutex
 			var observers []ApplicationObserver
 
 			obs1.ApplicationUnavailableFunc = func(a *Application) {
 				defer GinkgoRecover()
 				Expect(a).To(BeIdenticalTo(app1))
 
+				m.Lock()
+				defer m.Unlock()
 				observers = append(observers, obs1)
 			}
 
@@ -93,6 +102,8 @@ var _ = Describe("type ApplicationObserverSet", func() {
 				defer GinkgoRecover()
 				Expect(a).To(BeIdenticalTo(app1))
 
+				m.Lock()
+				defer m.Unlock()
 				observers = append(observers, obs2)
 			}
 

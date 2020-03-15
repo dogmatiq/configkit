@@ -2,6 +2,7 @@ package discovery_test
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	. "github.com/dogmatiq/configkit/api/discovery"
@@ -42,12 +43,15 @@ var _ = Describe("type TargetObserverSet", func() {
 
 	Describe("func TargetAvailable()", func() {
 		It("notifies the observers about the target availability", func() {
+			var m sync.Mutex
 			var observers []TargetObserver
 
 			obs1.TargetAvailableFunc = func(t *Target) {
 				defer GinkgoRecover()
 				Expect(t).To(BeIdenticalTo(target1))
 
+				m.Lock()
+				defer m.Unlock()
 				observers = append(observers, obs1)
 			}
 
@@ -55,6 +59,8 @@ var _ = Describe("type TargetObserverSet", func() {
 				defer GinkgoRecover()
 				Expect(t).To(BeIdenticalTo(target1))
 
+				m.Lock()
+				defer m.Unlock()
 				observers = append(observers, obs2)
 			}
 
