@@ -7,6 +7,26 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+var _ = Describe("func IsEqualSetN()", func() {
+	It("returns true for identical sets", func() {
+		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+		Expect(IsEqualSetN(a, b)).To(BeTrue())
+	})
+
+	It("returns false for disjoint sets", func() {
+		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := NamesOf(fixtures.MessageC1, fixtures.MessageD1)
+		Expect(IsEqualSetN(a, b)).To(BeFalse())
+	})
+
+	It("returns false for intersecting sets", func() {
+		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := NamesOf(fixtures.MessageB1, fixtures.MessageC1)
+		Expect(IsEqualSetN(a, b)).To(BeFalse())
+	})
+})
+
 var _ = Describe("func IsIntersectingN()", func() {
 	It("returns true for identical sets", func() {
 		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)

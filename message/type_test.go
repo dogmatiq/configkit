@@ -9,6 +9,26 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+var _ = Describe("func IsEqualT()", func() {
+	It("returns true for identical sets", func() {
+		a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+		Expect(IsEqualSetT(a, b)).To(BeTrue())
+	})
+
+	It("returns false for disjoint sets", func() {
+		a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := TypesOf(fixtures.MessageC1, fixtures.MessageD1)
+		Expect(IsEqualSetT(a, b)).To(BeFalse())
+	})
+
+	It("returns false for intersecting sets", func() {
+		a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+		b := TypesOf(fixtures.MessageB1, fixtures.MessageC1)
+		Expect(IsEqualSetT(a, b)).To(BeFalse())
+	})
+})
+
 var _ = Describe("func IsIntersectingT()", func() {
 	It("returns true for identical sets", func() {
 		a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
