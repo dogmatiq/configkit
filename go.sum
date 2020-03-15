@@ -3,8 +3,6 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
-github.com/dogmatiq/dodeca v0.2.1 h1:zc/bwYY5D1QkadQOKVEv5zXhiu+f+28kjQR1B0O2faE=
-github.com/dogmatiq/dodeca v0.2.1/go.mod h1:YjUCbfmgl08gQ4QPNA0Dp9f+ge6kImQ7PgVM5K7Jtn0=
 github.com/dogmatiq/dogma v0.6.3 h1:owkM3lOFmLmwaFpYogO46taVuPJU5sF5YApICZr4ljk=
 github.com/dogmatiq/dogma v0.6.3/go.mod h1:8TdjQ5jjV2DcCPb/jjHPgSrqU66H6092yMEIF5HGx0g=
 github.com/dogmatiq/iago v0.4.0 h1:57nZqVT34IZxtCZEW/RFif7DNUEjMXgevfr/Mmd0N8I=

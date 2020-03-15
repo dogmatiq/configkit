@@ -3,7 +3,6 @@ package discovery
 import (
 	"context"
 
-	"github.com/dogmatiq/dodeca/logging"
 	"github.com/dogmatiq/linger/backoff"
 )
 
@@ -21,8 +20,12 @@ type Inspector struct {
 	// BackoffStrategy controls how long to wait between inspection retries.
 	BackoffStrategy backoff.Strategy
 
-	// Logger is the target for log messages about inspection failures.
-	Logger logging.Logger
+	// IsFatal, if non-nil, is called when an error occurs listing the
+	// applications for a client.
+	//
+	// If it returns true, Run() returns err immediately. If it is nil, or it
+	// returns false, inspections are retried as per the backoff strategy.
+	IsFatal func(err error) bool
 }
 
 // Run queries a client in order to publish application available/unavailable
@@ -47,12 +50,9 @@ func (i *Inspector) Run(ctx context.Context, c *Client) error {
 			return ctx.Err()
 		}
 
-		logging.Log(
-			i.Logger,
-			"unable to inspect applications on '%s' target: %s",
-			c.Target.Name,
-			err,
-		)
+		if i.IsFatal != nil && i.IsFatal(err) {
+			return err
+		}
 
 		if err := ctr.Sleep(ctx, err); err != nil {
 			return err

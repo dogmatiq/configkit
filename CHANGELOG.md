@@ -9,11 +9,23 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+### Added
+
+- Add `discovery.Connector.IsFatal`
+- Add `discovery.Inspector.IsFatal`
+
+### Removed
+
+- **[BC]** Remove `discovery.Connector.Logger`
+- **[BC]** Remove `discovery.Inspector.Logger`
+
 ## [0.6.0] - 2020-03-14
 
 ### Changed
 
-- **[BC]** Changed `discovery.Inspector.Ignore()` to accept a `*discovery.Application`
+- **[BC]** Change `discovery.Inspector.Ignore()` to accept a `*discovery.Application`
 
 ## [0.5.0] - 2020-03-14
 

@@ -46,7 +46,7 @@ var _ = Describe("type handler", func() {
 			visitor = &Visitor{}
 		})
 
-		Context("when the handler is an aggregate", func() {
+		When("the handler is an aggregate", func() {
 			BeforeEach(func() {
 				hnd.handlerType = configkit.AggregateHandlerType
 			})
@@ -62,7 +62,7 @@ var _ = Describe("type handler", func() {
 			})
 		})
 
-		Context("when the handler is a process", func() {
+		When("the handler is a process", func() {
 			BeforeEach(func() {
 				hnd.handlerType = configkit.ProcessHandlerType
 			})
@@ -78,7 +78,7 @@ var _ = Describe("type handler", func() {
 			})
 		})
 
-		Context("when the handler is an integration", func() {
+		When("the handler is an integration", func() {
 			BeforeEach(func() {
 				hnd.handlerType = configkit.IntegrationHandlerType
 			})
@@ -94,7 +94,7 @@ var _ = Describe("type handler", func() {
 			})
 		})
 
-		Context("when the handler is a projection", func() {
+		When("the handler is a projection", func() {
 			BeforeEach(func() {
 				hnd.handlerType = configkit.ProjectionHandlerType
 			})

@@ -5,7 +5,6 @@ import (
 
 	"github.com/dogmatiq/configkit/api"
 	"github.com/dogmatiq/configkit/api/internal/pb"
-	"github.com/dogmatiq/dodeca/logging"
 	"github.com/dogmatiq/linger/backoff"
 	"google.golang.org/grpc"
 )
@@ -28,8 +27,12 @@ type Connector struct {
 	// BackoffStrategy controls how long to wait between dialing retries.
 	BackoffStrategy backoff.Strategy
 
-	// Logger is the target for log messages about dialing failures.
-	Logger logging.Logger
+	// IsFatal, if non-nil, is called when an error occurs connecting to a
+	// target.
+	//
+	// If it returns true, Run() returns err immediately. If it is nil, or it
+	// returns false, dialing is retried as per the backoff strategy.
+	IsFatal func(err error) bool
 }
 
 // Run connects to a target in order to publish client connect/disconnect
@@ -52,12 +55,9 @@ func (c *Connector) Run(ctx context.Context, t *Target) error {
 			return ctx.Err()
 		}
 
-		logging.Log(
-			c.Logger,
-			"unable to watch '%s' target: %s",
-			t.Name,
-			err,
-		)
+		if c.IsFatal != nil && c.IsFatal(err) {
+			return err
+		}
 
 		if err := ctr.Sleep(ctx, err); err != nil {
 			return err
