@@ -262,4 +262,61 @@ var _ = Describe("type NameRoles", func() {
 			Expect(all).To(BeFalse())
 		})
 	})
+
+	Describe("func RangeByRole()", func() {
+		nr := NameRoles{
+			MessageATypeName: CommandRole,
+			MessageBTypeName: EventRole,
+			MessageCTypeName: CommandRole,
+		}
+
+		It("calls fn for each name in the container with the given role", func() {
+			var names []Name
+
+			all := nr.RangeByRole(
+				CommandRole,
+				func(n Name) bool {
+					names = append(names, n)
+					return true
+				},
+			)
+
+			Expect(names).To(ConsistOf(MessageATypeName, MessageCTypeName))
+			Expect(all).To(BeTrue())
+		})
+
+		It("stops iterating if fn returns false", func() {
+			count := 0
+
+			all := nr.RangeByRole(
+				CommandRole,
+				func(n Name) bool {
+					count++
+					return false
+				},
+			)
+
+			Expect(count).To(BeNumerically("==", 1))
+			Expect(all).To(BeFalse())
+		})
+	})
+
+	Describe("func FilterByRole()", func() {
+		It("returns a subset containing only the given roles", func() {
+			nr := NameRoles{
+				MessageATypeName: CommandRole,
+				MessageBTypeName: EventRole,
+				MessageCTypeName: CommandRole,
+			}
+
+			subset := nr.FilterByRole(CommandRole)
+
+			Expect(subset).To(Equal(
+				NameRoles{
+					MessageATypeName: CommandRole,
+					MessageCTypeName: CommandRole,
+				},
+			))
+		})
+	})
 })
