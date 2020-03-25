@@ -313,6 +313,17 @@ var _ = Describe("type TypeSet", func() {
 		)
 	})
 
+	Describe("func Len()", func() {
+		It("returns the number of types in the collection", func() {
+			s := NewTypeSet(
+				MessageAType,
+				MessageBType,
+			)
+
+			Expect(s.Len()).To(Equal(2))
+		})
+	})
+
 	Describe("func Range()", func() {
 		s := NewTypeSet(
 			MessageAType,

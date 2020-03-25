@@ -164,6 +164,11 @@ func (s NameSet) IsEqual(o NameSet) bool {
 	return true
 }
 
+// Len returns the number of names in the collection.
+func (s NameSet) Len() int {
+	return len(s)
+}
+
 // Range invokes fn once for each name in the container.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all

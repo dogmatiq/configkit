@@ -77,6 +77,11 @@ func (nr NameRoles) IsEqual(o NameRoles) bool {
 	return true
 }
 
+// Len returns the number of names in the collection.
+func (nr NameRoles) Len() int {
+	return len(nr)
+}
+
 // Range invokes fn once for each name in the container.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all

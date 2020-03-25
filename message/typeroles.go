@@ -77,6 +77,11 @@ func (tr TypeRoles) IsEqual(o TypeRoles) bool {
 	return true
 }
 
+// Len returns the number of types in the collection.
+func (tr TypeRoles) Len() int {
+	return len(tr)
+}
+
 // Range invokes fn once for each type in the container.
 //
 // Iteration stops when fn returns false or once fn has been invoked for all
