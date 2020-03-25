@@ -232,6 +232,17 @@ var _ = Describe("type TypeRoles", func() {
 		)
 	})
 
+	Describe("func Len()", func() {
+		It("returns the number of types in the collection", func() {
+			tr := TypeRoles{
+				MessageAType: CommandRole,
+				MessageBType: EventRole,
+			}
+
+			Expect(tr.Len()).To(Equal(2))
+		})
+	})
+
 	Describe("func Range()", func() {
 		tr := TypeRoles{
 			MessageAType: CommandRole,

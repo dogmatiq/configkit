@@ -15,6 +15,9 @@ type TypeCollection interface {
 	// HasM returns true if TypeOf(m) is in the container.
 	HasM(m dogma.Message) bool
 
+	// Len returns the number of names in the collection.
+	Len() int
+
 	// Range invokes fn once for each type in the container.
 	//
 	// Iteration stops when fn returns false or once fn has been invoked for all

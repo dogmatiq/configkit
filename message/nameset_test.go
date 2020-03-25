@@ -313,6 +313,17 @@ var _ = Describe("type NameSet", func() {
 		)
 	})
 
+	Describe("func Len()", func() {
+		It("returns the number of names in the collection", func() {
+			s := NewNameSet(
+				MessageATypeName,
+				MessageBTypeName,
+			)
+
+			Expect(s.Len()).To(Equal(2))
+		})
+	})
+
 	Describe("func Range()", func() {
 		s := NewNameSet(
 			MessageATypeName,
