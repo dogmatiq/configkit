@@ -78,8 +78,8 @@ func (m EntityMessageNames) All() message.NameRoles {
 	return roles
 }
 
-// Foreign returns the subset of message names used by the entity that must be
-// communicated beyond the scope of that entity.
+// Foreign returns the subset of message names used by a set of entities that
+// must be communicated beyond the scope of those entities.
 //
 // This includes:
 //  - commands that are produced by the entity, but consumed elsewhere
@@ -158,8 +158,8 @@ func (m EntityMessageTypes) IsEqual(o EntityMessageTypes) bool {
 		m.Consumed.IsEqual(o.Consumed)
 }
 
-// Foreign returns the subset of message types used by an entity that must be
-// communicated beyond the scope of that entity.
+// Foreign returns the subset of message types used by a set of entities that
+// must be communicated beyond the scope of those entities.
 //
 // This includes:
 //  - commands that are produced by this entity, but consumed elsewhere

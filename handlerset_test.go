@@ -6,6 +6,7 @@ import (
 
 	. "github.com/dogmatiq/configkit"
 	cfixtures "github.com/dogmatiq/configkit/fixtures"
+	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflicts
 	. "github.com/onsi/ginkgo"
@@ -169,6 +170,27 @@ var _ = Describe("type HandlerSet", func() {
 			subset := set.ProducersOf(cfixtures.MessageETypeName)
 			Expect(subset).To(HaveLen(1))
 			Expect(set.Has(aggregate)).To(BeTrue())
+		})
+	})
+
+	Describe("func MessageNames()", func() {
+		BeforeEach(func() {
+			set.Add(aggregate)
+			set.Add(projection)
+		})
+
+		It("returns the messages used by the handlers in the set", func() {
+			Expect(set.MessageNames()).To(Equal(
+				EntityMessageNames{
+					Produced: message.NameRoles{
+						cfixtures.MessageETypeName: message.EventRole,
+					},
+					Consumed: message.NameRoles{
+						cfixtures.MessageCTypeName: message.CommandRole,
+						cfixtures.MessageETypeName: message.EventRole,
+					},
+				},
+			))
 		})
 	})
 
@@ -669,6 +691,27 @@ var _ = Describe("type RichHandlerSet", func() {
 			subset := set.ProducersOf(cfixtures.MessageEType)
 			Expect(subset).To(HaveLen(1))
 			Expect(set.Has(aggregate)).To(BeTrue())
+		})
+	})
+
+	Describe("func MessageTypes()", func() {
+		BeforeEach(func() {
+			set.Add(aggregate)
+			set.Add(projection)
+		})
+
+		It("returns the messages used by the handlers in the set", func() {
+			Expect(set.MessageTypes()).To(Equal(
+				EntityMessageTypes{
+					Produced: message.TypeRoles{
+						cfixtures.MessageEType: message.EventRole,
+					},
+					Consumed: message.TypeRoles{
+						cfixtures.MessageCType: message.CommandRole,
+						cfixtures.MessageEType: message.EventRole,
+					},
+				},
+			))
 		})
 	})
 
