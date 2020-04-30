@@ -89,6 +89,28 @@ func (s HandlerSet) ProducersOf(n message.Name) HandlerSet {
 	})
 }
 
+// MessageNames returns information about the messages used all handlers in s.
+func (s HandlerSet) MessageNames() EntityMessageNames {
+	names := EntityMessageNames{
+		Produced: message.NameRoles{},
+		Consumed: message.NameRoles{},
+	}
+
+	for _, h := range s {
+		m := h.MessageNames()
+
+		for n, r := range m.Consumed {
+			names.Consumed[n] = r
+		}
+
+		for n, r := range m.Produced {
+			names.Produced[n] = r
+		}
+	}
+
+	return names
+}
+
 // IsEqual returns true if o contains the same handlers as s.
 func (s HandlerSet) IsEqual(o HandlerSet) bool {
 	if len(s) != len(o) {
@@ -378,6 +400,28 @@ func (s RichHandlerSet) ProducersOf(t message.Type) RichHandlerSet {
 	}
 
 	return subset
+}
+
+// MessageTypes returns information about the messages used all handlers in s.
+func (s RichHandlerSet) MessageTypes() EntityMessageTypes {
+	types := EntityMessageTypes{
+		Produced: message.TypeRoles{},
+		Consumed: message.TypeRoles{},
+	}
+
+	for _, h := range s {
+		m := h.MessageTypes()
+
+		for n, t := range m.Consumed {
+			types.Consumed[n] = t
+		}
+
+		for n, t := range m.Produced {
+			types.Produced[n] = t
+		}
+	}
+
+	return types
 }
 
 // IsEqual returns true if o contains the same handlers as s.
