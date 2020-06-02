@@ -8,7 +8,7 @@ require (
 	github.com/dogmatiq/linger v0.2.1
 	github.com/golang/protobuf v1.4.2
 	github.com/kr/pretty v0.1.0 // indirect
-	github.com/onsi/ginkgo v1.12.2
+	github.com/onsi/ginkgo v1.12.3
 	github.com/onsi/gomega v1.10.1
 	google.golang.org/grpc v1.29.1
 	google.golang.org/protobuf v1.24.0
