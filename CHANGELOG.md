@@ -9,6 +9,12 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
+## [0.8.0] - 2020-11-03
+
+### Changed
+
+- **[BC]** Updated to Dogma v0.8.0
+
 ## [0.7.4] - 2020-11-01
 
 ### Added
@@ -173,6 +179,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [0.7.2]: https://github.com/dogmatiq/configkit/releases/v0.7.2
 [0.7.3]: https://github.com/dogmatiq/configkit/releases/v0.7.3
 [0.7.4]: https://github.com/dogmatiq/configkit/releases/v0.7.4
+[0.8.0]: https://github.com/dogmatiq/configkit/releases/v0.8.0
 
 <!-- version template
 ## [0.0.1] - YYYY-MM-DD
