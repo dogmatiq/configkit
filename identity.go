@@ -68,21 +68,11 @@ func (i Identity) ConflictsWith(ident Identity) bool {
 
 // Validate returns an error if i is not a valid identity.
 func (i Identity) Validate() error {
-	if !isValidIdentityComponent(i.Name) {
-		return validation.Errorf(
-			"invalid name %#v, names must be non-empty, printable UTF-8 strings with no whitespace",
-			i.Name,
-		)
+	if err := ValidateIdentityName(i.Name); err != nil {
+		return err
 	}
 
-	if !isValidIdentityComponent(i.Key) {
-		return validation.Errorf(
-			"invalid key %#v, keys must be non-empty, printable UTF-8 strings with no whitespace",
-			i.Key,
-		)
-	}
-
-	return nil
+	return ValidateIdentityKey(i.Key)
 }
 
 func (i Identity) String() string {
@@ -124,6 +114,32 @@ func (i Identity) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary unmarshals an identity from its binary representation.
 func (i *Identity) UnmarshalBinary(data []byte) error {
 	return i.UnmarshalText(data)
+}
+
+// ValidateIdentityName returns nil if n is a valid application or handler name;
+// otherwise, it returns an error.
+func ValidateIdentityName(n string) error {
+	if !isValidIdentityComponent(n) {
+		return validation.Errorf(
+			"invalid name %#v, names must be non-empty, printable UTF-8 strings with no whitespace",
+			n,
+		)
+	}
+
+	return nil
+}
+
+// ValidateIdentityKey returns nil if n is a valid application or handler key;
+// otherwise, it returns an error.
+func ValidateIdentityKey(k string) error {
+	if !isValidIdentityComponent(k) {
+		return validation.Errorf(
+			"invalid key %#v, keys must be non-empty, printable UTF-8 strings with no whitespace",
+			k,
+		)
+	}
+
+	return nil
 }
 
 // isValidIdentityComponent returns true if n is a valid application or handler
