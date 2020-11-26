@@ -50,11 +50,11 @@ func marshalApplication(in configkit.Application) (*pb.Application, error) {
 // representation.
 func unmarshalApplication(in *pb.Application) (configkit.Application, error) {
 	out := &entity.Application{
-		Messages: configkit.EntityMessageNames{
+		MessageNamesValue: configkit.EntityMessageNames{
 			Produced: message.NameRoles{},
 			Consumed: message.NameRoles{},
 		},
-		HandlerSet: configkit.HandlerSet{},
+		HandlersValue: configkit.HandlerSet{},
 	}
 
 	var err error
@@ -83,14 +83,14 @@ func unmarshalApplication(in *pb.Application) (configkit.Application, error) {
 			return nil, err
 		}
 
-		out.HandlerSet.Add(hOut)
+		out.HandlersValue.Add(hOut)
 
 		for n, r := range hOut.MessageNames().Produced {
-			out.Messages.Produced[n] = r
+			out.MessageNamesValue.Produced[n] = r
 		}
 
 		for n, r := range hOut.MessageNames().Consumed {
-			out.Messages.Consumed[n] = r
+			out.MessageNamesValue.Consumed[n] = r
 		}
 	}
 
@@ -145,7 +145,7 @@ func unmarshalHandler(
 	in *pb.Handler,
 ) (configkit.Handler, error) {
 	out := &entity.Handler{
-		Messages: configkit.EntityMessageNames{
+		MessageNamesValue: configkit.EntityMessageNames{
 			Produced: message.NameRoles{},
 			Consumed: message.NameRoles{},
 		},
@@ -167,12 +167,12 @@ func unmarshalHandler(
 		return nil, err
 	}
 
-	out.Messages.Produced, err = unmarshalNameRoles(indices, in.GetProduced())
+	out.MessageNamesValue.Produced, err = unmarshalNameRoles(indices, in.GetProduced())
 	if err != nil {
 		return nil, err
 	}
 
-	out.Messages.Consumed, err = unmarshalNameRoles(indices, in.GetConsumed())
+	out.MessageNamesValue.Consumed, err = unmarshalNameRoles(indices, in.GetConsumed())
 	if err != nil {
 		return nil, err
 	}

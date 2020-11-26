@@ -8,10 +8,10 @@ import (
 
 // Application is an implementation of config.Application.
 type Application struct {
-	IdentityValue configkit.Identity
-	TypeNameValue string
-	Messages      configkit.EntityMessageNames
-	HandlerSet    configkit.HandlerSet
+	IdentityValue     configkit.Identity
+	TypeNameValue     string
+	MessageNamesValue configkit.EntityMessageNames
+	HandlersValue     configkit.HandlerSet
 }
 
 // Identity returns the identity of the entity.
@@ -26,12 +26,12 @@ func (a *Application) TypeName() string {
 
 // MessageNames returns information about the messages used by the entity.
 func (a *Application) MessageNames() configkit.EntityMessageNames {
-	return a.Messages
+	return a.MessageNamesValue
 }
 
 // Handlers returns the handlers within this application.
 func (a *Application) Handlers() configkit.HandlerSet {
-	return a.HandlerSet
+	return a.HandlersValue
 }
 
 // AcceptVisitor calls the appropriate method on v for this entity type.
@@ -41,10 +41,10 @@ func (a *Application) AcceptVisitor(ctx context.Context, v configkit.Visitor) er
 
 // Handler is an implementation of config.Handler.
 type Handler struct {
-	IdentityValue    configkit.Identity
-	TypeNameValue    string
-	Messages         configkit.EntityMessageNames
-	HandlerTypeValue configkit.HandlerType
+	IdentityValue     configkit.Identity
+	TypeNameValue     string
+	MessageNamesValue configkit.EntityMessageNames
+	HandlerTypeValue  configkit.HandlerType
 }
 
 // Identity returns the identity of the entity.
@@ -59,7 +59,7 @@ func (h *Handler) TypeName() string {
 
 // MessageNames returns information about the messages used by the entity.
 func (h *Handler) MessageNames() configkit.EntityMessageNames {
-	return h.Messages
+	return h.MessageNamesValue
 }
 
 // HandlerType returns the type of handler.

@@ -17,10 +17,10 @@ var _ = Describe("func marshalApplication()", func() {
 
 	BeforeEach(func() {
 		app = &entity.Application{
-			IdentityValue: configkit.MustNewIdentity("<name>", "<key>"),
-			TypeNameValue: "<app type>",
-			Messages:      configkit.EntityMessageNames{},
-			HandlerSet:    configkit.HandlerSet{},
+			IdentityValue:     configkit.MustNewIdentity("<name>", "<key>"),
+			TypeNameValue:     "<app type>",
+			MessageNamesValue: configkit.EntityMessageNames{},
+			HandlersValue:     configkit.HandlerSet{},
 		}
 	})
 
@@ -37,7 +37,7 @@ var _ = Describe("func marshalApplication()", func() {
 	})
 
 	It("returns an error if one of the handlers is invalid", func() {
-		app.HandlerSet.Add(&entity.Handler{})
+		app.HandlersValue.Add(&entity.Handler{})
 		_, err := marshalApplication(app)
 		Expect(err).Should(HaveOccurred())
 	})
@@ -87,10 +87,10 @@ var _ = Describe("func marshalHandler()", func() {
 	BeforeEach(func() {
 		indices = nil
 		hnd = &entity.Handler{
-			IdentityValue:    configkit.MustNewIdentity("<name>", "<key>"),
-			TypeNameValue:    "github.com/dogmatiq/dogma/fixtures.MessageA",
-			Messages:         configkit.EntityMessageNames{},
-			HandlerTypeValue: configkit.AggregateHandlerType,
+			IdentityValue:     configkit.MustNewIdentity("<name>", "<key>"),
+			TypeNameValue:     "github.com/dogmatiq/dogma/fixtures.MessageA",
+			MessageNamesValue: configkit.EntityMessageNames{},
+			HandlerTypeValue:  configkit.AggregateHandlerType,
 		}
 	})
 
@@ -113,7 +113,7 @@ var _ = Describe("func marshalHandler()", func() {
 	})
 
 	It("returns an error if the consumed name/roles are invalid", func() {
-		hnd.Messages.Consumed = message.NameRoles{
+		hnd.MessageNamesValue.Consumed = message.NameRoles{
 			message.NameOf(MessageA{}): "<unknown>",
 		}
 
@@ -122,7 +122,7 @@ var _ = Describe("func marshalHandler()", func() {
 	})
 
 	It("returns an error if the produced name/roles are invalid", func() {
-		hnd.Messages.Produced = message.NameRoles{
+		hnd.MessageNamesValue.Produced = message.NameRoles{
 			message.NameOf(MessageA{}): "<unknown>",
 		}
 
