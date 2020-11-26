@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/dogmatiq/configkit"
 	"github.com/dogmatiq/configkit/api/internal/pb"
+	"github.com/dogmatiq/configkit/internal/entity"
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma/fixtures"
 	. "github.com/dogmatiq/dogma/fixtures"
@@ -12,31 +13,31 @@ import (
 )
 
 var _ = Describe("func marshalApplication()", func() {
-	var app *application
+	var app *entity.Application
 
 	BeforeEach(func() {
-		app = &application{
-			identity: configkit.MustNewIdentity("<name>", "<key>"),
-			typeName: "<app type>",
-			messages: configkit.EntityMessageNames{},
-			handlers: configkit.HandlerSet{},
+		app = &entity.Application{
+			IdentityValue: configkit.MustNewIdentity("<name>", "<key>"),
+			TypeNameValue: "<app type>",
+			Messages:      configkit.EntityMessageNames{},
+			HandlerSet:    configkit.HandlerSet{},
 		}
 	})
 
 	It("returns an error if the identity is invalid", func() {
-		app.identity.Name = ""
+		app.IdentityValue.Name = ""
 		_, err := marshalApplication(app)
 		Expect(err).Should(HaveOccurred())
 	})
 
 	It("returns an error if the type name is empty", func() {
-		app.typeName = ""
+		app.TypeNameValue = ""
 		_, err := marshalApplication(app)
 		Expect(err).Should(HaveOccurred())
 	})
 
 	It("returns an error if one of the handlers is invalid", func() {
-		app.handlers.Add(&handler{})
+		app.HandlerSet.Add(&entity.Handler{})
 		_, err := marshalApplication(app)
 		Expect(err).Should(HaveOccurred())
 	})
@@ -80,39 +81,39 @@ var _ = Describe("func unmarshalApplication()", func() {
 var _ = Describe("func marshalHandler()", func() {
 	var (
 		indices map[message.Name]uint32
-		hnd     *handler
+		hnd     *entity.Handler
 	)
 
 	BeforeEach(func() {
 		indices = nil
-		hnd = &handler{
-			identity:    configkit.MustNewIdentity("<name>", "<key>"),
-			typeName:    "github.com/dogmatiq/dogma/fixtures.MessageA",
-			messages:    configkit.EntityMessageNames{},
-			handlerType: configkit.AggregateHandlerType,
+		hnd = &entity.Handler{
+			IdentityValue:    configkit.MustNewIdentity("<name>", "<key>"),
+			TypeNameValue:    "github.com/dogmatiq/dogma/fixtures.MessageA",
+			Messages:         configkit.EntityMessageNames{},
+			HandlerTypeValue: configkit.AggregateHandlerType,
 		}
 	})
 
 	It("returns an error if the identity is invalid", func() {
-		hnd.identity.Name = ""
+		hnd.IdentityValue.Name = ""
 		_, err := marshalHandler(nil, indices, hnd)
 		Expect(err).Should(HaveOccurred())
 	})
 
 	It("returns an error if the type name is empty", func() {
-		hnd.typeName = ""
+		hnd.TypeNameValue = ""
 		_, err := marshalHandler(nil, indices, hnd)
 		Expect(err).Should(HaveOccurred())
 	})
 
 	It("returns an error if the handler type is invalid", func() {
-		hnd.handlerType = "<unknown>"
+		hnd.HandlerTypeValue = "<unknown>"
 		_, err := marshalHandler(nil, indices, hnd)
 		Expect(err).Should(HaveOccurred())
 	})
 
 	It("returns an error if the consumed name/roles are invalid", func() {
-		hnd.messages.Consumed = message.NameRoles{
+		hnd.Messages.Consumed = message.NameRoles{
 			message.NameOf(MessageA{}): "<unknown>",
 		}
 
@@ -121,7 +122,7 @@ var _ = Describe("func marshalHandler()", func() {
 	})
 
 	It("returns an error if the produced name/roles are invalid", func() {
-		hnd.messages.Produced = message.NameRoles{
+		hnd.Messages.Produced = message.NameRoles{
 			message.NameOf(MessageA{}): "<unknown>",
 		}
 

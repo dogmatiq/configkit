@@ -1,4 +1,4 @@
-package api
+package entity
 
 import (
 	"context"
@@ -11,10 +11,10 @@ import (
 )
 
 var _ = Describe("type application", func() {
-	var app *application
+	var app *Application
 
 	BeforeEach(func() {
-		app = &application{}
+		app = &Application{}
 	})
 
 	Describe("func Accept()", func() {
@@ -33,10 +33,10 @@ var _ = Describe("type application", func() {
 })
 
 var _ = Describe("type handler", func() {
-	var hnd *handler
+	var hnd *Handler
 
 	BeforeEach(func() {
-		hnd = &handler{}
+		hnd = &Handler{}
 	})
 
 	Describe("func Accept()", func() {
@@ -48,7 +48,7 @@ var _ = Describe("type handler", func() {
 
 		When("the handler is an aggregate", func() {
 			BeforeEach(func() {
-				hnd.handlerType = configkit.AggregateHandlerType
+				hnd.HandlerTypeValue = configkit.AggregateHandlerType
 			})
 
 			It("calls the correct visitor method", func() {
@@ -64,7 +64,7 @@ var _ = Describe("type handler", func() {
 
 		When("the handler is a process", func() {
 			BeforeEach(func() {
-				hnd.handlerType = configkit.ProcessHandlerType
+				hnd.HandlerTypeValue = configkit.ProcessHandlerType
 			})
 
 			It("calls the correct visitor method", func() {
@@ -80,7 +80,7 @@ var _ = Describe("type handler", func() {
 
 		When("the handler is an integration", func() {
 			BeforeEach(func() {
-				hnd.handlerType = configkit.IntegrationHandlerType
+				hnd.HandlerTypeValue = configkit.IntegrationHandlerType
 			})
 
 			It("calls the correct visitor method", func() {
@@ -96,7 +96,7 @@ var _ = Describe("type handler", func() {
 
 		When("the handler is a projection", func() {
 			BeforeEach(func() {
-				hnd.handlerType = configkit.ProjectionHandlerType
+				hnd.HandlerTypeValue = configkit.ProjectionHandlerType
 			})
 
 			It("calls the correct visitor method", func() {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/dogmatiq/configkit"
 	"github.com/dogmatiq/configkit/api/internal/pb"
+	"github.com/dogmatiq/configkit/internal/entity"
 	"github.com/dogmatiq/configkit/message"
 )
 
@@ -48,22 +49,22 @@ func marshalApplication(in configkit.Application) (*pb.Application, error) {
 // unmarshalApplication unmarshals an application config from its protobuf
 // representation.
 func unmarshalApplication(in *pb.Application) (configkit.Application, error) {
-	out := &application{
-		messages: configkit.EntityMessageNames{
+	out := &entity.Application{
+		Messages: configkit.EntityMessageNames{
 			Produced: message.NameRoles{},
 			Consumed: message.NameRoles{},
 		},
-		handlers: configkit.HandlerSet{},
+		HandlerSet: configkit.HandlerSet{},
 	}
 
 	var err error
-	out.identity, err = unmarshalIdentity(in.GetIdentity())
+	out.IdentityValue, err = unmarshalIdentity(in.GetIdentity())
 	if err != nil {
 		return nil, err
 	}
 
-	out.typeName = in.GetTypeName()
-	if out.typeName == "" {
+	out.TypeNameValue = in.GetTypeName()
+	if out.TypeNameValue == "" {
 		return nil, errors.New("application type name is empty")
 	}
 
@@ -82,14 +83,14 @@ func unmarshalApplication(in *pb.Application) (configkit.Application, error) {
 			return nil, err
 		}
 
-		out.handlers.Add(hOut)
+		out.HandlerSet.Add(hOut)
 
 		for n, r := range hOut.MessageNames().Produced {
-			out.messages.Produced[n] = r
+			out.Messages.Produced[n] = r
 		}
 
 		for n, r := range hOut.MessageNames().Consumed {
-			out.messages.Consumed[n] = r
+			out.Messages.Consumed[n] = r
 		}
 	}
 
@@ -143,35 +144,35 @@ func unmarshalHandler(
 	indices []nameRole,
 	in *pb.Handler,
 ) (configkit.Handler, error) {
-	out := &handler{
-		messages: configkit.EntityMessageNames{
+	out := &entity.Handler{
+		Messages: configkit.EntityMessageNames{
 			Produced: message.NameRoles{},
 			Consumed: message.NameRoles{},
 		},
 	}
 
 	var err error
-	out.identity, err = unmarshalIdentity(in.GetIdentity())
+	out.IdentityValue, err = unmarshalIdentity(in.GetIdentity())
 	if err != nil {
 		return nil, err
 	}
 
-	out.typeName = in.GetTypeName()
-	if out.typeName == "" {
+	out.TypeNameValue = in.GetTypeName()
+	if out.TypeNameValue == "" {
 		return nil, errors.New("handler type name is empty")
 	}
 
-	out.handlerType, err = unmarshalHandlerType(in.GetType())
+	out.HandlerTypeValue, err = unmarshalHandlerType(in.GetType())
 	if err != nil {
 		return nil, err
 	}
 
-	out.messages.Produced, err = unmarshalNameRoles(indices, in.GetProduced())
+	out.Messages.Produced, err = unmarshalNameRoles(indices, in.GetProduced())
 	if err != nil {
 		return nil, err
 	}
 
-	out.messages.Consumed, err = unmarshalNameRoles(indices, in.GetConsumed())
+	out.Messages.Consumed, err = unmarshalNameRoles(indices, in.GetConsumed())
 	if err != nil {
 		return nil, err
 	}
