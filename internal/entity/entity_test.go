@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("type application", func() {
+var _ = Describe("type Application", func() {
 	var app *Application
 
 	BeforeEach(func() {
@@ -32,7 +32,7 @@ var _ = Describe("type application", func() {
 	})
 })
 
-var _ = Describe("type handler", func() {
+var _ = Describe("type Handler", func() {
 	var hnd *Handler
 
 	BeforeEach(func() {
