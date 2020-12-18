@@ -3,38 +3,36 @@ package dogma.config.v1;
 
 option go_package = "github.com/dogmatiq/configkit/api/internal/pb";
 
-import "api/internal/pb/types.proto";
+import "github.com/dogmatiq/configkit/api/internal/pb/types.proto";
 
 // Config is a service for inspecting the configuration of Dogma applications
 // hosted by the engine on the server.
 service Config {
   // ListApplicationIdentities returns the identity of all applications.
-  rpc ListApplicationIdentities(ListApplicationIdentitiesRequest) returns (ListApplicationIdentitiesResponse);
+  rpc ListApplicationIdentities(ListApplicationIdentitiesRequest)
+      returns (ListApplicationIdentitiesResponse);
 
   // ListApplications returns the full configuration of all applications.
-  rpc ListApplications(ListApplicationsRequest) returns (ListApplicationsResponse);
+  rpc ListApplications(ListApplicationsRequest)
+      returns (ListApplicationsResponse);
 
   // Watch opens a stream that sends no content, simply to detect when the
   // server goes away.
   rpc Watch(WatchRequest) returns (stream WatchResponse);
 }
 
-message ListApplicationIdentitiesRequest{
+message ListApplicationIdentitiesRequest {}
+
+message ListApplicationIdentitiesResponse {
+  repeated dogma.config.v1.Identity identities = 1;
 }
 
-message ListApplicationIdentitiesResponse{
-  repeated Identity identities = 1;
+message ListApplicationsRequest {}
+
+message ListApplicationsResponse {
+  repeated dogma.config.v1.Application applications = 1;
 }
 
-message ListApplicationsRequest{
-}
+message WatchRequest {}
 
-message ListApplicationsResponse{
-  repeated Application applications = 1;
-}
-
-message WatchRequest{
-}
-
-message WatchResponse{
-}
+message WatchResponse {}
