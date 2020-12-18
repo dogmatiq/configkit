@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"github.com/dogmatiq/configkit/internal/typename/goreflect"
+	"github.com/dogmatiq/configkit/internal/typename/gotypes"
 	"github.com/dogmatiq/dogma"
 )
 
@@ -81,7 +82,8 @@ func NameOfType(t types.Type) Name {
 		panic("type must not be nil")
 	}
 
-	return Name{t.String()}
+	n := gotypes.Of(t)
+	return Name{n}
 }
 
 // String returns the fully-qualified type name as a string.
