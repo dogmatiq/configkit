@@ -1,4 +1,4 @@
-package typename_test
+package goreflect_test
 
 import (
 	"reflect"

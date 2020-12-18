@@ -4,7 +4,7 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/dogmatiq/configkit/internal/typename"
+	"github.com/dogmatiq/configkit/internal/typename/goreflect"
 	"github.com/dogmatiq/configkit/message"
 )
 
@@ -213,7 +213,7 @@ func (e *entity) MessageTypes() EntityMessageTypes {
 }
 
 func (e *entity) TypeName() string {
-	return typename.Of(e.ReflectType())
+	return goreflect.Of(e.ReflectType())
 }
 
 func (e *entity) ReflectType() reflect.Type {

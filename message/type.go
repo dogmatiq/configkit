@@ -3,7 +3,7 @@ package message
 import (
 	"reflect"
 
-	"github.com/dogmatiq/configkit/internal/typename"
+	"github.com/dogmatiq/configkit/internal/typename/goreflect"
 	"github.com/dogmatiq/dogma"
 )
 
@@ -79,7 +79,7 @@ func TypeFromReflect(rt reflect.Type) Type {
 	// verify that the type represented by rt actually implements dogma.Message.
 	var _ interface{} = (dogma.Message)(nil)
 
-	n := typename.Of(rt)
+	n := goreflect.Of(rt)
 
 	return Type{
 		Name{n},

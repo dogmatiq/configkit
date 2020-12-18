@@ -1,4 +1,4 @@
-package typename
+package goreflect
 
 import (
 	"fmt"
