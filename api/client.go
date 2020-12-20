@@ -4,64 +4,31 @@ import (
 	"context"
 
 	"github.com/dogmatiq/configkit"
-	"github.com/dogmatiq/configkit/api/internal/pb"
+	"github.com/dogmatiq/interopspec/configspec"
 	"google.golang.org/grpc"
 )
 
-// Client is used to query a server about its application configurations.
-type Client interface {
-	// ListApplicationIdentities returns the identities of applications hosted
-	// by the server.
-	ListApplicationIdentities(ctx context.Context) ([]configkit.Identity, error)
-
-	// ListApplications returns the configurations of the applications hosted by
-	// the server. The handler objects in the returned configuration are nil.
-	ListApplications(ctx context.Context) ([]configkit.Application, error)
-}
-
-// client is an implementation of Client.
-type client struct {
-	client pb.ConfigClient
+// Client wraps a configspec.ConfigAPIClient that unmarshals the server's
+// responses into types that implement the core configkit Application and
+// Handler interfaces.
+type Client struct {
+	Client configspec.ConfigAPIClient
 }
 
 // NewClient returns a new configuration client for the given connection.
-func NewClient(conn grpc.ClientConnInterface) Client {
-	return &client{
-		pb.NewConfigClient(conn),
+func NewClient(conn grpc.ClientConnInterface) *Client {
+	return &Client{
+		configspec.NewConfigAPIClient(conn),
 	}
-}
-
-// ListApplicationIdentities returns the identities of applications hosted by
-// the server.
-func (c *client) ListApplicationIdentities(
-	ctx context.Context,
-) (_ []configkit.Identity, err error) {
-	req := &pb.ListApplicationIdentitiesRequest{}
-	res, err := c.client.ListApplicationIdentities(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	var idents []configkit.Identity
-	for _, in := range res.GetIdentities() {
-		out, err := unmarshalIdentity(in)
-		if err != nil {
-			return nil, err
-		}
-
-		idents = append(idents, out)
-	}
-
-	return idents, nil
 }
 
 // ListApplications returns the configurations of the applications hosted by
 // the server. The handler objects in the returned configuration are nil.
-func (c *client) ListApplications(
+func (c *Client) ListApplications(
 	ctx context.Context,
 ) ([]configkit.Application, error) {
-	req := &pb.ListApplicationsRequest{}
-	res, err := c.client.ListApplications(ctx, req)
+	req := &configspec.ListApplicationsRequest{}
+	res, err := c.Client.ListApplications(ctx, req)
 	if err != nil {
 		return nil, err
 	}
