@@ -5,7 +5,6 @@ go 1.15
 require (
 	github.com/dogmatiq/dogma v0.10.0
 	github.com/dogmatiq/iago v0.4.0
-	github.com/dogmatiq/linger v0.2.1
 	github.com/emicklei/dot v0.15.0
 	github.com/golang/protobuf v1.4.3
 	github.com/kr/pretty v0.1.0 // indirect
