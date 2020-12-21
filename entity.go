@@ -213,7 +213,7 @@ func (e *entity) MessageTypes() EntityMessageTypes {
 }
 
 func (e *entity) TypeName() string {
-	return goreflect.Of(e.ReflectType())
+	return goreflect.NameOf(e.ReflectType())
 }
 
 func (e *entity) ReflectType() reflect.Type {
