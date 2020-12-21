@@ -52,10 +52,8 @@ var _ = Describe("func Of()", func() {
 				return NameOf(reflect.TypeOf(FuncWithSingleOutputParam))
 			case "func-with-multiple-output-params":
 				return NameOf(reflect.TypeOf(FuncWithMultipleOutputParams))
-			default:
-				Fail("no type is available for testing with '%s' file")
 			}
 
-			return ""
+			Fail("no type is available for testing with '%s' file")
 		})
 })

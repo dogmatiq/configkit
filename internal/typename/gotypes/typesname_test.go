@@ -106,10 +106,8 @@ var _ = Describe("func Of()", func() {
 				return NameOf(varmap["FuncWithSingleOutputParam"])
 			case "func-with-multiple-output-params":
 				return NameOf(varmap["FuncWithMultipleOutputParams"])
-			default:
-				Fail("no type is available for testing with '%s' file")
 			}
 
-			return ""
+			Fail("no type is available for testing with '%s' file")
 		})
 })
