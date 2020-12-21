@@ -76,8 +76,8 @@ func NameOf(m dogma.Message) Name {
 	return Name{n}
 }
 
-// NameOfType returns the fully-qualified type name of t.
-func NameOfType(t types.Type) Name {
+// NameFromType returns the fully-qualified type name of t.
+func NameFromType(t types.Type) Name {
 	if t == nil {
 		panic("type must not be nil")
 	}
