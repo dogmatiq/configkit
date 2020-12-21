@@ -3,14 +3,13 @@ package goreflect_test
 import (
 	"reflect"
 
-	. "github.com/dogmatiq/configkit/internal/typename"
 	. "github.com/dogmatiq/configkit/internal/typename/goreflect"
+	. "github.com/dogmatiq/configkit/internal/typename/internal/typenametest"
 	. "github.com/onsi/ginkgo"
 )
 
 var _ = Describe("func Of()", func() {
 	Declare(
-		"../testdata",
 		func(file string) string {
 			switch file {
 			case "basic":

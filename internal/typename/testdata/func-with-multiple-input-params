@@ -1,1 +1,1 @@
-func(int, github.com/dogmatiq/configkit/internal/typename.TestType)
+func(int, github.com/dogmatiq/configkit/internal/typename/internal/typenametest.TestType)

@@ -1,1 +1,1 @@
-func(github.com/dogmatiq/configkit/internal/typename.TestType) error
+func(github.com/dogmatiq/configkit/internal/typename/internal/typenametest.TestType) error

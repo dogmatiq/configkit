@@ -8,8 +8,8 @@ import (
 	"go/types"
 	"io/ioutil"
 
-	. "github.com/dogmatiq/configkit/internal/typename"
 	. "github.com/dogmatiq/configkit/internal/typename/gotypes"
+	. "github.com/dogmatiq/configkit/internal/typename/internal/typenametest"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"golang.org/x/tools/go/ssa"
@@ -20,7 +20,7 @@ var _ = Describe("func Of()", func() {
 	var varmap map[string]types.Type
 
 	BeforeSuite(func() {
-		bb, err := ioutil.ReadFile("../types.go")
+		bb, err := ioutil.ReadFile("../internal/typenametest/types.go")
 		Expect(err).ShouldNot(HaveOccurred())
 
 		fset := token.NewFileSet()
@@ -35,8 +35,8 @@ var _ = Describe("func Of()", func() {
 		files := []*ast.File{f}
 
 		pkg := types.NewPackage(
-			"github.com/dogmatiq/configkit/internal/typename",
-			"typename",
+			"github.com/dogmatiq/configkit/internal/typename/internal/typenametest",
+			"",
 		)
 
 		built, _, err := ssautil.BuildPackage(
@@ -64,7 +64,6 @@ var _ = Describe("func Of()", func() {
 	})
 
 	Declare(
-		"../testdata",
 		func(file string) string {
 			switch file {
 			case "basic":

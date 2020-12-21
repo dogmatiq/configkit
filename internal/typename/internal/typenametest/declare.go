@@ -1,4 +1,4 @@
-package typename
+package typenametest
 
 import (
 	"fmt"
@@ -13,7 +13,9 @@ import (
 
 // Declare declares a unit test-suite for functions "Of()" defined in "goreflect"
 // and "gotypes" packages.
-func Declare(dir string, fn func(string) string) {
+func Declare(fn func(string) string) {
+	dir := "../testdata"
+
 	d, err := os.Open(dir)
 	if err != nil {
 		panic(err)

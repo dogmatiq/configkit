@@ -1,4 +1,4 @@
-package typename
+package typenametest
 
 // TestType is the type used in "goreflect" and "gotypes" packages for testing.
 type TestType struct{}

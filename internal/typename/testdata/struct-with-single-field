@@ -1,1 +1,1 @@
-struct { F1 github.com/dogmatiq/configkit/internal/typename.TestType }
+struct { F1 github.com/dogmatiq/configkit/internal/typename/internal/typenametest.TestType }
