@@ -4,8 +4,8 @@ import (
 	"go/types"
 )
 
-// Of returns the fully-qualified name of the given type.
-func Of(t types.Type) string {
+// NameOf returns the fully-qualified name of the given type.
+func NameOf(t types.Type) string {
 	switch t := t.(type) {
 	case *types.Basic:
 		return t.String()
@@ -33,7 +33,7 @@ func Of(t types.Type) string {
 }
 
 func buildChanName(c *types.Chan) string {
-	elem := Of(c.Elem())
+	elem := NameOf(c.Elem())
 
 	switch c.Dir() {
 	case types.RecvOnly: // <-chan
@@ -91,7 +91,7 @@ func buildStructName(s *types.Struct) string {
 				name += " "
 			}
 
-			name += Of(f.Type())
+			name += NameOf(f.Type())
 		}
 
 		name += " "
@@ -109,7 +109,7 @@ func buildFuncSignature(s *types.Signature) string {
 			name += ", "
 		}
 
-		name += Of(s.Params().At(i).Type())
+		name += NameOf(s.Params().At(i).Type())
 	}
 	name += ")"
 
@@ -125,7 +125,7 @@ func buildFuncSignature(s *types.Signature) string {
 				name += ", "
 			}
 
-			name += Of(s.Results().At(i).Type())
+			name += NameOf(s.Results().At(i).Type())
 		}
 
 		if n > 1 {

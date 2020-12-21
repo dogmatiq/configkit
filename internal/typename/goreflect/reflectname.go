@@ -5,11 +5,11 @@ import (
 	"reflect"
 )
 
-// Of returns the fully-qualified name of the given type.
+// NameOf returns the fully-qualified name of the given type.
 //
 // The return value is similar to the string returned by ReflectType.String()
 // but shows fully-qualified package paths, not just package names.
-func Of(rt reflect.Type) string {
+func NameOf(rt reflect.Type) string {
 	if rt.Name() != "" {
 		return buildDefinedName(rt)
 	}
@@ -17,13 +17,13 @@ func Of(rt reflect.Type) string {
 	// only the "composite" types can be unnabled:
 	switch rt.Kind() {
 	case reflect.Ptr:
-		return fmt.Sprintf("*%s", Of(rt.Elem()))
+		return fmt.Sprintf("*%s", NameOf(rt.Elem()))
 	case reflect.Slice:
-		return fmt.Sprintf("[]%s", Of(rt.Elem()))
+		return fmt.Sprintf("[]%s", NameOf(rt.Elem()))
 	case reflect.Array:
-		return fmt.Sprintf("[%d]%s", rt.Len(), Of(rt.Elem()))
+		return fmt.Sprintf("[%d]%s", rt.Len(), NameOf(rt.Elem()))
 	case reflect.Map:
-		return fmt.Sprintf("map[%s]%s", Of(rt.Key()), Of(rt.Elem()))
+		return fmt.Sprintf("map[%s]%s", NameOf(rt.Key()), NameOf(rt.Elem()))
 	case reflect.Chan:
 		return buildChanName(rt)
 	case reflect.Interface:
@@ -47,7 +47,7 @@ func buildDefinedName(rt reflect.Type) string {
 }
 
 func buildChanName(rt reflect.Type) string {
-	elem := Of(rt.Elem())
+	elem := NameOf(rt.Elem())
 
 	switch rt.ChanDir() {
 	case reflect.RecvDir: // <-chan
@@ -106,7 +106,7 @@ func buildStructName(rt reflect.Type) string {
 				name += " "
 			}
 
-			name += Of(f.Type)
+			name += NameOf(f.Type)
 		}
 
 		name += " "
@@ -124,7 +124,7 @@ func buildFuncSignature(rt reflect.Type) string {
 			name += ", "
 		}
 
-		name += Of(rt.In(i))
+		name += NameOf(rt.In(i))
 	}
 	name += ")"
 
@@ -140,7 +140,7 @@ func buildFuncSignature(rt reflect.Type) string {
 				name += ", "
 			}
 
-			name += Of(rt.Out(i))
+			name += NameOf(rt.Out(i))
 		}
 
 		if n > 1 {

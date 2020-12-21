@@ -79,7 +79,7 @@ func TypeFromReflect(rt reflect.Type) Type {
 	// verify that the type represented by rt actually implements dogma.Message.
 	var _ interface{} = (dogma.Message)(nil)
 
-	n := goreflect.Of(rt)
+	n := goreflect.NameOf(rt)
 
 	return Type{
 		Name{n},

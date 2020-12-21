@@ -67,45 +67,45 @@ var _ = Describe("func Of()", func() {
 		func(file string) string {
 			switch file {
 			case "basic":
-				return Of(varmap["Basic"])
+				return NameOf(varmap["Basic"])
 			case "named":
-				return Of(varmap["Named"])
+				return NameOf(varmap["Named"])
 			case "pointer":
-				return Of(varmap["Pointer"])
+				return NameOf(varmap["Pointer"])
 			case "slice":
-				return Of(varmap["Slice"])
+				return NameOf(varmap["Slice"])
 			case "array":
-				return Of(varmap["Array"])
+				return NameOf(varmap["Array"])
 			case "map":
-				return Of(varmap["Map"])
+				return NameOf(varmap["Map"])
 			case "channel":
-				return Of(varmap["Channel"])
+				return NameOf(varmap["Channel"])
 			case "receive-only-channel":
-				return Of(varmap["ReceiveOnlyChannel"])
+				return NameOf(varmap["ReceiveOnlyChannel"])
 			case "send-only-channel":
-				return Of(varmap["SendOnlyChannel"])
+				return NameOf(varmap["SendOnlyChannel"])
 			case "iface":
-				return Of(varmap["Interface"])
+				return NameOf(varmap["Interface"])
 			case "iface-with-single-method":
-				return Of(varmap["InterfaceWithSingleMethod"])
+				return NameOf(varmap["InterfaceWithSingleMethod"])
 			case "iface-with-multiple-methods":
-				return Of(varmap["InterfaceWithMultipleMethods"])
+				return NameOf(varmap["InterfaceWithMultipleMethods"])
 			case "struct":
-				return Of(varmap["Struct"])
+				return NameOf(varmap["Struct"])
 			case "struct-with-single-field":
-				return Of(varmap["StructWithSingleField"])
+				return NameOf(varmap["StructWithSingleField"])
 			case "struct-with-multiple-fields":
-				return Of(varmap["StructWithMultipleFields"])
+				return NameOf(varmap["StructWithMultipleFields"])
 			case "struct-with-embedded-type":
-				return Of(varmap["StructWithEmbeddedType"])
+				return NameOf(varmap["StructWithEmbeddedType"])
 			case "nullary":
-				return Of(varmap["Nullary"])
+				return NameOf(varmap["Nullary"])
 			case "func-with-multiple-input-params":
-				return Of(varmap["FuncWithMultipleInputParams"])
+				return NameOf(varmap["FuncWithMultipleInputParams"])
 			case "func-with-single-output-param":
-				return Of(varmap["FuncWithSingleOutputParam"])
+				return NameOf(varmap["FuncWithSingleOutputParam"])
 			case "func-with-multiple-output-params":
-				return Of(varmap["FuncWithMultipleOutputParams"])
+				return NameOf(varmap["FuncWithMultipleOutputParams"])
 			default:
 				Fail("no type is available for testing with '%s' file")
 			}

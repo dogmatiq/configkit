@@ -72,7 +72,7 @@ func NameOf(m dogma.Message) Name {
 	}
 
 	rt := reflect.TypeOf(m)
-	n := goreflect.Of(rt)
+	n := goreflect.NameOf(rt)
 	return Name{n}
 }
 
@@ -82,7 +82,7 @@ func NameOfType(t types.Type) Name {
 		panic("type must not be nil")
 	}
 
-	n := gotypes.Of(t)
+	n := gotypes.NameOf(t)
 	return Name{n}
 }
 
