@@ -90,7 +90,7 @@ var _ = Describe("type Name", func() {
 		})
 	})
 
-	Describe("func NameOfType()", func() {
+	Describe("func NameFromType()", func() {
 		It("returns the fully-qualified name", func() {
 			pkg := types.NewPackage(
 				"github.com/dogmatiq/dogma/fixtures",
@@ -108,13 +108,13 @@ var _ = Describe("type Name", func() {
 				nil,
 			)
 
-			n := NameOfType(named)
+			n := NameFromType(named)
 			Expect(n.String()).To(Equal("github.com/dogmatiq/dogma/fixtures.MessageA"))
 		})
 
 		It("panics if the type is nil", func() {
 			Expect(func() {
-				NameOfType(nil)
+				NameFromType(nil)
 			}).To(Panic())
 		})
 	})
