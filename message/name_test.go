@@ -1,6 +1,9 @@
 package message_test
 
 import (
+	"go/token"
+	"go/types"
+
 	. "github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma/fixtures"
 	. "github.com/onsi/ginkgo"
@@ -83,6 +86,35 @@ var _ = Describe("type Name", func() {
 		It("panics if the message is nil", func() {
 			Expect(func() {
 				NameOf(nil)
+			}).To(Panic())
+		})
+	})
+
+	Describe("func NameFromType()", func() {
+		It("returns the fully-qualified name", func() {
+			pkg := types.NewPackage(
+				"github.com/dogmatiq/dogma/fixtures",
+				"fixtures",
+			)
+
+			named := types.NewNamed(
+				types.NewTypeName(
+					token.NoPos,
+					pkg,
+					"MessageA",
+					&types.Struct{},
+				),
+				nil,
+				nil,
+			)
+
+			n := NameFromType(named)
+			Expect(n.String()).To(Equal("github.com/dogmatiq/dogma/fixtures.MessageA"))
+		})
+
+		It("panics if the type is nil", func() {
+			Expect(func() {
+				NameFromType(nil)
 			}).To(Panic())
 		})
 	})

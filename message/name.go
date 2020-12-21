@@ -2,9 +2,11 @@ package message
 
 import (
 	"fmt"
+	"go/types"
 	"reflect"
 
-	"github.com/dogmatiq/configkit/internal/typename"
+	"github.com/dogmatiq/configkit/internal/typename/goreflect"
+	"github.com/dogmatiq/configkit/internal/typename/gotypes"
 	"github.com/dogmatiq/dogma"
 )
 
@@ -70,7 +72,17 @@ func NameOf(m dogma.Message) Name {
 	}
 
 	rt := reflect.TypeOf(m)
-	n := typename.Of(rt)
+	n := goreflect.NameOf(rt)
+	return Name{n}
+}
+
+// NameFromType returns the fully-qualified type name of t.
+func NameFromType(t types.Type) Name {
+	if t == nil {
+		panic("type must not be nil")
+	}
+
+	n := gotypes.NameOf(t)
 	return Name{n}
 }
 
