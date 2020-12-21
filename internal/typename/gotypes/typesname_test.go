@@ -12,8 +12,6 @@ import (
 	. "github.com/dogmatiq/configkit/internal/typename/internal/typenametest"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"golang.org/x/tools/go/ssa"
-	"golang.org/x/tools/go/ssa/ssautil"
 )
 
 var _ = Describe("func Of()", func() {
@@ -32,33 +30,24 @@ var _ = Describe("func Of()", func() {
 			parser.ParseComments,
 		)
 		Expect(err).ShouldNot(HaveOccurred())
-		files := []*ast.File{f}
 
-		pkg := types.NewPackage(
+		conf := types.Config{Importer: importer.Default()}
+
+		pkg, err := conf.Check(
 			"github.com/dogmatiq/configkit/internal/typename/internal/typenametest",
-			"",
-		)
-
-		built, _, err := ssautil.BuildPackage(
-			&types.Config{
-				Importer: importer.Default(),
-			},
 			fset,
-			pkg,
-			files,
-			ssa.SanityCheckFunctions,
+			[]*ast.File{f},
+			nil,
 		)
-		if err != nil {
-			panic(err)
-		}
+		Expect(err).ShouldNot(HaveOccurred())
 
-		varmap = make(map[string]types.Type, len(built.Members))
+		names := pkg.Scope().Names()
 
-		for _, m := range built.Members {
-			if g, ok := m.(*ssa.Global); ok {
-				if g.Object() != nil {
-					varmap[g.Name()] = g.Object().Type()
-				}
+		varmap = make(map[string]types.Type, len(names))
+
+		for _, name := range names {
+			if obj := pkg.Scope().Lookup(name); obj != nil {
+				varmap[obj.Name()] = obj.Type()
 			}
 		}
 	})
