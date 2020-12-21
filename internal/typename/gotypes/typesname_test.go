@@ -109,5 +109,6 @@ var _ = Describe("func Of()", func() {
 			}
 
 			Fail("no type is available for testing with '%s' file")
+			return ""
 		})
 })
