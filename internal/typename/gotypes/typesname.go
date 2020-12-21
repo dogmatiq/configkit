@@ -29,11 +29,12 @@ func NameOf(t types.Type) string {
 	case *types.Signature:
 		return "func" + buildFuncSignature(t)
 	}
-	// COVERAGE NOTE: this panic is only possible if additional implementation
-	// of go/types.Type interface is introduced to represent the first-class type
-	// in Go. Not all go/types.Type interface implementations represent
-	// first-class types. For instance, go/types.Tuple can only be a part of
-	// signatures or multiple assignments.
+
+	// COVERAGE: This panic is only possible if an additional implementation of
+	// the types.Type interface is introduced to represent a new first-class
+	// type in Go. Not all implementations of types.Type represent first-class
+	// types. For instance, types.Tuple can only be a part of signatures or
+	// multiple assignments.
 	panic(fmt.Sprintf("unknown type %s", t))
 }
 

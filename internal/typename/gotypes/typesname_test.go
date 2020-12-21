@@ -14,7 +14,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("func Of()", func() {
+var _ = Describe("func NameOf()", func() {
 	var varmap map[string]types.Type
 
 	BeforeSuite(func() {

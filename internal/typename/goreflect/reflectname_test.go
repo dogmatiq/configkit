@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/ginkgo"
 )
 
-var _ = Describe("func Of()", func() {
+var _ = Describe("func NameOf()", func() {
 	Declare(
 		func(file string) string {
 			switch file {
