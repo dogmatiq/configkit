@@ -9,6 +9,24 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+### Added
+
+- Add `api.NewServer()`
+
+### Changed
+
+- **[BC]** The `api` package now implements the `configspec` from `dogmatiq/interopspec`
+- **[BC]** `api.Client` is now a struct, not an interface
+
+### Removed
+
+- **[BC]** Remove `api.Client.ListApplicationIdentities()`
+- **[BC]** Remove `api.RegisterServer()`
+- **[BC]** Remove the `api/discovery` package, use `dogmatiq/discoverkit` instead
+- **[BC]** Remove the `api/fixtures` package
+
 ## [0.9.1] - 2020-11-20
 
 ### Added

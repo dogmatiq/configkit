@@ -9,12 +9,13 @@ import (
 	. "github.com/dogmatiq/configkit/api"
 	"github.com/dogmatiq/dogma"
 	. "github.com/dogmatiq/dogma/fixtures"
+	"github.com/dogmatiq/interopspec/configspec"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"google.golang.org/grpc"
 )
 
-var _ = Describe("type Client", func() {
+var _ = Context("end-to-end tests", func() {
 	var (
 		ctx        context.Context
 		cancel     func()
@@ -22,7 +23,7 @@ var _ = Describe("type Client", func() {
 		cfg1, cfg2 configkit.Application
 		listener   net.Listener
 		gserver    *grpc.Server
-		client     Client
+		client     *Client
 	)
 
 	BeforeEach(func() {
@@ -81,7 +82,10 @@ var _ = Describe("type Client", func() {
 		Expect(err).ShouldNot(HaveOccurred())
 
 		gserver = grpc.NewServer()
-		RegisterServer(gserver, cfg1, cfg2)
+		configspec.RegisterConfigAPIServer(
+			gserver,
+			NewServer(cfg1, cfg2),
+		)
 
 		go gserver.Serve(listener)
 
@@ -104,23 +108,6 @@ var _ = Describe("type Client", func() {
 		}
 
 		cancel()
-	})
-
-	Describe("func ListApplicationIdentities()", func() {
-		It("returns the application identities", func() {
-			idents, err := client.ListApplicationIdentities(ctx)
-			Expect(err).ShouldNot(HaveOccurred())
-			Expect(idents).To(ConsistOf(
-				configkit.MustNewIdentity("<app-1>", "<app-key-1>"),
-				configkit.MustNewIdentity("<app-2>", "<app-key-2>"),
-			))
-		})
-
-		It("returns an error if the gRPC call fails", func() {
-			gserver.Stop()
-			_, err := client.ListApplicationIdentities(ctx)
-			Expect(err).Should(HaveOccurred())
-		})
 	})
 
 	Describe("func ListApplications()", func() {

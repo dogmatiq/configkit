@@ -5,18 +5,15 @@ import (
 	"fmt"
 
 	"github.com/dogmatiq/configkit"
-	"github.com/dogmatiq/configkit/api/internal/pb"
 	"github.com/dogmatiq/configkit/internal/entity"
 	"github.com/dogmatiq/configkit/message"
+	"github.com/dogmatiq/interopspec/configspec"
 )
 
 // marshalApplication marshals an application config to its protobuf
 // representation.
-//
-// See the pb.Application type for details about how the application is
-// represented as protocol buffers message.
-func marshalApplication(in configkit.Application) (*pb.Application, error) {
-	out := &pb.Application{}
+func marshalApplication(in configkit.Application) (*configspec.Application, error) {
+	out := &configspec.Application{}
 
 	var err error
 	out.Identity, err = marshalIdentity(in.Identity())
@@ -24,18 +21,13 @@ func marshalApplication(in configkit.Application) (*pb.Application, error) {
 		return nil, err
 	}
 
-	out.TypeName = in.TypeName()
-	if out.TypeName == "" {
+	out.GoType = in.TypeName()
+	if out.GoType == "" {
 		return nil, errors.New("application type name is empty")
 	}
 
-	// indices is mapping of name to index into out.Messages. The index is
-	// encoded in the handler to avoid repeating long type names that are likely
-	// to be referenced many times within an application.
-	indices := map[message.Name]uint32{}
-
 	for _, hIn := range in.Handlers() {
-		hOut, err := marshalHandler(out, indices, hIn)
+		hOut, err := marshalHandler(hIn)
 		if err != nil {
 			return nil, err
 		}
@@ -48,7 +40,7 @@ func marshalApplication(in configkit.Application) (*pb.Application, error) {
 
 // unmarshalApplication unmarshals an application config from its protobuf
 // representation.
-func unmarshalApplication(in *pb.Application) (configkit.Application, error) {
+func unmarshalApplication(in *configspec.Application) (configkit.Application, error) {
 	out := &entity.Application{
 		MessageNamesValue: configkit.EntityMessageNames{
 			Produced: message.NameRoles{},
@@ -63,22 +55,13 @@ func unmarshalApplication(in *pb.Application) (configkit.Application, error) {
 		return nil, err
 	}
 
-	out.TypeNameValue = in.GetTypeName()
+	out.TypeNameValue = in.GetGoType()
 	if out.TypeNameValue == "" {
 		return nil, errors.New("application type name is empty")
 	}
 
-	var indices []nameRole
-	for _, nrIn := range in.GetMessages() {
-		nrOut, err := unmarshalNameRole(nrIn)
-		if err != nil {
-			return nil, err
-		}
-		indices = append(indices, nrOut)
-	}
-
 	for _, hIn := range in.GetHandlers() {
-		hOut, err := unmarshalHandler(indices, hIn)
+		hOut, err := unmarshalHandler(hIn)
 		if err != nil {
 			return nil, err
 		}
@@ -98,15 +81,8 @@ func unmarshalApplication(in *pb.Application) (configkit.Application, error) {
 }
 
 // marshalHandler marshals a handler config to its protobuf representation.
-//
-// It populates app.Messages with NameRole pairs for each of the handler's
-// consumed/produced messages.
-func marshalHandler(
-	app *pb.Application,
-	indices map[message.Name]uint32,
-	in configkit.Handler,
-) (*pb.Handler, error) {
-	out := &pb.Handler{}
+func marshalHandler(in configkit.Handler) (*configspec.Handler, error) {
+	out := &configspec.Handler{}
 
 	var err error
 	out.Identity, err = marshalIdentity(in.Identity())
@@ -114,8 +90,8 @@ func marshalHandler(
 		return nil, err
 	}
 
-	out.TypeName = in.TypeName()
-	if out.TypeName == "" {
+	out.GoType = in.TypeName()
+	if out.GoType == "" {
 		return nil, errors.New("handler type name is empty")
 	}
 
@@ -125,12 +101,12 @@ func marshalHandler(
 	}
 
 	names := in.MessageNames()
-	out.Produced, err = marshalNameRoles(app, indices, names.Produced)
+	out.ProducedMessages, err = marshalNameRoles(names.Produced)
 	if err != nil {
 		return nil, err
 	}
 
-	out.Consumed, err = marshalNameRoles(app, indices, names.Consumed)
+	out.ConsumedMessages, err = marshalNameRoles(names.Consumed)
 	if err != nil {
 		return nil, err
 	}
@@ -140,10 +116,7 @@ func marshalHandler(
 
 // unmarshalHandler unmarshals a handler configuration from its protocol buffers
 // representation.
-func unmarshalHandler(
-	indices []nameRole,
-	in *pb.Handler,
-) (configkit.Handler, error) {
+func unmarshalHandler(in *configspec.Handler) (configkit.Handler, error) {
 	out := &entity.Handler{
 		MessageNamesValue: configkit.EntityMessageNames{
 			Produced: message.NameRoles{},
@@ -157,7 +130,7 @@ func unmarshalHandler(
 		return nil, err
 	}
 
-	out.TypeNameValue = in.GetTypeName()
+	out.TypeNameValue = in.GetGoType()
 	if out.TypeNameValue == "" {
 		return nil, errors.New("handler type name is empty")
 	}
@@ -167,12 +140,12 @@ func unmarshalHandler(
 		return nil, err
 	}
 
-	out.MessageNamesValue.Produced, err = unmarshalNameRoles(indices, in.GetProduced())
+	out.MessageNamesValue.Produced, err = unmarshalNameRoles(in.GetProducedMessages())
 	if err != nil {
 		return nil, err
 	}
 
-	out.MessageNamesValue.Consumed, err = unmarshalNameRoles(indices, in.GetConsumed())
+	out.MessageNamesValue.Consumed, err = unmarshalNameRoles(in.GetConsumedMessages())
 	if err != nil {
 		return nil, err
 	}
@@ -180,103 +153,59 @@ func unmarshalHandler(
 	return out, nil
 }
 
-// marshalNameRoles marshals a message.NameRoles collection for a handler into
-// protocol buffers application representation.
-//
-// It populates app.Messages with NameRole pairs for each of the elements in the
-// NameRoles collection.
-func marshalNameRoles(
-	app *pb.Application,
-	indices map[message.Name]uint32,
-	in message.NameRoles,
-) ([]uint32, error) {
-	out := make([]uint32, 0, len(in))
+// marshalNameRoles marshals a message.NameRoles collection into
+// its protocol buffers representation.
+func marshalNameRoles(in message.NameRoles) (map[string]configspec.MessageRole, error) {
+	out := map[string]configspec.MessageRole{}
 
-	for n, r := range in {
-		i, ok := indices[n]
-
-		if !ok {
-			nr, err := marshalNameRole(n, r)
-			if err != nil {
-				return nil, err
-			}
-
-			i = uint32(len(app.Messages))
-			app.Messages = append(app.Messages, nr)
+	for nIn, rIn := range in {
+		nOut, err := nIn.MarshalText()
+		if err != nil {
+			return nil, err
 		}
 
-		out = append(out, i)
+		rOut, err := marshalMessageRole(rIn)
+		if err != nil {
+			return nil, err
+		}
+
+		out[string(nOut)] = rOut
 	}
 
 	return out, nil
 }
 
-// unmarshalNameRoles unmarshals a sequence of name/role indices into a
-// NameRoles collection.
-func unmarshalNameRoles(
-	indices []nameRole,
-	in []uint32,
-) (message.NameRoles, error) {
+// marshalNameRoles unmarshals a message.NameRoles collection from
+// its protocol buffers representation.
+func unmarshalNameRoles(in map[string]configspec.MessageRole) (message.NameRoles, error) {
 	out := message.NameRoles{}
-	for _, i := range in {
-		if i >= uint32(len(indices)) {
-			return nil, errors.New("name/role index out of range")
+
+	for nIn, rIn := range in {
+		var nOut message.Name
+
+		if err := nOut.UnmarshalText([]byte(nIn)); err != nil {
+			return nil, err
 		}
 
-		nr := indices[i]
-		out[nr.Name] = nr.Role
+		rOut, err := unmarshalMessageRole(rIn)
+		if err != nil {
+			return nil, err
+		}
+
+		out[nOut] = rOut
 	}
 
 	return out, nil
-}
-
-// marshalNameRole marshals a message name and role into a protocol buffers
-// NameRole message.
-func marshalNameRole(n message.Name, r message.Role) (*pb.NameRole, error) {
-	nr := &pb.NameRole{}
-
-	var err error
-	nr.Name, err = n.MarshalBinary()
-	if err != nil {
-		return nil, err
-	}
-
-	nr.Role, err = marshalMessageRole(r)
-	if err != nil {
-		return nil, err
-	}
-
-	return nr, nil
-}
-
-// nameRole is an in-memory representation of an unmarshaled *pb.NameRole
-// message.
-type nameRole struct {
-	Name message.Name
-	Role message.Role
-}
-
-// unmarshalNameRole unmarshals a *pb.NameRole to a nameRole.
-func unmarshalNameRole(in *pb.NameRole) (nameRole, error) {
-	var out nameRole
-
-	err := out.Name.UnmarshalBinary(in.GetName())
-	if err != nil {
-		return out, err
-	}
-
-	out.Role, err = unmarshalMessageRole(in.GetRole())
-	return out, err
 }
 
 // marshalIdentity marshals a configkit.Identity to its protocol buffers
 // representation.
-func marshalIdentity(in configkit.Identity) (*pb.Identity, error) {
+func marshalIdentity(in configkit.Identity) (*configspec.Identity, error) {
 	if err := in.Validate(); err != nil {
 		return nil, err
 	}
 
-	return &pb.Identity{
+	return &configspec.Identity{
 		Name: in.Name,
 		Key:  in.Key,
 	}, nil
@@ -284,7 +213,7 @@ func marshalIdentity(in configkit.Identity) (*pb.Identity, error) {
 
 // unmarshalIdentity unmarshals a configkit.Identity from its protocol buffers
 // representation.
-func unmarshalIdentity(in *pb.Identity) (configkit.Identity, error) {
+func unmarshalIdentity(in *configspec.Identity) (configkit.Identity, error) {
 	return configkit.NewIdentity(
 		in.GetName(),
 		in.GetKey(),
@@ -293,34 +222,34 @@ func unmarshalIdentity(in *pb.Identity) (configkit.Identity, error) {
 
 // marshalHandlerType marshals a configkit.HandlerType to its protocol buffers
 // representation.
-func marshalHandlerType(t configkit.HandlerType) (pb.HandlerType, error) {
+func marshalHandlerType(t configkit.HandlerType) (configspec.HandlerType, error) {
 	if err := t.Validate(); err != nil {
-		return pb.HandlerType_UNKNOWN_HANDLER_TYPE, err
+		return configspec.HandlerType_UNKNOWN_HANDLER_TYPE, err
 	}
 
 	switch t {
 	case configkit.AggregateHandlerType:
-		return pb.HandlerType_AGGREGATE, nil
+		return configspec.HandlerType_AGGREGATE, nil
 	case configkit.ProcessHandlerType:
-		return pb.HandlerType_PROCESS, nil
+		return configspec.HandlerType_PROCESS, nil
 	case configkit.IntegrationHandlerType:
-		return pb.HandlerType_INTEGRATION, nil
+		return configspec.HandlerType_INTEGRATION, nil
 	default: // configkit.ProjectionHandlerType
-		return pb.HandlerType_PROJECTION, nil
+		return configspec.HandlerType_PROJECTION, nil
 	}
 }
 
 // unmarshalHandlerType unmarshals a configkit.HandlerType from its protocol
 // buffers representation.
-func unmarshalHandlerType(t pb.HandlerType) (configkit.HandlerType, error) {
+func unmarshalHandlerType(t configspec.HandlerType) (configkit.HandlerType, error) {
 	switch t {
-	case pb.HandlerType_AGGREGATE:
+	case configspec.HandlerType_AGGREGATE:
 		return configkit.AggregateHandlerType, nil
-	case pb.HandlerType_PROCESS:
+	case configspec.HandlerType_PROCESS:
 		return configkit.ProcessHandlerType, nil
-	case pb.HandlerType_INTEGRATION:
+	case configspec.HandlerType_INTEGRATION:
 		return configkit.IntegrationHandlerType, nil
-	case pb.HandlerType_PROJECTION:
+	case configspec.HandlerType_PROJECTION:
 		return configkit.ProjectionHandlerType, nil
 	default:
 		return "", fmt.Errorf("unknown handler type: %#v", t)
@@ -329,30 +258,30 @@ func unmarshalHandlerType(t pb.HandlerType) (configkit.HandlerType, error) {
 
 // marshalMessageRole marshals a message.Role to its protocol buffers
 // representation.
-func marshalMessageRole(r message.Role) (pb.MessageRole, error) {
+func marshalMessageRole(r message.Role) (configspec.MessageRole, error) {
 	if err := r.Validate(); err != nil {
-		return pb.MessageRole_UNKNOWN_MESSAGE_ROLE, err
+		return configspec.MessageRole_UNKNOWN_MESSAGE_ROLE, err
 	}
 
 	switch r {
 	case message.CommandRole:
-		return pb.MessageRole_COMMAND, nil
+		return configspec.MessageRole_COMMAND, nil
 	case message.EventRole:
-		return pb.MessageRole_EVENT, nil
+		return configspec.MessageRole_EVENT, nil
 	default: // message.TimeoutRole
-		return pb.MessageRole_TIMEOUT, nil
+		return configspec.MessageRole_TIMEOUT, nil
 	}
 }
 
 // unmarshalMessageRole unmarshals a message.Role from its protocol buffers
 // representation.
-func unmarshalMessageRole(r pb.MessageRole) (message.Role, error) {
+func unmarshalMessageRole(r configspec.MessageRole) (message.Role, error) {
 	switch r {
-	case pb.MessageRole_COMMAND:
+	case configspec.MessageRole_COMMAND:
 		return message.CommandRole, nil
-	case pb.MessageRole_EVENT:
+	case configspec.MessageRole_EVENT:
 		return message.EventRole, nil
-	case pb.MessageRole_TIMEOUT:
+	case configspec.MessageRole_TIMEOUT:
 		return message.TimeoutRole, nil
 	default:
 		return "", fmt.Errorf("unknown message role: %#v", r)

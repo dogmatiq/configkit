@@ -6,7 +6,7 @@ import (
 	"time"
 
 	. "github.com/dogmatiq/configkit/api"
-	"github.com/dogmatiq/configkit/api/internal/pb"
+	"github.com/dogmatiq/interopspec/configspec"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"google.golang.org/grpc"
@@ -14,33 +14,15 @@ import (
 
 type invalidServer struct{}
 
-func (s *invalidServer) ListApplicationIdentities(
-	ctx context.Context,
-	req *pb.ListApplicationIdentitiesRequest,
-) (*pb.ListApplicationIdentitiesResponse, error) {
-	return &pb.ListApplicationIdentitiesResponse{
-		Identities: []*pb.Identity{
-			{}, // invalid
-		},
-	}, nil
-}
-
 func (s *invalidServer) ListApplications(
 	ctx context.Context,
-	req *pb.ListApplicationsRequest,
-) (*pb.ListApplicationsResponse, error) {
-	return &pb.ListApplicationsResponse{
-		Applications: []*pb.Application{
+	req *configspec.ListApplicationsRequest,
+) (*configspec.ListApplicationsResponse, error) {
+	return &configspec.ListApplicationsResponse{
+		Applications: []*configspec.Application{
 			{}, // invalid
 		},
 	}, nil
-}
-
-func (s *invalidServer) Watch(
-	*pb.WatchRequest,
-	pb.Config_WatchServer,
-) error {
-	panic("not implemented")
 }
 
 var _ = Describe("type Client", func() {
@@ -49,7 +31,7 @@ var _ = Describe("type Client", func() {
 		cancel   func()
 		listener net.Listener
 		gserver  *grpc.Server
-		client   Client
+		client   *Client
 	)
 
 	BeforeEach(func() {
@@ -60,7 +42,7 @@ var _ = Describe("type Client", func() {
 		Expect(err).ShouldNot(HaveOccurred())
 
 		gserver = grpc.NewServer()
-		pb.RegisterConfigServer(gserver, &invalidServer{})
+		configspec.RegisterConfigAPIServer(gserver, &invalidServer{})
 
 		go gserver.Serve(listener)
 
@@ -83,13 +65,6 @@ var _ = Describe("type Client", func() {
 		}
 
 		cancel()
-	})
-
-	Describe("func ListApplicationIdentities()", func() {
-		It("returns an error if the server returns an invalid identity", func() {
-			_, err := client.ListApplicationIdentities(ctx)
-			Expect(err).Should(HaveOccurred())
-		})
 	})
 
 	Describe("func ListApplications()", func() {
