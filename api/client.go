@@ -8,9 +8,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-// Client wraps a configspec.ConfigAPIClient that unmarshals the server's
-// responses into types that implement the core configkit Application and
-// Handler interfaces.
+// Client wraps a configspec.ConfigAPIClient to unmarshal the server's responses
+// into types that implement the core configkit Application and Handler
+// interfaces.
 type Client struct {
 	Client configspec.ConfigAPIClient
 }
