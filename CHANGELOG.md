@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 ### Added
 
 - Add `api.NewServer()`
+- Add `api.Server`
 
 ### Changed
 
