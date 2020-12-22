@@ -14,7 +14,7 @@ type Server struct {
 
 var _ configspec.ConfigAPIServer = (*Server)(nil)
 
-// NewServer returns an API server that servers the configuration of the given
+// NewServer returns an API server that serves the configuration of the given
 // applications.
 func NewServer(apps ...configkit.Application) *Server {
 	s := &Server{}
