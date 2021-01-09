@@ -1,4 +1,4 @@
-package app01
+package app
 
 // App does not implement dogma.Application interface.
 type App struct{}
