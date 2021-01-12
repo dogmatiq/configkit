@@ -20,56 +20,40 @@ func FromPackages(pkgs []*packages.Package) []configkit.Application {
 	prog, packages := ssautil.AllPackages(pkgs, ssa.SanityCheckFunctions)
 	prog.Build()
 
-	if dogmaPkg := prog.ImportedPackage(dogmaPkgPath); dogmaPkg != nil {
-		return fromSSAPackages(dogmaPkg, packages)
+	dogmaPkg := prog.ImportedPackage(dogmaPkgPath)
+	if dogmaPkg == nil {
+		// If Dogma package is not found as an import, none of the packages in
+		// the built application implement dogma.Application interface.
+		return nil
 	}
 
-	// If Dogma package is not found as an import, none of the packages in the
-	// built application implement dogma.Application interface that requires the
-	// import of the github.com/dogmatiq/dogma package.
-	return nil
-}
+	var apps []configkit.Application
+	iface := dogmaPkg.Pkg.Scope().Lookup("Application").Type().Underlying().(*types.Interface)
 
-// fromSSAPackages loads the list of configkit.Application from the given list
-// of ssa.Package items.
-func fromSSAPackages(dogmaPkg *ssa.Package, pkgs []*ssa.Package) []configkit.Application {
-	var result []configkit.Application
-
-	for _, pkg := range pkgs {
-		// The package can be returned as nil by ssautil.AllPackages() if it
-		// previously contained errors in types.Package.Errors.
+	for _, pkg := range packages {
 		if pkg == nil {
 			continue
 		}
 
-		a := dogmaPkg.Pkg.Scope().Lookup("Application")
-		iface := a.Type().Underlying().(*types.Interface)
-
 		for _, m := range pkg.Members {
 			// NOTE: the sequence of the if-blocks below is important as the
 			// value of a type implements the interface only if the
-			// interface-implementing methods have value receiver. Hence is
-			// the implementation check for the type value first.
+			// interface-implementing methods have value receiver. Hence is the
+			// implementation check for the type value is positioned first.
 			//
-			// However, a pointer to the type implements the interface in
-			// both cases: when interface-implementing methods have value or
-			// pointer receiver.
+			// A pointer to the type, on the other hand, implements the
+			// interface in both cases: when interface-implementing methods have
+			// value or pointer receiver.
 			if types.Implements(m.Type(), iface) {
-				result = append(
-					result,
-					parse(m, m.Type()),
-				)
+				apps = append(apps, parse(m, m.Type()))
 				continue
 			}
 
 			if p := types.NewPointer(m.Type()); types.Implements(p, iface) {
-				result = append(
-					result,
-					parse(m, p),
-				)
+				apps = append(apps, parse(m, p))
 			}
 		}
 	}
 
-	return result
+	return apps
 }
