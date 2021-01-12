@@ -87,20 +87,4 @@ var _ = Describe("func FromPackages()", func() {
 			Expect(apps).To(BeEmpty())
 		})
 	})
-
-	When("a package contains a Dogma application with invalid syntax", func() {
-		It("does not parse the Dogma application", func() {
-			cfg := packages.Config{
-				Mode: packages.LoadAllSyntax,
-				Dir:  "testdata/apps/invalid-syntax-app",
-			}
-
-			pkgs, err := packages.Load(&cfg, "./...")
-			Expect(err).NotTo(HaveOccurred())
-
-			apps := FromPackages(pkgs)
-
-			Expect(apps).To(BeEmpty())
-		})
-	})
 })
