@@ -41,49 +41,6 @@ var _ = Describe("func FromPackages()", func() {
 		})
 	})
 
-	When("a package contains multiple Dogma applications", func() {
-		It("returns the configuration for all applications detected", func() {
-			cfg := packages.Config{
-				Mode: packages.LoadAllSyntax,
-				Dir:  "testdata/apps/multiple-apps",
-			}
-
-			pkgs, err := packages.Load(&cfg, "./...")
-			Expect(err).NotTo(HaveOccurred())
-
-			apps := FromPackages(pkgs)
-
-			Expect(apps).To(Equal(
-				[]configkit.Application{
-					&entity.Application{
-						IdentityValue: configkit.Identity{
-							Name: "<app-first>",
-							Key:  "b754902b-47c8-48fc-84d2-d920c9cbdaec",
-						},
-						TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/apps/multiple-apps/first.App",
-						MessageNamesValue: configkit.EntityMessageNames{
-							Produced: nil,
-							Consumed: nil,
-						},
-						HandlersValue: nil,
-					},
-					&entity.Application{
-						IdentityValue: configkit.Identity{
-							Name: "<app-second>",
-							Key:  "bfaf2a16-23a0-495d-8098-051d77635822",
-						},
-						TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/apps/multiple-apps/second.App",
-						MessageNamesValue: configkit.EntityMessageNames{
-							Produced: nil,
-							Consumed: nil,
-						},
-						HandlersValue: nil,
-					},
-				},
-			))
-		})
-	})
-
 	When("a package contains a Dogma application implemented with pointer receiver .Configure() method", func() {
 		It("returns the configuration for the application detected", func() {
 			cfg := packages.Config{
