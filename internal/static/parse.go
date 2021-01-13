@@ -15,7 +15,7 @@ import (
 //
 // The second parameter is the type that actually implements
 // github.com/dogmatiq/dogma.Application interface.
-func parse(m ssa.Member, typ types.Type) *entity.Application {
+func analyzeApplication(m ssa.Member, typ types.Type) *entity.Application {
 	app := &entity.Application{
 		TypeNameValue: gotypes.NameOf(typ),
 	}
