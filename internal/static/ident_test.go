@@ -22,20 +22,18 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 
 			apps := FromPackages(pkgs)
 
-			Expect(apps).To(Equal(
-				[]configkit.Application{
-					&entity.Application{
-						IdentityValue: configkit.Identity{
-							Name: "<app>",
-							Key:  "04e12cf2-3c66-4414-9203-e045ddbe02c7",
-						},
-						TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/ident/const-value-ident.App",
-						MessageNamesValue: configkit.EntityMessageNames{
-							Produced: nil,
-							Consumed: nil,
-						},
-						HandlersValue: nil,
+			Expect(apps).To(ConsistOf(
+				&entity.Application{
+					IdentityValue: configkit.Identity{
+						Name: "<app>",
+						Key:  "04e12cf2-3c66-4414-9203-e045ddbe02c7",
 					},
+					TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/ident/const-value-ident.App",
+					MessageNamesValue: configkit.EntityMessageNames{
+						Produced: nil,
+						Consumed: nil,
+					},
+					HandlersValue: nil,
 				},
 			))
 		})
@@ -53,20 +51,18 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 
 			apps := FromPackages(pkgs)
 
-			Expect(apps).To(Equal(
-				[]configkit.Application{
-					&entity.Application{
-						IdentityValue: configkit.Identity{
-							Name: "<app>",
-							Key:  "9d0af85d-f506-4742-b676-ce87730bb1a0",
-						},
-						TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/ident/literal-value-ident.App",
-						MessageNamesValue: configkit.EntityMessageNames{
-							Produced: nil,
-							Consumed: nil,
-						},
-						HandlersValue: nil,
+			Expect(apps).To(ConsistOf(
+				&entity.Application{
+					IdentityValue: configkit.Identity{
+						Name: "<app>",
+						Key:  "9d0af85d-f506-4742-b676-ce87730bb1a0",
 					},
+					TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/ident/literal-value-ident.App",
+					MessageNamesValue: configkit.EntityMessageNames{
+						Produced: nil,
+						Consumed: nil,
+					},
+					HandlersValue: nil,
 				},
 			))
 		})
@@ -84,20 +80,18 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 
 			apps := FromPackages(pkgs)
 
-			Expect(apps).To(Equal(
-				[]configkit.Application{
-					&entity.Application{
-						IdentityValue: configkit.Identity{
-							Name: "",
-							Key:  "",
-						},
-						TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/ident/variable-value-ident.App",
-						MessageNamesValue: configkit.EntityMessageNames{
-							Produced: nil,
-							Consumed: nil,
-						},
-						HandlersValue: nil,
+			Expect(apps).To(ConsistOf(
+				&entity.Application{
+					IdentityValue: configkit.Identity{
+						Name: "",
+						Key:  "",
 					},
+					TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/ident/variable-value-ident.App",
+					MessageNamesValue: configkit.EntityMessageNames{
+						Produced: nil,
+						Consumed: nil,
+					},
+					HandlersValue: nil,
 				},
 			))
 		})
