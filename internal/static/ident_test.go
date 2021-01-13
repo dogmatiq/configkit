@@ -11,7 +11,7 @@ import (
 
 var _ = Describe("func FromPackages() (application identity)", func() {
 	When("the identity is specified with non-literal constants", func() {
-		It("uses the values from the constants, func() {
+		It("uses the values from the constants", func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
 				Dir:  "testdata/ident/const-value-ident",
