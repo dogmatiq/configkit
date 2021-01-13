@@ -9,9 +9,9 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
-var _ = Describe("func FromPackages()", func() {
-	When("a package contains a single Dogma application", func() {
-		It("returns the configuration for the application detected", func() {
+var _ = Describe("func FromPackages() (application detection)", func() {
+	When("a package contains a single application", func() {
+		It("returns the application configuration", func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
 				Dir:  "testdata/apps/single-app",
@@ -41,8 +41,8 @@ var _ = Describe("func FromPackages()", func() {
 		})
 	})
 
-	When("packages contains multiple Dogma applications", func() {
-		It("returns the configuration for all applications detected", func() {
+	When("multiple packages contain applications", func() {
+		It("returns all of the application configurations", func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
 				Dir:  "testdata/apps/multiple-apps-in-pkgs",
@@ -84,8 +84,8 @@ var _ = Describe("func FromPackages()", func() {
 		})
 	})
 
-	When("a single package contains multiple Dogma applications", func() {
-		It("returns the configuration for all applications detected", func() {
+	When("a single package contains multiple applications", func() {
+		It("returns all of the application configurations", func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
 				Dir:  "testdata/apps/multiple-apps-in-single-pkg/apps",
@@ -127,8 +127,8 @@ var _ = Describe("func FromPackages()", func() {
 		})
 	})
 
-	When("a package contains a Dogma application implemented with pointer receiver .Configure() method", func() {
-		It("returns the configuration for the application detected", func() {
+	When("a package contains an application implemented with pointer receivers", func() {
+		It("returns the application configuration", func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
 				Dir:  "testdata/apps/pointer-receiver-app",
@@ -158,8 +158,8 @@ var _ = Describe("func FromPackages()", func() {
 		})
 	})
 
-	When("a package does not contain any Dogma applications", func() {
-		It("returns the empty slice of configkit.Application", func() {
+	When("none of the packages contain any applications", func() {
+		It("returns an empty slice", func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
 				Dir:  "testdata/apps/no-app",
