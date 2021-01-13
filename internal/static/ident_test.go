@@ -9,9 +9,9 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
-var _ = Describe("func FromPackages()", func() {
-	When("an identity of a Dogma application is assigned with constant values", func() {
-		It("populates the identity of the Dogma application", func() {
+var _ = Describe("func FromPackages() (application identity)", func() {
+	When("the identity is specified with non-literal constants", func() {
+		It("uses the values from the constants, func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
 				Dir:  "testdata/ident/const-value-ident",
@@ -41,8 +41,8 @@ var _ = Describe("func FromPackages()", func() {
 		})
 	})
 
-	When("an identity of a Dogma application is assigned with literal values", func() {
-		It("populates the identity of the Dogma application", func() {
+	When("the identity is specified with string literals", func() {
+		It("uses the literal values", func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
 				Dir:  "testdata/ident/literal-value-ident",
@@ -72,8 +72,8 @@ var _ = Describe("func FromPackages()", func() {
 		})
 	})
 
-	When("an identity of a Dogma application is assigned with variable values", func() {
-		It("does not populate the identity of the Dogma application", func() {
+	When("the identity is specified with non-constant expressions", func() {
+		It("uses a zero-value identity", func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
 				Dir:  "testdata/ident/variable-value-ident",

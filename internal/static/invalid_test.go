@@ -7,9 +7,9 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
-var _ = Describe("func FromPackages()", func() {
-	When("a package invalid syntax", func() {
-		It("does not parse the package", func() {
+var _ = Describe("func FromPackages() (unbuildable packages)", func() {
+	When("a package contains a file with invalid Go syntax", func() {
+		It("ignores the package", func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
 				Dir:  "testdata/invalid/invalid-syntax",
