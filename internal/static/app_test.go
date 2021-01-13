@@ -22,20 +22,18 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 
 			apps := FromPackages(pkgs)
 
-			Expect(apps).To(Equal(
-				[]configkit.Application{
-					&entity.Application{
-						IdentityValue: configkit.Identity{
-							Name: "<app>",
-							Key:  "8a6baab1-ee64-402e-a081-e43f4bebc243",
-						},
-						TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/apps/single-app.App",
-						MessageNamesValue: configkit.EntityMessageNames{
-							Produced: nil,
-							Consumed: nil,
-						},
-						HandlersValue: nil,
+			Expect(apps).To(ConsistOf(
+				&entity.Application{
+					IdentityValue: configkit.Identity{
+						Name: "<app>",
+						Key:  "8a6baab1-ee64-402e-a081-e43f4bebc243",
 					},
+					TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/apps/single-app.App",
+					MessageNamesValue: configkit.EntityMessageNames{
+						Produced: nil,
+						Consumed: nil,
+					},
+					HandlersValue: nil,
 				},
 			))
 		})
@@ -53,32 +51,30 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 
 			apps := FromPackages(pkgs)
 
-			Expect(apps).To(Equal(
-				[]configkit.Application{
-					&entity.Application{
-						IdentityValue: configkit.Identity{
-							Name: "<app-first>",
-							Key:  "b754902b-47c8-48fc-84d2-d920c9cbdaec",
-						},
-						TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/apps/multiple-apps-in-pkgs/first.App",
-						MessageNamesValue: configkit.EntityMessageNames{
-							Produced: nil,
-							Consumed: nil,
-						},
-						HandlersValue: nil,
+			Expect(apps).To(ConsistOf(
+				&entity.Application{
+					IdentityValue: configkit.Identity{
+						Name: "<app-first>",
+						Key:  "b754902b-47c8-48fc-84d2-d920c9cbdaec",
 					},
-					&entity.Application{
-						IdentityValue: configkit.Identity{
-							Name: "<app-second>",
-							Key:  "bfaf2a16-23a0-495d-8098-051d77635822",
-						},
-						TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/apps/multiple-apps-in-pkgs/second.App",
-						MessageNamesValue: configkit.EntityMessageNames{
-							Produced: nil,
-							Consumed: nil,
-						},
-						HandlersValue: nil,
+					TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/apps/multiple-apps-in-pkgs/first.App",
+					MessageNamesValue: configkit.EntityMessageNames{
+						Produced: nil,
+						Consumed: nil,
 					},
+					HandlersValue: nil,
+				},
+				&entity.Application{
+					IdentityValue: configkit.Identity{
+						Name: "<app-second>",
+						Key:  "bfaf2a16-23a0-495d-8098-051d77635822",
+					},
+					TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/apps/multiple-apps-in-pkgs/second.App",
+					MessageNamesValue: configkit.EntityMessageNames{
+						Produced: nil,
+						Consumed: nil,
+					},
+					HandlersValue: nil,
 				},
 			))
 		})
@@ -96,32 +92,30 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 
 			apps := FromPackages(pkgs)
 
-			Expect(apps).To(Equal(
-				[]configkit.Application{
-					&entity.Application{
-						IdentityValue: configkit.Identity{
-							Name: "<app-first>",
-							Key:  "4fec74a1-6ed4-46f4-8417-01e0910be8f1",
-						},
-						TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/apps/multiple-apps-in-single-pkg/apps.AppFirst",
-						MessageNamesValue: configkit.EntityMessageNames{
-							Produced: nil,
-							Consumed: nil,
-						},
-						HandlersValue: nil,
+			Expect(apps).To(ConsistOf(
+				&entity.Application{
+					IdentityValue: configkit.Identity{
+						Name: "<app-first>",
+						Key:  "4fec74a1-6ed4-46f4-8417-01e0910be8f1",
 					},
-					&entity.Application{
-						IdentityValue: configkit.Identity{
-							Name: "<app-second>",
-							Key:  "6e97d403-3cb8-4a59-a7ec-74e8e219a7bc",
-						},
-						TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/apps/multiple-apps-in-single-pkg/apps.AppSecond",
-						MessageNamesValue: configkit.EntityMessageNames{
-							Produced: nil,
-							Consumed: nil,
-						},
-						HandlersValue: nil,
+					TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/apps/multiple-apps-in-single-pkg/apps.AppFirst",
+					MessageNamesValue: configkit.EntityMessageNames{
+						Produced: nil,
+						Consumed: nil,
 					},
+					HandlersValue: nil,
+				},
+				&entity.Application{
+					IdentityValue: configkit.Identity{
+						Name: "<app-second>",
+						Key:  "6e97d403-3cb8-4a59-a7ec-74e8e219a7bc",
+					},
+					TypeNameValue: "github.com/dogmatiq/configkit/internal/static/testdata/apps/multiple-apps-in-single-pkg/apps.AppSecond",
+					MessageNamesValue: configkit.EntityMessageNames{
+						Produced: nil,
+						Consumed: nil,
+					},
+					HandlersValue: nil,
 				},
 			))
 		})
@@ -139,20 +133,18 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 
 			apps := FromPackages(pkgs)
 
-			Expect(apps).To(Equal(
-				[]configkit.Application{
-					&entity.Application{
-						IdentityValue: configkit.Identity{
-							Name: "<app>",
-							Key:  "b754902b-47c8-48fc-84d2-d920c9cbdaec",
-						},
-						TypeNameValue: "*github.com/dogmatiq/configkit/internal/static/testdata/apps/pointer-receiver-app.App",
-						MessageNamesValue: configkit.EntityMessageNames{
-							Produced: nil,
-							Consumed: nil,
-						},
-						HandlersValue: nil,
+			Expect(apps).To(ConsistOf(
+				&entity.Application{
+					IdentityValue: configkit.Identity{
+						Name: "<app>",
+						Key:  "b754902b-47c8-48fc-84d2-d920c9cbdaec",
 					},
+					TypeNameValue: "*github.com/dogmatiq/configkit/internal/static/testdata/apps/pointer-receiver-app.App",
+					MessageNamesValue: configkit.EntityMessageNames{
+						Produced: nil,
+						Consumed: nil,
+					},
+					HandlersValue: nil,
 				},
 			))
 		})
