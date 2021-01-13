@@ -8,8 +8,7 @@ type App struct {
 	Key  string
 }
 
-// Configure configures the behavior of the engine as it relates to this
-// application.
+// Configure sets the application identity using non-constant expressions.
 func (a App) Configure(c dogma.ApplicationConfigurer) {
 	c.Identity(a.Name, a.Name)
 }
