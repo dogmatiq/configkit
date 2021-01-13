@@ -26,35 +26,35 @@ func analyzeApplication(m ssa.Member, typ types.Type) *entity.Application {
 		"Configure",
 	)
 
-	// Since .Configure() is a method, the first parameter is the receiver, so
-	// the second parameter is the `dogma.ApplicationConfigurer`.
-	configurer := fn.Params[1]
-
-	for _, c := range filterCalls(fn) {
-		// Check if we are calling the methods on the configurer.
-		if c.Common().Value.Name() == configurer.Name() {
-			switch c.Common().Method.Name() {
-			case "Identity":
-				app.IdentityValue = parseIdentity(c)
-			}
+	for _, c := range findConfigurerCalls(fn) {
+		switch c.Common().Method.Name() {
+		case "Identity":
+			app.IdentityValue = parseIdentity(c)
 		}
 	}
 
 	return app
 }
 
-// filterCalls filters and returns all function/method call instructions within
-// the given function.
-func filterCalls(fn *ssa.Function) (calls []*ssa.Call) {
+// findConfigurerCalls returns all of the calls to methods on the Dogma
+// application or handler "configurer" within the given function.
+func findConfigurerCalls(fn *ssa.Function) []*ssa.Call {
+	// Since fn is expected to be a method, the first parameter is the receiver,
+	// so the second parameter is the configurer itself.
+	configurer := fn.Params[1]
+
+	var calls []*ssa.Call
+
 	for _, b := range fn.Blocks {
 		for _, i := range b.Instrs {
-			if c, ok := i.(*ssa.Call); ok {
+			if c, ok := i.(*ssa.Call); ok &&
+				c.Common().Value.Name() == configurer.Name() {
 				calls = append(calls, c)
 			}
 		}
 	}
 
-	return
+	return calls
 }
 
 // parseIdentity parses arguments passed to the .Identity() method.
