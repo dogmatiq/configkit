@@ -14,8 +14,14 @@ const (
 	dogmaPkgPath = "github.com/dogmatiq/dogma"
 )
 
-// FromPackages loads the list of configkit.Application from the given list
-// of packages.Package items.
+// FromPackages returns the configurations of the Dogma applications implemented
+// within a set of packages.
+//
+// It performs a static analysis to produce the configurations. The returned
+// configurations may be invalid if portions of the application's configuration
+// can not be deduced statically.
+//
+// It ignores packages that can not be built.
 func FromPackages(pkgs []*packages.Package) []configkit.Application {
 	prog, packages := ssautil.AllPackages(pkgs, ssa.SanityCheckFunctions)
 	prog.Build()

@@ -26,9 +26,8 @@ func parse(m ssa.Member, typ types.Type) *entity.Application {
 		"Configure",
 	)
 
-	// Since `.Configure()` is the method, the first parameter is the receiver,
-	// so we need to extract the second paramenter as
-	// `dogma.ApplicationConfigurer`
+	// Since .Configure() is a method, the first parameter is the receiver, so
+	// the second parameter is the `dogma.ApplicationConfigurer`.
 	configurer := fn.Params[1]
 
 	for _, c := range filterCalls(fn) {
