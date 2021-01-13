@@ -32,18 +32,21 @@ func FromPackages(pkgs []*packages.Package) []configkit.Application {
 
 	for _, pkg := range packages {
 		if pkg == nil {
+			// Any packages.Package that can not be built results in a nil
+			// ssa.Package. We ignore any such packages so that we can still
+			// obtain information about applications from any valid packages.
 			continue
 		}
 
 		for _, m := range pkg.Members {
-			// NOTE: the sequence of the if-blocks below is important as the
-			// value of a type implements the interface only if the
-			// interface-implementing methods have value receiver. Hence is the
-			// implementation check for the type value is positioned first.
+			// The sequence of the if-blocks below is important as a type
+			// implements an interface only if the methods in the interface's
+			// method set have non-pointer receivers. Hence the implementation
+			// check for the "raw" (non-pointer) type is made first.
 			//
 			// A pointer to the type, on the other hand, implements the
-			// interface in both cases: when interface-implementing methods have
-			// value or pointer receiver.
+			// interface regardless of whether pointer receivers are used or
+			// not.
 			if types.Implements(m.Type(), iface) {
 				apps = append(apps, parse(m, m.Type()))
 				continue
