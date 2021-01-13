@@ -10,8 +10,8 @@ import (
 	"golang.org/x/tools/go/ssa"
 )
 
-// parse parses the member of the package and populates it into
-// entity.Application.
+// analyzeApplication analyzes the member of the package and populates the
+// collected datainto entity.Application.
 //
 // The second parameter is the type that actually implements
 // github.com/dogmatiq/dogma.Application interface.
