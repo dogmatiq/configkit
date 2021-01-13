@@ -12,7 +12,8 @@ const (
 // App implements dogma.Application interface.
 type App struct{}
 
-// Configure sets the application identity using non-literal constant expressions.
+// Configure sets the application identity using non-literal constant
+// expressions.
 func (App) Configure(c dogma.ApplicationConfigurer) {
 	c.Identity(AppName, AppKey)
 }
