@@ -54,12 +54,12 @@ func FromPackages(pkgs []*packages.Package) []configkit.Application {
 			// interface regardless of whether pointer receivers are used or
 			// not.
 			if types.Implements(m.Type(), iface) {
-				apps = append(apps, analyzeApplication(m, m.Type()))
+				apps = append(apps, analyzeApplication(m.Package(), m.Type()))
 				continue
 			}
 
 			if p := types.NewPointer(m.Type()); types.Implements(p, iface) {
-				apps = append(apps, analyzeApplication(m, p))
+				apps = append(apps, analyzeApplication(m.Package(), p))
 			}
 		}
 	}
