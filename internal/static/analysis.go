@@ -55,8 +55,11 @@ func findConfigurerCalls(fn *ssa.Function) []*ssa.Call {
 	return calls
 }
 
-// parseIdentity parses arguments passed to the .Identity() method.
-func parseIdentity(c *ssa.Call) (ident configkit.Identity) {
+// analyzeIdentityCall analyzes the arguments passed to the .Identity() method
+// call and populates the application's or handler's identity.
+func analyzeIdentityCall(c *ssa.Call) configkit.Identity {
+	var ident configkit.Identity
+
 	if c1, ok := c.Call.Args[0].(*ssa.Const); ok {
 		ident.Name = constant.StringVal(c1.Value)
 	}
@@ -65,5 +68,5 @@ func parseIdentity(c *ssa.Call) (ident configkit.Identity) {
 		ident.Key = constant.StringVal(c2.Value)
 	}
 
-	return
+	return ident
 }
