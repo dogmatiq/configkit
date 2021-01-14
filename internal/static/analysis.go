@@ -10,26 +10,24 @@ import (
 	"golang.org/x/tools/go/ssa"
 )
 
-// analyzeApplication analyzes the member of the package and populates the
-// collected datainto entity.Application.
-//
-// The second parameter is the type that actually implements
-// github.com/dogmatiq/dogma.Application interface.
-func analyzeApplication(m ssa.Member, typ types.Type) *entity.Application {
+// analyzeApplication analyzes the type that implements
+// github.com/dogmatiq/dogma.Application interface and populates the collected
+// data into the entity.Application type.
+func analyzeApplication(pkg *ssa.Package, typ types.Type) *entity.Application {
 	app := &entity.Application{
 		TypeNameValue: gotypes.NameOf(typ),
 	}
 
-	fn := m.Package().Prog.LookupMethod(
+	fn := pkg.Prog.LookupMethod(
 		typ,
-		m.Package().Pkg,
+		pkg.Pkg,
 		"Configure",
 	)
 
 	for _, c := range findConfigurerCalls(fn) {
 		switch c.Common().Method.Name() {
 		case "Identity":
-			app.IdentityValue = parseIdentity(c)
+			app.IdentityValue = analyzeIdentityCall(c)
 		}
 	}
 
