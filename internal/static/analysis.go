@@ -10,10 +10,9 @@ import (
 	"golang.org/x/tools/go/ssa"
 )
 
-// analyzeApplication analyzes the type that implements
-// github.com/dogmatiq/dogma.Application interface and populates the collected
-// data into the entity.Application type.
-func analyzeApplication(pkg *ssa.Package, typ types.Type) *entity.Application {
+// analyzeApplication analyzes a type that implements the dogma.Application
+// interface to deduce it's application configuration.
+func analyzeApplication(pkg *ssa.Package, typ types.Type) configkit.Application {
 	app := &entity.Application{
 		TypeNameValue: gotypes.NameOf(typ),
 	}
@@ -55,8 +54,8 @@ func findConfigurerCalls(fn *ssa.Function) []*ssa.Call {
 	return calls
 }
 
-// analyzeIdentityCall analyzes the arguments passed to the .Identity() method
-// call and populates the application's or handler's identity.
+// analyzeIdentityCall analyzes the arguments in a call to a configurer's
+// Identity() method to determine the application's or handler's identity.
 func analyzeIdentityCall(c *ssa.Call) configkit.Identity {
 	var ident configkit.Identity
 
