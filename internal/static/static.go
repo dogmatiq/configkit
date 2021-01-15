@@ -28,8 +28,9 @@ func FromPackages(pkgs []*packages.Package) []configkit.Application {
 
 	dogmaPkg := prog.ImportedPackage(dogmaPkgPath)
 	if dogmaPkg == nil {
-		// If Dogma package is not found as an import, none of the packages in
-		// the built application implement dogma.Application interface.
+		// If the dogma package is not found as an import, none of the packages
+		// can possibly have types that implement dogma.Application because
+		// doing so requires referring to the dogma.ApplicationConfigurer type.
 		return nil
 	}
 
