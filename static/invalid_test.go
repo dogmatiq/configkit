@@ -1,7 +1,7 @@
 package static_test
 
 import (
-	. "github.com/dogmatiq/configkit/internal/static"
+	. "github.com/dogmatiq/configkit/static"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"golang.org/x/tools/go/packages"
