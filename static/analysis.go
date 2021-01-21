@@ -1,6 +1,7 @@
 package static
 
 import (
+	"fmt"
 	"go/constant"
 	"go/types"
 
@@ -12,16 +13,14 @@ import (
 
 // analyzeApplication analyzes a type that implements the dogma.Application
 // interface to deduce it's application configuration.
-func analyzeApplication(pkg *ssa.Package, typ types.Type) configkit.Application {
+func analyzeApplication(prog *ssa.Program, typ types.Type) configkit.Application {
 	app := &entity.Application{
 		TypeNameValue: gotypes.NameOf(typ),
+		HandlersValue: configkit.HandlerSet{},
 	}
 
-	fn := pkg.Prog.LookupMethod(
-		typ,
-		pkg.Pkg,
-		"Configure",
-	)
+	pkg := getTypePkg(typ)
+	fn := prog.LookupMethod(typ, pkg, "Configure")
 
 	for _, c := range findConfigurerCalls(fn) {
 		switch c.Common().Method.Name() {
@@ -68,4 +67,16 @@ func analyzeIdentityCall(c *ssa.Call) configkit.Identity {
 	}
 
 	return ident
+}
+
+// getTypePkg returns a package from the given type.
+func getTypePkg(typ types.Type) *types.Package {
+	switch t := typ.(type) {
+	case *types.Named:
+		return t.Obj().Pkg()
+	case *types.Pointer:
+		return t.Elem().(*types.Named).Obj().Pkg()
+	default:
+		panic(fmt.Sprintf("cannot analyze package for type %v", typ))
+	}
 }
