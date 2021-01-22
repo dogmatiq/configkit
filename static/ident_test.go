@@ -33,7 +33,7 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 						Produced: nil,
 						Consumed: nil,
 					},
-					HandlersValue: nil,
+					HandlersValue: configkit.HandlerSet{},
 				},
 			))
 		})
@@ -62,7 +62,7 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 						Produced: nil,
 						Consumed: nil,
 					},
-					HandlersValue: nil,
+					HandlersValue: configkit.HandlerSet{},
 				},
 			))
 		})
@@ -91,7 +91,7 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 						Produced: nil,
 						Consumed: nil,
 					},
-					HandlersValue: nil,
+					HandlersValue: configkit.HandlerSet{},
 				},
 			))
 		})
