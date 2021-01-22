@@ -33,7 +33,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 						Produced: nil,
 						Consumed: nil,
 					},
-					HandlersValue: nil,
+					HandlersValue: configkit.HandlerSet{},
 				},
 			))
 		})
@@ -62,7 +62,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 						Produced: nil,
 						Consumed: nil,
 					},
-					HandlersValue: nil,
+					HandlersValue: configkit.HandlerSet{},
 				},
 				&entity.Application{
 					IdentityValue: configkit.Identity{
@@ -74,7 +74,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 						Produced: nil,
 						Consumed: nil,
 					},
-					HandlersValue: nil,
+					HandlersValue: configkit.HandlerSet{},
 				},
 			))
 		})
@@ -103,7 +103,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 						Produced: nil,
 						Consumed: nil,
 					},
-					HandlersValue: nil,
+					HandlersValue: configkit.HandlerSet{},
 				},
 				&entity.Application{
 					IdentityValue: configkit.Identity{
@@ -115,7 +115,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 						Produced: nil,
 						Consumed: nil,
 					},
-					HandlersValue: nil,
+					HandlersValue: configkit.HandlerSet{},
 				},
 			))
 		})
@@ -144,7 +144,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 						Produced: nil,
 						Consumed: nil,
 					},
-					HandlersValue: nil,
+					HandlersValue: configkit.HandlerSet{},
 				},
 			))
 		})
