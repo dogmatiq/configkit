@@ -8,24 +8,36 @@ import (
 	"github.com/dogmatiq/configkit"
 	"github.com/dogmatiq/configkit/internal/entity"
 	"github.com/dogmatiq/configkit/internal/typename/gotypes"
+	"github.com/dogmatiq/configkit/message"
 	"golang.org/x/tools/go/ssa"
 )
 
 // analyzeApplication analyzes a type that implements the dogma.Application
-// interface to deduce it's application configuration.
+// interface to deduce its application configuration.
 func analyzeApplication(prog *ssa.Program, typ types.Type) configkit.Application {
 	app := &entity.Application{
-		TypeNameValue: gotypes.NameOf(typ),
-		HandlersValue: configkit.HandlerSet{},
+		TypeNameValue:     gotypes.NameOf(typ),
+		HandlersValue:     configkit.HandlerSet{},
+		MessageNamesValue: configkit.EntityMessageNames{},
 	}
 
 	pkg := getTypePkg(typ)
 	fn := prog.LookupMethod(typ, pkg, "Configure")
 
 	for _, c := range findConfigurerCalls(fn) {
+		args := c.Common().Args
+
 		switch c.Common().Method.Name() {
 		case "Identity":
 			app.IdentityValue = analyzeIdentityCall(c)
+		case "RegisterAggregate":
+			app.HandlersValue.Add(
+				analyzeHandler(
+					prog,
+					args[0].(*ssa.MakeInterface).X.Type(),
+					configkit.AggregateHandlerType,
+				),
+			)
 		}
 	}
 
@@ -67,6 +79,54 @@ func analyzeIdentityCall(c *ssa.Call) configkit.Identity {
 	}
 
 	return ident
+}
+
+// analyzeHandler analyzes the application's handler from the given type to
+// deduce its handler configuration.
+//
+// It is assumed that the caller knows what type this handler is and passes
+// handler's type through ht parameter.
+func analyzeHandler(
+	prog *ssa.Program,
+	typ types.Type,
+	ht configkit.HandlerType,
+) configkit.Handler {
+	hdr := &entity.Handler{
+		HandlerTypeValue: ht,
+		TypeNameValue:    typ.String(),
+		MessageNamesValue: configkit.EntityMessageNames{
+			Produced: message.NameRoles{},
+			Consumed: message.NameRoles{},
+		},
+	}
+
+	pkg := getTypePkg(typ)
+	fn := prog.LookupMethod(typ, pkg, "Configure")
+
+	for _, c := range findConfigurerCalls(fn) {
+		args := c.Common().Args
+
+		switch c.Common().Method.Name() {
+		case "Identity":
+			hdr.IdentityValue = analyzeIdentityCall(c)
+		case "ConsumesCommandType":
+			hdr.MessageNamesValue.Produced.Add(
+				message.NameFromType(
+					args[0].(*ssa.MakeInterface).X.Type(),
+				),
+				message.CommandRole,
+			)
+		case "ProducesEventType":
+			hdr.MessageNamesValue.Consumed.Add(
+				message.NameFromType(
+					args[0].(*ssa.MakeInterface).X.Type(),
+				),
+				message.EventRole,
+			)
+		}
+	}
+
+	return hdr
 }
 
 // getTypePkg returns a package from the given type.
