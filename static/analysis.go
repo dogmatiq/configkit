@@ -21,7 +21,7 @@ func analyzeApplication(prog *ssa.Program, typ types.Type) configkit.Application
 		MessageNamesValue: configkit.EntityMessageNames{},
 	}
 
-	pkg := getTypePkg(typ)
+	pkg := pkgOfNamedType(typ)
 	fn := prog.LookupMethod(typ, pkg, "Configure")
 
 	for _, c := range findConfigurerCalls(fn) {
@@ -97,7 +97,7 @@ func analyzeHandler(
 		},
 	}
 
-	pkg := getTypePkg(typ)
+	pkg := pkgOfNamedType(typ)
 	fn := prog.LookupMethod(typ, pkg, "Configure")
 
 	for _, c := range findConfigurerCalls(fn) {
