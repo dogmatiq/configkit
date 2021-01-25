@@ -81,11 +81,8 @@ func analyzeIdentityCall(c *ssa.Call) configkit.Identity {
 	return ident
 }
 
-// analyzeHandler analyzes the application's handler from the given type to
-// deduce its handler configuration.
-//
-// It is assumed that the caller knows what type this handler is and passes
-// handler's type through ht parameter.
+// analyzeHandler analyzes a type that implements one of the Dogma handler
+// interfaces to deduce its handler configuration.
 func analyzeHandler(
 	prog *ssa.Program,
 	typ types.Type,
@@ -129,14 +126,16 @@ func analyzeHandler(
 	return hdr
 }
 
-// getTypePkg returns a package from the given type.
-func getTypePkg(typ types.Type) *types.Package {
+// pkgOfNamedType returns the package in which typ is declared.
+//
+// It panics if typ is not a named type or a pointer to a named type.
+func pkgOfNamedType(typ types.Type) *types.Package {
 	switch t := typ.(type) {
 	case *types.Named:
 		return t.Obj().Pkg()
 	case *types.Pointer:
-		return t.Elem().(*types.Named).Obj().Pkg()
+		return pkgOfNamedType(t.Elem())
 	default:
-		panic(fmt.Sprintf("cannot analyze package for type %v", typ))
+		panic(fmt.Sprintf("cannot determine package for anonymous or built-in type %v", typ))
 	}
 }
