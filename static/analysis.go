@@ -107,14 +107,14 @@ func analyzeHandler(
 		case "Identity":
 			hdr.IdentityValue = analyzeIdentityCall(c)
 		case "ConsumesCommandType":
-			hdr.MessageNamesValue.Produced.Add(
+			hdr.MessageNamesValue.Consumed.Add(
 				message.NameFromType(
 					args[0].(*ssa.MakeInterface).X.Type(),
 				),
 				message.CommandRole,
 			)
 		case "ProducesEventType":
-			hdr.MessageNamesValue.Consumed.Add(
+			hdr.MessageNamesValue.Produced.Add(
 				message.NameFromType(
 					args[0].(*ssa.MakeInterface).X.Type(),
 				),
