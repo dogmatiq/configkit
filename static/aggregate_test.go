@@ -54,12 +54,12 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 											"github.com/dogmatiq/configkit/static/testdata/aggregates/single-aggregate-app.AggregateHandler",
 										),
 										"MessageNamesValue": MatchAllFields(Fields{
-											"Produced": MatchAllKeys(Keys{
+											"Consumed": MatchAllKeys(Keys{
 												message.NameOf(fixtures.MessageA{}): Equal(message.CommandRole),
 												message.NameOf(fixtures.MessageB{}): Equal(message.CommandRole),
 												message.NameOf(fixtures.MessageC{}): Equal(message.CommandRole),
 											}),
-											"Consumed": MatchAllKeys(Keys{
+											"Produced": MatchAllKeys(Keys{
 												message.NameOf(fixtures.MessageD{}): Equal(message.EventRole),
 												message.NameOf(fixtures.MessageE{}): Equal(message.EventRole),
 												message.NameOf(fixtures.MessageF{}): Equal(message.EventRole),
@@ -118,12 +118,12 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 											"github.com/dogmatiq/configkit/static/testdata/aggregates/multiple-aggregate-app.FirstAggregateHandler",
 										),
 										"MessageNamesValue": MatchAllFields(Fields{
-											"Produced": MatchAllKeys(Keys{
+											"Consumed": MatchAllKeys(Keys{
 												message.NameOf(fixtures.MessageA{}): Equal(message.CommandRole),
 												message.NameOf(fixtures.MessageB{}): Equal(message.CommandRole),
 												message.NameOf(fixtures.MessageC{}): Equal(message.CommandRole),
 											}),
-											"Consumed": MatchAllKeys(Keys{
+											"Produced": MatchAllKeys(Keys{
 												message.NameOf(fixtures.MessageD{}): Equal(message.EventRole),
 												message.NameOf(fixtures.MessageE{}): Equal(message.EventRole),
 												message.NameOf(fixtures.MessageF{}): Equal(message.EventRole),
@@ -147,12 +147,12 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 											"github.com/dogmatiq/configkit/static/testdata/aggregates/multiple-aggregate-app.SecondAggregateHandler",
 										),
 										"MessageNamesValue": MatchAllFields(Fields{
-											"Produced": MatchAllKeys(Keys{
+											"Consumed": MatchAllKeys(Keys{
 												message.NameOf(fixtures.MessageG{}): Equal(message.CommandRole),
 												message.NameOf(fixtures.MessageH{}): Equal(message.CommandRole),
 												message.NameOf(fixtures.MessageI{}): Equal(message.CommandRole),
 											}),
-											"Consumed": MatchAllKeys(Keys{
+											"Produced": MatchAllKeys(Keys{
 												message.NameOf(fixtures.MessageJ{}): Equal(message.EventRole),
 												message.NameOf(fixtures.MessageK{}): Equal(message.EventRole),
 												message.NameOf(fixtures.MessageL{}): Equal(message.EventRole),
