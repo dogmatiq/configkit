@@ -2,6 +2,7 @@ package static_test
 
 import (
 	"github.com/dogmatiq/configkit"
+	"github.com/dogmatiq/configkit/internal/entity"
 	"github.com/dogmatiq/configkit/message"
 	. "github.com/dogmatiq/configkit/static"
 	"github.com/dogmatiq/dogma/fixtures"
@@ -156,6 +157,96 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 												message.NameOf(fixtures.MessageJ{}): Equal(message.EventRole),
 												message.NameOf(fixtures.MessageK{}): Equal(message.EventRole),
 												message.NameOf(fixtures.MessageL{}): Equal(message.EventRole),
+											}),
+										}),
+										"HandlerTypeValue": Equal(configkit.AggregateHandlerType),
+									}),
+								),
+							}),
+						}),
+					),
+				),
+			)
+		})
+	})
+
+	When("a nil value passed as an aggregate handler", func() {
+		It("does not returns the aggregate handler configuration", func() {
+			cfg := packages.Config{
+				Mode: packages.LoadAllSyntax,
+				Dir:  "testdata/aggregates/nil-aggregate-app",
+			}
+
+			pkgs, err := packages.Load(&cfg, "./...")
+			Expect(err).NotTo(HaveOccurred())
+
+			apps := FromPackages(pkgs)
+			Expect(apps).To(ConsistOf(
+				&entity.Application{
+					IdentityValue: configkit.Identity{
+						Name: "<nil-aggregate-app>",
+						Key:  "250738eb-7728-4414-a850-1afefb04dbb4",
+					},
+					TypeNameValue: "github.com/dogmatiq/configkit/static/testdata/aggregates/nil-aggregate-app.App",
+					MessageNamesValue: configkit.EntityMessageNames{
+						Produced: nil,
+						Consumed: nil,
+					},
+					HandlersValue: configkit.HandlerSet{},
+				},
+			))
+		})
+	})
+
+	When("a nil value passed as a message while configuring an aggregate handler", func() {
+		It("skips the nil value message", func() {
+			cfg := packages.Config{
+				Mode: packages.LoadAllSyntax,
+				Dir:  "testdata/aggregates/nil-message-aggregate-app",
+			}
+
+			pkgs, err := packages.Load(&cfg, "./...")
+			Expect(err).NotTo(HaveOccurred())
+
+			apps := FromPackages(pkgs)
+
+			Expect(apps).To(
+				ConsistOf(
+					PointTo(
+						MatchAllFields(Fields{
+							"IdentityValue": Equal(
+								configkit.Identity{
+									Name: "<nil-message-aggregate-app>",
+									Key:  "77199eb1-c893-4151-aab8-5088f6db4ea6",
+								},
+							),
+							"TypeNameValue": Equal(
+								"github.com/dogmatiq/configkit/static/testdata/aggregates/nil-message-aggregate-app.App",
+							),
+							"MessageNamesValue": Equal(configkit.EntityMessageNames{}),
+							"HandlersValue": MatchAllKeys(Keys{
+								configkit.Identity{
+									Name: "<nil-message-aggregate>",
+									Key:  "99271492-1ec3-475f-b154-3e69cda11155",
+								}: PointTo(
+									MatchAllFields(Fields{
+										"IdentityValue": Equal(
+											configkit.Identity{
+												Name: "<nil-message-aggregate>",
+												Key:  "99271492-1ec3-475f-b154-3e69cda11155",
+											},
+										),
+										"TypeNameValue": Equal(
+											"github.com/dogmatiq/configkit/static/testdata/aggregates/nil-message-aggregate-app.AggregateHandler",
+										),
+										"MessageNamesValue": MatchAllFields(Fields{
+											"Consumed": MatchAllKeys(Keys{
+												message.NameOf(fixtures.MessageA{}): Equal(message.CommandRole),
+												message.NameOf(fixtures.MessageB{}): Equal(message.CommandRole),
+											}),
+											"Produced": MatchAllKeys(Keys{
+												message.NameOf(fixtures.MessageD{}): Equal(message.EventRole),
+												message.NameOf(fixtures.MessageE{}): Equal(message.EventRole),
 											}),
 										}),
 										"HandlerTypeValue": Equal(configkit.AggregateHandlerType),

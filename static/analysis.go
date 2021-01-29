@@ -31,13 +31,15 @@ func analyzeApplication(prog *ssa.Program, typ types.Type) configkit.Application
 		case "Identity":
 			app.IdentityValue = analyzeIdentityCall(c)
 		case "RegisterAggregate":
-			app.HandlersValue.Add(
-				analyzeHandler(
-					prog,
-					args[0].(*ssa.MakeInterface).X.Type(),
-					configkit.AggregateHandlerType,
-				),
-			)
+			if mi, ok := args[0].(*ssa.MakeInterface); ok {
+				app.HandlersValue.Add(
+					analyzeHandler(
+						prog,
+						mi.X.Type(),
+						configkit.AggregateHandlerType,
+					),
+				)
+			}
 		}
 	}
 
@@ -107,19 +109,23 @@ func analyzeHandler(
 		case "Identity":
 			hdr.IdentityValue = analyzeIdentityCall(c)
 		case "ConsumesCommandType":
-			hdr.MessageNamesValue.Consumed.Add(
-				message.NameFromType(
-					args[0].(*ssa.MakeInterface).X.Type(),
-				),
-				message.CommandRole,
-			)
+			if mi, ok := args[0].(*ssa.MakeInterface); ok {
+				hdr.MessageNamesValue.Consumed.Add(
+					message.NameFromType(
+						mi.X.Type(),
+					),
+					message.CommandRole,
+				)
+			}
 		case "ProducesEventType":
-			hdr.MessageNamesValue.Produced.Add(
-				message.NameFromType(
-					args[0].(*ssa.MakeInterface).X.Type(),
-				),
-				message.EventRole,
-			)
+			if mi, ok := args[0].(*ssa.MakeInterface); ok {
+				hdr.MessageNamesValue.Produced.Add(
+					message.NameFromType(
+						mi.X.Type(),
+					),
+					message.EventRole,
+				)
+			}
 		}
 	}
 
