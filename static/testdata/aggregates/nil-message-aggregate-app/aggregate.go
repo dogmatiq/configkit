@@ -26,11 +26,9 @@ func (AggregateHandler) Configure(c dogma.AggregateConfigurer) {
 	c.Identity("<nil-message-aggregate>", "99271492-1ec3-475f-b154-3e69cda11155")
 
 	c.ConsumesCommandType(fixtures.MessageA{})
-	c.ConsumesCommandType(fixtures.MessageB{})
 	c.ConsumesCommandType(nil)
 
-	c.ProducesEventType(fixtures.MessageD{})
-	c.ProducesEventType(fixtures.MessageE{})
+	c.ProducesEventType(fixtures.MessageB{})
 	c.ProducesEventType(nil)
 }
 

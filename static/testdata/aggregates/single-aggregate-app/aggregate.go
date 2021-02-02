@@ -27,11 +27,9 @@ func (AggregateHandler) Configure(c dogma.AggregateConfigurer) {
 
 	c.ConsumesCommandType(fixtures.MessageA{})
 	c.ConsumesCommandType(fixtures.MessageB{})
-	c.ConsumesCommandType(fixtures.MessageC{})
 
+	c.ProducesEventType(fixtures.MessageC{})
 	c.ProducesEventType(fixtures.MessageD{})
-	c.ProducesEventType(fixtures.MessageE{})
-	c.ProducesEventType(fixtures.MessageF{})
 }
 
 // RouteCommandToInstance returns the ID of the aggregate instance that is
