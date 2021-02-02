@@ -26,12 +26,8 @@ func (FirstAggregateHandler) Configure(c dogma.AggregateConfigurer) {
 	c.Identity("<first-aggregate>", "e6300d8d-6530-405e-9729-e9ca21df23d3")
 
 	c.ConsumesCommandType(fixtures.MessageA{})
-	c.ConsumesCommandType(fixtures.MessageB{})
-	c.ConsumesCommandType(fixtures.MessageC{})
 
-	c.ProducesEventType(fixtures.MessageD{})
-	c.ProducesEventType(fixtures.MessageE{})
-	c.ProducesEventType(fixtures.MessageF{})
+	c.ProducesEventType(fixtures.MessageB{})
 }
 
 // RouteCommandToInstance returns the ID of the aggregate instance that is

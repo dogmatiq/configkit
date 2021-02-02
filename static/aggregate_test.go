@@ -58,12 +58,10 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 											"Consumed": MatchAllKeys(Keys{
 												message.NameOf(fixtures.MessageA{}): Equal(message.CommandRole),
 												message.NameOf(fixtures.MessageB{}): Equal(message.CommandRole),
-												message.NameOf(fixtures.MessageC{}): Equal(message.CommandRole),
 											}),
 											"Produced": MatchAllKeys(Keys{
+												message.NameOf(fixtures.MessageC{}): Equal(message.EventRole),
 												message.NameOf(fixtures.MessageD{}): Equal(message.EventRole),
-												message.NameOf(fixtures.MessageE{}): Equal(message.EventRole),
-												message.NameOf(fixtures.MessageF{}): Equal(message.EventRole),
 											}),
 										}),
 										"HandlerTypeValue": Equal(configkit.AggregateHandlerType),
@@ -121,13 +119,9 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 										"MessageNamesValue": MatchAllFields(Fields{
 											"Consumed": MatchAllKeys(Keys{
 												message.NameOf(fixtures.MessageA{}): Equal(message.CommandRole),
-												message.NameOf(fixtures.MessageB{}): Equal(message.CommandRole),
-												message.NameOf(fixtures.MessageC{}): Equal(message.CommandRole),
 											}),
 											"Produced": MatchAllKeys(Keys{
-												message.NameOf(fixtures.MessageD{}): Equal(message.EventRole),
-												message.NameOf(fixtures.MessageE{}): Equal(message.EventRole),
-												message.NameOf(fixtures.MessageF{}): Equal(message.EventRole),
+												message.NameOf(fixtures.MessageB{}): Equal(message.EventRole),
 											}),
 										}),
 										"HandlerTypeValue": Equal(configkit.AggregateHandlerType),
@@ -149,14 +143,10 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 										),
 										"MessageNamesValue": MatchAllFields(Fields{
 											"Consumed": MatchAllKeys(Keys{
-												message.NameOf(fixtures.MessageG{}): Equal(message.CommandRole),
-												message.NameOf(fixtures.MessageH{}): Equal(message.CommandRole),
-												message.NameOf(fixtures.MessageI{}): Equal(message.CommandRole),
+												message.NameOf(fixtures.MessageC{}): Equal(message.CommandRole),
 											}),
 											"Produced": MatchAllKeys(Keys{
-												message.NameOf(fixtures.MessageJ{}): Equal(message.EventRole),
-												message.NameOf(fixtures.MessageK{}): Equal(message.EventRole),
-												message.NameOf(fixtures.MessageL{}): Equal(message.EventRole),
+												message.NameOf(fixtures.MessageD{}): Equal(message.EventRole),
 											}),
 										}),
 										"HandlerTypeValue": Equal(configkit.AggregateHandlerType),
@@ -242,11 +232,9 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 										"MessageNamesValue": MatchAllFields(Fields{
 											"Consumed": MatchAllKeys(Keys{
 												message.NameOf(fixtures.MessageA{}): Equal(message.CommandRole),
-												message.NameOf(fixtures.MessageB{}): Equal(message.CommandRole),
 											}),
 											"Produced": MatchAllKeys(Keys{
-												message.NameOf(fixtures.MessageD{}): Equal(message.EventRole),
-												message.NameOf(fixtures.MessageE{}): Equal(message.EventRole),
+												message.NameOf(fixtures.MessageB{}): Equal(message.EventRole),
 											}),
 										}),
 										"HandlerTypeValue": Equal(configkit.AggregateHandlerType),
