@@ -2,9 +2,9 @@ package static_test
 
 import (
 	"github.com/dogmatiq/configkit"
+	cfixtures "github.com/dogmatiq/configkit/fixtures"
 	"github.com/dogmatiq/configkit/message"
 	. "github.com/dogmatiq/configkit/static"
-	"github.com/dogmatiq/dogma/fixtures"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"golang.org/x/tools/go/packages"
@@ -40,22 +40,19 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 				),
 			)
 			Expect(a.HandlerType()).To(Equal(configkit.AggregateHandlerType))
-			Expect(
-				a.MessageNames().Consumed.IsEqual(
-					message.NameRoles{
-						message.NameOf(fixtures.MessageA{}): message.CommandRole,
-						message.NameOf(fixtures.MessageB{}): message.CommandRole,
+
+			Expect(a.MessageNames()).To(Equal(
+				configkit.EntityMessageNames{
+					Consumed: message.NameRoles{
+						cfixtures.MessageATypeName: message.CommandRole,
+						cfixtures.MessageBTypeName: message.CommandRole,
 					},
-				),
-			).To(BeTrue())
-			Expect(
-				a.MessageNames().Produced.IsEqual(
-					message.NameRoles{
-						message.NameOf(fixtures.MessageC{}): message.EventRole,
-						message.NameOf(fixtures.MessageD{}): message.EventRole,
+					Produced: message.NameRoles{
+						cfixtures.MessageCTypeName: message.EventRole,
+						cfixtures.MessageDTypeName: message.EventRole,
 					},
-				),
-			).To(BeTrue())
+				},
+			))
 		})
 	})
 
@@ -88,20 +85,16 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 				),
 			)
 			Expect(a1.HandlerType()).To(Equal(configkit.AggregateHandlerType))
-			Expect(
-				a1.MessageNames().Consumed.IsEqual(
-					message.NameRoles{
-						message.NameOf(fixtures.MessageA{}): message.CommandRole,
+			Expect(a1.MessageNames()).To(Equal(
+				configkit.EntityMessageNames{
+					Consumed: message.NameRoles{
+						cfixtures.MessageATypeName: message.CommandRole,
 					},
-				),
-			).To(BeTrue())
-			Expect(
-				a1.MessageNames().Produced.IsEqual(
-					message.NameRoles{
-						message.NameOf(fixtures.MessageB{}): message.EventRole,
+					Produced: message.NameRoles{
+						cfixtures.MessageBTypeName: message.EventRole,
 					},
-				),
-			).To(BeTrue())
+				},
+			))
 
 			a2 := apps[0].Handlers().Aggregates()[1]
 			Expect(a2.Identity()).To(
@@ -118,20 +111,16 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 				),
 			)
 			Expect(a2.HandlerType()).To(Equal(configkit.AggregateHandlerType))
-			Expect(
-				a2.MessageNames().Consumed.IsEqual(
-					message.NameRoles{
-						message.NameOf(fixtures.MessageC{}): message.CommandRole,
+			Expect(a2.MessageNames()).To(Equal(
+				configkit.EntityMessageNames{
+					Consumed: message.NameRoles{
+						cfixtures.MessageCTypeName: message.CommandRole,
 					},
-				),
-			).To(BeTrue())
-			Expect(
-				a2.MessageNames().Produced.IsEqual(
-					message.NameRoles{
-						message.NameOf(fixtures.MessageD{}): message.EventRole,
+					Produced: message.NameRoles{
+						cfixtures.MessageDTypeName: message.EventRole,
 					},
-				),
-			).To(BeTrue())
+				},
+			))
 		})
 	})
 
@@ -180,20 +169,16 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 				),
 			)
 			Expect(a.HandlerType()).To(Equal(configkit.AggregateHandlerType))
-			Expect(
-				a.MessageNames().Consumed.IsEqual(
-					message.NameRoles{
-						message.NameOf(fixtures.MessageA{}): message.CommandRole,
+			Expect(a.MessageNames()).To(Equal(
+				configkit.EntityMessageNames{
+					Consumed: message.NameRoles{
+						cfixtures.MessageATypeName: message.CommandRole,
 					},
-				),
-			).To(BeTrue())
-			Expect(
-				a.MessageNames().Produced.IsEqual(
-					message.NameRoles{
-						message.NameOf(fixtures.MessageB{}): message.EventRole,
+					Produced: message.NameRoles{
+						cfixtures.MessageBTypeName: message.EventRole,
 					},
-				),
-			).To(BeTrue())
+				},
+			))
 		})
 	})
 })
