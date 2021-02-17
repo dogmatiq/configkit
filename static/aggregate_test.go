@@ -70,15 +70,13 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 			Expect(apps).To(HaveLen(1))
 			Expect(apps[0].Handlers().Aggregates()).To(HaveLen(2))
 
-			a1 := apps[0].Handlers().Aggregates()[0]
-			Expect(a1.Identity()).To(
-				Equal(
-					configkit.Identity{
-						Name: "<first-aggregate>",
-						Key:  "e6300d8d-6530-405e-9729-e9ca21df23d3",
-					},
-				),
+			a1, ok := apps[0].Handlers().ByIdentity(
+				configkit.Identity{
+					Name: "<first-aggregate>",
+					Key:  "e6300d8d-6530-405e-9729-e9ca21df23d3",
+				},
 			)
+			Expect(ok).To(BeTrue())
 			Expect(a1.TypeName()).To(
 				Equal(
 					"github.com/dogmatiq/configkit/static/testdata/aggregates/multiple-aggregate-app.FirstAggregateHandler",
@@ -96,15 +94,13 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 				},
 			))
 
-			a2 := apps[0].Handlers().Aggregates()[1]
-			Expect(a2.Identity()).To(
-				Equal(
-					configkit.Identity{
-						Name: "<second-aggregate>",
-						Key:  "feeb96d0-c56b-4e58-9cd0-d393683c2ec7",
-					},
-				),
+			a2, ok := apps[0].Handlers().ByIdentity(
+				configkit.Identity{
+					Name: "<second-aggregate>",
+					Key:  "feeb96d0-c56b-4e58-9cd0-d393683c2ec7",
+				},
 			)
+			Expect(ok).To(BeTrue())
 			Expect(a2.TypeName()).To(
 				Equal(
 					"github.com/dogmatiq/configkit/static/testdata/aggregates/multiple-aggregate-app.SecondAggregateHandler",
