@@ -70,53 +70,23 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 			Expect(apps).To(HaveLen(1))
 			Expect(apps[0].Handlers().Aggregates()).To(HaveLen(2))
 
-			a1, ok := apps[0].Handlers().ByIdentity(
-				configkit.Identity{
-					Name: "<first-aggregate>",
-					Key:  "e6300d8d-6530-405e-9729-e9ca21df23d3",
-				},
-			)
-			Expect(ok).To(BeTrue())
-			Expect(a1.TypeName()).To(
-				Equal(
-					"github.com/dogmatiq/configkit/static/testdata/aggregates/multiple-aggregate-app.FirstAggregateHandler",
-				),
-			)
-			Expect(a1.HandlerType()).To(Equal(configkit.AggregateHandlerType))
-			Expect(a1.MessageNames()).To(Equal(
-				configkit.EntityMessageNames{
-					Consumed: message.NameRoles{
-						cfixtures.MessageATypeName: message.CommandRole,
-					},
-					Produced: message.NameRoles{
-						cfixtures.MessageBTypeName: message.EventRole,
-					},
-				},
-			))
+			var identities []configkit.Identity
+			for _, a := range apps[0].Handlers().Aggregates() {
+				identities = append(identities, a.Identity())
+			}
 
-			a2, ok := apps[0].Handlers().ByIdentity(
-				configkit.Identity{
-					Name: "<second-aggregate>",
-					Key:  "feeb96d0-c56b-4e58-9cd0-d393683c2ec7",
-				},
-			)
-			Expect(ok).To(BeTrue())
-			Expect(a2.TypeName()).To(
-				Equal(
-					"github.com/dogmatiq/configkit/static/testdata/aggregates/multiple-aggregate-app.SecondAggregateHandler",
+			Expect(identities).To(
+				ConsistOf(
+					configkit.Identity{
+						Name: "<first-aggregate>",
+						Key:  "e6300d8d-6530-405e-9729-e9ca21df23d3",
+					},
+					configkit.Identity{
+						Name: "<second-aggregate>",
+						Key:  "feeb96d0-c56b-4e58-9cd0-d393683c2ec7",
+					},
 				),
 			)
-			Expect(a2.HandlerType()).To(Equal(configkit.AggregateHandlerType))
-			Expect(a2.MessageNames()).To(Equal(
-				configkit.EntityMessageNames{
-					Consumed: message.NameRoles{
-						cfixtures.MessageCTypeName: message.CommandRole,
-					},
-					Produced: message.NameRoles{
-						cfixtures.MessageDTypeName: message.EventRole,
-					},
-				},
-			))
 		})
 	})
 
