@@ -68,7 +68,6 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 
 			apps := FromPackages(pkgs)
 			Expect(apps).To(HaveLen(1))
-			Expect(apps[0].Handlers().Aggregates()).To(HaveLen(2))
 
 			var identities []configkit.Identity
 			for _, a := range apps[0].Handlers().Aggregates() {
@@ -90,8 +89,8 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 		})
 	})
 
-	When("a nil value passed as an aggregate handler", func() {
-		It("does not returns the aggregate handler configuration", func() {
+	When("a nil value is passed as an aggregate handler", func() {
+		It("does not add an aggregate handler to the application configuration", func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
 				Dir:  "testdata/aggregates/nil-aggregate-app",
@@ -106,8 +105,8 @@ var _ = Describe("func FromPackages() (aggregate analysis)", func() {
 		})
 	})
 
-	When("a nil value passed as a message while configuring an aggregate handler", func() {
-		It("skips the nil value message", func() {
+	When("a nil value is passed as a message", func() {
+		It("does not add the message to the aggregate configuration", func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
 				Dir:  "testdata/aggregates/nil-message-aggregate-app",
