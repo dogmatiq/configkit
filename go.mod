@@ -3,7 +3,7 @@ module github.com/dogmatiq/configkit
 go 1.15
 
 require (
-	github.com/dogmatiq/dogma v0.11.0
+	github.com/dogmatiq/dogma v0.11.1
 	github.com/dogmatiq/iago v0.4.0
 	github.com/dogmatiq/interopspec v0.5.0
 	github.com/emicklei/dot v0.15.0
