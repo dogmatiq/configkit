@@ -40,6 +40,16 @@ func analyzeApplication(prog *ssa.Program, typ types.Type) configkit.Application
 					),
 				)
 			}
+		case "RegisterProcess":
+			if mi, ok := args[0].(*ssa.MakeInterface); ok {
+				app.HandlersValue.Add(
+					analyzeHandler(
+						prog,
+						mi.X.Type(),
+						configkit.ProcessHandlerType,
+					),
+				)
+			}
 		}
 	}
 
@@ -117,6 +127,24 @@ func analyzeHandler(
 					message.CommandRole,
 				)
 			}
+		case "ConsumesEventType":
+			if mi, ok := args[0].(*ssa.MakeInterface); ok {
+				hdr.MessageNamesValue.Consumed.Add(
+					message.NameFromType(
+						mi.X.Type(),
+					),
+					message.EventRole,
+				)
+			}
+		case "ProducesCommandType":
+			if mi, ok := args[0].(*ssa.MakeInterface); ok {
+				hdr.MessageNamesValue.Produced.Add(
+					message.NameFromType(
+						mi.X.Type(),
+					),
+					message.CommandRole,
+				)
+			}
 		case "ProducesEventType":
 			if mi, ok := args[0].(*ssa.MakeInterface); ok {
 				hdr.MessageNamesValue.Produced.Add(
@@ -124,6 +152,23 @@ func analyzeHandler(
 						mi.X.Type(),
 					),
 					message.EventRole,
+				)
+			}
+		case "SchedulesTimeoutType":
+			if mi, ok := args[0].(*ssa.MakeInterface); ok {
+				hdr.MessageNamesValue.Produced.Add(
+					message.NameFromType(
+						mi.X.Type(),
+					),
+					message.TimeoutRole,
+				)
+			}
+			if mi, ok := args[0].(*ssa.MakeInterface); ok {
+				hdr.MessageNamesValue.Consumed.Add(
+					message.NameFromType(
+						mi.X.Type(),
+					),
+					message.TimeoutRole,
 				)
 			}
 		}
