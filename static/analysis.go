@@ -31,25 +31,19 @@ func analyzeApplication(prog *ssa.Program, typ types.Type) configkit.Application
 		case "Identity":
 			app.IdentityValue = analyzeIdentityCall(c)
 		case "RegisterAggregate":
-			if mi, ok := args[0].(*ssa.MakeInterface); ok {
-				app.HandlersValue.Add(
-					analyzeHandler(
-						prog,
-						mi.X.Type(),
-						configkit.AggregateHandlerType,
-					),
-				)
-			}
+			addHandlerFromArguments(
+				prog,
+				args,
+				app.HandlersValue,
+				configkit.AggregateHandlerType,
+			)
 		case "RegisterProcess":
-			if mi, ok := args[0].(*ssa.MakeInterface); ok {
-				app.HandlersValue.Add(
-					analyzeHandler(
-						prog,
-						mi.X.Type(),
-						configkit.ProcessHandlerType,
-					),
-				)
-			}
+			addHandlerFromArguments(
+				prog,
+				args,
+				app.HandlersValue,
+				configkit.ProcessHandlerType,
+			)
 		}
 	}
 
@@ -93,86 +87,97 @@ func analyzeIdentityCall(c *ssa.Call) configkit.Identity {
 	return ident
 }
 
-// analyzeHandler analyzes a type that implements one of the Dogma handler
-// interfaces to deduce its handler configuration.
-func analyzeHandler(
+// addHandlerFromArguments adds a handler to the handler set from the given
+// arguments. It assumes that the handler is always the first argument.
+//
+// If the first argument is not a pointer to ssa.MakeInterface instruction, this
+// function has no affect.
+func addHandlerFromArguments(
 	prog *ssa.Program,
-	typ types.Type,
+	args []ssa.Value,
+	hs configkit.HandlerSet,
 	ht configkit.HandlerType,
-) configkit.Handler {
-	hdr := &entity.Handler{
-		HandlerTypeValue: ht,
-		TypeNameValue:    typ.String(),
-		MessageNamesValue: configkit.EntityMessageNames{
-			Produced: message.NameRoles{},
-			Consumed: message.NameRoles{},
-		},
-	}
+) {
+	if mi, ok := args[0].(*ssa.MakeInterface); ok {
+		typ := mi.X.Type()
 
-	pkg := pkgOfNamedType(typ)
-	fn := prog.LookupMethod(typ, pkg, "Configure")
+		hdr := &entity.Handler{
+			HandlerTypeValue: ht,
+			TypeNameValue:    typ.String(),
+			MessageNamesValue: configkit.EntityMessageNames{
+				Produced: message.NameRoles{},
+				Consumed: message.NameRoles{},
+			},
+		}
 
-	for _, c := range findConfigurerCalls(fn) {
-		args := c.Common().Args
+		pkg := pkgOfNamedType(typ)
+		fn := prog.LookupMethod(typ, pkg, "Configure")
 
-		switch c.Common().Method.Name() {
-		case "Identity":
-			hdr.IdentityValue = analyzeIdentityCall(c)
-		case "ConsumesCommandType":
-			if mi, ok := args[0].(*ssa.MakeInterface); ok {
-				hdr.MessageNamesValue.Consumed.Add(
-					message.NameFromType(
-						mi.X.Type(),
-					),
+		for _, c := range findConfigurerCalls(fn) {
+			args := c.Common().Args
+
+			switch c.Common().Method.Name() {
+			case "Identity":
+				hdr.IdentityValue = analyzeIdentityCall(c)
+			case "ConsumesCommandType":
+				addMessageFromArguments(
+					args,
+					hdr.MessageNamesValue.Consumed,
 					message.CommandRole,
 				)
-			}
-		case "ConsumesEventType":
-			if mi, ok := args[0].(*ssa.MakeInterface); ok {
-				hdr.MessageNamesValue.Consumed.Add(
-					message.NameFromType(
-						mi.X.Type(),
-					),
+			case "ConsumesEventType":
+				addMessageFromArguments(
+					args,
+					hdr.MessageNamesValue.Consumed,
 					message.EventRole,
 				)
-			}
-		case "ProducesCommandType":
-			if mi, ok := args[0].(*ssa.MakeInterface); ok {
-				hdr.MessageNamesValue.Produced.Add(
-					message.NameFromType(
-						mi.X.Type(),
-					),
+			case "ProducesCommandType":
+				addMessageFromArguments(
+					args,
+					hdr.MessageNamesValue.Produced,
 					message.CommandRole,
 				)
-			}
-		case "ProducesEventType":
-			if mi, ok := args[0].(*ssa.MakeInterface); ok {
-				hdr.MessageNamesValue.Produced.Add(
-					message.NameFromType(
-						mi.X.Type(),
-					),
+			case "ProducesEventType":
+				addMessageFromArguments(
+					args,
+					hdr.MessageNamesValue.Produced,
 					message.EventRole,
 				)
-			}
-		case "SchedulesTimeoutType":
-			if mi, ok := args[0].(*ssa.MakeInterface); ok {
-				hdr.MessageNamesValue.Produced.Add(
-					message.NameFromType(
-						mi.X.Type(),
-					),
+			case "SchedulesTimeoutType":
+				addMessageFromArguments(
+					args,
+					hdr.MessageNamesValue.Consumed,
 					message.TimeoutRole,
 				)
-				hdr.MessageNamesValue.Consumed.Add(
-					message.NameFromType(
-						mi.X.Type(),
-					),
+				addMessageFromArguments(
+					args,
+					hdr.MessageNamesValue.Produced,
 					message.TimeoutRole,
 				)
 			}
 		}
-	}
 
-	return hdr
+		hs.Add(hdr)
+	}
+}
+
+// addMessageFromArguments adds a message with the given role r to the
+// name role map from the given arguments. It assumes that the message
+// is always the first argument.
+//
+// If the first argument is not a pointer to ssa.MakeInterface instruction, this
+// function has no affect.
+func addMessageFromArguments(
+	args []ssa.Value,
+	nr message.NameRoles,
+	r message.Role,
+) {
+	if mi, ok := args[0].(*ssa.MakeInterface); ok {
+		nr.Add(
+			message.NameFromType(mi.X.Type()),
+			r,
+		)
+	}
 }
 
 // pkgOfNamedType returns the package in which typ is declared.
