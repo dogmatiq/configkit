@@ -162,8 +162,6 @@ func analyzeHandler(
 					),
 					message.TimeoutRole,
 				)
-			}
-			if mi, ok := args[0].(*ssa.MakeInterface); ok {
 				hdr.MessageNamesValue.Consumed.Add(
 					message.NameFromType(
 						mi.X.Type(),
