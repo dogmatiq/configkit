@@ -87,11 +87,11 @@ func analyzeIdentityCall(c *ssa.Call) configkit.Identity {
 	return ident
 }
 
-// addHandlerFromArguments adds a handler to the handler set from the given
-// arguments. It assumes that the handler is always the first argument.
+// addHandlerFromArguments analyzes args to deduce the configuration of a
+// handler of type ht. It assumes that the handler is the first argument.
 //
 // If the first argument is not a pointer to ssa.MakeInterface instruction, this
-// function has no affect.
+// function has no effect; otherwise the handler is added to hs.
 func addHandlerFromArguments(
 	prog *ssa.Program,
 	args []ssa.Value,
@@ -161,12 +161,12 @@ func addHandlerFromArguments(
 	}
 }
 
-// addMessageFromArguments adds a message with the given role r to the
-// name role map from the given arguments. It assumes that the message
-// is always the first argument.
+// addMessageFromArguments analyzes args to deduce the type of a message.
+// It assumes that the message is always the first argument.
 //
 // If the first argument is not a pointer to ssa.MakeInterface instruction, this
-// function has no affect.
+// function has no effect; otherwise the message type is added to nr using the
+// role given by r.
 func addMessageFromArguments(
 	args []ssa.Value,
 	nr message.NameRoles,
