@@ -44,6 +44,13 @@ func analyzeApplication(prog *ssa.Program, typ types.Type) configkit.Application
 				app.HandlersValue,
 				configkit.ProcessHandlerType,
 			)
+		case "RegisterProjection":
+			addHandlerFromArguments(
+				prog,
+				args,
+				app.HandlersValue,
+				configkit.ProjectionHandlerType,
+			)
 		}
 	}
 
