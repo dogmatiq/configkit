@@ -196,4 +196,35 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 			)
 		})
 	})
+
+	When("a handler with a non-pointer methodset is registered as a pointer", func() {
+		It("includes the handler in the application configuration", func() {
+			cfg := packages.Config{
+				Mode: packages.LoadAllSyntax,
+				Dir:  "testdata/apps/pointer-handler-with-non-pointer-methodset",
+			}
+
+			pkgs, err := packages.Load(&cfg, "./...")
+			Expect(err).NotTo(HaveOccurred())
+
+			apps := FromPackages(pkgs)
+			Expect(apps).To(HaveLen(1))
+			Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
+
+			a := apps[0].Handlers().Aggregates()[0]
+			Expect(a.Identity()).To(
+				Equal(
+					configkit.Identity{
+						Name: "<aggregate>",
+						Key:  "dad3b670-0852-4711-9efb-af25679734ee",
+					},
+				),
+			)
+			Expect(a.TypeName()).To(
+				Equal(
+					"*github.com/dogmatiq/configkit/static/testdata/apps/pointer-handler-with-non-pointer-methodset.AggregateHandler",
+				),
+			)
+		})
+	})
 })
