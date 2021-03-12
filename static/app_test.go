@@ -165,4 +165,35 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 			Expect(apps).To(BeEmpty())
 		})
 	})
+
+	When("a field within the application type is registered as a handler", func() {
+		It("includes the handler in the application configuration", func() {
+			cfg := packages.Config{
+				Mode: packages.LoadAllSyntax,
+				Dir:  "testdata/apps/handler-from-field",
+			}
+
+			pkgs, err := packages.Load(&cfg, "./...")
+			Expect(err).NotTo(HaveOccurred())
+
+			apps := FromPackages(pkgs)
+			Expect(apps).To(HaveLen(1))
+			Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
+
+			a := apps[0].Handlers().Aggregates()[0]
+			Expect(a.Identity()).To(
+				Equal(
+					configkit.Identity{
+						Name: "<aggregate>",
+						Key:  "195ede4a-3f26-4d19-a8fe-41b2a5f92d06",
+					},
+				),
+			)
+			Expect(a.TypeName()).To(
+				Equal(
+					"*github.com/dogmatiq/configkit/static/testdata/apps/handler-from-field.AggregateHandler",
+				),
+			)
+		})
+	})
 })
