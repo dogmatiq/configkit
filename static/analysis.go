@@ -51,6 +51,13 @@ func analyzeApplication(prog *ssa.Program, typ types.Type) configkit.Application
 				app.HandlersValue,
 				configkit.ProjectionHandlerType,
 			)
+		case "RegisterIntegration":
+			addHandlerFromArguments(
+				prog,
+				args,
+				app.HandlersValue,
+				configkit.IntegrationHandlerType,
+			)
 		}
 	}
 
