@@ -24,7 +24,7 @@ func analyzeApplication(prog *ssa.Program, typ types.Type) configkit.Application
 	pkg := pkgOfNamedType(typ)
 	fn := prog.LookupMethod(typ, pkg, "Configure")
 
-	for _, c := range findConfigurerCalls(fn) {
+	for _, c := range findConfigurerCalls(prog, fn) {
 		args := c.Common().Args
 
 		switch c.Common().Method.Name() {
@@ -59,23 +59,78 @@ func analyzeApplication(prog *ssa.Program, typ types.Type) configkit.Application
 
 // findConfigurerCalls returns all of the calls to methods on the Dogma
 // application or handler "configurer" within the given function.
-func findConfigurerCalls(fn *ssa.Function) []*ssa.Call {
-	// Since fn is expected to be a method, the first parameter is the receiver,
-	// so the second parameter is the configurer itself.
-	configurer := fn.Params[1]
+//
+// indices refers to the positions arguments that are the configurer. If none
+// are provided it defaults to [1]. This accounts for the most common case where
+// fn is the Configure() method on an application or handler. In this case the
+// first parameter is the receiver, so the second parameter is the configurer
+// itself.
+func findConfigurerCalls(
+	prog *ssa.Program,
+	fn *ssa.Function,
+	indices ...int,
+) []*ssa.Call {
+	if len(indices) == 0 {
+		indices = []int{1}
+	}
+
+	configurers := map[ssa.Value]struct{}{}
+	for _, i := range indices {
+		v := fn.Params[i]
+		configurers[v] = struct{}{}
+	}
 
 	var calls []*ssa.Call
 
 	for _, b := range fn.Blocks {
 		for _, i := range b.Instrs {
-			if c, ok := i.(*ssa.Call); ok &&
-				c.Common().Value.Name() == configurer.Name() {
-				calls = append(calls, c)
+			if c, ok := i.(*ssa.Call); ok {
+				if _, ok := configurers[c.Common().Value]; ok {
+					// We've found a direct call to a method on the configurer.
+					calls = append(calls, c)
+				} else {
+					// We've found a call to some other function or method. We
+					// need to analyse the instructions within *that* function
+					// to see if *it* makes any calls to the configurer.
+					calls = append(
+						calls,
+						findIndirectConfigurerCalls(prog, configurers, c)...,
+					)
+				}
 			}
+
 		}
 	}
 
 	return calls
+}
+
+// findIndirectConfigurerCalls returns all of the calls to methods on the Dogma
+// application or handler "configurer" within the an arbitrary function that has
+// been called within a Configure() method.
+func findIndirectConfigurerCalls(
+	prog *ssa.Program,
+	configurers map[ssa.Value]struct{},
+	c *ssa.Call,
+) []*ssa.Call {
+	com := c.Common()
+
+	var indices []int
+	for i, arg := range com.Args {
+		if _, ok := configurers[arg]; ok {
+			indices = append(indices, i)
+		}
+	}
+
+	if len(indices) == 0 {
+		return nil
+	}
+
+	return findConfigurerCalls(
+		prog,
+		com.StaticCallee(),
+		indices...,
+	)
 }
 
 // analyzeIdentityCall analyzes the arguments in a call to a configurer's
@@ -120,7 +175,7 @@ func addHandlerFromArguments(
 		pkg := pkgOfNamedType(typ)
 		fn := prog.LookupMethod(typ, pkg, "Configure")
 
-		for _, c := range findConfigurerCalls(fn) {
+		for _, c := range findConfigurerCalls(prog, fn) {
 			args := c.Common().Args
 
 			switch c.Common().Method.Name() {
