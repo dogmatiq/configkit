@@ -23,8 +23,8 @@ func matchIdentities(
 }
 
 var _ = Describe("func FromPackages() (handler analysis)", func() {
-	When("the application contains a single handler handler of a kind", func() {
-		It("returns the a single configuration for each handle kind", func() {
+	When("the application contains a single handler of each type", func() {
+		It("returns a single configuration for each handler type", func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
 				Dir:  "testdata/handlers/single",
@@ -159,8 +159,8 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 		})
 	})
 
-	When("the application contains multiple aggregate handlers", func() {
-		It("returns all of the aggregate handler configurations", func() {
+	When("the application multiple handlers of each type", func() {
+		It("returns all of the handler configurations", func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
 				Dir:  "testdata/handlers/multiple",
@@ -210,8 +210,8 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 		})
 	})
 
-	When("a nil value is passed as an aggregate handler", func() {
-		It("does not add an aggregate handler to the application configuration", func() {
+	When("a nil value is passed as a handler", func() {
+		It("does not add a handler to the application configuration", func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
 				Dir:  "testdata/handlers/nil-handler",
@@ -227,7 +227,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 	})
 
 	When("a nil value is passed as a message", func() {
-		It("does not add the message to the aggregate configuration", func() {
+		It("does not add the message to the handler configuration", func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
 				Dir:  "testdata/handlers/nil-message",
