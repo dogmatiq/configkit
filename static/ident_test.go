@@ -2,7 +2,6 @@ package static_test
 
 import (
 	"github.com/dogmatiq/configkit"
-	"github.com/dogmatiq/configkit/internal/entity"
 	. "github.com/dogmatiq/configkit/static"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -21,21 +20,24 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			apps := FromPackages(pkgs)
+			Expect(apps).To(HaveLen(1))
 
-			Expect(apps).To(ConsistOf(
-				&entity.Application{
-					IdentityValue: configkit.Identity{
+			Expect(apps[0].Identity()).To(
+				Equal(
+					configkit.Identity{
 						Name: "<app>",
 						Key:  "04e12cf2-3c66-4414-9203-e045ddbe02c7",
 					},
-					TypeNameValue: "github.com/dogmatiq/configkit/static/testdata/ident/const-value-ident.App",
-					MessageNamesValue: configkit.EntityMessageNames{
-						Produced: nil,
-						Consumed: nil,
-					},
-					HandlersValue: configkit.HandlerSet{},
+				),
+			)
+			Expect(apps[0].TypeName()).To(Equal("github.com/dogmatiq/configkit/static/testdata/ident/const-value-ident.App"))
+			Expect(apps[0].MessageNames()).To(Equal(
+				configkit.EntityMessageNames{
+					Produced: nil,
+					Consumed: nil,
 				},
 			))
+			Expect(apps[0].Handlers()).To(Equal(configkit.HandlerSet{}))
 		})
 	})
 
@@ -50,21 +52,24 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			apps := FromPackages(pkgs)
+			Expect(apps).To(HaveLen(1))
 
-			Expect(apps).To(ConsistOf(
-				&entity.Application{
-					IdentityValue: configkit.Identity{
+			Expect(apps[0].Identity()).To(
+				Equal(
+					configkit.Identity{
 						Name: "<app>",
 						Key:  "9d0af85d-f506-4742-b676-ce87730bb1a0",
 					},
-					TypeNameValue: "github.com/dogmatiq/configkit/static/testdata/ident/literal-value-ident.App",
-					MessageNamesValue: configkit.EntityMessageNames{
-						Produced: nil,
-						Consumed: nil,
-					},
-					HandlersValue: configkit.HandlerSet{},
+				),
+			)
+			Expect(apps[0].TypeName()).To(Equal("github.com/dogmatiq/configkit/static/testdata/ident/literal-value-ident.App"))
+			Expect(apps[0].MessageNames()).To(Equal(
+				configkit.EntityMessageNames{
+					Produced: nil,
+					Consumed: nil,
 				},
 			))
+			Expect(apps[0].Handlers()).To(Equal(configkit.HandlerSet{}))
 		})
 	})
 
@@ -79,21 +84,24 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			apps := FromPackages(pkgs)
+			Expect(apps).To(HaveLen(1))
 
-			Expect(apps).To(ConsistOf(
-				&entity.Application{
-					IdentityValue: configkit.Identity{
+			Expect(apps[0].Identity()).To(
+				Equal(
+					configkit.Identity{
 						Name: "",
 						Key:  "",
 					},
-					TypeNameValue: "github.com/dogmatiq/configkit/static/testdata/ident/variable-value-ident.App",
-					MessageNamesValue: configkit.EntityMessageNames{
-						Produced: nil,
-						Consumed: nil,
-					},
-					HandlersValue: configkit.HandlerSet{},
+				),
+			)
+			Expect(apps[0].TypeName()).To(Equal("github.com/dogmatiq/configkit/static/testdata/ident/variable-value-ident.App"))
+			Expect(apps[0].MessageNames()).To(Equal(
+				configkit.EntityMessageNames{
+					Produced: nil,
+					Consumed: nil,
 				},
 			))
+			Expect(apps[0].Handlers()).To(Equal(configkit.HandlerSet{}))
 		})
 	})
 })
