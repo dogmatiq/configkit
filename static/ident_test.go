@@ -32,10 +32,7 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 			)
 			Expect(apps[0].TypeName()).To(Equal("github.com/dogmatiq/configkit/static/testdata/ident/const-value-ident.App"))
 			Expect(apps[0].MessageNames()).To(Equal(
-				configkit.EntityMessageNames{
-					Produced: nil,
-					Consumed: nil,
-				},
+				configkit.EntityMessageNames{},
 			))
 			Expect(apps[0].Handlers()).To(Equal(configkit.HandlerSet{}))
 		})
@@ -64,10 +61,7 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 			)
 			Expect(apps[0].TypeName()).To(Equal("github.com/dogmatiq/configkit/static/testdata/ident/literal-value-ident.App"))
 			Expect(apps[0].MessageNames()).To(Equal(
-				configkit.EntityMessageNames{
-					Produced: nil,
-					Consumed: nil,
-				},
+				configkit.EntityMessageNames{},
 			))
 			Expect(apps[0].Handlers()).To(Equal(configkit.HandlerSet{}))
 		})
@@ -96,10 +90,7 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 			)
 			Expect(apps[0].TypeName()).To(Equal("github.com/dogmatiq/configkit/static/testdata/ident/variable-value-ident.App"))
 			Expect(apps[0].MessageNames()).To(Equal(
-				configkit.EntityMessageNames{
-					Produced: nil,
-					Consumed: nil,
-				},
+				configkit.EntityMessageNames{},
 			))
 			Expect(apps[0].Handlers()).To(Equal(configkit.HandlerSet{}))
 		})
