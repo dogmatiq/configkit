@@ -68,48 +68,6 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 					},
 				),
 			)
-
-			Expect(
-				[]string{
-					apps[0].TypeName(),
-					apps[1].TypeName(),
-				},
-			).To(
-				ConsistOf(
-					"github.com/dogmatiq/configkit/static/testdata/apps/multiple-apps-in-pkgs/first.App",
-					"github.com/dogmatiq/configkit/static/testdata/apps/multiple-apps-in-pkgs/second.App",
-				),
-			)
-
-			Expect(
-				[]configkit.EntityMessageNames{
-					apps[0].MessageNames(),
-					apps[1].MessageNames(),
-				},
-			).To(
-				ConsistOf(
-					configkit.EntityMessageNames{
-						Produced: nil,
-						Consumed: nil,
-					},
-					configkit.EntityMessageNames{
-						Produced: nil,
-						Consumed: nil,
-					},
-				),
-			)
-
-			Expect(
-				[]configkit.HandlerSet{
-					apps[0].Handlers(),
-					apps[1].Handlers(),
-				},
-			).To(
-				ConsistOf(
-					configkit.HandlerSet{},
-					configkit.HandlerSet{},
-				),
-			)
 		})
 	})
 
@@ -143,48 +101,6 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 					},
 				),
 			)
-
-			Expect(
-				[]string{
-					apps[0].TypeName(),
-					apps[1].TypeName(),
-				},
-			).To(
-				ConsistOf(
-					"github.com/dogmatiq/configkit/static/testdata/apps/multiple-apps-in-single-pkg/apps.AppFirst",
-					"github.com/dogmatiq/configkit/static/testdata/apps/multiple-apps-in-single-pkg/apps.AppSecond",
-				),
-			)
-
-			Expect(
-				[]configkit.EntityMessageNames{
-					apps[0].MessageNames(),
-					apps[1].MessageNames(),
-				},
-			).To(
-				ConsistOf(
-					configkit.EntityMessageNames{
-						Produced: nil,
-						Consumed: nil,
-					},
-					configkit.EntityMessageNames{
-						Produced: nil,
-						Consumed: nil,
-					},
-				),
-			)
-
-			Expect(
-				[]configkit.HandlerSet{
-					apps[0].Handlers(),
-					apps[1].Handlers(),
-				},
-			).To(
-				ConsistOf(
-					configkit.HandlerSet{},
-					configkit.HandlerSet{},
-				),
-			)
 		})
 	})
 
@@ -209,11 +125,6 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 					},
 				),
 			)
-			Expect(apps[0].TypeName()).To(Equal("*github.com/dogmatiq/configkit/static/testdata/apps/pointer-receiver-app.App"))
-			Expect(apps[0].MessageNames()).To(Equal(
-				configkit.EntityMessageNames{},
-			))
-			Expect(apps[0].Handlers()).To(Equal(configkit.HandlerSet{}))
 		})
 	})
 
@@ -256,11 +167,6 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 					},
 				),
 			)
-			Expect(a.TypeName()).To(
-				Equal(
-					"*github.com/dogmatiq/configkit/static/testdata/apps/handler-from-field.AggregateHandler",
-				),
-			)
 		})
 	})
 
@@ -285,11 +191,6 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 						Name: "<aggregate>",
 						Key:  "dad3b670-0852-4711-9efb-af25679734ee",
 					},
-				),
-			)
-			Expect(a.TypeName()).To(
-				Equal(
-					"*github.com/dogmatiq/configkit/static/testdata/apps/pointer-handler-with-non-pointer-methodset.AggregateHandler",
 				),
 			)
 		})
