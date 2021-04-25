@@ -2,6 +2,8 @@ package static_test
 
 import (
 	"github.com/dogmatiq/configkit"
+	cfixtures "github.com/dogmatiq/configkit/fixtures"
+	"github.com/dogmatiq/configkit/message"
 	. "github.com/dogmatiq/configkit/static"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -193,6 +195,37 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 					},
 				),
 			)
+		})
+	})
+
+	When("an application in the package has multiple handlers", func() {
+		It("returns all messages consumed or produced by all handlers", func() {
+			cfg := packages.Config{
+				Mode: packages.LoadAllSyntax,
+				Dir:  "testdata/apps/app-level-messages",
+			}
+
+			pkgs, err := packages.Load(&cfg, "./...")
+			Expect(err).NotTo(HaveOccurred())
+
+			apps := FromPackages(pkgs)
+			Expect(apps).To(HaveLen(1))
+
+			Expect(apps[0].MessageNames()).To(Equal(
+				configkit.EntityMessageNames{
+					Consumed: message.NameRoles{
+						cfixtures.MessageATypeName: message.CommandRole,
+						cfixtures.MessageBTypeName: message.EventRole,
+						cfixtures.MessageCTypeName: message.EventRole,
+					},
+					Produced: message.NameRoles{
+						cfixtures.MessageBTypeName: message.EventRole,
+						cfixtures.MessageDTypeName: message.CommandRole,
+						cfixtures.MessageETypeName: message.TimeoutRole,
+						cfixtures.MessageFTypeName: message.EventRole,
+					},
+				},
+			))
 		})
 	})
 })
