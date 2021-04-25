@@ -34,7 +34,10 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 			)
 			Expect(apps[0].TypeName()).To(Equal("github.com/dogmatiq/configkit/static/testdata/apps/single-app.App"))
 			Expect(apps[0].MessageNames()).To(Equal(
-				configkit.EntityMessageNames{},
+				configkit.EntityMessageNames{
+					Produced: message.NameRoles{},
+					Consumed: message.NameRoles{},
+				},
 			))
 			Expect(apps[0].Handlers()).To(Equal(configkit.HandlerSet{}))
 		})
@@ -217,6 +220,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 						cfixtures.MessageATypeName: message.CommandRole,
 						cfixtures.MessageBTypeName: message.EventRole,
 						cfixtures.MessageCTypeName: message.EventRole,
+						cfixtures.MessageETypeName: message.TimeoutRole,
 					},
 					Produced: message.NameRoles{
 						cfixtures.MessageBTypeName: message.EventRole,
