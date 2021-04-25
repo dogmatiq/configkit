@@ -61,6 +61,7 @@ func analyzeApplication(prog *ssa.Program, typ types.Type) configkit.Application
 		}
 	}
 
+	app.MessageNamesValue = app.HandlersValue.MessageNames()
 	return app
 }
 
