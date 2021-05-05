@@ -14,7 +14,14 @@ import (
 // ToString returns a human-readable string representation of the given entity.
 func ToString(e Entity) string {
 	var b strings.Builder
-	e.AcceptVisitor(nil, &stringer{w: &b})
+
+	if err := e.AcceptVisitor(
+		context.Background(),
+		&stringer{w: &b},
+	); err != nil {
+		panic(err)
+	}
+
 	return b.String()
 }
 
@@ -41,7 +48,10 @@ func (s *stringer) VisitApplication(ctx context.Context, cfg Application) error 
 	for _, h := range sortHandlers(cfg.Handlers()) {
 		must.WriteByte(s.w, '\n')
 		must.WriteString(v.w, "- ")
-		h.AcceptVisitor(ctx, v)
+
+		if err := h.AcceptVisitor(ctx, v); err != nil {
+			return err
+		}
 	}
 
 	return nil
