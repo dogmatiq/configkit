@@ -3,7 +3,6 @@ package configkit
 import (
 	"context"
 	"reflect"
-	"sync"
 
 	"github.com/dogmatiq/dogma"
 )
@@ -82,10 +81,7 @@ type application struct {
 
 	handlers     HandlerSet
 	richHandlers RichHandlerSet
-	foreignNames EntityMessageNames
-	foreignTypes EntityMessageTypes
 	impl         dogma.Application
-	once         sync.Once
 }
 
 func (a *application) AcceptVisitor(ctx context.Context, v Visitor) error {
