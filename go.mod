@@ -9,5 +9,5 @@ require (
 	github.com/emicklei/dot v0.16.0
 	github.com/onsi/ginkgo v1.16.2
 	github.com/onsi/gomega v1.12.0
-	google.golang.org/grpc v1.37.0
+	google.golang.org/grpc v1.37.1
 )
