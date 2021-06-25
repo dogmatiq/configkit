@@ -9,11 +9,6 @@ import (
 	"golang.org/x/tools/go/ssa/ssautil"
 )
 
-const (
-	// dogmaPkgPath is the full path of dogma package.
-	dogmaPkgPath = "github.com/dogmatiq/dogma"
-)
-
 // FromPackages returns the configurations of the Dogma applications implemented
 // within a set of packages.
 //
@@ -26,8 +21,8 @@ func FromPackages(pkgs []*packages.Package) []configkit.Application {
 	prog, packages := ssautil.AllPackages(pkgs, ssa.SanityCheckFunctions)
 	prog.Build()
 
-	dogmaPkg := prog.ImportedPackage(dogmaPkgPath)
-	if dogmaPkg == nil {
+	dogmaPkg, isImported := lookupDogmaPackage(prog)
+	if !isImported {
 		// If the dogma package is not found as an import, none of the packages
 		// can possibly have types that implement dogma.Application because
 		// doing so requires referring to the dogma.ApplicationConfigurer type.
@@ -35,7 +30,6 @@ func FromPackages(pkgs []*packages.Package) []configkit.Application {
 	}
 
 	var apps []configkit.Application
-	iface := dogmaPkg.Pkg.Scope().Lookup("Application").Type().Underlying().(*types.Interface)
 
 	for _, pkg := range packages {
 		if pkg == nil {
@@ -54,13 +48,13 @@ func FromPackages(pkgs []*packages.Package) []configkit.Application {
 			// A pointer to the type, on the other hand, implements the
 			// interface regardless of whether pointer receivers are used or
 			// not.
-			if types.Implements(m.Type(), iface) {
-				apps = append(apps, analyzeApplication(prog, m.Type()))
+			if types.Implements(m.Type(), dogmaPkg.Application) {
+				apps = append(apps, analyzeApplication(prog, dogmaPkg, m.Type()))
 				continue
 			}
 
-			if p := types.NewPointer(m.Type()); types.Implements(p, iface) {
-				apps = append(apps, analyzeApplication(prog, p))
+			if p := types.NewPointer(m.Type()); types.Implements(p, dogmaPkg.Application) {
+				apps = append(apps, analyzeApplication(prog, dogmaPkg, p))
 			}
 		}
 	}

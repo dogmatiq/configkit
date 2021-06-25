@@ -14,7 +14,11 @@ import (
 
 // analyzeApplication analyzes a type that implements the dogma.Application
 // interface to deduce its application configuration.
-func analyzeApplication(prog *ssa.Program, typ types.Type) configkit.Application {
+func analyzeApplication(
+	prog *ssa.Program,
+	dogmaPkg dogmaPackage,
+	typ types.Type,
+) configkit.Application {
 	app := &entity.Application{
 		TypeNameValue:     gotypes.NameOf(typ),
 		HandlersValue:     configkit.HandlerSet{},
@@ -33,6 +37,8 @@ func analyzeApplication(prog *ssa.Program, typ types.Type) configkit.Application
 		case "RegisterAggregate":
 			addHandlerFromArguments(
 				prog,
+				dogmaPkg,
+				dogmaPkg.AggregateMessageHandler,
 				args,
 				app.HandlersValue,
 				configkit.AggregateHandlerType,
@@ -40,6 +46,8 @@ func analyzeApplication(prog *ssa.Program, typ types.Type) configkit.Application
 		case "RegisterProcess":
 			addHandlerFromArguments(
 				prog,
+				dogmaPkg,
+				dogmaPkg.ProcessMessageHandler,
 				args,
 				app.HandlersValue,
 				configkit.ProcessHandlerType,
@@ -47,6 +55,8 @@ func analyzeApplication(prog *ssa.Program, typ types.Type) configkit.Application
 		case "RegisterProjection":
 			addHandlerFromArguments(
 				prog,
+				dogmaPkg,
+				dogmaPkg.ProjectionMessageHandler,
 				args,
 				app.HandlersValue,
 				configkit.ProjectionHandlerType,
@@ -54,6 +64,8 @@ func analyzeApplication(prog *ssa.Program, typ types.Type) configkit.Application
 		case "RegisterIntegration":
 			addHandlerFromArguments(
 				prog,
+				dogmaPkg,
+				dogmaPkg.IntegrationMessageHandler,
 				args,
 				app.HandlersValue,
 				configkit.IntegrationHandlerType,
@@ -62,6 +74,7 @@ func analyzeApplication(prog *ssa.Program, typ types.Type) configkit.Application
 	}
 
 	app.MessageNamesValue = app.HandlersValue.MessageNames()
+
 	return app
 }
 
@@ -159,76 +172,154 @@ func analyzeIdentityCall(c *ssa.Call) configkit.Identity {
 
 // addHandlerFromArguments analyzes args to deduce the configuration of a
 // handler of type ht. It assumes that the handler is the first argument.
-//
-// If the first argument is not a pointer to ssa.MakeInterface instruction, this
-// function has no effect; otherwise the handler is added to hs.
 func addHandlerFromArguments(
 	prog *ssa.Program,
+	dogmaPkg dogmaPackage,
+	iface *types.Interface,
 	args []ssa.Value,
 	hs configkit.HandlerSet,
 	ht configkit.HandlerType,
 ) {
-	if mi, ok := args[0].(*ssa.MakeInterface); ok {
-		typ := mi.X.Type()
-
-		hdr := &entity.Handler{
-			HandlerTypeValue: ht,
-			TypeNameValue:    typ.String(),
-			MessageNamesValue: configkit.EntityMessageNames{
-				Produced: message.NameRoles{},
-				Consumed: message.NameRoles{},
-			},
-		}
-
-		pkg := pkgOfNamedType(typ)
-		fn := prog.LookupMethod(typ, pkg, "Configure")
-
-		for _, c := range findConfigurerCalls(prog, fn) {
-			args := c.Common().Args
-
-			switch c.Common().Method.Name() {
-			case "Identity":
-				hdr.IdentityValue = analyzeIdentityCall(c)
-			case "ConsumesCommandType":
-				addMessageFromArguments(
-					args,
-					hdr.MessageNamesValue.Consumed,
-					message.CommandRole,
-				)
-			case "ConsumesEventType":
-				addMessageFromArguments(
-					args,
-					hdr.MessageNamesValue.Consumed,
-					message.EventRole,
-				)
-			case "ProducesCommandType":
-				addMessageFromArguments(
-					args,
-					hdr.MessageNamesValue.Produced,
-					message.CommandRole,
-				)
-			case "ProducesEventType":
-				addMessageFromArguments(
-					args,
-					hdr.MessageNamesValue.Produced,
-					message.EventRole,
-				)
-			case "SchedulesTimeoutType":
-				addMessageFromArguments(
-					args,
-					hdr.MessageNamesValue.Consumed,
-					message.TimeoutRole,
-				)
-				addMessageFromArguments(
-					args,
-					hdr.MessageNamesValue.Produced,
-					message.TimeoutRole,
-				)
-			}
-		}
-
-		hs.Add(hdr)
+	switch arg := args[0].(type) {
+	case *ssa.MakeInterface:
+		addHandlerFromType(prog, arg.X.Type(), hs, ht)
+	case *ssa.Call:
+		addHandlersFromAdaptorFunc(prog, dogmaPkg, iface, arg, hs, ht)
 	}
+}
+
+// addHandlerFromType analyzes a type to deduce the configuration of a handler
+// of type ht.
+//
+// The handler configuration is added to hs.
+func addHandlerFromType(
+	prog *ssa.Program,
+	typ types.Type,
+	hs configkit.HandlerSet,
+	ht configkit.HandlerType,
+) {
+	pkg := pkgOfNamedType(typ)
+	method := prog.LookupMethod(typ, pkg, "Configure")
+	addHandlerFromConfigureMethod(prog, method, hs, ht)
+}
+
+// addHandlersFromAdaptorFunc analyzes the arguments of an "adaptor function" to
+// deduce the configuration of handlers of type ht.
+//
+// The handler configurations are added to hs.
+//
+// Any function arguments that implement a Dogma style Configure() method are
+// treated as a full handler implementation, even if they do not implement the
+// other methods of the handler interface.
+func addHandlersFromAdaptorFunc(
+	prog *ssa.Program,
+	dogmaPkg dogmaPackage,
+	iface *types.Interface,
+	call *ssa.Call,
+	hs configkit.HandlerSet,
+	ht configkit.HandlerType,
+) {
+	configureSig := prog.
+		MethodSets.
+		MethodSet(iface).
+		Lookup(dogmaPkg.Package, "Configure").
+		Type().(*types.Signature)
+
+	for _, arg := range call.Call.Args {
+		typ := arg.Type()
+
+		pkg, ok := tryPkgOfNamedType(typ)
+		if !ok {
+			// Argument is not a named type.
+			continue
+		}
+
+		sel := prog.MethodSets.MethodSet(typ).Lookup(pkg, "Configure")
+		if sel == nil {
+			// Argument has no Configure() method.
+			continue
+		}
+
+		method := prog.MethodValue(sel)
+		if method == nil {
+			// Configure() method exists, but it's "abstract".
+			continue
+		}
+
+		if !types.Identical(method.Signature, configureSig) {
+			// Configure() method exists, but it has a different signature than
+			// is expected for this handler type.
+			continue
+		}
+
+		addHandlerFromConfigureMethod(prog, method, hs, ht)
+	}
+}
+
+// addHandlerFromConfigureMethod analyzes the body of a Configure() method to
+// deduce the configuration of a handler of type ht.
+//
+// The handler configuration is added to hs.
+func addHandlerFromConfigureMethod(
+	prog *ssa.Program,
+	method *ssa.Function,
+	hs configkit.HandlerSet,
+	ht configkit.HandlerType,
+) {
+	hdr := &entity.Handler{
+		HandlerTypeValue: ht,
+		TypeNameValue:    method.Signature.Recv().Type().String(),
+		MessageNamesValue: configkit.EntityMessageNames{
+			Produced: message.NameRoles{},
+			Consumed: message.NameRoles{},
+		},
+	}
+
+	for _, c := range findConfigurerCalls(prog, method) {
+		args := c.Common().Args
+
+		switch c.Common().Method.Name() {
+		case "Identity":
+			hdr.IdentityValue = analyzeIdentityCall(c)
+		case "ConsumesCommandType":
+			addMessageFromArguments(
+				args,
+				hdr.MessageNamesValue.Consumed,
+				message.CommandRole,
+			)
+		case "ConsumesEventType":
+			addMessageFromArguments(
+				args,
+				hdr.MessageNamesValue.Consumed,
+				message.EventRole,
+			)
+		case "ProducesCommandType":
+			addMessageFromArguments(
+				args,
+				hdr.MessageNamesValue.Produced,
+				message.CommandRole,
+			)
+		case "ProducesEventType":
+			addMessageFromArguments(
+				args,
+				hdr.MessageNamesValue.Produced,
+				message.EventRole,
+			)
+		case "SchedulesTimeoutType":
+			addMessageFromArguments(
+				args,
+				hdr.MessageNamesValue.Consumed,
+				message.TimeoutRole,
+			)
+			addMessageFromArguments(
+				args,
+				hdr.MessageNamesValue.Produced,
+				message.TimeoutRole,
+			)
+		}
+	}
+
+	hs.Add(hdr)
 }
 
 // addMessageFromArguments analyzes args to deduce the type of a message.
@@ -254,12 +345,24 @@ func addMessageFromArguments(
 //
 // It panics if typ is not a named type or a pointer to a named type.
 func pkgOfNamedType(typ types.Type) *types.Package {
+	pkg, ok := tryPkgOfNamedType(typ)
+	if !ok {
+		panic(fmt.Sprintf("cannot determine package for anonymous or built-in type %v", typ))
+	}
+
+	return pkg
+}
+
+// pkgOfNamedType returns the package in which typ is declared.
+//
+// ok is false if typ is not a named type or a pointer to a named type.
+func tryPkgOfNamedType(typ types.Type) (_ *types.Package, ok bool) {
 	switch t := typ.(type) {
 	case *types.Named:
-		return t.Obj().Pkg()
+		return t.Obj().Pkg(), true
 	case *types.Pointer:
-		return pkgOfNamedType(t.Elem())
+		return tryPkgOfNamedType(t.Elem())
 	default:
-		panic(fmt.Sprintf("cannot determine package for anonymous or built-in type %v", typ))
+		return nil, false
 	}
 }
