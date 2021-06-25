@@ -8,13 +8,6 @@ import (
 	"github.com/dogmatiq/dogma/fixtures"
 )
 
-// Integration is an integration used for testing.
-type Integration struct{}
-
-// ApplyEvent updates the integration instance to reflect the occurrence of an
-// event that was recorded against this instance.
-func (Integration) ApplyEvent(m dogma.Message) {}
-
 // IntegrationHandler is a test implementation of
 // dogma.IntegrationMessageHandler.
 type IntegrationHandler struct{}

@@ -108,9 +108,6 @@ func (SecondProcessHandler) TimeoutHint(m dogma.Message) time.Duration {
 	return 0
 }
 
-// SecondProjection is a projection used for testing.
-type SecondProjection struct{}
-
 // SecondProjectionHandler is a test implementation of
 // dogma.ProjectionMessageHandler.
 type SecondProjectionHandler struct{}
@@ -157,13 +154,6 @@ func (SecondProjectionHandler) TimeoutHint(m dogma.Message) time.Duration {
 func (SecondProjectionHandler) Compact(ctx context.Context, s dogma.ProjectionCompactScope) error {
 	return nil
 }
-
-// SecondIntegration is an integration used for testing.
-type SecondIntegration struct{}
-
-// ApplyEvent updates the integration instance to reflect the occurrence of an
-// event that was recorded against this instance.
-func (SecondIntegration) ApplyEvent(m dogma.Message) {}
 
 // SecondIntegrationHandler is a test implementation of
 // dogma.IntegrationMessageHandler.

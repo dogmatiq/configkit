@@ -8,9 +8,6 @@ import (
 	"github.com/dogmatiq/dogma/fixtures"
 )
 
-// Projection is a projection used for testing.
-type Projection struct{}
-
 // ProjectionHandler is a test implementation of dogma.ProjectionMessageHandler.
 type ProjectionHandler struct{}
 

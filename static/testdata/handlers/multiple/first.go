@@ -107,9 +107,6 @@ func (FirstProcessHandler) TimeoutHint(m dogma.Message) time.Duration {
 	return 0
 }
 
-// FirstProjection is a projection used for testing.
-type FirstProjection struct{}
-
 // FirstProjectionHandler is a test implementation of
 // dogma.ProjectionMessageHandler.
 type FirstProjectionHandler struct{}
@@ -156,13 +153,6 @@ func (FirstProjectionHandler) TimeoutHint(m dogma.Message) time.Duration {
 func (FirstProjectionHandler) Compact(ctx context.Context, s dogma.ProjectionCompactScope) error {
 	return nil
 }
-
-// FirstIntegration is an integration used for testing.
-type FirstIntegration struct{}
-
-// ApplyEvent updates the integration instance to reflect the occurrence of an
-// event that was recorded against this instance.
-func (FirstIntegration) ApplyEvent(m dogma.Message) {}
 
 // FirstIntegrationHandler is a test implementation of
 // dogma.IntegrationMessageHandler.
