@@ -10,12 +10,12 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
-var _ = Describe("func FromPackages() (adaptor function)", func() {
-	When("the the handler is created by adapting a partial handler implementation", func() {
+var _ = Describe("func FromPackages() (constructor function)", func() {
+	When("the the handler is created by a call to a 'constructor' function", func() {
 		It("builds the configuration from the adapted type", func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
-				Dir:  "testdata/handlers/adaptor",
+				Dir:  "testdata/handlers/constructor",
 			}
 
 			pkgs, err := packages.Load(&cfg, "./...")
@@ -39,7 +39,7 @@ var _ = Describe("func FromPackages() (adaptor function)", func() {
 			)
 			Expect(aggregate.TypeName()).To(
 				Equal(
-					"github.com/dogmatiq/configkit/static/testdata/handlers/adaptor.AggregateHandler",
+					"github.com/dogmatiq/configkit/static/testdata/handlers/constructor.AggregateHandler",
 				),
 			)
 			Expect(aggregate.HandlerType()).To(Equal(configkit.AggregateHandlerType))
@@ -68,7 +68,7 @@ var _ = Describe("func FromPackages() (adaptor function)", func() {
 			)
 			Expect(process.TypeName()).To(
 				Equal(
-					"github.com/dogmatiq/configkit/static/testdata/handlers/adaptor.ProcessHandler",
+					"github.com/dogmatiq/configkit/static/testdata/handlers/constructor.ProcessHandler",
 				),
 			)
 			Expect(process.HandlerType()).To(Equal(configkit.ProcessHandlerType))
@@ -101,7 +101,7 @@ var _ = Describe("func FromPackages() (adaptor function)", func() {
 			)
 			Expect(projection.TypeName()).To(
 				Equal(
-					"github.com/dogmatiq/configkit/static/testdata/handlers/adaptor.ProjectionHandler",
+					"github.com/dogmatiq/configkit/static/testdata/handlers/constructor.ProjectionHandler",
 				),
 			)
 			Expect(projection.HandlerType()).To(Equal(configkit.ProjectionHandlerType))
@@ -127,7 +127,7 @@ var _ = Describe("func FromPackages() (adaptor function)", func() {
 			)
 			Expect(integration.TypeName()).To(
 				Equal(
-					"github.com/dogmatiq/configkit/static/testdata/handlers/adaptor.IntegrationHandler",
+					"github.com/dogmatiq/configkit/static/testdata/handlers/constructor.IntegrationHandler",
 				),
 			)
 			Expect(integration.HandlerType()).To(Equal(configkit.IntegrationHandlerType))
