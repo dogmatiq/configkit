@@ -247,7 +247,7 @@ func addHandlersFromAdaptorFunc(
 		}
 
 		if !types.Identical(method.Signature, configureSig) {
-			// Configure() method exists, but ut has a different signature than
+			// Configure() method exists, but it has a different signature than
 			// is expected for this handler type.
 			continue
 		}
