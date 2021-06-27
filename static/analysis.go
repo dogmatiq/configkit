@@ -226,6 +226,12 @@ func addHandlersFromAdaptorFunc(
 		Type().(*types.Signature)
 
 	for _, arg := range call.Call.Args {
+		// If the argument to the adaptor function is an interface, use the
+		// concrete type instead.
+		if mi, ok := arg.(*ssa.MakeInterface); ok {
+			arg = mi.X
+		}
+
 		typ := arg.Type()
 
 		pkg, ok := tryPkgOfNamedType(typ)

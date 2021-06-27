@@ -24,7 +24,14 @@ func (ProcessHandler) Configure(c dogma.ProcessConfigurer) {
 	c.SchedulesTimeoutType(fixtures.MessageF{})
 }
 
+// PartialProcessMessageHandler is the subset of dogma.ProcessMessageHandler
+// that must be implemented for a type to be detected as a concrete
+// implementation.
+type PartialProcessMessageHandler interface {
+	Configure(c dogma.ProcessConfigurer)
+}
+
 // AdaptProcess adapts h to the dogma.ProcessMessageHandler interface.
-func AdaptProcess(h ProcessHandler) dogma.ProcessMessageHandler {
+func AdaptProcess(h PartialProcessMessageHandler) dogma.ProcessMessageHandler {
 	panic("the implementation of this function is irrelevant to the analyzer")
 }

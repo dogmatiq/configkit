@@ -21,7 +21,14 @@ func (IntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
 	c.ProducesEventType(fixtures.MessageD{})
 }
 
+// PartialIntegrationMessageHandler is the subset of
+// dogma.IntegrationMessageHandler that must be implemented for a type to be
+// detected as a concrete implementation.
+type PartialIntegrationMessageHandler interface {
+	Configure(c dogma.IntegrationConfigurer)
+}
+
 // AdaptIntegration adapts h to the dogma.IntegrationMessageHandler interface.
-func AdaptIntegration(h IntegrationHandler) dogma.IntegrationMessageHandler {
+func AdaptIntegration(h PartialIntegrationMessageHandler) dogma.IntegrationMessageHandler {
 	panic("the implementation of this function is irrelevant to the analyzer")
 }
