@@ -21,6 +21,10 @@ var _ = Describe("func FromPackages() (adaptor function)", func() {
 			pkgs, err := packages.Load(&cfg, "./...")
 			Expect(err).NotTo(HaveOccurred())
 
+			for _, pkg := range pkgs {
+				Expect(pkg.Errors).To(BeEmpty())
+			}
+
 			apps := FromPackages(pkgs)
 			Expect(apps).To(HaveLen(1))
 			Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))

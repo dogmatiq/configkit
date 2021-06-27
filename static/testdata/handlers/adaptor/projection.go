@@ -18,7 +18,14 @@ func (ProjectionHandler) Configure(c dogma.ProjectionConfigurer) {
 	c.ConsumesEventType(fixtures.MessageB{})
 }
 
+// PartialProjectionMessageHandler is the subset of
+// dogma.ProjectionMessageHandler that must be implemented for a type to be
+// detected as a concrete implementation.
+type PartialProjectionMessageHandler interface {
+	Configure(c dogma.ProjectionConfigurer)
+}
+
 // AdaptProjection adapts h to the dogma.ProjectionMessageHandler interface.
-func AdaptProjection(h ProjectionHandler) dogma.ProjectionMessageHandler {
+func AdaptProjection(h PartialProjectionMessageHandler) dogma.ProjectionMessageHandler {
 	panic("the implementation of this function is irrelevant to the analyzer")
 }

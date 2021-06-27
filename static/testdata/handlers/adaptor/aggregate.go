@@ -21,7 +21,14 @@ func (AggregateHandler) Configure(c dogma.AggregateConfigurer) {
 	c.ProducesEventType(fixtures.MessageD{})
 }
 
+// PartialAggregateMessageHandler is the subset of dogma.AggregateMessageHandler
+// that must be implemented for a type to be detected as a concrete
+// implementation.
+type PartialAggregateMessageHandler interface {
+	Configure(c dogma.AggregateConfigurer)
+}
+
 // AdaptAggregate adapts h to the dogma.AggregateMessageHandler interface.
-func AdaptAggregate(h AggregateHandler) dogma.AggregateMessageHandler {
+func AdaptAggregate(h PartialAggregateMessageHandler) dogma.AggregateMessageHandler {
 	panic("the implementation of this function is irrelevant to the analyzer")
 }
