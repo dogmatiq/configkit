@@ -9,11 +9,11 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
-## [Unreleased]
+## [0.11.1] - 2021-09-17
 
 ### Added
 
-- Add loading of Dogma application configurations using Golang static analysis
+- Add `static` package, which produces application configurations using static analysis
 
 ## [0.11.0] - 2021-02-24
 
@@ -227,6 +227,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [0.9.1]: https://github.com/dogmatiq/configkit/releases/v0.9.1
 [0.10.0]: https://github.com/dogmatiq/configkit/releases/v0.10.0
 [0.11.0]: https://github.com/dogmatiq/configkit/releases/v0.11.0
+[0.11.1]: https://github.com/dogmatiq/configkit/releases/v0.11.1
 
 <!-- version template
 ## [0.0.1] - YYYY-MM-DD
