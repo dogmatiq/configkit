@@ -1,6 +1,6 @@
 module github.com/dogmatiq/configkit
 
-go 1.17
+go 1.18
 
 require (
 	github.com/dogmatiq/dogma v0.11.1
@@ -14,6 +14,7 @@ require (
 )
 
 require (
+	github.com/alecthomas/participle/v2 v2.0.0-beta.4 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect

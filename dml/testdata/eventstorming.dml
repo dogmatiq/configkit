@@ -1,0 +1,71 @@
+app Bank (1660f018-8a7f-496c-b411-d81420b2ef21)
+
+
+
+
+AccountCredited!
+    We could write a definition here.
+    This doesn't feel like documentation, it feels liek a code block.
+    ---
+
+
+
+
+AccountDebited!
+    Indicates that this is something that does something.
+
+OpenAccount?
+    Describe what this command does perhaps.
+
+
+
+
+CreditAccount? -> AccountCredited!
+    We could write a definition here.
+    This doesn't feel like documentation, it feels liek a code block.
+    ---
+
+
+
+aggregate Account (66dda0e2-67bc-4e20-b14e-79798be456e1)
+    OpenAccount? -> [ AccountOpened! [ NewCustomerAcquired! ] ]
+
+aggregate Account
+    We could write a definition here.
+    This doesn't feel like documentation, it feels liek a code block.
+    ---
+
+    DebitAccount? -> AccountDebited!
+                  -> AccountDebitDeclined!
+
+aggregate Account
+    CreditAccount? -> AccountCredited!
+        We could write a definition here.
+        This doesn't feel like documentation, it feels liek a code block.
+        ---
+
+aggregate Transaction
+    StartTransfer?           -> [ TransferStarted! ]
+    MarkTransactionApproved? -> TransactionApproved! .
+    MarkTransactionDeclined? -> TransactionDeclined! .
+
+aggregate DailyDebitLimit
+    ConsumeDailyDebitLimit? -> DailyDebitLimitConsumed!
+                            -> DailyDebitLimitExceeded!
+
+
+process Transfer
+    TransferStarted!             -> [ TransferReadyToProceed@ ]
+    TransferReadyToProceed@      -> DebitAccount?
+    [ AccountDebited! ]          -> ConsumeDailyDebitLimit?
+    [ AccountDebitDeclined! ]    -> DeclineTransfer? .
+    [ DailyDebitLimitConsumed! ] -> CreditAccount?
+    [ AccountCredited! ]         -> ApproveTransfer? .
+
+
+integration Something
+    DoFoo? -> FooDone! AlsoThis!
+
+projection Ledger
+    AccountCredited!
+    AccountDebited!

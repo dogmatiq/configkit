@@ -1,0 +1,119 @@
+<html>
+    <head>
+        <style>
+            body {
+                font-size: 15px;
+                background: #202020;
+                color: #c3c3c3;
+            }
+
+            pre {
+                width: 50%;
+                margin: auto;
+            }
+
+            .keyword {
+                font-style: italic;
+            }
+
+            .command {
+                color: #2ca0ff;
+            }
+
+            .event {
+                color: #f89900;
+            }
+
+            .timeout {
+                color: #0ec7df;
+            }
+
+            .key {
+                color: #808080;
+            }
+
+            .app {
+                color: white;
+            }
+
+            .aggregate {
+                color: #fff89d;
+            }
+
+            .process {
+                color: #c086c5;
+            }
+
+            .integration {
+                color: #f56d7d;
+            }
+
+            .projection {
+                color:  #a3d350;
+            }
+
+            .comment {
+                color: #1f9b1b;
+            }
+</style>
+</head>
+
+<body>
+<pre>
+<span class="app"><span class="keyword">app</span> Bank</span> <span class="key">(1660f018-8a7f-496c-b411-d81420b2ef21)</span>
+
+<span class="comment">// We could write a definition here.
+// This doesn't feel like documentation, it feels liek a code block.</span>
+<span class="event">AccountCredited!</span>
+
+<span class="comment">// Indicates that this is something that does something.</span>
+<span class="event">AccountDebited!</span>
+
+<span class="comment">// Describe what this command does perhaps.</span>
+<span class="command">OpenAccount?</span>
+
+<span class="command">CreditAccount?</span> -> <span class="event">AccountCredited!</span>
+
+
+<span class="aggregate"><span class="keyword">aggregate</span> Account</span> <span class="key">(66dda0e2-67bc-4e20-b14e-79798be456e1)</span>
+    <span class="command">OpenAccount?</span> -> [ <span class="event">AccountOpened!</span> [ <span class="event">NewCustomerAcquired!</span> ] ]
+
+<span class="aggregate"><span class="keyword">aggregate</span> Account</span>
+    <span class="command">DebitAccount?</span> -> <span class="event">AccountDebited!</span>
+                  -> <span class="event">AccountDebitDeclined!</span>
+
+<span class="aggregate"><span class="keyword">aggregate</span> Account</span>
+    <span class="command">CreditAccount?</span> -> <span class="event">AccountCredited!</span>
+
+<span class="aggregate"><span class="keyword">aggregate</span> Transaction</span>
+    <span class="command">StartTransfer?</span>           -> [ <span class="event">TransferStarted!</span> ]
+    <span class="command">MarkTransactionApproved?</span> -> <span class="event">TransactionApproved!</span> .
+    <span class="command">MarkTransactionDeclined?</span> -> <span class="event">TransactionDeclined!</span> .
+
+<span class="aggregate"><span class="keyword">aggregate</span> DailyDebitLimit</span>
+    <span class="command">ConsumeDailyDebitLimit?</span> -> <span class="event">DailyDebitLimitConsumed!</span>
+                            -> <span class="event">DailyDebitLimitExceeded!</span>
+
+
+<span class="comment">
+// Transfer is a process that does some mad shit.
+// It requires three magic beans.</span>
+<span class="process"><span class="keyword">process</span> Transfer</span>
+    <span class="event">TransferStarted!</span>             -> [ <span class="timeout">TransferReadyToProceed@</span> ]
+    <span class="timeout">TransferReadyToProceed@</span>      -> <span class="command">DebitAccount?</span>
+    [ <span class="event">AccountDebited!</span> ]          -> <span class="command">ConsumeDailyDebitLimit?</span>
+    [ <span class="event">AccountDebitDeclined!</span> ]    -> <span class="command">DeclineTransfer?</span> .
+    [ <span class="event">DailyDebitLimitConsumed!</span> ] -> <span class="command">CreditAccount?</span>
+    [ <span class="event">AccountCredited!</span> ]         -> <span class="command">ApproveTransfer?</span> .
+
+
+<span class="integration"><span class="keyword">integration</span> Something</span>
+    <span class="command">DoFoo?</span> -> <span class="event">FooDone!</span> <span class="event">AlsoThis!</span>
+    <span class="comment">// DoComments? -> YesComments!</span>
+
+<span class="projection"><span class="keyword">projection</span> Ledger</span>
+    <span class="event">AccountCredited!</span>
+    <span class="event">AccountDebited!</span>
+</pre>
+</body>
+</html>
