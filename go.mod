@@ -8,7 +8,7 @@ require (
 	github.com/dogmatiq/interopspec v0.5.2
 	github.com/emicklei/dot v1.0.0
 	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/gomega v1.23.0
+	github.com/onsi/gomega v1.24.0
 	golang.org/x/tools v0.2.0
 	google.golang.org/grpc v1.50.1
 )
