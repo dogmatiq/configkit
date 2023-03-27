@@ -82,9 +82,9 @@ func (m EntityMessageNames) All() message.NameRoles {
 // must be communicated beyond the scope of those entities.
 //
 // This includes:
-//  - commands that are produced by the entity, but consumed elsewhere
-//  - commands that are consumed by the entity, but produced elsewhere
-//  - events that are consumed by the entity, but produced elsewhere
+//   - commands that are produced by the entity, but consumed elsewhere
+//   - commands that are consumed by the entity, but produced elsewhere
+//   - events that are consumed by the entity, but produced elsewhere
 func (m EntityMessageNames) Foreign() EntityMessageNames {
 	f := EntityMessageNames{
 		Produced: message.NameRoles{},
@@ -162,9 +162,9 @@ func (m EntityMessageTypes) IsEqual(o EntityMessageTypes) bool {
 // must be communicated beyond the scope of those entities.
 //
 // This includes:
-//  - commands that are produced by this entity, but consumed elsewhere
-//  - commands that are consumed by this entity, but produced elsewhere
-//  - events that are consumed by this entity, but produced elsewhere
+//   - commands that are produced by this entity, but consumed elsewhere
+//   - commands that are consumed by this entity, but produced elsewhere
+//   - events that are consumed by this entity, but produced elsewhere
 func (m EntityMessageTypes) Foreign() EntityMessageTypes {
 	f := EntityMessageTypes{
 		Produced: message.TypeRoles{},
