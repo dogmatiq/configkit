@@ -6,7 +6,7 @@ require (
 	github.com/dogmatiq/dogma v0.11.1
 	github.com/dogmatiq/iago v0.4.0
 	github.com/dogmatiq/interopspec v0.5.2
-	github.com/emicklei/dot v1.3.1
+	github.com/emicklei/dot v1.4.2
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.27.5
 	golang.org/x/tools v0.7.0
