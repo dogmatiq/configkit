@@ -31,11 +31,11 @@ var _ = Context("end-to-end tests", func() {
 
 		app1 = &Application{
 			ConfigureFunc: func(c dogma.ApplicationConfigurer) {
-				c.Identity("<app-1>", "<app-key-1>")
+				c.Identity("<app-1>", "b1101bbf-8a62-436d-9044-e6fd3d0e5385")
 
 				c.RegisterAggregate(&AggregateMessageHandler{
 					ConfigureFunc: func(c dogma.AggregateConfigurer) {
-						c.Identity("<aggregate>", "<aggregate-key>")
+						c.Identity("<aggregate>", "938b829d-e4d7-4780-bf06-ea349453ba8f")
 						c.ConsumesCommandType(MessageC{})
 						c.ProducesEventType(MessageE{})
 					},
@@ -43,7 +43,7 @@ var _ = Context("end-to-end tests", func() {
 
 				c.RegisterProcess(&ProcessMessageHandler{
 					ConfigureFunc: func(c dogma.ProcessConfigurer) {
-						c.Identity("<process>", "<process-key>")
+						c.Identity("<process>", "2a87972b-547d-416b-b6e5-4dddb1187658")
 						c.ConsumesEventType(MessageE{})
 						c.ProducesCommandType(MessageC{})
 						c.SchedulesTimeoutType(MessageT{})
@@ -54,11 +54,11 @@ var _ = Context("end-to-end tests", func() {
 
 		app2 = &Application{
 			ConfigureFunc: func(c dogma.ApplicationConfigurer) {
-				c.Identity("<app-2>", "<app-key-2>")
+				c.Identity("<app-2>", "7d3927ce-d879-40a4-bd67-0fafc79d3c36")
 
 				c.RegisterIntegration(&IntegrationMessageHandler{
 					ConfigureFunc: func(c dogma.IntegrationConfigurer) {
-						c.Identity("<integration>", "<integration-key>")
+						c.Identity("<integration>", "e6f0ad02-d301-4f46-a03d-4f9d0d20f5cf")
 						c.ConsumesCommandType(MessageI{})
 						c.ProducesEventType(MessageJ{})
 					},
@@ -66,7 +66,7 @@ var _ = Context("end-to-end tests", func() {
 
 				c.RegisterProjection(&ProjectionMessageHandler{
 					ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-						c.Identity("<projection>", "<projection-key>")
+						c.Identity("<projection>", "280a58bd-f154-46d7-863b-23ce70e49d2a")
 						c.ConsumesEventType(MessageE{})
 						c.ConsumesEventType(MessageJ{})
 					},

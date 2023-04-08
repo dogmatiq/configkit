@@ -7,6 +7,7 @@ import (
 	"unicode"
 
 	"github.com/dogmatiq/configkit/internal/validation"
+	"github.com/google/uuid"
 )
 
 // Identity is the application-defined identity of a Dogma entity.
@@ -119,7 +120,7 @@ func (i *Identity) UnmarshalBinary(data []byte) error {
 // ValidateIdentityName returns nil if n is a valid application or handler name;
 // otherwise, it returns an error.
 func ValidateIdentityName(n string) error {
-	if !isValidIdentityComponent(n) {
+	if !isValidIdentityName(n) {
 		return validation.Errorf(
 			"invalid name %#v, names must be non-empty, printable UTF-8 strings with no whitespace",
 			n,
@@ -132,22 +133,21 @@ func ValidateIdentityName(n string) error {
 // ValidateIdentityKey returns nil if n is a valid application or handler key;
 // otherwise, it returns an error.
 func ValidateIdentityKey(k string) error {
-	if !isValidIdentityComponent(k) {
+	if _, err := uuid.Parse(k); err != nil {
 		return validation.Errorf(
-			"invalid key %#v, keys must be non-empty, printable UTF-8 strings with no whitespace",
+			"invalid key %#v, keys must be RFC 4122 UUIDs",
 			k,
 		)
 	}
-
 	return nil
 }
 
-// isValidIdentityComponent returns true if n is a valid application or handler
+// isValidIdentityName returns true if n is a valid application or handler
 // name or key.
 //
 // A valid name/key is a non-empty string consisting of Unicode printable
 // characters, except whitespace.
-func isValidIdentityComponent(n string) bool {
+func isValidIdentityName(n string) bool {
 	if len(n) == 0 {
 		return false
 	}

@@ -4,21 +4,30 @@ import (
 	"fmt"
 
 	. "github.com/dogmatiq/configkit"
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 )
 
+const (
+	appKey         = "59a82a24-a181-41e8-9b93-17a6ce86956e"
+	aggregateKey   = "14769f7f-87fe-48dd-916e-5bcab6ba6aca"
+	processKey     = "bea52cf4-e403-4b18-819d-88ade7836308"
+	integrationKey = "e28f056e-e5a0-4ee7-aaf1-1d1fe02fb6e3"
+	projectionKey  = "70fdf7fa-4b24-448d-bd29-7ecc71d18c56"
+)
+
 var _ = Describe("type Identity", func() {
 	Describe("func NewIdentity()", func() {
 		It("returns the identity", func() {
-			i, err := NewIdentity("<name>", "<key>")
+			i, err := NewIdentity("<name>", appKey)
 			Expect(err).ShouldNot(HaveOccurred())
-			Expect(i).To(Equal(Identity{"<name>", "<key>"}))
+			Expect(i).To(Equal(Identity{"<name>", appKey}))
 		})
 
 		It("returns an error if the name is invalid", func() {
-			_, err := NewIdentity("", "<key>")
+			_, err := NewIdentity("", appKey)
 			Expect(err).Should(HaveOccurred())
 		})
 
@@ -30,13 +39,13 @@ var _ = Describe("type Identity", func() {
 
 	Describe("func MustNewIdentity()", func() {
 		It("returns the identity", func() {
-			i := MustNewIdentity("<name>", "<key>")
-			Expect(i).To(Equal(Identity{"<name>", "<key>"}))
+			i := MustNewIdentity("<name>", appKey)
+			Expect(i).To(Equal(Identity{"<name>", appKey}))
 		})
 
 		It("panics if the name is invalid", func() {
 			Expect(func() {
-				MustNewIdentity("", "<key>")
+				MustNewIdentity("", appKey)
 			}).To(Panic())
 		})
 
@@ -53,7 +62,7 @@ var _ = Describe("type Identity", func() {
 		})
 
 		It("returns false if the identity is not empty", func() {
-			Expect(Identity{"<name>", "<key>"}.IsZero()).To(BeFalse())
+			Expect(Identity{"<name>", appKey}.IsZero()).To(BeFalse())
 		})
 	})
 
@@ -67,8 +76,8 @@ var _ = Describe("type Identity", func() {
 			Entry(
 				"same identity",
 				true,
-				Identity{"<name>", "<key>"},
-				Identity{"<name>", "<key>"},
+				Identity{"<name>", appKey},
+				Identity{"<name>", appKey},
 			),
 			Entry(
 				"conflicting name",
@@ -79,8 +88,8 @@ var _ = Describe("type Identity", func() {
 			Entry(
 				"conflicting key",
 				true,
-				Identity{"<name-1>", "<key>"},
-				Identity{"<name-2>", "<key>"},
+				Identity{"<name-1>", appKey},
+				Identity{"<name-2>", appKey},
 			),
 			Entry(
 				"no conflict",
@@ -95,7 +104,10 @@ var _ = Describe("type Identity", func() {
 		DescribeTable(
 			"it returns nil if the name and key are valid",
 			func(v string) {
-				i := Identity{v, v}
+				i := Identity{
+					v,
+					uuid.NewString(),
+				}
 				Expect(i.Validate()).ShouldNot(HaveOccurred())
 			},
 			Entry("ascii", "foo-bar"),
@@ -112,7 +124,7 @@ var _ = Describe("type Identity", func() {
 		DescribeTable(
 			"it returns an error if the name is invalid",
 			func(v string) {
-				i := Identity{v, "<key>"}
+				i := Identity{v, appKey}
 				Expect(i.Validate()).Should(MatchError(
 					fmt.Sprintf(
 						"invalid name %#v, names must be non-empty, printable UTF-8 strings with no whitespace",
@@ -129,7 +141,7 @@ var _ = Describe("type Identity", func() {
 				i := Identity{"<name>", v}
 				Expect(i.Validate()).To(MatchError(
 					fmt.Sprintf(
-						"invalid key %#v, keys must be non-empty, printable UTF-8 strings with no whitespace",
+						"invalid key %#v, keys must be RFC 4122 UUIDs",
 						v,
 					),
 				))
@@ -140,14 +152,18 @@ var _ = Describe("type Identity", func() {
 
 	Describe("func String()", func() {
 		It("returns a string representation of the identity", func() {
-			i := Identity{"<name>", "<key>"}
-			Expect(i.String()).To(Equal("<name>/<key>"))
+			i := Identity{"<name>", appKey}
+			Expect(i.String()).To(Equal("<name>/59a82a24-a181-41e8-9b93-17a6ce86956e"))
 		})
 	})
 
 	Describe("func MarshalText()", func() {
 		It("marshals the identity to text", func() {
-			Expect(Identity{"<name>", "<key>"}.MarshalText()).To(Equal([]byte("<name> <key>")))
+			Expect(
+				Identity{"<name>", appKey}.MarshalText(),
+			).To(
+				Equal([]byte("<name> 59a82a24-a181-41e8-9b93-17a6ce86956e")),
+			)
 		})
 
 		It("returns an error if the identity is invalid", func() {
@@ -160,9 +176,9 @@ var _ = Describe("type Identity", func() {
 		It("unmarshals the type from text", func() {
 			var i Identity
 
-			err := i.UnmarshalText([]byte("<name> <key>"))
+			err := i.UnmarshalText([]byte("<name> 59a82a24-a181-41e8-9b93-17a6ce86956e"))
 			Expect(err).ShouldNot(HaveOccurred())
-			Expect(i).To(Equal(Identity{"<name>", "<key>"}))
+			Expect(i).To(Equal(Identity{"<name>", appKey}))
 		})
 
 		It("returns an error if there is no space separator", func() {
@@ -182,7 +198,7 @@ var _ = Describe("type Identity", func() {
 
 	Describe("func MarshalBinary() and UnmarshalBinary()", func() {
 		It("marshals and unmarshals the identity", func() {
-			in := Identity{"<name>", "<key>"}
+			in := Identity{"<name>", appKey}
 
 			data, err := in.MarshalBinary()
 			Expect(err).ShouldNot(HaveOccurred())

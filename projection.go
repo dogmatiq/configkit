@@ -21,6 +21,9 @@ type RichProjection interface {
 
 	// Handler returns the underlying message handler.
 	Handler() dogma.ProjectionMessageHandler
+
+	// DeliveryPolicy returns the projection's delivery policy.
+	DeliveryPolicy() dogma.ProjectionDeliveryPolicy
 }
 
 // FromProjection returns the configuration for a projection message handler.
@@ -32,12 +35,15 @@ func FromProjection(h dogma.ProjectionMessageHandler) RichProjection {
 		entity: entity{
 			rt: reflect.TypeOf(h),
 		},
-		impl: h,
+		impl:           h,
+		deliveryPolicy: dogma.UnicastProjectionDeliveryPolicy{},
 	}
 
-	c := &handlerConfigurer{
-		entityConfigurer: entityConfigurer{
-			entity: &cfg.entity,
+	c := &projectionConfigurer{
+		handlerConfigurer: handlerConfigurer{
+			entityConfigurer: entityConfigurer{
+				entity: &cfg.entity,
+			},
 		},
 	}
 
@@ -46,6 +52,10 @@ func FromProjection(h dogma.ProjectionMessageHandler) RichProjection {
 	c.validate()
 	c.mustConsume(message.EventRole)
 
+	if c.deliveryPolicy != nil {
+		cfg.deliveryPolicy = c.deliveryPolicy
+	}
+
 	return cfg
 }
 
@@ -53,7 +63,8 @@ func FromProjection(h dogma.ProjectionMessageHandler) RichProjection {
 type projection struct {
 	entity
 
-	impl dogma.ProjectionMessageHandler
+	impl           dogma.ProjectionMessageHandler
+	deliveryPolicy dogma.ProjectionDeliveryPolicy
 }
 
 func (h *projection) AcceptVisitor(ctx context.Context, v Visitor) error {
@@ -70,4 +81,8 @@ func (h *projection) HandlerType() HandlerType {
 
 func (h *projection) Handler() dogma.ProjectionMessageHandler {
 	return h.impl
+}
+
+func (h *projection) DeliveryPolicy() dogma.ProjectionDeliveryPolicy {
+	return h.deliveryPolicy
 }

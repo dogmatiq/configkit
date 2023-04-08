@@ -19,7 +19,7 @@ var _ = Describe("type HandlerSet", func() {
 
 	aggregate := FromAggregate(&fixtures.AggregateMessageHandler{
 		ConfigureFunc: func(c dogma.AggregateConfigurer) {
-			c.Identity("<agg-name>", "<agg-key>")
+			c.Identity("<agg-name>", aggregateKey)
 			c.ConsumesCommandType(fixtures.MessageC{})
 			c.ProducesEventType(fixtures.MessageE{})
 		},
@@ -27,7 +27,7 @@ var _ = Describe("type HandlerSet", func() {
 
 	projection := FromProjection(&fixtures.ProjectionMessageHandler{
 		ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-			c.Identity("<proj-name>", "<proj-key>")
+			c.Identity("<proj-name>", projectionKey)
 			c.ConsumesEventType(fixtures.MessageE{})
 		},
 	})
@@ -93,13 +93,13 @@ var _ = Describe("type HandlerSet", func() {
 		It("returns the handler with the given identity", func() {
 			set.Add(aggregate)
 
-			h, ok := set.ByIdentity(MustNewIdentity("<agg-name>", "<agg-key>"))
+			h, ok := set.ByIdentity(MustNewIdentity("<agg-name>", aggregateKey))
 			Expect(ok).To(BeTrue())
 			Expect(h).To(Equal(aggregate))
 		})
 
 		It("returns false if no such handler is in the set", func() {
-			_, ok := set.ByIdentity(MustNewIdentity("<agg-name>", "<agg-key>"))
+			_, ok := set.ByIdentity(MustNewIdentity("<agg-name>", aggregateKey))
 			Expect(ok).To(BeFalse())
 		})
 	})
@@ -123,13 +123,13 @@ var _ = Describe("type HandlerSet", func() {
 		It("returns the handler with the given key", func() {
 			set.Add(aggregate)
 
-			h, ok := set.ByKey("<agg-key>")
+			h, ok := set.ByKey(aggregateKey)
 			Expect(ok).To(BeTrue())
 			Expect(h).To(Equal(aggregate))
 		})
 
 		It("returns false if no such handler is in the set", func() {
-			_, ok := set.ByKey("<agg-key>")
+			_, ok := set.ByKey(aggregateKey)
 			Expect(ok).To(BeFalse())
 		})
 	})
@@ -227,7 +227,7 @@ var _ = Describe("type HandlerSet", func() {
 				"superset",
 				NewHandlerSet(aggregate, projection, FromIntegration(&fixtures.IntegrationMessageHandler{
 					ConfigureFunc: func(c dogma.IntegrationConfigurer) {
-						c.Identity("<int-name>", "<int-key>")
+						c.Identity("<int-name>", integrationKey)
 						c.ConsumesCommandType(fixtures.MessageX{})
 					},
 				})),
@@ -236,7 +236,7 @@ var _ = Describe("type HandlerSet", func() {
 				"same-length, disjoint handler",
 				NewHandlerSet(aggregate, FromProjection(&fixtures.ProjectionMessageHandler{
 					ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-						c.Identity("<proj-name>", "<proj-key>")
+						c.Identity("<proj-name>", projectionKey)
 						c.ConsumesEventType(fixtures.MessageF{}) // diff
 					},
 				})),
@@ -335,7 +335,7 @@ var _ = Describe("type HandlerSet", func() {
 		BeforeEach(func() {
 			aggregate1 = FromAggregate(&fixtures.AggregateMessageHandler{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
-					c.Identity("<agg1-name>", "<agg1-key>")
+					c.Identity("<agg1-name>", "ca82de11-1794-486e-a190-78e2443de7dd")
 					c.ConsumesCommandType(fixtures.MessageC{})
 					c.ProducesEventType(fixtures.MessageD{})
 				},
@@ -343,7 +343,7 @@ var _ = Describe("type HandlerSet", func() {
 
 			aggregate2 = FromAggregate(&fixtures.AggregateMessageHandler{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
-					c.Identity("<agg2-name>", "<agg2-key>")
+					c.Identity("<agg2-name>", "3a7ad56e-d9b9-42be-9a16-01f25e572c49")
 					c.ConsumesCommandType(fixtures.MessageC{})
 					c.ProducesEventType(fixtures.MessageD{})
 				},
@@ -351,7 +351,7 @@ var _ = Describe("type HandlerSet", func() {
 
 			process1 = FromProcess(&fixtures.ProcessMessageHandler{
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
-					c.Identity("<proc1-name>", "<proc1-key>")
+					c.Identity("<proc1-name>", "5695e728-33ca-4b0f-b063-ff0ff6f48276")
 					c.ConsumesEventType(fixtures.MessageE{})
 					c.ProducesCommandType(fixtures.MessageC{})
 				},
@@ -359,7 +359,7 @@ var _ = Describe("type HandlerSet", func() {
 
 			process2 = FromProcess(&fixtures.ProcessMessageHandler{
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
-					c.Identity("<proc2-name>", "<proc2-key>")
+					c.Identity("<proc2-name>", "3d510ba8-6dca-46bb-bcde-193015867834")
 					c.ConsumesEventType(fixtures.MessageE{})
 					c.ProducesCommandType(fixtures.MessageC{})
 				},
@@ -367,7 +367,7 @@ var _ = Describe("type HandlerSet", func() {
 
 			integration1 = FromIntegration(&fixtures.IntegrationMessageHandler{
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
-					c.Identity("<int1-name>", "<int1-key>")
+					c.Identity("<int1-name>", "fdf0059e-8786-42db-a348-caac60d6118a")
 					c.ConsumesCommandType(fixtures.MessageC{})
 					c.ProducesEventType(fixtures.MessageD{})
 				},
@@ -375,7 +375,7 @@ var _ = Describe("type HandlerSet", func() {
 
 			integration2 = FromIntegration(&fixtures.IntegrationMessageHandler{
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
-					c.Identity("<int2-name>", "<int2-key>")
+					c.Identity("<int2-name>", "34d19336-95c5-47c7-b36e-4e90b24b1b83")
 					c.ConsumesCommandType(fixtures.MessageC{})
 					c.ProducesEventType(fixtures.MessageD{})
 				},
@@ -383,14 +383,14 @@ var _ = Describe("type HandlerSet", func() {
 
 			projection1 = FromProjection(&fixtures.ProjectionMessageHandler{
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-					c.Identity("<proj1-name>", "<proj1-key>")
+					c.Identity("<proj1-name>", "ee9bd355-e9fd-413a-ac83-7182ea76cb89")
 					c.ConsumesEventType(fixtures.MessageE{})
 				},
 			})
 
 			projection2 = FromProjection(&fixtures.ProjectionMessageHandler{
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-					c.Identity("<proj2-name>", "<proj2-key>")
+					c.Identity("<proj2-name>", "0fe3a5e3-b8e1-4ba0-8c90-f002f0a842f9")
 					c.ConsumesEventType(fixtures.MessageE{})
 				},
 			})
@@ -540,7 +540,7 @@ var _ = Describe("type RichHandlerSet", func() {
 
 	aggregate := FromAggregate(&fixtures.AggregateMessageHandler{
 		ConfigureFunc: func(c dogma.AggregateConfigurer) {
-			c.Identity("<agg-name>", "<agg-key>")
+			c.Identity("<agg-name>", aggregateKey)
 			c.ConsumesCommandType(fixtures.MessageC{})
 			c.ProducesEventType(fixtures.MessageE{})
 		},
@@ -548,7 +548,7 @@ var _ = Describe("type RichHandlerSet", func() {
 
 	projection := FromProjection(&fixtures.ProjectionMessageHandler{
 		ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-			c.Identity("<proj-name>", "<proj-key>")
+			c.Identity("<proj-name>", projectionKey)
 			c.ConsumesEventType(fixtures.MessageE{})
 		},
 	})
@@ -614,13 +614,13 @@ var _ = Describe("type RichHandlerSet", func() {
 		It("returns the handler with the given identity", func() {
 			set.Add(aggregate)
 
-			h, ok := set.ByIdentity(MustNewIdentity("<agg-name>", "<agg-key>"))
+			h, ok := set.ByIdentity(MustNewIdentity("<agg-name>", aggregateKey))
 			Expect(ok).To(BeTrue())
 			Expect(h).To(Equal(aggregate))
 		})
 
 		It("returns false if no such handler is in the set", func() {
-			_, ok := set.ByIdentity(MustNewIdentity("<agg-name>", "<agg-key>"))
+			_, ok := set.ByIdentity(MustNewIdentity("<agg-name>", aggregateKey))
 			Expect(ok).To(BeFalse())
 		})
 	})
@@ -644,13 +644,13 @@ var _ = Describe("type RichHandlerSet", func() {
 		It("returns the handler with the given key", func() {
 			set.Add(aggregate)
 
-			h, ok := set.ByKey("<agg-key>")
+			h, ok := set.ByKey(aggregateKey)
 			Expect(ok).To(BeTrue())
 			Expect(h).To(Equal(aggregate))
 		})
 
 		It("returns false if no such handler is in the set", func() {
-			_, ok := set.ByKey("<agg-key>")
+			_, ok := set.ByKey(aggregateKey)
 			Expect(ok).To(BeFalse())
 		})
 	})
@@ -748,7 +748,7 @@ var _ = Describe("type RichHandlerSet", func() {
 				"superset",
 				NewRichHandlerSet(aggregate, projection, FromIntegration(&fixtures.IntegrationMessageHandler{
 					ConfigureFunc: func(c dogma.IntegrationConfigurer) {
-						c.Identity("<int-name>", "<int-key>")
+						c.Identity("<int-name>", integrationKey)
 						c.ConsumesCommandType(fixtures.MessageX{})
 					},
 				})),
@@ -757,7 +757,7 @@ var _ = Describe("type RichHandlerSet", func() {
 				"same-length, disjoint handler",
 				NewRichHandlerSet(aggregate, FromProjection(&fixtures.ProjectionMessageHandler{
 					ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-						c.Identity("<proj-name>", "<proj-key>")
+						c.Identity("<proj-name>", projectionKey)
 						c.ConsumesEventType(fixtures.MessageF{}) // diff
 					},
 				})),
@@ -856,7 +856,7 @@ var _ = Describe("type RichHandlerSet", func() {
 		BeforeEach(func() {
 			aggregate1 = FromAggregate(&fixtures.AggregateMessageHandler{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
-					c.Identity("<agg1-name>", "<agg1-key>")
+					c.Identity("<agg1-name>", "648c035d-2a6a-49e6-8968-044bec062fed")
 					c.ConsumesCommandType(fixtures.MessageC{})
 					c.ProducesEventType(fixtures.MessageD{})
 				},
@@ -864,7 +864,7 @@ var _ = Describe("type RichHandlerSet", func() {
 
 			aggregate2 = FromAggregate(&fixtures.AggregateMessageHandler{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
-					c.Identity("<agg2-name>", "<agg2-key>")
+					c.Identity("<agg2-name>", "e465c85d-4ac0-4aed-8054-665a86b9ef4e")
 					c.ConsumesCommandType(fixtures.MessageC{})
 					c.ProducesEventType(fixtures.MessageD{})
 				},
@@ -872,7 +872,7 @@ var _ = Describe("type RichHandlerSet", func() {
 
 			process1 = FromProcess(&fixtures.ProcessMessageHandler{
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
-					c.Identity("<proc1-name>", "<proc1-key>")
+					c.Identity("<proc1-name>", "71a4111b-ee0d-4df1-a059-d8bb94dc3e77")
 					c.ConsumesEventType(fixtures.MessageE{})
 					c.ProducesCommandType(fixtures.MessageC{})
 				},
@@ -880,7 +880,7 @@ var _ = Describe("type RichHandlerSet", func() {
 
 			process2 = FromProcess(&fixtures.ProcessMessageHandler{
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
-					c.Identity("<proc2-name>", "<proc2-key>")
+					c.Identity("<proc2-name>", "3b4ce9af-ca54-4c77-a8e7-285267f73c82")
 					c.ConsumesEventType(fixtures.MessageE{})
 					c.ProducesCommandType(fixtures.MessageC{})
 				},
@@ -888,7 +888,7 @@ var _ = Describe("type RichHandlerSet", func() {
 
 			integration1 = FromIntegration(&fixtures.IntegrationMessageHandler{
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
-					c.Identity("<int1-name>", "<int1-key>")
+					c.Identity("<int1-name>", "22857e0c-7990-4dfe-9cd0-40d6dd160aaf")
 					c.ConsumesCommandType(fixtures.MessageC{})
 					c.ProducesEventType(fixtures.MessageD{})
 				},
@@ -896,7 +896,7 @@ var _ = Describe("type RichHandlerSet", func() {
 
 			integration2 = FromIntegration(&fixtures.IntegrationMessageHandler{
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
-					c.Identity("<int2-name>", "<int2-key>")
+					c.Identity("<int2-name>", "26ae7db1-7a81-407d-ac08-52e35f7765d1")
 					c.ConsumesCommandType(fixtures.MessageC{})
 					c.ProducesEventType(fixtures.MessageD{})
 				},
@@ -904,14 +904,14 @@ var _ = Describe("type RichHandlerSet", func() {
 
 			projection1 = FromProjection(&fixtures.ProjectionMessageHandler{
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-					c.Identity("<proj1-name>", "<proj1-key>")
+					c.Identity("<proj1-name>", "400a4609-9e00-4ccd-8436-3ad9ef073f5d")
 					c.ConsumesEventType(fixtures.MessageE{})
 				},
 			})
 
 			projection2 = FromProjection(&fixtures.ProjectionMessageHandler{
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-					c.Identity("<proj2-name>", "<proj2-key>")
+					c.Identity("<proj2-name>", "2d09f134-8971-4dff-8b84-b0e3c279ca88")
 					c.ConsumesEventType(fixtures.MessageE{})
 				},
 			})

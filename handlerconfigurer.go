@@ -1,6 +1,8 @@
 package configkit
 
 import (
+	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/dogmatiq/configkit/internal/validation"
@@ -8,51 +10,57 @@ import (
 	"github.com/dogmatiq/dogma"
 )
 
-// handlerConfigurer is an implementation of the configurer interfaces for
+// handlerConfigurer is a partial implementation of the configurer interfaces for
 // all of the Dogma handler types.
 //
-// - dogma.AggregateConfigurer
-// - dogma.ProcessConfigurer
-// - dogma.IntegrationConfigurer
-// - dogma.ProjectionConfigurer
+//   - [dogma.AggregateConfigurer]
+//   - [dogma.ProcessConfigurer]
+//   - [dogma.IntegrationConfigurer]
+//   - [dogma.ProjectionConfigurer]
 type handlerConfigurer struct {
 	entityConfigurer
 }
 
-// ConsumesCommandTypes marks the handler as a consumer of command messages of
-// the same type as m.
+func (c *handlerConfigurer) route(r dogma.Route) {
+	switch r := r.(type) {
+	case dogma.HandlesCommandRoute:
+		c.consumes(r.Type, message.CommandRole, "consume")
+	case dogma.RecordsEventRoute:
+		c.produces(r.Type, message.EventRole, "produce")
+	case dogma.HandlesEventRoute:
+		c.consumes(r.Type, message.EventRole, "consume")
+	case dogma.ExecutesCommandRoute:
+		c.produces(r.Type, message.CommandRole, "produce")
+	case dogma.SchedulesTimeoutRoute:
+		c.consumes(r.Type, message.TimeoutRole, "schedule")
+		c.produces(r.Type, message.TimeoutRole, "schedule")
+	default:
+		panic(fmt.Sprintf("unsupported route type: %T", r))
+	}
+}
+
 func (c *handlerConfigurer) ConsumesCommandType(m dogma.Message) {
-	c.consumes(m, message.CommandRole, "consume")
+	c.route(dogma.HandlesCommandRoute{Type: reflect.TypeOf(m)})
 }
 
-// ConsumesEventType marks the handler as a consumer of event messages of the
-// same type as m.
 func (c *handlerConfigurer) ConsumesEventType(m dogma.Message) {
-	c.consumes(m, message.EventRole, "consume")
+	c.route(dogma.HandlesEventRoute{Type: reflect.TypeOf(m)})
 }
 
-// ProducesCommandType marks the handler as a producer of command messages of
-// the same type as m.
 func (c *handlerConfigurer) ProducesCommandType(m dogma.Message) {
-	c.produces(m, message.CommandRole, "produce")
+	c.route(dogma.ExecutesCommandRoute{Type: reflect.TypeOf(m)})
 }
 
-// ProducesEventType marks the handler as a producer of event messages of the
-// same type as m.
 func (c *handlerConfigurer) ProducesEventType(m dogma.Message) {
-	c.produces(m, message.EventRole, "produce")
+	c.route(dogma.RecordsEventRoute{Type: reflect.TypeOf(m)})
 }
 
-// SchedulesTimeoutType marks the handler as a scheduler of timeout messages of
-// the same type as m.
 func (c *handlerConfigurer) SchedulesTimeoutType(m dogma.Message) {
-	c.consumes(m, message.TimeoutRole, "schedule")
-	c.produces(m, message.TimeoutRole, "schedule")
+	c.route(dogma.SchedulesTimeoutRoute{Type: reflect.TypeOf(m)})
 }
 
-// consumes marks the handler as a consumer of messages of the same type as m.
-func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role, verb string) {
-	mt := message.TypeOf(m)
+func (c *handlerConfigurer) consumes(t reflect.Type, r message.Role, verb string) {
+	mt := message.TypeFromReflect(t)
 	c.guardAgainstConflictingRoles(mt, r)
 
 	if c.entity.types.Consumed.Has(mt) {
@@ -75,9 +83,8 @@ func (c *handlerConfigurer) consumes(m dogma.Message, r message.Role, verb strin
 	c.entity.types.Consumed.Add(mt, r)
 }
 
-// produces marks the handler as a consumer of messages of the same type as m.
-func (c *handlerConfigurer) produces(m dogma.Message, r message.Role, verb string) {
-	mt := message.TypeOf(m)
+func (c *handlerConfigurer) produces(t reflect.Type, r message.Role, verb string) {
+	mt := message.TypeFromReflect(t)
 	c.guardAgainstConflictingRoles(mt, r)
 
 	if c.entity.types.Produced.Has(mt) {

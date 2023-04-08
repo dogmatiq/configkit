@@ -35,9 +35,11 @@ func FromAggregate(h dogma.AggregateMessageHandler) RichAggregate {
 		impl: h,
 	}
 
-	c := &handlerConfigurer{
-		entityConfigurer: entityConfigurer{
-			entity: &cfg.entity,
+	c := &aggregateConfigurer{
+		handlerConfigurer: handlerConfigurer{
+			entityConfigurer: entityConfigurer{
+				entity: &cfg.entity,
+			},
 		},
 	}
 

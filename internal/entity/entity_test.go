@@ -25,7 +25,7 @@ var _ = Describe("type Application", func() {
 
 	Describe("func Identity()", func() {
 		It("returns the value of .IdentityValue field", func() {
-			i := configkit.MustNewIdentity("<name>", "<key>")
+			i := configkit.MustNewIdentity("<name>", "e68e772b-0f6f-49c8-b882-f0dc997bd6a1")
 			app.IdentityValue = i
 			Expect(app.Identity()).To(Equal(i))
 		})
@@ -72,7 +72,7 @@ var _ = Describe("type Application", func() {
 		It("returns the value of .HandlersValue field", func() {
 			aggregate := configkit.FromAggregate(&fixtures.AggregateMessageHandler{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
-					c.Identity("<agg-name>", "<agg-key>")
+					c.Identity("<agg-name>", "63990c32-ecdd-46dd-8e6a-7bb16f3b1730")
 					c.ConsumesCommandType(fixtures.MessageC{})
 					c.ProducesEventType(fixtures.MessageE{})
 				},
@@ -80,7 +80,7 @@ var _ = Describe("type Application", func() {
 
 			projection := configkit.FromProjection(&fixtures.ProjectionMessageHandler{
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-					c.Identity("<proj-name>", "<proj-key>")
+					c.Identity("<proj-name>", "b34181e8-2930-4b6c-a649-18a001836ec3")
 					c.ConsumesEventType(fixtures.MessageE{})
 				},
 			})
@@ -103,7 +103,7 @@ var _ = Describe("type Handler", func() {
 
 	Describe("func Identity()", func() {
 		It("returns the value of .IdentityValue field", func() {
-			i := configkit.MustNewIdentity("<name>", "<key>")
+			i := configkit.MustNewIdentity("<name>", "7502b306-8e9e-4f23-99ba-00c5bf138de5")
 			hnd.IdentityValue = i
 			Expect(hnd.Identity()).To(Equal(i))
 		})

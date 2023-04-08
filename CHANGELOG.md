@@ -6,8 +6,22 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Semantic Versioning].
 
 <!-- references -->
-[Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
-[Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+
+[keep a changelog]: https://keepachangelog.com/en/1.0.0/
+[semantic versioning]: https://semver.org/spec/v2.0.0.html
+
+## Unreleased
+
+This release updates the configkit implementation to adhere to Dogma v0.12.0
+interfaces.
+
+### Added
+
+- Added `RichProjection.DeliveryPolicy()`
+
+### Changed
+
+- **[BC]** Application and handler identity keys must be RFC 4122 UUIDs
 
 ## [0.11.1] - 2021-09-17
 
@@ -204,7 +218,8 @@ The format is based on [Keep a Changelog], and this project adheres to
 - Initial release
 
 <!-- references -->
-[Unreleased]: https://github.com/dogmatiq/configkit
+
+[unreleased]: https://github.com/dogmatiq/configkit
 [0.1.0]: https://github.com/dogmatiq/configkit/releases/v0.1.0
 [0.1.1]: https://github.com/dogmatiq/configkit/releases/v0.1.1
 [0.2.0]: https://github.com/dogmatiq/configkit/releases/v0.2.0

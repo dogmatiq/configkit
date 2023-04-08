@@ -16,6 +16,7 @@ import (
 )
 
 var _ = Describe("func FromApplication()", func() {
+
 	var (
 		aggregate   *fixtures.AggregateMessageHandler
 		process     *fixtures.ProcessMessageHandler
@@ -27,7 +28,7 @@ var _ = Describe("func FromApplication()", func() {
 	BeforeEach(func() {
 		aggregate = &fixtures.AggregateMessageHandler{
 			ConfigureFunc: func(c dogma.AggregateConfigurer) {
-				c.Identity("<aggregate>", "<aggregate-key>")
+				c.Identity("<aggregate>", aggregateKey)
 				c.ConsumesCommandType(fixtures.MessageA{})
 				c.ProducesEventType(fixtures.MessageE{})
 			},
@@ -35,7 +36,7 @@ var _ = Describe("func FromApplication()", func() {
 
 		process = &fixtures.ProcessMessageHandler{
 			ConfigureFunc: func(c dogma.ProcessConfigurer) {
-				c.Identity("<process>", "<process-key>")
+				c.Identity("<process>", processKey)
 				c.ConsumesEventType(fixtures.MessageB{})
 				c.ConsumesEventType(fixtures.MessageE{}) // shared with <projection>
 				c.ProducesCommandType(fixtures.MessageC{})
@@ -45,7 +46,7 @@ var _ = Describe("func FromApplication()", func() {
 
 		integration = &fixtures.IntegrationMessageHandler{
 			ConfigureFunc: func(c dogma.IntegrationConfigurer) {
-				c.Identity("<integration>", "<integration-key>")
+				c.Identity("<integration>", integrationKey)
 				c.ConsumesCommandType(fixtures.MessageC{})
 				c.ProducesEventType(fixtures.MessageF{})
 			},
@@ -53,7 +54,7 @@ var _ = Describe("func FromApplication()", func() {
 
 		projection = &fixtures.ProjectionMessageHandler{
 			ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-				c.Identity("<projection>", "<projection-key>")
+				c.Identity("<projection>", projectionKey)
 				c.ConsumesEventType(fixtures.MessageD{})
 				c.ConsumesEventType(fixtures.MessageE{}) // shared with <process>
 			},
@@ -61,7 +62,7 @@ var _ = Describe("func FromApplication()", func() {
 
 		app = &fixtures.Application{
 			ConfigureFunc: func(c dogma.ApplicationConfigurer) {
-				c.Identity("<app>", "<app-key>")
+				c.Identity("<app>", appKey)
 				c.RegisterAggregate(aggregate)
 				c.RegisterProcess(process)
 				c.RegisterIntegration(integration)
@@ -80,7 +81,7 @@ var _ = Describe("func FromApplication()", func() {
 		Describe("func Identity()", func() {
 			It("returns the application identity", func() {
 				Expect(cfg.Identity()).To(Equal(
-					MustNewIdentity("<app>", "<app-key>"),
+					MustNewIdentity("<app>", appKey),
 				))
 			})
 		})
@@ -205,7 +206,7 @@ var _ = Describe("func FromApplication()", func() {
 
 		It("does not panic when the app name is shared with handler", func() {
 			aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
-				c.Identity("<app>", "<aggregate-key>")
+				c.Identity("<app>", aggregateKey)
 				c.ConsumesCommandType(fixtures.MessageA{})
 				c.ProducesEventType(fixtures.MessageE{})
 			}
@@ -218,7 +219,7 @@ var _ = Describe("func FromApplication()", func() {
 		It("does not panic when the app contains multiple processes that schedule the same timeout", func() {
 			process1 := &fixtures.ProcessMessageHandler{
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
-					c.Identity("<process-1>", "<process-1-key>")
+					c.Identity("<process-1>", "51621cac-73e2-48fa-95ad-8c3d06ab2ac3")
 					c.ConsumesEventType(fixtures.MessageB{})
 					c.ProducesCommandType(fixtures.MessageC{})
 					c.SchedulesTimeoutType(fixtures.MessageT{})
@@ -227,7 +228,7 @@ var _ = Describe("func FromApplication()", func() {
 
 			process2 := &fixtures.ProcessMessageHandler{
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
-					c.Identity("<process-2>", "<process-2-key>")
+					c.Identity("<process-2>", "97abc0e1-39c8-434a-8ff2-1f0e2d37486e")
 					c.ConsumesEventType(fixtures.MessageB{})
 					c.ProducesCommandType(fixtures.MessageC{})
 					c.SchedulesTimeoutType(fixtures.MessageT{})
@@ -236,7 +237,7 @@ var _ = Describe("func FromApplication()", func() {
 
 			app := &fixtures.Application{
 				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
-					c.Identity("<app>", "<app-key>")
+					c.Identity("<app>", appKey)
 					c.RegisterProcess(process1)
 					c.RegisterProcess(process2)
 				},
@@ -285,11 +286,11 @@ var _ = Describe("func FromApplication()", func() {
 		),
 		Entry(
 			"when the app configures multiple identities",
-			`*fixtures.Application is configured with multiple identities (<name>/<key> and <other>/<key>), Identity() must be called exactly once within Configure()`,
+			`*fixtures.Application is configured with multiple identities (<name>/59a82a24-a181-41e8-9b93-17a6ce86956e and <other>/59a82a24-a181-41e8-9b93-17a6ce86956e), Identity() must be called exactly once within Configure()`,
 			func() {
 				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
-					c.Identity("<name>", "<key>")
-					c.Identity("<other>", "<key>")
+					c.Identity("<name>", appKey)
+					c.Identity("<other>", appKey)
 					c.RegisterAggregate(aggregate)
 				}
 			},
@@ -299,14 +300,14 @@ var _ = Describe("func FromApplication()", func() {
 			`*fixtures.Application is configured with an invalid identity, invalid name "\t \n", names must be non-empty, printable UTF-8 strings with no whitespace`,
 			func() {
 				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
-					c.Identity("\t \n", "<key>")
+					c.Identity("\t \n", appKey)
 					c.RegisterAggregate(aggregate)
 				}
 			},
 		),
 		Entry(
 			"when the app configures an invalid key",
-			`*fixtures.Application is configured with an invalid identity, invalid key "\t \n", keys must be non-empty, printable UTF-8 strings with no whitespace`,
+			`*fixtures.Application is configured with an invalid identity, invalid key "\t \n", keys must be RFC 4122 UUIDs`,
 			func() {
 				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
 					c.Identity("<name>", "\t \n")
@@ -316,20 +317,20 @@ var _ = Describe("func FromApplication()", func() {
 		),
 		Entry(
 			"when the app configures an identity that conflicts with a handler",
-			`*fixtures.Application can not use the application key "<aggregate-key>", because it is already used by *fixtures.AggregateMessageHandler`,
+			`*fixtures.Application can not use the application key "14769f7f-87fe-48dd-916e-5bcab6ba6aca", because it is already used by *fixtures.AggregateMessageHandler`,
 			func() {
 				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
 					c.RegisterAggregate(aggregate)
-					c.Identity("<app>", "<aggregate-key>") // conflict
+					c.Identity("<app>", aggregateKey) // conflict
 				}
 			},
 		),
 		Entry(
 			"when a handler is registered with a key that conflicts with the app",
-			`*fixtures.AggregateMessageHandler can not use the handler key "<app-key>", because it is already used by *fixtures.Application`,
+			`*fixtures.AggregateMessageHandler can not use the handler key "59a82a24-a181-41e8-9b93-17a6ce86956e", because it is already used by *fixtures.Application`,
 			func() {
 				aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
-					c.Identity("<aggregate>", "<app-key>") // conflict!
+					c.Identity("<aggregate>", appKey) // conflict!
 					c.ConsumesCommandType(fixtures.MessageA{})
 					c.ProducesEventType(fixtures.MessageE{})
 				}
@@ -368,13 +369,13 @@ var _ = Describe("func FromApplication()", func() {
 			`*fixtures.AggregateMessageHandler can not use the handler name "<process>", because it is already used by *fixtures.ProcessMessageHandler`,
 			func() {
 				aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
-					c.Identity("<process>", "<aggregate-key>") // conflict!
+					c.Identity("<process>", aggregateKey) // conflict!
 					c.ConsumesCommandType(fixtures.MessageA{})
 					c.ProducesEventType(fixtures.MessageE{})
 				}
 
 				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
-					c.Identity("<app>", "<app-key>")
+					c.Identity("<app>", appKey)
 					c.RegisterProcess(process)
 					c.RegisterAggregate(aggregate) // register the conflicting aggregate last
 				}
@@ -382,16 +383,16 @@ var _ = Describe("func FromApplication()", func() {
 		),
 		Entry(
 			"the app contains handlers with conflicting keys",
-			`*fixtures.AggregateMessageHandler can not use the handler key "<process-key>", because it is already used by *fixtures.ProcessMessageHandler`,
+			`*fixtures.AggregateMessageHandler can not use the handler key "bea52cf4-e403-4b18-819d-88ade7836308", because it is already used by *fixtures.ProcessMessageHandler`,
 			func() {
 				aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
-					c.Identity("<aggregate>", "<process-key>") // conflict!
+					c.Identity("<aggregate>", processKey) // conflict!
 					c.ConsumesCommandType(fixtures.MessageA{})
 					c.ProducesEventType(fixtures.MessageE{})
 				}
 
 				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
-					c.Identity("<app>", "<app-key>")
+					c.Identity("<app>", appKey)
 					c.RegisterProcess(process)
 					c.RegisterAggregate(aggregate) // register the conflicting aggregate last
 				}
@@ -402,7 +403,7 @@ var _ = Describe("func FromApplication()", func() {
 			`*fixtures.IntegrationMessageHandler (<integration>) can not consume fixtures.MessageA commands because they are already consumed by *fixtures.AggregateMessageHandler (<aggregate>)`,
 			func() {
 				integration.ConfigureFunc = func(c dogma.IntegrationConfigurer) {
-					c.Identity("<integration>", "<integration-key>")
+					c.Identity("<integration>", integrationKey)
 					c.ConsumesCommandType(fixtures.MessageA{}) // conflict with <aggregate>
 					c.ProducesEventType(fixtures.MessageF{})
 				}
@@ -413,7 +414,7 @@ var _ = Describe("func FromApplication()", func() {
 			`*fixtures.IntegrationMessageHandler (<integration>) can not produce fixtures.MessageE events because they are already produced by *fixtures.AggregateMessageHandler (<aggregate>)`,
 			func() {
 				integration.ConfigureFunc = func(c dogma.IntegrationConfigurer) {
-					c.Identity("<integration>", "<integration-key>")
+					c.Identity("<integration>", integrationKey)
 					c.ConsumesCommandType(fixtures.MessageC{})
 					c.ProducesEventType(fixtures.MessageE{}) // conflict with <aggregate>
 				}
@@ -424,12 +425,12 @@ var _ = Describe("func FromApplication()", func() {
 			`*fixtures.ProjectionMessageHandler (<projection>) configures fixtures.MessageA as an event but *fixtures.AggregateMessageHandler (<aggregate>) configures it as a command`,
 			func() {
 				projection.ConfigureFunc = func(c dogma.ProjectionConfigurer) {
-					c.Identity("<projection>", "<projection-key>")
+					c.Identity("<projection>", projectionKey)
 					c.ConsumesEventType(fixtures.MessageA{}) // conflict with <aggregate>
 				}
 
 				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
-					c.Identity("<app>", "<app-key>")
+					c.Identity("<app>", appKey)
 					c.RegisterAggregate(aggregate)
 					c.RegisterProjection(projection)
 				}
@@ -442,10 +443,10 @@ var _ = Describe("func IsApplicationEqual()", func() {
 	It("returns true if the two applications are equivalent", func() {
 		app := &fixtures.Application{
 			ConfigureFunc: func(c dogma.ApplicationConfigurer) {
-				c.Identity("<app>", "<app-key>")
+				c.Identity("<app>", appKey)
 				c.RegisterProjection(&fixtures.ProjectionMessageHandler{
 					ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-						c.Identity("<projection>", "<projection-key>")
+						c.Identity("<projection>", projectionKey)
 						c.ConsumesEventType(fixtures.MessageE{})
 					},
 				})
@@ -470,10 +471,10 @@ var _ = Describe("func IsApplicationEqual()", func() {
 		func(b Application) {
 			app := &fixtures.Application{
 				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
-					c.Identity("<app>", "<app-key>")
+					c.Identity("<app>", appKey)
 					c.RegisterProjection(&fixtures.ProjectionMessageHandler{
 						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-							c.Identity("<projection>", "<projection-key>")
+							c.Identity("<projection>", projectionKey)
 							c.ConsumesEventType(fixtures.MessageE{})
 						},
 					})
@@ -489,10 +490,10 @@ var _ = Describe("func IsApplicationEqual()", func() {
 			FromApplication(&aliasedApplication{
 				Application: fixtures.Application{
 					ConfigureFunc: func(c dogma.ApplicationConfigurer) {
-						c.Identity("<app>", "<app-key>")
+						c.Identity("<app>", appKey)
 						c.RegisterProjection(&fixtures.ProjectionMessageHandler{
 							ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-								c.Identity("<projection>", "<projection-key>")
+								c.Identity("<projection>", projectionKey)
 								c.ConsumesEventType(fixtures.MessageE{})
 							},
 						})
@@ -504,10 +505,10 @@ var _ = Describe("func IsApplicationEqual()", func() {
 			"identity name differs",
 			FromApplication(&fixtures.Application{
 				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
-					c.Identity("<app-different>", "<app-key>") // diff
+					c.Identity("<app-different>", appKey) // diff
 					c.RegisterProjection(&fixtures.ProjectionMessageHandler{
 						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-							c.Identity("<projection>", "<projection-key>")
+							c.Identity("<projection>", projectionKey)
 							c.ConsumesEventType(fixtures.MessageE{})
 						},
 					})
@@ -518,10 +519,10 @@ var _ = Describe("func IsApplicationEqual()", func() {
 			"identity key differs",
 			FromApplication(&fixtures.Application{
 				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
-					c.Identity("<app>", "<app-key-different>") // diff
+					c.Identity("<app>", "b7deb466-0fb7-4e89-b4dd-a32cdb1e1823") // diff
 					c.RegisterProjection(&fixtures.ProjectionMessageHandler{
 						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-							c.Identity("<projection>", "<projection-key>")
+							c.Identity("<projection>", projectionKey)
 							c.ConsumesEventType(fixtures.MessageE{})
 						},
 					})
@@ -532,10 +533,10 @@ var _ = Describe("func IsApplicationEqual()", func() {
 			"messages differ",
 			FromApplication(&fixtures.Application{
 				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
-					c.Identity("<app>", "<app-key>")
+					c.Identity("<app>", appKey)
 					c.RegisterProjection(&fixtures.ProjectionMessageHandler{
 						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-							c.Identity("<projection>", "<projection-key>")
+							c.Identity("<projection>", projectionKey)
 							c.ConsumesEventType(fixtures.MessageE{})
 							c.ConsumesEventType(fixtures.MessageX{}) // diff
 						},
@@ -547,10 +548,10 @@ var _ = Describe("func IsApplicationEqual()", func() {
 			"handlers differ",
 			FromApplication(&fixtures.Application{
 				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
-					c.Identity("<app>", "<app-key>")
+					c.Identity("<app>", appKey)
 					c.RegisterProjection(&fixtures.ProjectionMessageHandler{
 						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-							c.Identity("<projection-different>", "<projection-key>") // diff
+							c.Identity("<projection-different>", projectionKey) // diff
 							c.ConsumesEventType(fixtures.MessageE{})
 						},
 					})

@@ -16,7 +16,7 @@ var _ = Describe("func marshalApplication()", func() {
 
 	BeforeEach(func() {
 		app = &entity.Application{
-			IdentityValue:     configkit.MustNewIdentity("<name>", "<key>"),
+			IdentityValue:     configkit.MustNewIdentity("<name>", "28c19ec0-a32f-4479-bb1d-02887e90077c"),
 			TypeNameValue:     "<app type>",
 			MessageNamesValue: configkit.EntityMessageNames{},
 			HandlersValue:     configkit.HandlerSet{},
@@ -47,7 +47,7 @@ var _ = Describe("func unmarshalApplication()", func() {
 
 	BeforeEach(func() {
 		app = &configspec.Application{
-			Identity: &configspec.Identity{Name: "<name>", Key: "<key>"},
+			Identity: &configspec.Identity{Name: "<name>", Key: "58877f4c-7e29-4428-a38c-7eb052e32cdc"},
 			GoType:   "<app type>",
 		}
 	})
@@ -76,7 +76,7 @@ var _ = Describe("func marshalHandler()", func() {
 
 	BeforeEach(func() {
 		hnd = &entity.Handler{
-			IdentityValue:     configkit.MustNewIdentity("<name>", "<key>"),
+			IdentityValue:     configkit.MustNewIdentity("<name>", "26c19bed-f9e8-45b1-8f60-746f7ca6ef36"),
 			TypeNameValue:     "github.com/dogmatiq/dogma/fixtures.MessageA",
 			MessageNamesValue: configkit.EntityMessageNames{},
 			HandlerTypeValue:  configkit.AggregateHandlerType,
@@ -125,7 +125,7 @@ var _ = Describe("func unmarshalHandler()", func() {
 
 	BeforeEach(func() {
 		hnd = &configspec.Handler{
-			Identity:         &configspec.Identity{Name: "<name>", Key: "<key>"},
+			Identity:         &configspec.Identity{Name: "<name>", Key: "71976ec1-39c6-4f7e-b16f-632ec307e35b"},
 			GoType:           "<handler type>",
 			Type:             configspec.HandlerType_AGGREGATE,
 			ConsumedMessages: map[string]configspec.MessageRole{},
@@ -210,12 +210,12 @@ var _ = Describe("func unmarshalNameRoles()", func() {
 
 var _ = Describe("func marshalIdentity()", func() {
 	It("returns the protobuf representation", func() {
-		in := configkit.MustNewIdentity("<name>", "<key>")
+		in := configkit.MustNewIdentity("<name>", "9c71b756-b0ab-4c97-9ac8-75fae1dc8814")
 		out, err := marshalIdentity(in)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(out).To(Equal(&configspec.Identity{
 			Name: "<name>",
-			Key:  "<key>",
+			Key:  "9c71b756-b0ab-4c97-9ac8-75fae1dc8814",
 		}))
 	})
 
@@ -230,12 +230,12 @@ var _ = Describe("func unmarshalIdentity()", func() {
 	It("returns the native representation", func() {
 		in := &configspec.Identity{
 			Name: "<name>",
-			Key:  "<key>",
+			Key:  "9a63e9ce-40ce-48a7-aa26-88b20a91ec61",
 		}
 		out, err := unmarshalIdentity(in)
 		Expect(err).ShouldNot(HaveOccurred())
 		Expect(out).To(Equal(
-			configkit.MustNewIdentity("<name>", "<key>"),
+			configkit.MustNewIdentity("<name>", "9a63e9ce-40ce-48a7-aa26-88b20a91ec61"),
 		))
 	})
 
