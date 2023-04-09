@@ -10,10 +10,11 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
-## Unreleased
+## [0.12.0] - 2023-04-09
 
 This release updates the configkit implementation to adhere to Dogma v0.12.0
-interfaces.
+interfaces. It does not yet include support for static analysis of the new
+`Route()`.
 
 ### Added
 
@@ -243,6 +244,7 @@ interfaces.
 [0.10.0]: https://github.com/dogmatiq/configkit/releases/v0.10.0
 [0.11.0]: https://github.com/dogmatiq/configkit/releases/v0.11.0
 [0.11.1]: https://github.com/dogmatiq/configkit/releases/v0.11.1
+[0.12.0]: https://github.com/dogmatiq/configkit/releases/v0.12.0
 
 <!-- version template
 ## [0.0.1] - YYYY-MM-DD
