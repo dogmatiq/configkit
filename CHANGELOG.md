@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 This release updates the configkit implementation to adhere to Dogma v0.12.0
 interfaces. It does not yet include support for static analysis of the new
-`Route()`.
+`Routes()` API.
 
 ### Added
 
