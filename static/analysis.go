@@ -311,14 +311,14 @@ func addMessagesFromRoutesArgs(
 		panic("unexpected number of arguments to Routes()")
 	}
 
-	walkRoutesReferrers(
+	walkInstructions(
 		args[0].(*ssa.Slice).X.Referrers(),
 		produced,
 		consumed,
 	)
 }
 
-// walkRoutesReferrers walks the graph of instructions to detect the calls of
+// walkInstructions walks the graph of instructions to detect the calls of
 // the following functions:
 //
 //	`github.com/dogmatiq/dogma.HandlesCommand()
@@ -329,17 +329,17 @@ func addMessagesFromRoutesArgs(
 //
 // Once the calls are found, the messages that are produced and consumed by the
 // handler are populated in the corresponding message.NameRoles maps.
-func walkRoutesReferrers(
+func walkInstructions(
 	instr *[]ssa.Instruction,
 	produced, consumed message.NameRoles,
 ) {
 	for _, i := range *instr {
 		switch i := i.(type) {
 		case *ssa.Call:
-			walkRoutesReferrers(i.Referrers(), produced, consumed)
+			walkInstructions(i.Referrers(), produced, consumed)
 		case *ssa.IndexAddr, *ssa.Slice:
 			rr := i.(interface{ Referrers() *[]ssa.Instruction }).Referrers()
-			walkRoutesReferrers(rr, produced, consumed)
+			walkInstructions(rr, produced, consumed)
 		case *ssa.Store:
 			if mi, ok := i.Val.(*ssa.MakeInterface); ok {
 				// If this is the boxing to the following interfaces,
