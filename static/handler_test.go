@@ -158,6 +158,253 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 			))
 		})
 
+		When("messages are passed to the *Configurer.Routes() method as a dynamicly populated splice", func() {
+			It("returns a single configuration for each handler type", func() {
+				cfg := packages.Config{
+					Mode: packages.LoadAllSyntax,
+					Dir:  "testdata/handlers/dynamic-routes",
+				}
+
+				pkgs, err := packages.Load(&cfg, "./...")
+				Expect(err).NotTo(HaveOccurred())
+
+				apps := FromPackages(pkgs)
+				Expect(apps).To(HaveLen(1))
+				Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
+				Expect(apps[0].Handlers().Processes()).To(HaveLen(1))
+				Expect(apps[0].Handlers().Projections()).To(HaveLen(1))
+				Expect(apps[0].Handlers().Integrations()).To(HaveLen(1))
+
+				aggregate := apps[0].Handlers().Aggregates()[0]
+				Expect(aggregate.Identity()).To(
+					Equal(
+						configkit.Identity{
+							Name: "<aggregate>",
+							Key:  "3876b4e5-8759-4c0b-bf0b-03ef49777e5c",
+						},
+					),
+				)
+				Expect(aggregate.TypeName()).To(
+					Equal(
+						"github.com/dogmatiq/configkit/static/testdata/handlers/dynamic-routes.AggregateHandler",
+					),
+				)
+				Expect(aggregate.HandlerType()).To(Equal(configkit.AggregateHandlerType))
+
+				Expect(aggregate.MessageNames()).To(Equal(
+					configkit.EntityMessageNames{
+						Consumed: message.NameRoles{
+							cfixtures.MessageATypeName: message.CommandRole,
+							cfixtures.MessageBTypeName: message.CommandRole,
+						},
+						Produced: message.NameRoles{
+							cfixtures.MessageCTypeName: message.EventRole,
+							cfixtures.MessageDTypeName: message.EventRole,
+						},
+					},
+				))
+
+				process := apps[0].Handlers().Processes()[0]
+				Expect(process.Identity()).To(
+					Equal(
+						configkit.Identity{
+							Name: "<process>",
+							Key:  "d00131d2-f99c-44e3-be11-104e69b04f77",
+						},
+					),
+				)
+				Expect(process.TypeName()).To(
+					Equal(
+						"github.com/dogmatiq/configkit/static/testdata/handlers/dynamic-routes.ProcessHandler",
+					),
+				)
+				Expect(process.HandlerType()).To(Equal(configkit.ProcessHandlerType))
+
+				Expect(process.MessageNames()).To(Equal(
+					configkit.EntityMessageNames{
+						Consumed: message.NameRoles{
+							cfixtures.MessageATypeName: message.EventRole,
+							cfixtures.MessageBTypeName: message.EventRole,
+							cfixtures.MessageETypeName: message.TimeoutRole,
+							cfixtures.MessageFTypeName: message.TimeoutRole,
+						},
+						Produced: message.NameRoles{
+							cfixtures.MessageCTypeName: message.CommandRole,
+							cfixtures.MessageDTypeName: message.CommandRole,
+							cfixtures.MessageETypeName: message.TimeoutRole,
+							cfixtures.MessageFTypeName: message.TimeoutRole,
+						},
+					},
+				))
+
+				projection := apps[0].Handlers().Projections()[0]
+				Expect(projection.Identity()).To(
+					Equal(
+						configkit.Identity{
+							Name: "<projection>",
+							Key:  "6f20c336-b740-4249-a80b-d94d3bdce750",
+						},
+					),
+				)
+				Expect(projection.TypeName()).To(
+					Equal(
+						"github.com/dogmatiq/configkit/static/testdata/handlers/dynamic-routes.ProjectionHandler",
+					),
+				)
+				Expect(projection.HandlerType()).To(Equal(configkit.ProjectionHandlerType))
+
+				Expect(projection.MessageNames()).To(Equal(
+					configkit.EntityMessageNames{
+						Consumed: message.NameRoles{
+							cfixtures.MessageATypeName: message.EventRole,
+							cfixtures.MessageBTypeName: message.EventRole,
+						},
+						Produced: message.NameRoles{},
+					},
+				))
+
+				integration := apps[0].Handlers().Integrations()[0]
+				Expect(integration.Identity()).To(
+					Equal(
+						configkit.Identity{
+							Name: "<integration>",
+							Key:  "3a06b7da-1079-4e4b-a6a6-064c62241918",
+						},
+					),
+				)
+				Expect(integration.TypeName()).To(
+					Equal(
+						"github.com/dogmatiq/configkit/static/testdata/handlers/dynamic-routes.IntegrationHandler",
+					),
+				)
+				Expect(integration.HandlerType()).To(Equal(configkit.IntegrationHandlerType))
+
+				Expect(integration.MessageNames()).To(Equal(
+					configkit.EntityMessageNames{
+						Consumed: message.NameRoles{
+							cfixtures.MessageATypeName: message.CommandRole,
+							cfixtures.MessageBTypeName: message.CommandRole,
+						},
+						Produced: message.NameRoles{
+							cfixtures.MessageCTypeName: message.EventRole,
+							cfixtures.MessageDTypeName: message.EventRole,
+						},
+					},
+				))
+			})
+		})
+
+		When("nil is passed to a call of *Configurer.Routes() methods", func() {
+			It("does not populate messages", func() {
+				cfg := packages.Config{
+					Mode: packages.LoadAllSyntax,
+					Dir:  "testdata/handlers/nil-routes",
+				}
+
+				pkgs, err := packages.Load(&cfg, "./...")
+				Expect(err).NotTo(HaveOccurred())
+
+				apps := FromPackages(pkgs)
+				Expect(apps).To(HaveLen(1))
+				Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
+				Expect(apps[0].Handlers().Processes()).To(HaveLen(1))
+				Expect(apps[0].Handlers().Projections()).To(HaveLen(1))
+				Expect(apps[0].Handlers().Integrations()).To(HaveLen(1))
+
+				aggregate := apps[0].Handlers().Aggregates()[0]
+				Expect(aggregate.Identity()).To(
+					Equal(
+						configkit.Identity{
+							Name: "<aggregate>",
+							Key:  "df648962-7d96-427e-8bc2-5a4efdb4cc4b",
+						},
+					),
+				)
+				Expect(aggregate.TypeName()).To(
+					Equal(
+						"github.com/dogmatiq/configkit/static/testdata/handlers/nil-routes.AggregateHandler",
+					),
+				)
+				Expect(aggregate.HandlerType()).To(Equal(configkit.AggregateHandlerType))
+
+				Expect(aggregate.MessageNames()).To(Equal(
+					configkit.EntityMessageNames{
+						Consumed: message.NameRoles{},
+						Produced: message.NameRoles{},
+					},
+				))
+
+				process := apps[0].Handlers().Processes()[0]
+				Expect(process.Identity()).To(
+					Equal(
+						configkit.Identity{
+							Name: "<process>",
+							Key:  "e7bcb97c-627e-44db-ba05-d8a86e5bf88b",
+						},
+					),
+				)
+				Expect(process.TypeName()).To(
+					Equal(
+						"github.com/dogmatiq/configkit/static/testdata/handlers/nil-routes.ProcessHandler",
+					),
+				)
+				Expect(process.HandlerType()).To(Equal(configkit.ProcessHandlerType))
+
+				Expect(process.MessageNames()).To(Equal(
+					configkit.EntityMessageNames{
+						Consumed: message.NameRoles{},
+						Produced: message.NameRoles{},
+					},
+				))
+
+				projection := apps[0].Handlers().Projections()[0]
+				Expect(projection.Identity()).To(
+					Equal(
+						configkit.Identity{
+							Name: "<projection>",
+							Key:  "9208f704-641c-44e4-91dc-5274598b30bd",
+						},
+					),
+				)
+				Expect(projection.TypeName()).To(
+					Equal(
+						"github.com/dogmatiq/configkit/static/testdata/handlers/nil-routes.ProjectionHandler",
+					),
+				)
+				Expect(projection.HandlerType()).To(Equal(configkit.ProjectionHandlerType))
+
+				Expect(projection.MessageNames()).To(Equal(
+					configkit.EntityMessageNames{
+						Consumed: message.NameRoles{},
+						Produced: message.NameRoles{},
+					},
+				))
+
+				integration := apps[0].Handlers().Integrations()[0]
+				Expect(integration.Identity()).To(
+					Equal(
+						configkit.Identity{
+							Name: "<integration>",
+							Key:  "363039e5-2938-4b2c-9bec-dcb29dee2da1",
+						},
+					),
+				)
+				Expect(integration.TypeName()).To(
+					Equal(
+						"github.com/dogmatiq/configkit/static/testdata/handlers/nil-routes.IntegrationHandler",
+					),
+				)
+				Expect(integration.HandlerType()).To(Equal(configkit.IntegrationHandlerType))
+
+				Expect(integration.MessageNames()).To(Equal(
+					configkit.EntityMessageNames{
+						Consumed: message.NameRoles{},
+						Produced: message.NameRoles{},
+					},
+				))
+			})
+		})
+
 		When("deprecated configurer methods are called", func() {
 			It("returns a single configuration for each handler type", func() {
 				cfg := packages.Config{
