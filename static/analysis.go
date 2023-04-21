@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/constant"
 	"go/types"
+	"strings"
 
 	"github.com/dogmatiq/configkit"
 	"github.com/dogmatiq/configkit/internal/entity"
@@ -287,40 +288,11 @@ func addHandlerFromConfigureMethod(
 		switch c.Common().Method.Name() {
 		case "Identity":
 			hdr.IdentityValue = analyzeIdentityCall(c)
-		case "ConsumesCommandType":
-			addMessageFromArguments(
-				args,
-				hdr.MessageNamesValue.Consumed,
-				message.CommandRole,
-			)
-		case "ConsumesEventType":
-			addMessageFromArguments(
-				args,
-				hdr.MessageNamesValue.Consumed,
-				message.EventRole,
-			)
-		case "ProducesCommandType":
-			addMessageFromArguments(
+		case "Routes":
+			addMessagesFromRoutesArgs(
 				args,
 				hdr.MessageNamesValue.Produced,
-				message.CommandRole,
-			)
-		case "ProducesEventType":
-			addMessageFromArguments(
-				args,
-				hdr.MessageNamesValue.Produced,
-				message.EventRole,
-			)
-		case "SchedulesTimeoutType":
-			addMessageFromArguments(
-				args,
 				hdr.MessageNamesValue.Consumed,
-				message.TimeoutRole,
-			)
-			addMessageFromArguments(
-				args,
-				hdr.MessageNamesValue.Produced,
-				message.TimeoutRole,
 			)
 		}
 	}
@@ -328,22 +300,99 @@ func addHandlerFromConfigureMethod(
 	hs.Add(hdr)
 }
 
-// addMessageFromArguments analyzes args to deduce the type of a message.
-// It assumes that the message is always the first argument.
-//
-// If the first argument is not a pointer to ssa.MakeInterface instruction, this
-// function has no effect; otherwise the message type is added to nr using the
-// role given by r.
-func addMessageFromArguments(
+// addMessagesFromRoutesArgs analyzes the arguments in a call to a configurer's
+// method Routes() to populate the messages that are produced and consumed by
+// the handler.
+func addMessagesFromRoutesArgs(
 	args []ssa.Value,
-	nr message.NameRoles,
-	r message.Role,
+	produced, consumed message.NameRoles,
 ) {
-	if mi, ok := args[0].(*ssa.MakeInterface); ok {
-		nr.Add(
-			message.NameFromType(mi.X.Type()),
-			r,
-		)
+	if len(args) != 1 {
+		panic("unexpected number of arguments to Routes()")
+	}
+
+	walkRoutesReferrers(
+		args[0].(*ssa.Slice).X.Referrers(),
+		produced,
+		consumed,
+	)
+}
+
+// walkRoutesReferrers walks the graph of instructions to detect the calls of
+// the following functions:
+//
+//	`github.com/dogmatiq/dogma.HandlesCommand()
+//	`github.com/dogmatiq/dogma.HandlesEvent()`
+//	`github.com/dogmatiq/dogma.ExecutesCommand()`
+//	`github.com/dogmatiq/dogma.RecordsEvent()`
+//	`github.com/dogmatiq/dogma.SchedulesTimeout()`
+//
+// Once the calls are found, the messages that are produced and consumed by the
+// handler are populated in the corresponding message.NameRoles maps.
+func walkRoutesReferrers(
+	instr *[]ssa.Instruction,
+	produced, consumed message.NameRoles,
+) {
+	for _, i := range *instr {
+		switch i := i.(type) {
+		case *ssa.Call:
+			walkRoutesReferrers(i.Referrers(), produced, consumed)
+		case *ssa.IndexAddr, *ssa.Slice:
+			rr := i.(interface{ Referrers() *[]ssa.Instruction }).Referrers()
+			walkRoutesReferrers(rr, produced, consumed)
+		case *ssa.Store:
+			if mi, ok := i.Val.(*ssa.MakeInterface); ok {
+				// If this is the boxing to the following interfaces,
+				// we need to analyze the concrete types:
+				switch mi.X.Type().String() {
+				case "github.com/dogmatiq/dogma.HandlesCommandRoute",
+					"github.com/dogmatiq/dogma.HandlesEventRoute",
+					"github.com/dogmatiq/dogma.ExecutesCommandRoute",
+					"github.com/dogmatiq/dogma.SchedulesTimeoutRoute",
+					"github.com/dogmatiq/dogma.RecordsEventRoute":
+
+					// At this we should expect that the interfaces above are
+					// produced as a result of calls to following functions:
+					//	`github.com/dogmatiq/dogma.HandlesCommand()
+					//	`github.com/dogmatiq/dogma.HandlesEvent()`
+					//	`github.com/dogmatiq/dogma.ExecutesCommand()`
+					//	`github.com/dogmatiq/dogma.RecordsEvent()`
+					//	`github.com/dogmatiq/dogma.SchedulesTimeout()`
+					f := mi.X.(*ssa.Call).Common().Value.(*ssa.Function)
+					switch {
+					case strings.HasPrefix(f.Name(), "ExecutesCommand"):
+						produced.Add(
+							message.NameFromType(f.TypeArgs()[0]),
+							message.CommandRole,
+						)
+					case strings.HasPrefix(f.Name(), "RecordsEvent"):
+						produced.Add(
+							message.NameFromType(f.TypeArgs()[0]),
+							message.EventRole,
+						)
+					case strings.HasPrefix(f.Name(), "HandlesCommand"):
+						consumed.Add(
+							message.NameFromType(f.TypeArgs()[0]),
+							message.CommandRole,
+						)
+					case strings.HasPrefix(f.Name(), "HandlesEvent"):
+						consumed.Add(
+							message.NameFromType(f.TypeArgs()[0]),
+							message.EventRole,
+						)
+					case strings.HasPrefix(f.Name(), "SchedulesTimeout"):
+						produced.Add(
+							message.NameFromType(f.TypeArgs()[0]),
+							message.TimeoutRole,
+						)
+						consumed.Add(
+							message.NameFromType(f.TypeArgs()[0]),
+							message.TimeoutRole,
+						)
+					}
+				}
+			}
+		}
 	}
 }
 

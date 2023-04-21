@@ -25,14 +25,14 @@ func (ProcessHandler) New() dogma.ProcessRoot {
 func (ProcessHandler) Configure(c dogma.ProcessConfigurer) {
 	c.Identity("<process>", "5e839b73-170b-42c0-bf41-8feee4b5a583")
 
-	c.ConsumesEventType(fixtures.MessageA{})
-	c.ConsumesEventType(fixtures.MessageB{})
-
-	c.ProducesCommandType(fixtures.MessageC{})
-	c.ProducesCommandType(fixtures.MessageD{})
-
-	c.SchedulesTimeoutType(fixtures.MessageE{})
-	c.SchedulesTimeoutType(fixtures.MessageF{})
+	c.Routes(
+		dogma.HandlesEvent[fixtures.MessageA](),
+		dogma.HandlesEvent[fixtures.MessageB](),
+		dogma.ExecutesCommand[fixtures.MessageC](),
+		dogma.ExecutesCommand[fixtures.MessageD](),
+		dogma.SchedulesTimeout[fixtures.MessageE](),
+		dogma.SchedulesTimeout[fixtures.MessageF](),
+	)
 }
 
 // RouteEventToInstance returns the ID of the process instance that is

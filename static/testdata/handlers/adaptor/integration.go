@@ -14,11 +14,12 @@ type IntegrationHandler struct{}
 func (IntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
 	c.Identity("<integration>", "099b5b8d-9e04-422f-bcc3-bb0d451158c7")
 
-	c.ConsumesCommandType(fixtures.MessageA{})
-	c.ConsumesCommandType(fixtures.MessageB{})
-
-	c.ProducesEventType(fixtures.MessageC{})
-	c.ProducesEventType(fixtures.MessageD{})
+	c.Routes(
+		dogma.HandlesCommand[fixtures.MessageA](),
+		dogma.HandlesCommand[fixtures.MessageB](),
+		dogma.RecordsEvent[fixtures.MessageC](),
+		dogma.RecordsEvent[fixtures.MessageD](),
+	)
 }
 
 // PartialIntegrationMessageHandler is the subset of

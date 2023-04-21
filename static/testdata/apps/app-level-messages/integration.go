@@ -24,8 +24,10 @@ type IntegrationHandler struct{}
 func (IntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
 	c.Identity("<integration>", "099b5b8d-9e04-422f-bcc3-bb0d451158c7")
 
-	c.ConsumesCommandType(fixtures.MessageA{})
-	c.ProducesEventType(fixtures.MessageF{})
+	c.Routes(
+		dogma.HandlesCommand[fixtures.MessageA](),
+		dogma.RecordsEvent[fixtures.MessageF](),
+	)
 }
 
 // RouteCommandToInstance returns the ID of the integration instance that is
