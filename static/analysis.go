@@ -360,27 +360,27 @@ func walkInstructions(
 					//	`github.com/dogmatiq/dogma.SchedulesTimeout()`
 					f := mi.X.(*ssa.Call).Common().Value.(*ssa.Function)
 					switch {
-					case strings.HasPrefix(f.Name(), "ExecutesCommand"):
+					case strings.HasPrefix(f.Name(), "ExecutesCommand["):
 						produced.Add(
 							message.NameFromType(f.TypeArgs()[0]),
 							message.CommandRole,
 						)
-					case strings.HasPrefix(f.Name(), "RecordsEvent"):
+					case strings.HasPrefix(f.Name(), "RecordsEvent["):
 						produced.Add(
 							message.NameFromType(f.TypeArgs()[0]),
 							message.EventRole,
 						)
-					case strings.HasPrefix(f.Name(), "HandlesCommand"):
+					case strings.HasPrefix(f.Name(), "HandlesCommand["):
 						consumed.Add(
 							message.NameFromType(f.TypeArgs()[0]),
 							message.CommandRole,
 						)
-					case strings.HasPrefix(f.Name(), "HandlesEvent"):
+					case strings.HasPrefix(f.Name(), "HandlesEvent["):
 						consumed.Add(
 							message.NameFromType(f.TypeArgs()[0]),
 							message.EventRole,
 						)
-					case strings.HasPrefix(f.Name(), "SchedulesTimeout"):
+					case strings.HasPrefix(f.Name(), "SchedulesTimeout["):
 						produced.Add(
 							message.NameFromType(f.TypeArgs()[0]),
 							message.TimeoutRole,
