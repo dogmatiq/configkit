@@ -1,0 +1,1175 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index d3cd605..e9dfa70 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog], and this project adheres to
+ [keep a changelog]: https://keepachangelog.com/en/1.0.0/
+ [semantic versioning]: https://semver.org/spec/v2.0.0.html
+ 
++### Unreleased
++
++- Modify `static` package to analyze the latest changes introduced by Dogma
++  v0.12.0.
++
+ ## [0.12.0] - 2023-04-09
+ 
+ This release updates the `configkit` implementation to adhere to Dogma v0.12.0
+diff --git a/static/analysis.go b/static/analysis.go
+index 3126536..f915ebe 100644
+--- a/static/analysis.go
++++ b/static/analysis.go
+@@ -4,6 +4,7 @@ import (
+ 	"fmt"
+ 	"go/constant"
+ 	"go/types"
++	"strings"
+ 
+ 	"github.com/dogmatiq/configkit"
+ 	"github.com/dogmatiq/configkit/internal/entity"
+@@ -287,6 +288,13 @@ func addHandlerFromConfigureMethod(
+ 		switch c.Common().Method.Name() {
+ 		case "Identity":
+ 			hdr.IdentityValue = analyzeIdentityCall(c)
++		case "Routes":
++			addMessagesFromRoutesArgs(
++				args,
++				hdr.MessageNamesValue.Produced,
++				hdr.MessageNamesValue.Consumed,
++			)
++
+ 		case "ConsumesCommandType":
+ 			addMessageFromArguments(
+ 				args,
+@@ -328,6 +336,102 @@ func addHandlerFromConfigureMethod(
+ 	hs.Add(hdr)
+ }
+ 
++// addMessagesFromRoutesArgs analyzes the arguments in a call to a configurer's
++// method Routes() to populate the messages that are produced and consumed by
++// the handler.
++func addMessagesFromRoutesArgs(
++	args []ssa.Value,
++	produced, consumed message.NameRoles,
++) {
++	if len(args) != 1 {
++		panic("unexpected number of arguments to Routes()")
++	}
++
++	walkInstructions(
++		args[0].(*ssa.Slice).X.Referrers(),
++		produced,
++		consumed,
++	)
++}
++
++// walkInstructions walks the graph of instructions to detect the calls of
++// the following functions:
++//
++//	`github.com/dogmatiq/dogma.HandlesCommand()
++//	`github.com/dogmatiq/dogma.HandlesEvent()`
++//	`github.com/dogmatiq/dogma.ExecutesCommand()`
++//	`github.com/dogmatiq/dogma.RecordsEvent()`
++//	`github.com/dogmatiq/dogma.SchedulesTimeout()`
++//
++// Once the calls are found, the messages that are produced and consumed by the
++// handler are populated in the corresponding message.NameRoles maps.
++func walkInstructions(
++	instr *[]ssa.Instruction,
++	produced, consumed message.NameRoles,
++) {
++	for _, i := range *instr {
++		switch i := i.(type) {
++		case *ssa.Call:
++			walkInstructions(i.Referrers(), produced, consumed)
++		case *ssa.IndexAddr, *ssa.Slice:
++			rr := i.(interface{ Referrers() *[]ssa.Instruction }).Referrers()
++			walkInstructions(rr, produced, consumed)
++		case *ssa.Store:
++			if mi, ok := i.Val.(*ssa.MakeInterface); ok {
++				// If this is the boxing to the following interfaces,
++				// we need to analyze the concrete types:
++				switch mi.X.Type().String() {
++				case "github.com/dogmatiq/dogma.HandlesCommandRoute",
++					"github.com/dogmatiq/dogma.HandlesEventRoute",
++					"github.com/dogmatiq/dogma.ExecutesCommandRoute",
++					"github.com/dogmatiq/dogma.SchedulesTimeoutRoute",
++					"github.com/dogmatiq/dogma.RecordsEventRoute":
++
++					// At this we should expect that the interfaces above are
++					// produced as a result of calls to following functions:
++					//	`github.com/dogmatiq/dogma.HandlesCommand()
++					//	`github.com/dogmatiq/dogma.HandlesEvent()`
++					//	`github.com/dogmatiq/dogma.ExecutesCommand()`
++					//	`github.com/dogmatiq/dogma.RecordsEvent()`
++					//	`github.com/dogmatiq/dogma.SchedulesTimeout()`
++					f := mi.X.(*ssa.Call).Common().Value.(*ssa.Function)
++					switch {
++					case strings.HasPrefix(f.Name(), "ExecutesCommand["):
++						produced.Add(
++							message.NameFromType(f.TypeArgs()[0]),
++							message.CommandRole,
++						)
++					case strings.HasPrefix(f.Name(), "RecordsEvent["):
++						produced.Add(
++							message.NameFromType(f.TypeArgs()[0]),
++							message.EventRole,
++						)
++					case strings.HasPrefix(f.Name(), "HandlesCommand["):
++						consumed.Add(
++							message.NameFromType(f.TypeArgs()[0]),
++							message.CommandRole,
++						)
++					case strings.HasPrefix(f.Name(), "HandlesEvent["):
++						consumed.Add(
++							message.NameFromType(f.TypeArgs()[0]),
++							message.EventRole,
++						)
++					case strings.HasPrefix(f.Name(), "SchedulesTimeout["):
++						produced.Add(
++							message.NameFromType(f.TypeArgs()[0]),
++							message.TimeoutRole,
++						)
++						consumed.Add(
++							message.NameFromType(f.TypeArgs()[0]),
++							message.TimeoutRole,
++						)
++					}
++				}
++			}
++		}
++	}
++}
++
+ // addMessageFromArguments analyzes args to deduce the type of a message.
+ // It assumes that the message is always the first argument.
+ //
+diff --git a/static/handler_test.go b/static/handler_test.go
+index 8c29e0f..f5060b8 100644
+--- a/static/handler_test.go
++++ b/static/handler_test.go
+@@ -157,6 +157,142 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
+ 				},
+ 			))
+ 		})
++
++		When("deprecated configurer methods are called", func() {
++			It("returns a single configuration for each handler type", func() {
++				cfg := packages.Config{
++					Mode: packages.LoadAllSyntax,
++					Dir:  "testdata/handlers/deprecated/single",
++				}
++
++				pkgs, err := packages.Load(&cfg, "./...")
++				Expect(err).NotTo(HaveOccurred())
++
++				apps := FromPackages(pkgs)
++				Expect(apps).To(HaveLen(1))
++				Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
++				Expect(apps[0].Handlers().Processes()).To(HaveLen(1))
++				Expect(apps[0].Handlers().Projections()).To(HaveLen(1))
++				Expect(apps[0].Handlers().Integrations()).To(HaveLen(1))
++
++				aggregate := apps[0].Handlers().Aggregates()[0]
++				Expect(aggregate.Identity()).To(
++					Equal(
++						configkit.Identity{
++							Name: "<aggregate>",
++							Key:  "bf11e5eb-8cda-4498-a12e-35bf224aade7",
++						},
++					),
++				)
++				Expect(aggregate.TypeName()).To(
++					Equal(
++						"github.com/dogmatiq/configkit/static/testdata/handlers/deprecated/single.AggregateHandler",
++					),
++				)
++				Expect(aggregate.HandlerType()).To(Equal(configkit.AggregateHandlerType))
++
++				Expect(aggregate.MessageNames()).To(Equal(
++					configkit.EntityMessageNames{
++						Consumed: message.NameRoles{
++							cfixtures.MessageATypeName: message.CommandRole,
++							cfixtures.MessageBTypeName: message.CommandRole,
++						},
++						Produced: message.NameRoles{
++							cfixtures.MessageCTypeName: message.EventRole,
++							cfixtures.MessageDTypeName: message.EventRole,
++						},
++					},
++				))
++
++				process := apps[0].Handlers().Processes()[0]
++				Expect(process.Identity()).To(
++					Equal(
++						configkit.Identity{
++							Name: "<process>",
++							Key:  "b1ed1327-01fd-44ce-9cb8-c25a560e4c92",
++						},
++					),
++				)
++				Expect(process.TypeName()).To(
++					Equal(
++						"github.com/dogmatiq/configkit/static/testdata/handlers/deprecated/single.ProcessHandler",
++					),
++				)
++				Expect(process.HandlerType()).To(Equal(configkit.ProcessHandlerType))
++
++				Expect(process.MessageNames()).To(Equal(
++					configkit.EntityMessageNames{
++						Consumed: message.NameRoles{
++							cfixtures.MessageATypeName: message.EventRole,
++							cfixtures.MessageBTypeName: message.EventRole,
++							cfixtures.MessageETypeName: message.TimeoutRole,
++							cfixtures.MessageFTypeName: message.TimeoutRole,
++						},
++						Produced: message.NameRoles{
++							cfixtures.MessageCTypeName: message.CommandRole,
++							cfixtures.MessageDTypeName: message.CommandRole,
++							cfixtures.MessageETypeName: message.TimeoutRole,
++							cfixtures.MessageFTypeName: message.TimeoutRole,
++						},
++					},
++				))
++
++				projection := apps[0].Handlers().Projections()[0]
++				Expect(projection.Identity()).To(
++					Equal(
++						configkit.Identity{
++							Name: "<projection>",
++							Key:  "91fc1201-5c47-40e7-ae10-ea3c96f7264d",
++						},
++					),
++				)
++				Expect(projection.TypeName()).To(
++					Equal(
++						"github.com/dogmatiq/configkit/static/testdata/handlers/deprecated/single.ProjectionHandler",
++					),
++				)
++				Expect(projection.HandlerType()).To(Equal(configkit.ProjectionHandlerType))
++
++				Expect(projection.MessageNames()).To(Equal(
++					configkit.EntityMessageNames{
++						Consumed: message.NameRoles{
++							cfixtures.MessageATypeName: message.EventRole,
++							cfixtures.MessageBTypeName: message.EventRole,
++						},
++						Produced: message.NameRoles{},
++					},
++				))
++
++				integration := apps[0].Handlers().Integrations()[0]
++				Expect(integration.Identity()).To(
++					Equal(
++						configkit.Identity{
++							Name: "<integration>",
++							Key:  "ad1ab39c-f497-4c85-89b7-72f62d2d6c28",
++						},
++					),
++				)
++				Expect(integration.TypeName()).To(
++					Equal(
++						"github.com/dogmatiq/configkit/static/testdata/handlers/deprecated/single.IntegrationHandler",
++					),
++				)
++				Expect(integration.HandlerType()).To(Equal(configkit.IntegrationHandlerType))
++
++				Expect(integration.MessageNames()).To(Equal(
++					configkit.EntityMessageNames{
++						Consumed: message.NameRoles{
++							cfixtures.MessageATypeName: message.CommandRole,
++							cfixtures.MessageBTypeName: message.CommandRole,
++						},
++						Produced: message.NameRoles{
++							cfixtures.MessageCTypeName: message.EventRole,
++							cfixtures.MessageDTypeName: message.EventRole,
++						},
++					},
++				))
++			})
++		})
+ 	})
+ 
+ 	When("the application multiple handlers of each type", func() {
+@@ -225,124 +361,4 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
+ 			Expect(apps[0].Handlers()).To(Equal(configkit.HandlerSet{}))
+ 		})
+ 	})
+-
+-	When("a nil value is passed as a message", func() {
+-		It("does not add the message to the handler configuration", func() {
+-			cfg := packages.Config{
+-				Mode: packages.LoadAllSyntax,
+-				Dir:  "testdata/handlers/nil-message",
+-			}
+-
+-			pkgs, err := packages.Load(&cfg, "./...")
+-			Expect(err).NotTo(HaveOccurred())
+-
+-			apps := FromPackages(pkgs)
+-			Expect(apps).To(HaveLen(1))
+-			Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
+-
+-			aggregate := apps[0].Handlers().Aggregates()[0]
+-			Expect(aggregate.Identity()).To(
+-				Equal(
+-					configkit.Identity{
+-						Name: "<nil-message-aggregate>",
+-						Key:  "da31f2cf-40c8-439e-aadc-042e30100908",
+-					},
+-				),
+-			)
+-			Expect(aggregate.TypeName()).To(
+-				Equal(
+-					"github.com/dogmatiq/configkit/static/testdata/handlers/nil-message.AggregateHandler",
+-				),
+-			)
+-			Expect(aggregate.HandlerType()).To(Equal(configkit.AggregateHandlerType))
+-			Expect(aggregate.MessageNames()).To(Equal(
+-				configkit.EntityMessageNames{
+-					Consumed: message.NameRoles{
+-						cfixtures.MessageATypeName: message.CommandRole,
+-					},
+-					Produced: message.NameRoles{
+-						cfixtures.MessageBTypeName: message.EventRole,
+-					},
+-				},
+-			))
+-
+-			progress := apps[0].Handlers().Processes()[0]
+-			Expect(progress.Identity()).To(
+-				Equal(
+-					configkit.Identity{
+-						Name: "<nil-message-process>",
+-						Key:  "16dea3ff-095f-4788-b632-3c6dd6903417",
+-					},
+-				),
+-			)
+-			Expect(progress.TypeName()).To(
+-				Equal(
+-					"github.com/dogmatiq/configkit/static/testdata/handlers/nil-message.ProcessHandler",
+-				),
+-			)
+-			Expect(progress.HandlerType()).To(Equal(configkit.ProcessHandlerType))
+-			Expect(progress.MessageNames()).To(Equal(
+-				configkit.EntityMessageNames{
+-					Consumed: message.NameRoles{
+-						cfixtures.MessageATypeName: message.EventRole,
+-						cfixtures.MessageCTypeName: message.TimeoutRole,
+-					},
+-					Produced: message.NameRoles{
+-						cfixtures.MessageBTypeName: message.CommandRole,
+-						cfixtures.MessageCTypeName: message.TimeoutRole,
+-					},
+-				},
+-			))
+-
+-			projection := apps[0].Handlers().Projections()[0]
+-			Expect(projection.Identity()).To(
+-				Equal(
+-					configkit.Identity{
+-						Name: "<nil-message-projection>",
+-						Key:  "ccaff8ea-f3c4-4d5c-8216-cb408b792998",
+-					},
+-				),
+-			)
+-			Expect(projection.TypeName()).To(
+-				Equal(
+-					"github.com/dogmatiq/configkit/static/testdata/handlers/nil-message.ProjectionHandler",
+-				),
+-			)
+-			Expect(projection.HandlerType()).To(Equal(configkit.ProjectionHandlerType))
+-			Expect(projection.MessageNames()).To(Equal(
+-				configkit.EntityMessageNames{
+-					Consumed: message.NameRoles{
+-						cfixtures.MessageATypeName: message.EventRole,
+-					},
+-					Produced: message.NameRoles{},
+-				},
+-			))
+-
+-			integration := apps[0].Handlers().Integrations()[0]
+-			Expect(integration.Identity()).To(
+-				Equal(
+-					configkit.Identity{
+-						Name: "<nil-message-integration>",
+-						Key:  "6042d127-d64c-4bfa-88ca-a6b1e0055759",
+-					},
+-				),
+-			)
+-			Expect(integration.TypeName()).To(
+-				Equal(
+-					"github.com/dogmatiq/configkit/static/testdata/handlers/nil-message.IntegrationHandler",
+-				),
+-			)
+-			Expect(integration.HandlerType()).To(Equal(configkit.IntegrationHandlerType))
+-			Expect(integration.MessageNames()).To(Equal(
+-				configkit.EntityMessageNames{
+-					Consumed: message.NameRoles{
+-						cfixtures.MessageATypeName: message.CommandRole,
+-					},
+-					Produced: message.NameRoles{
+-						cfixtures.MessageBTypeName: message.EventRole,
+-					},
+-				},
+-			))
+-		})
+-	})
+ })
+diff --git a/static/testdata/apps/app-level-messages/aggregate.go b/static/testdata/apps/app-level-messages/aggregate.go
+index 215e858..4816043 100644
+--- a/static/testdata/apps/app-level-messages/aggregate.go
++++ b/static/testdata/apps/app-level-messages/aggregate.go
+@@ -25,8 +25,10 @@ func (AggregateHandler) New() dogma.AggregateRoot {
+ func (AggregateHandler) Configure(c dogma.AggregateConfigurer) {
+ 	c.Identity("<aggregate>", "ef16c9d1-d7b6-4c99-a0e7-a59218e544fc")
+ 
+-	c.ConsumesCommandType(fixtures.MessageA{})
+-	c.ProducesEventType(fixtures.MessageB{})
++	c.Routes(
++		dogma.HandlesCommand[fixtures.MessageA](),
++		dogma.RecordsEvent[fixtures.MessageB](),
++	)
+ }
+ 
+ // RouteCommandToInstance returns the ID of the aggregate instance that is
+diff --git a/static/testdata/apps/app-level-messages/integration.go b/static/testdata/apps/app-level-messages/integration.go
+index 5688325..77ecc1d 100644
+--- a/static/testdata/apps/app-level-messages/integration.go
++++ b/static/testdata/apps/app-level-messages/integration.go
+@@ -24,8 +24,10 @@ type IntegrationHandler struct{}
+ func (IntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
+ 	c.Identity("<integration>", "099b5b8d-9e04-422f-bcc3-bb0d451158c7")
+ 
+-	c.ConsumesCommandType(fixtures.MessageA{})
+-	c.ProducesEventType(fixtures.MessageF{})
++	c.Routes(
++		dogma.HandlesCommand[fixtures.MessageA](),
++		dogma.RecordsEvent[fixtures.MessageF](),
++	)
+ }
+ 
+ // RouteCommandToInstance returns the ID of the integration instance that is
+diff --git a/static/testdata/apps/app-level-messages/process.go b/static/testdata/apps/app-level-messages/process.go
+index b2e2c28..98d0c38 100644
+--- a/static/testdata/apps/app-level-messages/process.go
++++ b/static/testdata/apps/app-level-messages/process.go
+@@ -25,9 +25,11 @@ func (ProcessHandler) New() dogma.ProcessRoot {
+ func (ProcessHandler) Configure(c dogma.ProcessConfigurer) {
+ 	c.Identity("<process>", "9c3d8ca7-1846-4793-8e11-bd43b1a98822")
+ 
+-	c.ConsumesEventType(fixtures.MessageC{})
+-	c.ProducesCommandType(fixtures.MessageD{})
+-	c.SchedulesTimeoutType(fixtures.MessageE{})
++	c.Routes(
++		dogma.HandlesEvent[fixtures.MessageC](),
++		dogma.ExecutesCommand[fixtures.MessageD](),
++		dogma.SchedulesTimeout[fixtures.MessageE](),
++	)
+ }
+ 
+ // RouteEventToInstance returns the ID of the process instance that is
+diff --git a/static/testdata/apps/app-level-messages/projection.go b/static/testdata/apps/app-level-messages/projection.go
+index dd93d57..e550670 100644
+--- a/static/testdata/apps/app-level-messages/projection.go
++++ b/static/testdata/apps/app-level-messages/projection.go
+@@ -19,8 +19,10 @@ type ProjectionHandler struct{}
+ func (ProjectionHandler) Configure(c dogma.ProjectionConfigurer) {
+ 	c.Identity("<projection>", "7a5090e0-7248-4a58-8d70-a5dfd8c8abe1")
+ 
+-	c.ConsumesEventType(fixtures.MessageB{})
+-	c.ConsumesEventType(fixtures.MessageC{})
++	c.Routes(
++		dogma.HandlesEvent[fixtures.MessageB](),
++		dogma.HandlesEvent[fixtures.MessageC](),
++	)
+ }
+ 
+ // HandleEvent updates the projection to reflect the occurrence of an event.
+diff --git a/static/testdata/apps/handler-from-field/aggregate.go b/static/testdata/apps/handler-from-field/aggregate.go
+index 7c70462..e3cc9b3 100644
+--- a/static/testdata/apps/handler-from-field/aggregate.go
++++ b/static/testdata/apps/handler-from-field/aggregate.go
+@@ -25,9 +25,10 @@ func (*AggregateHandler) New() dogma.AggregateRoot {
+ func (*AggregateHandler) Configure(c dogma.AggregateConfigurer) {
+ 	c.Identity("<aggregate>", "195ede4a-3f26-4d19-a8fe-41b2a5f92d06")
+ 
+-	c.ConsumesCommandType(fixtures.MessageA{})
+-
+-	c.ProducesEventType(fixtures.MessageB{})
++	c.Routes(
++		dogma.HandlesCommand[fixtures.MessageA](),
++		dogma.RecordsEvent[fixtures.MessageB](),
++	)
+ }
+ 
+ // RouteCommandToInstance returns the ID of the aggregate instance that is
+diff --git a/static/testdata/apps/pointer-handler-with-non-pointer-methodset/aggregate.go b/static/testdata/apps/pointer-handler-with-non-pointer-methodset/aggregate.go
+index 832fd08..a473282 100644
+--- a/static/testdata/apps/pointer-handler-with-non-pointer-methodset/aggregate.go
++++ b/static/testdata/apps/pointer-handler-with-non-pointer-methodset/aggregate.go
+@@ -25,9 +25,10 @@ func (AggregateHandler) New() dogma.AggregateRoot {
+ func (AggregateHandler) Configure(c dogma.AggregateConfigurer) {
+ 	c.Identity("<aggregate>", "dad3b670-0852-4711-9efb-af25679734ee")
+ 
+-	c.ConsumesCommandType(fixtures.MessageA{})
+-
+-	c.ProducesEventType(fixtures.MessageB{})
++	c.Routes(
++		dogma.HandlesCommand[fixtures.MessageA](),
++		dogma.RecordsEvent[fixtures.MessageB](),
++	)
+ }
+ 
+ // RouteCommandToInstance returns the ID of the aggregate instance that is
+diff --git a/static/testdata/handlers/adaptor/aggregate.go b/static/testdata/handlers/adaptor/aggregate.go
+index 7040f40..063cc7d 100644
+--- a/static/testdata/handlers/adaptor/aggregate.go
++++ b/static/testdata/handlers/adaptor/aggregate.go
+@@ -14,11 +14,12 @@ type AggregateHandler struct{}
+ func (AggregateHandler) Configure(c dogma.AggregateConfigurer) {
+ 	c.Identity("<aggregate>", "ef16c9d1-d7b6-4c99-a0e7-a59218e544fc")
+ 
+-	c.ConsumesCommandType(fixtures.MessageA{})
+-	c.ConsumesCommandType(fixtures.MessageB{})
+-
+-	c.ProducesEventType(fixtures.MessageC{})
+-	c.ProducesEventType(fixtures.MessageD{})
++	c.Routes(
++		dogma.HandlesCommand[fixtures.MessageA](),
++		dogma.HandlesCommand[fixtures.MessageB](),
++		dogma.RecordsEvent[fixtures.MessageC](),
++		dogma.RecordsEvent[fixtures.MessageD](),
++	)
+ }
+ 
+ // PartialAggregateMessageHandler is the subset of dogma.AggregateMessageHandler
+diff --git a/static/testdata/handlers/adaptor/integration.go b/static/testdata/handlers/adaptor/integration.go
+index 377e8d1..65bfee2 100644
+--- a/static/testdata/handlers/adaptor/integration.go
++++ b/static/testdata/handlers/adaptor/integration.go
+@@ -14,11 +14,12 @@ type IntegrationHandler struct{}
+ func (IntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
+ 	c.Identity("<integration>", "099b5b8d-9e04-422f-bcc3-bb0d451158c7")
+ 
+-	c.ConsumesCommandType(fixtures.MessageA{})
+-	c.ConsumesCommandType(fixtures.MessageB{})
+-
+-	c.ProducesEventType(fixtures.MessageC{})
+-	c.ProducesEventType(fixtures.MessageD{})
++	c.Routes(
++		dogma.HandlesCommand[fixtures.MessageA](),
++		dogma.HandlesCommand[fixtures.MessageB](),
++		dogma.RecordsEvent[fixtures.MessageC](),
++		dogma.RecordsEvent[fixtures.MessageD](),
++	)
+ }
+ 
+ // PartialIntegrationMessageHandler is the subset of
+diff --git a/static/testdata/handlers/adaptor/process.go b/static/testdata/handlers/adaptor/process.go
+index 1ea2186..e30990b 100644
+--- a/static/testdata/handlers/adaptor/process.go
++++ b/static/testdata/handlers/adaptor/process.go
+@@ -14,14 +14,14 @@ type ProcessHandler struct{}
+ func (ProcessHandler) Configure(c dogma.ProcessConfigurer) {
+ 	c.Identity("<process>", "5e839b73-170b-42c0-bf41-8feee4b5a583")
+ 
+-	c.ConsumesEventType(fixtures.MessageA{})
+-	c.ConsumesEventType(fixtures.MessageB{})
+-
+-	c.ProducesCommandType(fixtures.MessageC{})
+-	c.ProducesCommandType(fixtures.MessageD{})
+-
+-	c.SchedulesTimeoutType(fixtures.MessageE{})
+-	c.SchedulesTimeoutType(fixtures.MessageF{})
++	c.Routes(
++		dogma.HandlesEvent[fixtures.MessageA](),
++		dogma.HandlesEvent[fixtures.MessageB](),
++		dogma.ExecutesCommand[fixtures.MessageC](),
++		dogma.ExecutesCommand[fixtures.MessageD](),
++		dogma.SchedulesTimeout[fixtures.MessageE](),
++		dogma.SchedulesTimeout[fixtures.MessageF](),
++	)
+ }
+ 
+ // PartialProcessMessageHandler is the subset of dogma.ProcessMessageHandler
+diff --git a/static/testdata/handlers/adaptor/projection.go b/static/testdata/handlers/adaptor/projection.go
+index ff3efa2..40eb4e3 100644
+--- a/static/testdata/handlers/adaptor/projection.go
++++ b/static/testdata/handlers/adaptor/projection.go
+@@ -14,8 +14,10 @@ type ProjectionHandler struct{}
+ func (ProjectionHandler) Configure(c dogma.ProjectionConfigurer) {
+ 	c.Identity("<projection>", "823e61d3-ace1-469d-b0a6-778e84c0a508")
+ 
+-	c.ConsumesEventType(fixtures.MessageA{})
+-	c.ConsumesEventType(fixtures.MessageB{})
++	c.Routes(
++		dogma.HandlesEvent[fixtures.MessageA](),
++		dogma.HandlesEvent[fixtures.MessageB](),
++	)
+ }
+ 
+ // PartialProjectionMessageHandler is the subset of
+diff --git a/static/testdata/handlers/constructor/aggregate.go b/static/testdata/handlers/constructor/aggregate.go
+index dea19c0..ed8f1e3 100644
+--- a/static/testdata/handlers/constructor/aggregate.go
++++ b/static/testdata/handlers/constructor/aggregate.go
+@@ -30,11 +30,12 @@ func (AggregateHandler) New() dogma.AggregateRoot {
+ func (AggregateHandler) Configure(c dogma.AggregateConfigurer) {
+ 	c.Identity("<aggregate>", "ef16c9d1-d7b6-4c99-a0e7-a59218e544fc")
+ 
+-	c.ConsumesCommandType(fixtures.MessageA{})
+-	c.ConsumesCommandType(fixtures.MessageB{})
+-
+-	c.ProducesEventType(fixtures.MessageC{})
+-	c.ProducesEventType(fixtures.MessageD{})
++	c.Routes(
++		dogma.HandlesCommand[fixtures.MessageA](),
++		dogma.HandlesCommand[fixtures.MessageB](),
++		dogma.RecordsEvent[fixtures.MessageC](),
++		dogma.RecordsEvent[fixtures.MessageD](),
++	)
+ }
+ 
+ // RouteCommandToInstance returns the ID of the aggregate instance that is
+diff --git a/static/testdata/handlers/constructor/integration.go b/static/testdata/handlers/constructor/integration.go
+index 2144181..d069e6b 100644
+--- a/static/testdata/handlers/constructor/integration.go
++++ b/static/testdata/handlers/constructor/integration.go
+@@ -22,11 +22,12 @@ func NewIntegrationHandler() IntegrationHandler {
+ func (IntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
+ 	c.Identity("<integration>", "099b5b8d-9e04-422f-bcc3-bb0d451158c7")
+ 
+-	c.ConsumesCommandType(fixtures.MessageA{})
+-	c.ConsumesCommandType(fixtures.MessageB{})
+-
+-	c.ProducesEventType(fixtures.MessageC{})
+-	c.ProducesEventType(fixtures.MessageD{})
++	c.Routes(
++		dogma.HandlesCommand[fixtures.MessageA](),
++		dogma.HandlesCommand[fixtures.MessageB](),
++		dogma.RecordsEvent[fixtures.MessageC](),
++		dogma.RecordsEvent[fixtures.MessageD](),
++	)
+ }
+ 
+ // RouteCommandToInstance returns the ID of the integration instance that is
+diff --git a/static/testdata/handlers/constructor/process.go b/static/testdata/handlers/constructor/process.go
+index a976f9e..8f736ae 100644
+--- a/static/testdata/handlers/constructor/process.go
++++ b/static/testdata/handlers/constructor/process.go
+@@ -30,14 +30,14 @@ func (ProcessHandler) New() dogma.ProcessRoot {
+ func (ProcessHandler) Configure(c dogma.ProcessConfigurer) {
+ 	c.Identity("<process>", "5e839b73-170b-42c0-bf41-8feee4b5a583")
+ 
+-	c.ConsumesEventType(fixtures.MessageA{})
+-	c.ConsumesEventType(fixtures.MessageB{})
+-
+-	c.ProducesCommandType(fixtures.MessageC{})
+-	c.ProducesCommandType(fixtures.MessageD{})
+-
+-	c.SchedulesTimeoutType(fixtures.MessageE{})
+-	c.SchedulesTimeoutType(fixtures.MessageF{})
++	c.Routes(
++		dogma.HandlesEvent[fixtures.MessageA](),
++		dogma.HandlesEvent[fixtures.MessageB](),
++		dogma.ExecutesCommand[fixtures.MessageC](),
++		dogma.ExecutesCommand[fixtures.MessageD](),
++		dogma.SchedulesTimeout[fixtures.MessageE](),
++		dogma.SchedulesTimeout[fixtures.MessageF](),
++	)
+ }
+ 
+ // RouteEventToInstance returns the ID of the process instance that is
+diff --git a/static/testdata/handlers/constructor/projection.go b/static/testdata/handlers/constructor/projection.go
+index 9f76461..ab92e2c 100644
+--- a/static/testdata/handlers/constructor/projection.go
++++ b/static/testdata/handlers/constructor/projection.go
+@@ -21,8 +21,10 @@ func NewProjectionHandler() ProjectionHandler {
+ func (ProjectionHandler) Configure(c dogma.ProjectionConfigurer) {
+ 	c.Identity("<projection>", "823e61d3-ace1-469d-b0a6-778e84c0a508")
+ 
+-	c.ConsumesEventType(fixtures.MessageA{})
+-	c.ConsumesEventType(fixtures.MessageB{})
++	c.Routes(
++		dogma.HandlesEvent[fixtures.MessageA](),
++		dogma.HandlesEvent[fixtures.MessageB](),
++	)
+ }
+ 
+ // HandleEvent updates the projection to reflect the occurrence of an event.
+diff --git a/static/testdata/handlers/multiple/first.go b/static/testdata/handlers/multiple/first.go
+index 81eebe8..e6bd092 100644
+--- a/static/testdata/handlers/multiple/first.go
++++ b/static/testdata/handlers/multiple/first.go
+@@ -28,9 +28,10 @@ func (FirstAggregateHandler) New() dogma.AggregateRoot {
+ func (FirstAggregateHandler) Configure(c dogma.AggregateConfigurer) {
+ 	c.Identity("<first-aggregate>", "e6300d8d-6530-405e-9729-e9ca21df23d3")
+ 
+-	c.ConsumesCommandType(fixtures.MessageA{})
+-
+-	c.ProducesEventType(fixtures.MessageB{})
++	c.Routes(
++		dogma.HandlesCommand[fixtures.MessageA](),
++		dogma.RecordsEvent[fixtures.MessageB](),
++	)
+ }
+ 
+ // RouteCommandToInstance returns the ID of the aggregate instance that is
+@@ -64,11 +65,11 @@ func (FirstProcessHandler) New() dogma.ProcessRoot {
+ func (FirstProcessHandler) Configure(c dogma.ProcessConfigurer) {
+ 	c.Identity("<first-process>", "d33198e0-f1f7-4c2d-8ac2-98f68a44414e")
+ 
+-	c.ConsumesEventType(fixtures.MessageA{})
+-
+-	c.ProducesCommandType(fixtures.MessageB{})
+-
+-	c.SchedulesTimeoutType(fixtures.MessageC{})
++	c.Routes(
++		dogma.HandlesEvent[fixtures.MessageA](),
++		dogma.ExecutesCommand[fixtures.MessageB](),
++		dogma.SchedulesTimeout[fixtures.MessageC](),
++	)
+ }
+ 
+ // RouteEventToInstance returns the ID of the process instance that is
+@@ -116,7 +117,9 @@ type FirstProjectionHandler struct{}
+ func (FirstProjectionHandler) Configure(c dogma.ProjectionConfigurer) {
+ 	c.Identity("<first-projection>", "9174783f-4f12-4619-b5c6-c4ab70bd0937")
+ 
+-	c.ConsumesEventType(fixtures.MessageA{})
++	c.Routes(
++		dogma.HandlesEvent[fixtures.MessageA](),
++	)
+ }
+ 
+ // HandleEvent updates the projection to reflect the occurrence of an event.
+@@ -163,9 +166,10 @@ type FirstIntegrationHandler struct{}
+ func (FirstIntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
+ 	c.Identity("<first-integration>", "14cf2812-eead-43b3-9c9c-10db5b469e94")
+ 
+-	c.ConsumesCommandType(fixtures.MessageA{})
+-
+-	c.ProducesEventType(fixtures.MessageB{})
++	c.Routes(
++		dogma.HandlesCommand[fixtures.MessageA](),
++		dogma.RecordsEvent[fixtures.MessageB](),
++	)
+ }
+ 
+ // RouteCommandToInstance returns the ID of the integration instance that is
+diff --git a/static/testdata/handlers/multiple/second.go b/static/testdata/handlers/multiple/second.go
+index f2b966e..ff99c41 100644
+--- a/static/testdata/handlers/multiple/second.go
++++ b/static/testdata/handlers/multiple/second.go
+@@ -29,9 +29,10 @@ func (SecondAggregateHandler) New() dogma.AggregateRoot {
+ func (SecondAggregateHandler) Configure(c dogma.AggregateConfigurer) {
+ 	c.Identity("<second-aggregate>", "feeb96d0-c56b-4e58-9cd0-d393683c2ec7")
+ 
+-	c.ConsumesCommandType(fixtures.MessageC{})
+-
+-	c.ProducesEventType(fixtures.MessageD{})
++	c.Routes(
++		dogma.HandlesCommand[fixtures.MessageC](),
++		dogma.RecordsEvent[fixtures.MessageD](),
++	)
+ }
+ 
+ // RouteCommandToInstance returns the ID of the aggregate instance that is
+@@ -65,11 +66,11 @@ func (SecondProcessHandler) New() dogma.ProcessRoot {
+ func (SecondProcessHandler) Configure(c dogma.ProcessConfigurer) {
+ 	c.Identity("<second-process>", "0311717c-cf51-4292-8ed9-95125302a18e")
+ 
+-	c.ConsumesEventType(fixtures.MessageD{})
+-
+-	c.ProducesCommandType(fixtures.MessageE{})
+-
+-	c.SchedulesTimeoutType(fixtures.MessageF{})
++	c.Routes(
++		dogma.HandlesEvent[fixtures.MessageD](),
++		dogma.ExecutesCommand[fixtures.MessageE](),
++		dogma.SchedulesTimeout[fixtures.MessageF](),
++	)
+ }
+ 
+ // RouteEventToInstance returns the ID of the process instance that is
+@@ -117,7 +118,9 @@ type SecondProjectionHandler struct{}
+ func (SecondProjectionHandler) Configure(c dogma.ProjectionConfigurer) {
+ 	c.Identity("<second-projection>", "2e22850e-7c84-4b3f-b8b3-25ac743d90f2")
+ 
+-	c.ConsumesEventType(fixtures.MessageB{})
++	c.Routes(
++		dogma.HandlesEvent[fixtures.MessageB](),
++	)
+ }
+ 
+ // HandleEvent updates the projection to reflect the occurrence of an event.
+@@ -164,9 +167,10 @@ type SecondIntegrationHandler struct{}
+ func (SecondIntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
+ 	c.Identity("<second-integration>", "6bed3fbc-30e2-44c7-9a5b-e440ffe370d9")
+ 
+-	c.ConsumesCommandType(fixtures.MessageA{})
+-
+-	c.ProducesEventType(fixtures.MessageB{})
++	c.Routes(
++		dogma.HandlesCommand[fixtures.MessageA](),
++		dogma.RecordsEvent[fixtures.MessageB](),
++	)
+ }
+ 
+ // RouteCommandToInstance returns the ID of the integration instance that is
+diff --git a/static/testdata/handlers/nil-message/aggregate.go b/static/testdata/handlers/nil-message/aggregate.go
+deleted file mode 100644
+index 68539ae..0000000
+--- a/static/testdata/handlers/nil-message/aggregate.go
++++ /dev/null
+@@ -1,47 +0,0 @@
+-package app
+-
+-import (
+-	"github.com/dogmatiq/dogma"
+-	"github.com/dogmatiq/dogma/fixtures"
+-)
+-
+-// Aggregate is an aggregate used for testing.
+-type Aggregate struct{}
+-
+-// ApplyEvent updates the aggregate instance to reflect the occurrence of an
+-// event that was recorded against this instance.
+-func (Aggregate) ApplyEvent(m dogma.Message) {}
+-
+-// AggregateHandler is a test implementation of dogma.AggregateMessageHandler.
+-type AggregateHandler struct{}
+-
+-// New returns a new account instance.
+-func (AggregateHandler) New() dogma.AggregateRoot {
+-	return Aggregate{}
+-}
+-
+-// Configure configures the behavior of the engine as it relates to this
+-// handler.
+-func (AggregateHandler) Configure(c dogma.AggregateConfigurer) {
+-	c.Identity("<nil-message-aggregate>", "da31f2cf-40c8-439e-aadc-042e30100908")
+-
+-	c.ConsumesCommandType(fixtures.MessageA{})
+-	c.ConsumesCommandType(nil)
+-
+-	c.ProducesEventType(fixtures.MessageB{})
+-	c.ProducesEventType(nil)
+-}
+-
+-// RouteCommandToInstance returns the ID of the aggregate instance that is
+-// targetted by m.
+-func (AggregateHandler) RouteCommandToInstance(m dogma.Message) string {
+-	return "<nil-message-aggregate>"
+-}
+-
+-// HandleCommand handles a command message that has been routed to this handler.
+-func (AggregateHandler) HandleCommand(
+-	r dogma.AggregateRoot,
+-	s dogma.AggregateCommandScope,
+-	m dogma.Message,
+-) {
+-}
+diff --git a/static/testdata/handlers/nil-message/app.go b/static/testdata/handlers/nil-message/app.go
+deleted file mode 100644
+index 8407d92..0000000
+--- a/static/testdata/handlers/nil-message/app.go
++++ /dev/null
+@@ -1,17 +0,0 @@
+-package app
+-
+-import "github.com/dogmatiq/dogma"
+-
+-// App implements dogma.Application interface.
+-type App struct{}
+-
+-// Configure configures the behavior of the engine as it relates to this
+-// application.
+-func (App) Configure(c dogma.ApplicationConfigurer) {
+-	c.Identity("<nil-message-handler-app>", "68081b6e-af25-4522-b54b-88ef9759c5f2")
+-
+-	c.RegisterIntegration(IntegrationHandler{})
+-	c.RegisterProjection(ProjectionHandler{})
+-	c.RegisterAggregate(AggregateHandler{})
+-	c.RegisterProcess(ProcessHandler{})
+-}
+diff --git a/static/testdata/handlers/nil-message/integration.go b/static/testdata/handlers/nil-message/integration.go
+deleted file mode 100644
+index 047e7a1..0000000
+--- a/static/testdata/handlers/nil-message/integration.go
++++ /dev/null
+@@ -1,46 +0,0 @@
+-package app
+-
+-import (
+-	"context"
+-	"time"
+-
+-	"github.com/dogmatiq/dogma"
+-	"github.com/dogmatiq/dogma/fixtures"
+-)
+-
+-// IntegrationHandler is a test implementation of
+-// dogma.IntegrationMessageHandler.
+-type IntegrationHandler struct{}
+-
+-// Configure configures the behavior of the engine as it relates to this
+-// handler.
+-func (IntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
+-	c.Identity("<nil-message-integration>", "6042d127-d64c-4bfa-88ca-a6b1e0055759")
+-
+-	c.ConsumesCommandType(fixtures.MessageA{})
+-	c.ConsumesCommandType(nil)
+-
+-	c.ProducesEventType(fixtures.MessageB{})
+-	c.ProducesEventType(nil)
+-}
+-
+-// RouteCommandToInstance returns the ID of the integration instance that is
+-// targetted by m.
+-func (IntegrationHandler) RouteCommandToInstance(m dogma.Message) string {
+-	return "<nil-message-integration>"
+-}
+-
+-// HandleCommand handles a command message that has been routed to this handler.
+-func (IntegrationHandler) HandleCommand(
+-	ctx context.Context,
+-	s dogma.IntegrationCommandScope,
+-	m dogma.Message,
+-) error {
+-	return nil
+-}
+-
+-// TimeoutHint returns a duration that is suitable for computing a deadline
+-// for the handling of the given message by this handler.
+-func (IntegrationHandler) TimeoutHint(m dogma.Message) time.Duration {
+-	return 0
+-}
+diff --git a/static/testdata/handlers/nil-message/process.go b/static/testdata/handlers/nil-message/process.go
+deleted file mode 100644
+index 3704491..0000000
+--- a/static/testdata/handlers/nil-message/process.go
++++ /dev/null
+@@ -1,72 +0,0 @@
+-package app
+-
+-import (
+-	"context"
+-	"time"
+-
+-	"github.com/dogmatiq/dogma"
+-	"github.com/dogmatiq/dogma/fixtures"
+-)
+-
+-// Process is a process used for testing.
+-type Process struct{}
+-
+-// ProcessHandler is a test implementation of dogma.ProcessMessageHandler.
+-type ProcessHandler struct{}
+-
+-// New constructs a new process instance initialized with any default values and
+-// returns the process root.
+-func (ProcessHandler) New() dogma.ProcessRoot {
+-	return Process{}
+-}
+-
+-// Configure configures the behavior of the engine as it relates to this
+-// handler.
+-func (ProcessHandler) Configure(c dogma.ProcessConfigurer) {
+-	c.Identity("<nil-message-process>", "16dea3ff-095f-4788-b632-3c6dd6903417")
+-
+-	c.ConsumesEventType(fixtures.MessageA{})
+-	c.ConsumesEventType(nil)
+-
+-	c.ProducesCommandType(fixtures.MessageB{})
+-	c.ProducesCommandType(nil)
+-
+-	c.SchedulesTimeoutType(fixtures.MessageC{})
+-	c.SchedulesTimeoutType(nil)
+-}
+-
+-// RouteEventToInstance returns the ID of the process instance that is
+-// targeted by m.
+-func (ProcessHandler) RouteEventToInstance(
+-	ctx context.Context,
+-	m dogma.Message,
+-) (string, bool, error) {
+-	return "<nil-message-process>", true, nil
+-}
+-
+-// HandleEvent handles an event message.
+-func (ProcessHandler) HandleEvent(
+-	ctx context.Context,
+-	r dogma.ProcessRoot,
+-	s dogma.ProcessEventScope,
+-	m dogma.Message,
+-) error {
+-	return nil
+-}
+-
+-// HandleTimeout handles a timeout message that has been scheduled with
+-// ProcessScope.ScheduleTimeout().
+-func (ProcessHandler) HandleTimeout(
+-	ctx context.Context,
+-	r dogma.ProcessRoot,
+-	s dogma.ProcessTimeoutScope,
+-	m dogma.Message,
+-) error {
+-	return nil
+-}
+-
+-// TimeoutHint returns a duration that is suitable for computing a deadline
+-// for the handling of the given message by this handler.
+-func (ProcessHandler) TimeoutHint(m dogma.Message) time.Duration {
+-	return 0
+-}
+diff --git a/static/testdata/handlers/nil-message/projection.go b/static/testdata/handlers/nil-message/projection.go
+deleted file mode 100644
+index 75edf1e..0000000
+--- a/static/testdata/handlers/nil-message/projection.go
++++ /dev/null
+@@ -1,56 +0,0 @@
+-package app
+-
+-import (
+-	"context"
+-	"time"
+-
+-	"github.com/dogmatiq/dogma"
+-	"github.com/dogmatiq/dogma/fixtures"
+-)
+-
+-// ProjectionHandler is a test implementation of dogma.ProjectionMessageHandler.
+-type ProjectionHandler struct{}
+-
+-// Configure configures the behavior of the engine as it relates to this
+-// handler.
+-func (ProjectionHandler) Configure(c dogma.ProjectionConfigurer) {
+-	c.Identity("<nil-message-projection>", "ccaff8ea-f3c4-4d5c-8216-cb408b792998")
+-
+-	c.ConsumesEventType(fixtures.MessageA{})
+-	c.ConsumesEventType(nil)
+-}
+-
+-// HandleEvent updates the projection to reflect the occurrence of an event.
+-func (ProjectionHandler) HandleEvent(
+-	ctx context.Context,
+-	r, c, n []byte,
+-	s dogma.ProjectionEventScope,
+-	m dogma.Message,
+-) (ok bool, err error) {
+-	return false, nil
+-}
+-
+-// ResourceVersion returns the version of the resource r.
+-func (ProjectionHandler) ResourceVersion(
+-	ctx context.Context,
+-	r []byte,
+-) ([]byte, error) {
+-	return nil, nil
+-}
+-
+-// CloseResource informs the projection that the resource r will not be
+-// used in any future calls to HandleEvent().
+-func (ProjectionHandler) CloseResource(ctx context.Context, r []byte) error {
+-	return nil
+-}
+-
+-// TimeoutHint returns a duration that is suitable for computing a deadline
+-// for the handling of the given message by this handler.
+-func (ProjectionHandler) TimeoutHint(m dogma.Message) time.Duration {
+-	return 0
+-}
+-
+-// Compact reduces the size of the projection's data.
+-func (ProjectionHandler) Compact(ctx context.Context, s dogma.ProjectionCompactScope) error {
+-	return nil
+-}
+diff --git a/static/testdata/handlers/single/aggregate.go b/static/testdata/handlers/single/aggregate.go
+index a221bfa..3052baf 100644
+--- a/static/testdata/handlers/single/aggregate.go
++++ b/static/testdata/handlers/single/aggregate.go
+@@ -25,11 +25,12 @@ func (AggregateHandler) New() dogma.AggregateRoot {
+ func (AggregateHandler) Configure(c dogma.AggregateConfigurer) {
+ 	c.Identity("<aggregate>", "ef16c9d1-d7b6-4c99-a0e7-a59218e544fc")
+ 
+-	c.ConsumesCommandType(fixtures.MessageA{})
+-	c.ConsumesCommandType(fixtures.MessageB{})
+-
+-	c.ProducesEventType(fixtures.MessageC{})
+-	c.ProducesEventType(fixtures.MessageD{})
++	c.Routes(
++		dogma.HandlesCommand[fixtures.MessageA](),
++		dogma.HandlesCommand[fixtures.MessageB](),
++		dogma.RecordsEvent[fixtures.MessageC](),
++		dogma.RecordsEvent[fixtures.MessageD](),
++	)
+ }
+ 
+ // RouteCommandToInstance returns the ID of the aggregate instance that is
+diff --git a/static/testdata/handlers/single/integration.go b/static/testdata/handlers/single/integration.go
+index 08d9fa8..0860c7d 100644
+--- a/static/testdata/handlers/single/integration.go
++++ b/static/testdata/handlers/single/integration.go
+@@ -17,11 +17,12 @@ type IntegrationHandler struct{}
+ func (IntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
+ 	c.Identity("<integration>", "099b5b8d-9e04-422f-bcc3-bb0d451158c7")
+ 
+-	c.ConsumesCommandType(fixtures.MessageA{})
+-	c.ConsumesCommandType(fixtures.MessageB{})
+-
+-	c.ProducesEventType(fixtures.MessageC{})
+-	c.ProducesEventType(fixtures.MessageD{})
++	c.Routes(
++		dogma.HandlesCommand[fixtures.MessageA](),
++		dogma.HandlesCommand[fixtures.MessageB](),
++		dogma.RecordsEvent[fixtures.MessageC](),
++		dogma.RecordsEvent[fixtures.MessageD](),
++	)
+ }
+ 
+ // RouteCommandToInstance returns the ID of the integration instance that is
+diff --git a/static/testdata/handlers/single/process.go b/static/testdata/handlers/single/process.go
+index 69140ab..d79e450 100644
+--- a/static/testdata/handlers/single/process.go
++++ b/static/testdata/handlers/single/process.go
+@@ -25,14 +25,14 @@ func (ProcessHandler) New() dogma.ProcessRoot {
+ func (ProcessHandler) Configure(c dogma.ProcessConfigurer) {
+ 	c.Identity("<process>", "5e839b73-170b-42c0-bf41-8feee4b5a583")
+ 
+-	c.ConsumesEventType(fixtures.MessageA{})
+-	c.ConsumesEventType(fixtures.MessageB{})
+-
+-	c.ProducesCommandType(fixtures.MessageC{})
+-	c.ProducesCommandType(fixtures.MessageD{})
+-
+-	c.SchedulesTimeoutType(fixtures.MessageE{})
+-	c.SchedulesTimeoutType(fixtures.MessageF{})
++	c.Routes(
++		dogma.HandlesEvent[fixtures.MessageA](),
++		dogma.HandlesEvent[fixtures.MessageB](),
++		dogma.ExecutesCommand[fixtures.MessageC](),
++		dogma.ExecutesCommand[fixtures.MessageD](),
++		dogma.SchedulesTimeout[fixtures.MessageE](),
++		dogma.SchedulesTimeout[fixtures.MessageF](),
++	)
+ }
+ 
+ // RouteEventToInstance returns the ID of the process instance that is
+diff --git a/static/testdata/handlers/single/projection.go b/static/testdata/handlers/single/projection.go
+index f6ba6c5..16b8d8e 100644
+--- a/static/testdata/handlers/single/projection.go
++++ b/static/testdata/handlers/single/projection.go
+@@ -16,8 +16,10 @@ type ProjectionHandler struct{}
+ func (ProjectionHandler) Configure(c dogma.ProjectionConfigurer) {
+ 	c.Identity("<projection>", "823e61d3-ace1-469d-b0a6-778e84c0a508")
+ 
+-	c.ConsumesEventType(fixtures.MessageA{})
+-	c.ConsumesEventType(fixtures.MessageB{})
++	c.Routes(
++		dogma.HandlesEvent[fixtures.MessageA](),
++		dogma.HandlesEvent[fixtures.MessageB](),
++	)
+ }
+ 
+ // HandleEvent updates the projection to reflect the occurrence of an event.
