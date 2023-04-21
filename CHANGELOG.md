@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
+### Unreleased
+
+- Modify `static` package to analyze the latest changes introduced by Dogma
+  v0.12.0.
+
 ## [0.12.0] - 2023-04-09
 
 This release updates the `configkit` implementation to adhere to Dogma v0.12.0
