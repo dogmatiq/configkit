@@ -288,13 +288,6 @@ func addHandlerFromConfigureMethod(
 		switch c.Common().Method.Name() {
 		case "Identity":
 			hdr.IdentityValue = analyzeIdentityCall(c)
-		case "Routes":
-			addMessagesFromRoutesArgs(
-				args,
-				hdr.MessageNamesValue.Produced,
-				hdr.MessageNamesValue.Consumed,
-			)
-
 		case "ConsumesCommandType":
 			addMessageFromArguments(
 				args,
@@ -333,51 +326,25 @@ func addHandlerFromConfigureMethod(
 		}
 	}
 
+	addMessagesFromRoutes(
+		method,
+		hdr.MessageNamesValue.Produced,
+		hdr.MessageNamesValue.Consumed,
+	)
+
 	hs.Add(hdr)
 }
 
-// addMessagesFromRoutesArgs analyzes the arguments in a call to a configurer's
+// addMessagesFromRoutes analyzes the arguments in a call to a configurer's
 // method Routes() to populate the messages that are produced and consumed by
 // the handler.
-func addMessagesFromRoutesArgs(
-	args []ssa.Value,
+func addMessagesFromRoutes(
+	method *ssa.Function,
 	produced, consumed message.NameRoles,
 ) {
-	if len(args) != 1 {
-		panic("unexpected number of arguments to Routes()")
-	}
-
-	walkInstructions(
-		args[0].(*ssa.Slice).X.Referrers(),
-		produced,
-		consumed,
-	)
-}
-
-// walkInstructions walks the graph of instructions to detect the calls of
-// the following functions:
-//
-//	`github.com/dogmatiq/dogma.HandlesCommand()
-//	`github.com/dogmatiq/dogma.HandlesEvent()`
-//	`github.com/dogmatiq/dogma.ExecutesCommand()`
-//	`github.com/dogmatiq/dogma.RecordsEvent()`
-//	`github.com/dogmatiq/dogma.SchedulesTimeout()`
-//
-// Once the calls are found, the messages that are produced and consumed by the
-// handler are populated in the corresponding message.NameRoles maps.
-func walkInstructions(
-	instr *[]ssa.Instruction,
-	produced, consumed message.NameRoles,
-) {
-	for _, i := range *instr {
-		switch i := i.(type) {
-		case *ssa.Call:
-			walkInstructions(i.Referrers(), produced, consumed)
-		case *ssa.IndexAddr, *ssa.Slice:
-			rr := i.(interface{ Referrers() *[]ssa.Instruction }).Referrers()
-			walkInstructions(rr, produced, consumed)
-		case *ssa.Store:
-			if mi, ok := i.Val.(*ssa.MakeInterface); ok {
+	for _, b := range method.Blocks {
+		for _, i := range b.Instrs {
+			if mi, ok := i.(*ssa.MakeInterface); ok {
 				// If this is the boxing to the following interfaces,
 				// we need to analyze the concrete types:
 				switch mi.X.Type().String() {
@@ -387,44 +354,47 @@ func walkInstructions(
 					"github.com/dogmatiq/dogma.SchedulesTimeoutRoute",
 					"github.com/dogmatiq/dogma.RecordsEventRoute":
 
-					// At this we should expect that the interfaces above are
-					// produced as a result of calls to following functions:
-					//	`github.com/dogmatiq/dogma.HandlesCommand()
-					//	`github.com/dogmatiq/dogma.HandlesEvent()`
-					//	`github.com/dogmatiq/dogma.ExecutesCommand()`
-					//	`github.com/dogmatiq/dogma.RecordsEvent()`
-					//	`github.com/dogmatiq/dogma.SchedulesTimeout()`
-					f := mi.X.(*ssa.Call).Common().Value.(*ssa.Function)
-					switch {
-					case strings.HasPrefix(f.Name(), "ExecutesCommand["):
-						produced.Add(
-							message.NameFromType(f.TypeArgs()[0]),
-							message.CommandRole,
-						)
-					case strings.HasPrefix(f.Name(), "RecordsEvent["):
-						produced.Add(
-							message.NameFromType(f.TypeArgs()[0]),
-							message.EventRole,
-						)
-					case strings.HasPrefix(f.Name(), "HandlesCommand["):
-						consumed.Add(
-							message.NameFromType(f.TypeArgs()[0]),
-							message.CommandRole,
-						)
-					case strings.HasPrefix(f.Name(), "HandlesEvent["):
-						consumed.Add(
-							message.NameFromType(f.TypeArgs()[0]),
-							message.EventRole,
-						)
-					case strings.HasPrefix(f.Name(), "SchedulesTimeout["):
-						produced.Add(
-							message.NameFromType(f.TypeArgs()[0]),
-							message.TimeoutRole,
-						)
-						consumed.Add(
-							message.NameFromType(f.TypeArgs()[0]),
-							message.TimeoutRole,
-						)
+					// At this point we should expect that the interfaces above
+					// are produced as a result of calls to following functions:
+					// (At the time of writing this code, there is no other way
+					// to produce these interfaces)
+					//  `github.com/dogmatiq/dogma.HandlesCommand()
+					//  `github.com/dogmatiq/dogma.HandlesEvent()`
+					//  `github.com/dogmatiq/dogma.ExecutesCommand()`
+					//  `github.com/dogmatiq/dogma.RecordsEvent()`
+					//  `github.com/dogmatiq/dogma.SchedulesTimeout()`
+					if f, ok := mi.X.(*ssa.Call).Common().Value.(*ssa.Function); ok {
+						switch {
+						case strings.HasPrefix(f.Name(), "ExecutesCommand["):
+							produced.Add(
+								message.NameFromType(f.TypeArgs()[0]),
+								message.CommandRole,
+							)
+						case strings.HasPrefix(f.Name(), "RecordsEvent["):
+							produced.Add(
+								message.NameFromType(f.TypeArgs()[0]),
+								message.EventRole,
+							)
+						case strings.HasPrefix(f.Name(), "HandlesCommand["):
+							consumed.Add(
+								message.NameFromType(f.TypeArgs()[0]),
+								message.CommandRole,
+							)
+						case strings.HasPrefix(f.Name(), "HandlesEvent["):
+							consumed.Add(
+								message.NameFromType(f.TypeArgs()[0]),
+								message.EventRole,
+							)
+						case strings.HasPrefix(f.Name(), "SchedulesTimeout["):
+							produced.Add(
+								message.NameFromType(f.TypeArgs()[0]),
+								message.TimeoutRole,
+							)
+							consumed.Add(
+								message.NameFromType(f.TypeArgs()[0]),
+								message.TimeoutRole,
+							)
+						}
 					}
 				}
 			}

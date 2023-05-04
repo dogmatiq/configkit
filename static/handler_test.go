@@ -294,6 +294,142 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 			})
 		})
 
+		When("messages are passed to the *Configurer.Routes() method in conditional branches", func() {
+			It("returns messages populated in every conditional branch", func() {
+				cfg := packages.Config{
+					Mode: packages.LoadAllSyntax,
+					Dir:  "testdata/handlers/conditional-branches",
+				}
+
+				pkgs, err := packages.Load(&cfg, "./...")
+				Expect(err).NotTo(HaveOccurred())
+
+				apps := FromPackages(pkgs)
+				Expect(apps).To(HaveLen(1))
+				Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
+				Expect(apps[0].Handlers().Processes()).To(HaveLen(1))
+				Expect(apps[0].Handlers().Projections()).To(HaveLen(1))
+				Expect(apps[0].Handlers().Integrations()).To(HaveLen(1))
+
+				aggregate := apps[0].Handlers().Aggregates()[0]
+				Expect(aggregate.Identity()).To(
+					Equal(
+						configkit.Identity{
+							Name: "<aggregate>",
+							Key:  "c3b4b3c7-fbe6-4789-9358-e4f45b154d31",
+						},
+					),
+				)
+				Expect(aggregate.TypeName()).To(
+					Equal(
+						"github.com/dogmatiq/configkit/static/testdata/handlers/conditional-branches.AggregateHandler",
+					),
+				)
+				Expect(aggregate.HandlerType()).To(Equal(configkit.AggregateHandlerType))
+
+				Expect(aggregate.MessageNames()).To(Equal(
+					configkit.EntityMessageNames{
+						Consumed: message.NameRoles{
+							cfixtures.MessageATypeName: message.CommandRole,
+							cfixtures.MessageBTypeName: message.CommandRole,
+						},
+						Produced: message.NameRoles{
+							cfixtures.MessageCTypeName: message.EventRole,
+							cfixtures.MessageDTypeName: message.EventRole,
+						},
+					},
+				))
+
+				process := apps[0].Handlers().Processes()[0]
+				Expect(process.Identity()).To(
+					Equal(
+						configkit.Identity{
+							Name: "<process>",
+							Key:  "f754da79-205b-4d65-889f-0d8ae86e3def",
+						},
+					),
+				)
+				Expect(process.TypeName()).To(
+					Equal(
+						"github.com/dogmatiq/configkit/static/testdata/handlers/conditional-branches.ProcessHandler",
+					),
+				)
+				Expect(process.HandlerType()).To(Equal(configkit.ProcessHandlerType))
+
+				Expect(process.MessageNames()).To(Equal(
+					configkit.EntityMessageNames{
+						Consumed: message.NameRoles{
+							cfixtures.MessageATypeName: message.EventRole,
+							cfixtures.MessageBTypeName: message.EventRole,
+							cfixtures.MessageETypeName: message.TimeoutRole,
+							cfixtures.MessageFTypeName: message.TimeoutRole,
+						},
+						Produced: message.NameRoles{
+							cfixtures.MessageCTypeName: message.CommandRole,
+							cfixtures.MessageDTypeName: message.CommandRole,
+							cfixtures.MessageETypeName: message.TimeoutRole,
+							cfixtures.MessageFTypeName: message.TimeoutRole,
+						},
+					},
+				))
+
+				projection := apps[0].Handlers().Projections()[0]
+				Expect(projection.Identity()).To(
+					Equal(
+						configkit.Identity{
+							Name: "<projection>",
+							Key:  "559dcb05-2b63-4567-bb25-3f69c569f8ec",
+						},
+					),
+				)
+				Expect(projection.TypeName()).To(
+					Equal(
+						"github.com/dogmatiq/configkit/static/testdata/handlers/conditional-branches.ProjectionHandler",
+					),
+				)
+				Expect(projection.HandlerType()).To(Equal(configkit.ProjectionHandlerType))
+
+				Expect(projection.MessageNames()).To(Equal(
+					configkit.EntityMessageNames{
+						Consumed: message.NameRoles{
+							cfixtures.MessageATypeName: message.EventRole,
+							cfixtures.MessageBTypeName: message.EventRole,
+						},
+						Produced: message.NameRoles{},
+					},
+				))
+
+				integration := apps[0].Handlers().Integrations()[0]
+				Expect(integration.Identity()).To(
+					Equal(
+						configkit.Identity{
+							Name: "<integration>",
+							Key:  "92cce461-8d30-409b-8d5a-406f656cef2d",
+						},
+					),
+				)
+				Expect(integration.TypeName()).To(
+					Equal(
+						"github.com/dogmatiq/configkit/static/testdata/handlers/conditional-branches.IntegrationHandler",
+					),
+				)
+				Expect(integration.HandlerType()).To(Equal(configkit.IntegrationHandlerType))
+
+				Expect(integration.MessageNames()).To(Equal(
+					configkit.EntityMessageNames{
+						Consumed: message.NameRoles{
+							cfixtures.MessageATypeName: message.CommandRole,
+							cfixtures.MessageBTypeName: message.CommandRole,
+						},
+						Produced: message.NameRoles{
+							cfixtures.MessageCTypeName: message.EventRole,
+							cfixtures.MessageDTypeName: message.EventRole,
+						},
+					},
+				))
+			})
+		})
+
 		When("nil is passed to a call of *Configurer.Routes() methods", func() {
 			It("does not populate messages", func() {
 				cfg := packages.Config{
