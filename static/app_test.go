@@ -18,8 +18,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 				Dir:  "testdata/apps/single-app",
 			}
 
-			pkgs, err := packages.Load(&cfg, "./...")
-			Expect(err).NotTo(HaveOccurred())
+			pkgs := loadPackages(cfg)
 
 			apps := FromPackages(pkgs)
 			Expect(apps).To(HaveLen(1))
@@ -50,8 +49,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 				Dir:  "testdata/apps/multiple-apps-in-pkgs",
 			}
 
-			pkgs, err := packages.Load(&cfg, "./...")
-			Expect(err).NotTo(HaveOccurred())
+			pkgs := loadPackages(cfg)
 
 			apps := FromPackages(pkgs)
 			Expect(apps).To(HaveLen(2))
@@ -83,8 +81,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 				Dir:  "testdata/apps/multiple-apps-in-single-pkg/apps",
 			}
 
-			pkgs, err := packages.Load(&cfg, "./...")
-			Expect(err).NotTo(HaveOccurred())
+			pkgs := loadPackages(cfg)
 
 			apps := FromPackages(pkgs)
 			Expect(apps).To(HaveLen(2))
@@ -116,8 +113,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 				Dir:  "testdata/apps/pointer-receiver-app",
 			}
 
-			pkgs, err := packages.Load(&cfg, "./...")
-			Expect(err).NotTo(HaveOccurred())
+			pkgs := loadPackages(cfg)
 
 			apps := FromPackages(pkgs)
 
@@ -140,8 +136,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 				Dir:  "testdata/apps/no-app",
 			}
 
-			pkgs, err := packages.Load(&cfg, "./...")
-			Expect(err).NotTo(HaveOccurred())
+			pkgs := loadPackages(cfg)
 
 			apps := FromPackages(pkgs)
 
@@ -156,8 +151,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 				Dir:  "testdata/apps/handler-from-field",
 			}
 
-			pkgs, err := packages.Load(&cfg, "./...")
-			Expect(err).NotTo(HaveOccurred())
+			pkgs := loadPackages(cfg)
 
 			apps := FromPackages(pkgs)
 			Expect(apps).To(HaveLen(1))
@@ -182,8 +176,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 				Dir:  "testdata/apps/pointer-handler-with-non-pointer-methodset",
 			}
 
-			pkgs, err := packages.Load(&cfg, "./...")
-			Expect(err).NotTo(HaveOccurred())
+			pkgs := loadPackages(cfg)
 
 			apps := FromPackages(pkgs)
 			Expect(apps).To(HaveLen(1))
@@ -208,8 +201,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 				Dir:  "testdata/apps/app-level-messages",
 			}
 
-			pkgs, err := packages.Load(&cfg, "./...")
-			Expect(err).NotTo(HaveOccurred())
+			pkgs := loadPackages(cfg)
 
 			apps := FromPackages(pkgs)
 			Expect(apps).To(HaveLen(1))
@@ -233,3 +225,14 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 		})
 	})
 })
+
+func loadPackages(cfg packages.Config) []*packages.Package {
+	pkgs, err := packages.Load(&cfg, "./...")
+	Expect(err).NotTo(HaveOccurred())
+
+	for _, pkg := range pkgs {
+		ExpectWithOffset(1, pkg.Errors).To(BeEmpty())
+	}
+
+	return pkgs
+}

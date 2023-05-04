@@ -17,8 +17,7 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 				Dir:  "testdata/ident/const-value-ident",
 			}
 
-			pkgs, err := packages.Load(&cfg, "./...")
-			Expect(err).NotTo(HaveOccurred())
+			pkgs := loadPackages(cfg)
 
 			apps := FromPackages(pkgs)
 			Expect(apps).To(HaveLen(1))
@@ -49,8 +48,7 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 				Dir:  "testdata/ident/literal-value-ident",
 			}
 
-			pkgs, err := packages.Load(&cfg, "./...")
-			Expect(err).NotTo(HaveOccurred())
+			pkgs := loadPackages(cfg)
 
 			apps := FromPackages(pkgs)
 			Expect(apps).To(HaveLen(1))
@@ -81,8 +79,7 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 				Dir:  "testdata/ident/variable-value-ident",
 			}
 
-			pkgs, err := packages.Load(&cfg, "./...")
-			Expect(err).NotTo(HaveOccurred())
+			pkgs := loadPackages(cfg)
 
 			apps := FromPackages(pkgs)
 			Expect(apps).To(HaveLen(1))

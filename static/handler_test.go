@@ -30,8 +30,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Dir:  "testdata/handlers/single",
 			}
 
-			pkgs, err := packages.Load(&cfg, "./...")
-			Expect(err).NotTo(HaveOccurred())
+			pkgs := loadPackages(cfg)
 
 			apps := FromPackages(pkgs)
 			Expect(apps).To(HaveLen(1))
@@ -165,8 +164,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 					Dir:  "testdata/handlers/dynamic-routes",
 				}
 
-				pkgs, err := packages.Load(&cfg, "./...")
-				Expect(err).NotTo(HaveOccurred())
+				pkgs := loadPackages(cfg)
 
 				apps := FromPackages(pkgs)
 				Expect(apps).To(HaveLen(1))
@@ -301,8 +299,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 					Dir:  "testdata/handlers/conditional-branches",
 				}
 
-				pkgs, err := packages.Load(&cfg, "./...")
-				Expect(err).NotTo(HaveOccurred())
+				pkgs := loadPackages(cfg)
 
 				apps := FromPackages(pkgs)
 				Expect(apps).To(HaveLen(1))
@@ -437,8 +434,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 					Dir:  "testdata/handlers/nil-routes",
 				}
 
-				pkgs, err := packages.Load(&cfg, "./...")
-				Expect(err).NotTo(HaveOccurred())
+				pkgs := loadPackages(cfg)
 
 				apps := FromPackages(pkgs)
 				Expect(apps).To(HaveLen(1))
@@ -548,8 +544,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 					Dir:  "testdata/handlers/deprecated/single",
 				}
 
-				pkgs, err := packages.Load(&cfg, "./...")
-				Expect(err).NotTo(HaveOccurred())
+				pkgs := loadPackages(cfg)
 
 				apps := FromPackages(pkgs)
 				Expect(apps).To(HaveLen(1))
@@ -683,8 +678,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 						Dir:  "testdata/handlers/deprecated/nil-message",
 					}
 
-					pkgs, err := packages.Load(&cfg, "./...")
-					Expect(err).NotTo(HaveOccurred())
+					pkgs := loadPackages(cfg)
 
 					apps := FromPackages(pkgs)
 					Expect(apps).To(HaveLen(1))
@@ -804,8 +798,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Dir:  "testdata/handlers/multiple",
 			}
 
-			pkgs, err := packages.Load(&cfg, "./...")
-			Expect(err).NotTo(HaveOccurred())
+			pkgs := loadPackages(cfg)
 
 			apps := FromPackages(pkgs)
 			Expect(apps).To(HaveLen(1))
@@ -855,8 +848,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Dir:  "testdata/handlers/nil-handler",
 			}
 
-			pkgs, err := packages.Load(&cfg, "./...")
-			Expect(err).NotTo(HaveOccurred())
+			pkgs := loadPackages(cfg)
 
 			apps := FromPackages(pkgs)
 			Expect(apps).To(HaveLen(1))

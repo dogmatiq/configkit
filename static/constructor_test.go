@@ -18,8 +18,7 @@ var _ = Describe("func FromPackages() (constructor function)", func() {
 				Dir:  "testdata/handlers/constructor",
 			}
 
-			pkgs, err := packages.Load(&cfg, "./...")
-			Expect(err).NotTo(HaveOccurred())
+			pkgs := loadPackages(cfg)
 
 			apps := FromPackages(pkgs)
 			Expect(apps).To(HaveLen(1))
