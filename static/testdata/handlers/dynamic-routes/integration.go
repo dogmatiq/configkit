@@ -15,14 +15,16 @@ type IntegrationHandler struct{}
 // Configure configures the behavior of the engine as it relates to this
 // handler.
 func (IntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
-	c.Identity("<integration>", "099b5b8d-9e04-422f-bcc3-bb0d451158c7")
+	c.Identity("<integration>", "3a06b7da-1079-4e4b-a6a6-064c62241918")
 
-	c.Routes(
+	routes := []dogma.IntegrationRoute{
 		dogma.HandlesCommand[fixtures.MessageA](),
 		dogma.HandlesCommand[fixtures.MessageB](),
 		dogma.RecordsEvent[fixtures.MessageC](),
 		dogma.RecordsEvent[fixtures.MessageD](),
-	)
+	}
+
+	c.Routes(routes...)
 }
 
 // RouteCommandToInstance returns the ID of the integration instance that is

@@ -14,11 +14,6 @@ type Process struct{}
 // ProcessHandler is a test implementation of dogma.ProcessMessageHandler.
 type ProcessHandler struct{}
 
-// NewProcessHandler returns a new ProcessHandler.
-func NewProcessHandler() ProcessHandler {
-	panic("the implementation of this function is irrelevant to the analyzer")
-}
-
 // New constructs a new process instance initialized with any default values and
 // returns the process root.
 func (ProcessHandler) New() dogma.ProcessRoot {
@@ -28,16 +23,30 @@ func (ProcessHandler) New() dogma.ProcessRoot {
 // Configure configures the behavior of the engine as it relates to this
 // handler.
 func (ProcessHandler) Configure(c dogma.ProcessConfigurer) {
-	c.Identity("<process>", "5e839b73-170b-42c0-bf41-8feee4b5a583")
+	c.Identity("<process>", "f754da79-205b-4d65-889f-0d8ae86e3def")
 
-	c.Routes(
-		dogma.HandlesEvent[fixtures.MessageA](),
-		dogma.HandlesEvent[fixtures.MessageB](),
-		dogma.ExecutesCommand[fixtures.MessageC](),
-		dogma.ExecutesCommand[fixtures.MessageD](),
-		dogma.SchedulesTimeout[fixtures.MessageE](),
-		dogma.SchedulesTimeout[fixtures.MessageF](),
-	)
+	var routes []dogma.ProcessRoute
+	if condition == 0 {
+		routes = []dogma.ProcessRoute{
+			dogma.HandlesEvent[fixtures.MessageA](),
+			dogma.HandlesEvent[fixtures.MessageB](),
+		}
+		routes = append(
+			routes,
+			dogma.ExecutesCommand[fixtures.MessageC](),
+		)
+	} else {
+		routes = append(
+			routes,
+			[]dogma.ProcessRoute{
+				dogma.ExecutesCommand[fixtures.MessageD](),
+				dogma.SchedulesTimeout[fixtures.MessageE](),
+				dogma.SchedulesTimeout[fixtures.MessageF](),
+			}...,
+		)
+	}
+
+	c.Routes(routes...)
 }
 
 // RouteEventToInstance returns the ID of the process instance that is

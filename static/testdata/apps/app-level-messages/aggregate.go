@@ -25,8 +25,10 @@ func (AggregateHandler) New() dogma.AggregateRoot {
 func (AggregateHandler) Configure(c dogma.AggregateConfigurer) {
 	c.Identity("<aggregate>", "ef16c9d1-d7b6-4c99-a0e7-a59218e544fc")
 
-	c.ConsumesCommandType(fixtures.MessageA{})
-	c.ProducesEventType(fixtures.MessageB{})
+	c.Routes(
+		dogma.HandlesCommand[fixtures.MessageA](),
+		dogma.RecordsEvent[fixtures.MessageB](),
+	)
 }
 
 // RouteCommandToInstance returns the ID of the aggregate instance that is

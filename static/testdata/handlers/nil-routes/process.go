@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/dogmatiq/dogma"
-	"github.com/dogmatiq/dogma/fixtures"
 )
 
 // Process is a process used for testing.
@@ -13,11 +12,6 @@ type Process struct{}
 
 // ProcessHandler is a test implementation of dogma.ProcessMessageHandler.
 type ProcessHandler struct{}
-
-// NewProcessHandler returns a new ProcessHandler.
-func NewProcessHandler() ProcessHandler {
-	panic("the implementation of this function is irrelevant to the analyzer")
-}
 
 // New constructs a new process instance initialized with any default values and
 // returns the process root.
@@ -28,16 +22,9 @@ func (ProcessHandler) New() dogma.ProcessRoot {
 // Configure configures the behavior of the engine as it relates to this
 // handler.
 func (ProcessHandler) Configure(c dogma.ProcessConfigurer) {
-	c.Identity("<process>", "5e839b73-170b-42c0-bf41-8feee4b5a583")
+	c.Identity("<process>", "e7bcb97c-627e-44db-ba05-d8a86e5bf88b")
 
-	c.Routes(
-		dogma.HandlesEvent[fixtures.MessageA](),
-		dogma.HandlesEvent[fixtures.MessageB](),
-		dogma.ExecutesCommand[fixtures.MessageC](),
-		dogma.ExecutesCommand[fixtures.MessageD](),
-		dogma.SchedulesTimeout[fixtures.MessageE](),
-		dogma.SchedulesTimeout[fixtures.MessageF](),
-	)
+	c.Routes(nil)
 }
 
 // RouteEventToInstance returns the ID of the process instance that is

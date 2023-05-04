@@ -14,12 +14,14 @@ type ProjectionHandler struct{}
 // Configure configures the behavior of the engine as it relates to this
 // handler.
 func (ProjectionHandler) Configure(c dogma.ProjectionConfigurer) {
-	c.Identity("<projection>", "823e61d3-ace1-469d-b0a6-778e84c0a508")
+	c.Identity("<projection>", "6f20c336-b740-4249-a80b-d94d3bdce750")
 
-	c.Routes(
+	routes := []dogma.ProjectionRoute{
 		dogma.HandlesEvent[fixtures.MessageA](),
 		dogma.HandlesEvent[fixtures.MessageB](),
-	)
+	}
+
+	c.Routes(routes...)
 }
 
 // HandleEvent updates the projection to reflect the occurrence of an event.

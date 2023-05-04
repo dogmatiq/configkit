@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/constant"
 	"go/types"
+	"strings"
 
 	"github.com/dogmatiq/configkit"
 	"github.com/dogmatiq/configkit/internal/entity"
@@ -325,7 +326,80 @@ func addHandlerFromConfigureMethod(
 		}
 	}
 
+	addMessagesFromRoutes(
+		method,
+		hdr.MessageNamesValue.Produced,
+		hdr.MessageNamesValue.Consumed,
+	)
+
 	hs.Add(hdr)
+}
+
+// addMessagesFromRoutes analyzes the arguments in a call to a configurer's
+// method Routes() to populate the messages that are produced and consumed by
+// the handler.
+func addMessagesFromRoutes(
+	method *ssa.Function,
+	produced, consumed message.NameRoles,
+) {
+	for _, b := range method.Blocks {
+		for _, i := range b.Instrs {
+			if mi, ok := i.(*ssa.MakeInterface); ok {
+				// If this is the boxing to the following interfaces,
+				// we need to analyze the concrete types:
+				switch mi.X.Type().String() {
+				case "github.com/dogmatiq/dogma.HandlesCommandRoute",
+					"github.com/dogmatiq/dogma.HandlesEventRoute",
+					"github.com/dogmatiq/dogma.ExecutesCommandRoute",
+					"github.com/dogmatiq/dogma.SchedulesTimeoutRoute",
+					"github.com/dogmatiq/dogma.RecordsEventRoute":
+
+					// At this point we should expect that the interfaces above
+					// are produced as a result of calls to following functions:
+					// (At the time of writing this code, there is no other way
+					// to produce these interfaces)
+					//  `github.com/dogmatiq/dogma.HandlesCommand()
+					//  `github.com/dogmatiq/dogma.HandlesEvent()`
+					//  `github.com/dogmatiq/dogma.ExecutesCommand()`
+					//  `github.com/dogmatiq/dogma.RecordsEvent()`
+					//  `github.com/dogmatiq/dogma.SchedulesTimeout()`
+					if f, ok := mi.X.(*ssa.Call).Common().Value.(*ssa.Function); ok {
+						switch {
+						case strings.HasPrefix(f.Name(), "ExecutesCommand["):
+							produced.Add(
+								message.NameFromType(f.TypeArgs()[0]),
+								message.CommandRole,
+							)
+						case strings.HasPrefix(f.Name(), "RecordsEvent["):
+							produced.Add(
+								message.NameFromType(f.TypeArgs()[0]),
+								message.EventRole,
+							)
+						case strings.HasPrefix(f.Name(), "HandlesCommand["):
+							consumed.Add(
+								message.NameFromType(f.TypeArgs()[0]),
+								message.CommandRole,
+							)
+						case strings.HasPrefix(f.Name(), "HandlesEvent["):
+							consumed.Add(
+								message.NameFromType(f.TypeArgs()[0]),
+								message.EventRole,
+							)
+						case strings.HasPrefix(f.Name(), "SchedulesTimeout["):
+							produced.Add(
+								message.NameFromType(f.TypeArgs()[0]),
+								message.TimeoutRole,
+							)
+							consumed.Add(
+								message.NameFromType(f.TypeArgs()[0]),
+								message.TimeoutRole,
+							)
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 // addMessageFromArguments analyzes args to deduce the type of a message.

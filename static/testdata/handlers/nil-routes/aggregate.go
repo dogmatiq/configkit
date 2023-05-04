@@ -2,7 +2,6 @@ package app
 
 import (
 	"github.com/dogmatiq/dogma"
-	"github.com/dogmatiq/dogma/fixtures"
 )
 
 // Aggregate is an aggregate used for testing.
@@ -23,14 +22,9 @@ func (AggregateHandler) New() dogma.AggregateRoot {
 // Configure configures the behavior of the engine as it relates to this
 // handler.
 func (AggregateHandler) Configure(c dogma.AggregateConfigurer) {
-	c.Identity("<aggregate>", "ef16c9d1-d7b6-4c99-a0e7-a59218e544fc")
+	c.Identity("<aggregate>", "df648962-7d96-427e-8bc2-5a4efdb4cc4b")
 
-	c.Routes(
-		dogma.HandlesCommand[fixtures.MessageA](),
-		dogma.HandlesCommand[fixtures.MessageB](),
-		dogma.RecordsEvent[fixtures.MessageC](),
-		dogma.RecordsEvent[fixtures.MessageD](),
-	)
+	c.Routes(nil)
 }
 
 // RouteCommandToInstance returns the ID of the aggregate instance that is

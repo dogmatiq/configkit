@@ -19,8 +19,10 @@ type ProjectionHandler struct{}
 func (ProjectionHandler) Configure(c dogma.ProjectionConfigurer) {
 	c.Identity("<projection>", "7a5090e0-7248-4a58-8d70-a5dfd8c8abe1")
 
-	c.ConsumesEventType(fixtures.MessageB{})
-	c.ConsumesEventType(fixtures.MessageC{})
+	c.Routes(
+		dogma.HandlesEvent[fixtures.MessageB](),
+		dogma.HandlesEvent[fixtures.MessageC](),
+	)
 }
 
 // HandleEvent updates the projection to reflect the occurrence of an event.

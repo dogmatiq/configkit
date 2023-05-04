@@ -28,9 +28,10 @@ func (FirstAggregateHandler) New() dogma.AggregateRoot {
 func (FirstAggregateHandler) Configure(c dogma.AggregateConfigurer) {
 	c.Identity("<first-aggregate>", "e6300d8d-6530-405e-9729-e9ca21df23d3")
 
-	c.ConsumesCommandType(fixtures.MessageA{})
-
-	c.ProducesEventType(fixtures.MessageB{})
+	c.Routes(
+		dogma.HandlesCommand[fixtures.MessageA](),
+		dogma.RecordsEvent[fixtures.MessageB](),
+	)
 }
 
 // RouteCommandToInstance returns the ID of the aggregate instance that is
@@ -64,11 +65,11 @@ func (FirstProcessHandler) New() dogma.ProcessRoot {
 func (FirstProcessHandler) Configure(c dogma.ProcessConfigurer) {
 	c.Identity("<first-process>", "d33198e0-f1f7-4c2d-8ac2-98f68a44414e")
 
-	c.ConsumesEventType(fixtures.MessageA{})
-
-	c.ProducesCommandType(fixtures.MessageB{})
-
-	c.SchedulesTimeoutType(fixtures.MessageC{})
+	c.Routes(
+		dogma.HandlesEvent[fixtures.MessageA](),
+		dogma.ExecutesCommand[fixtures.MessageB](),
+		dogma.SchedulesTimeout[fixtures.MessageC](),
+	)
 }
 
 // RouteEventToInstance returns the ID of the process instance that is
@@ -116,7 +117,9 @@ type FirstProjectionHandler struct{}
 func (FirstProjectionHandler) Configure(c dogma.ProjectionConfigurer) {
 	c.Identity("<first-projection>", "9174783f-4f12-4619-b5c6-c4ab70bd0937")
 
-	c.ConsumesEventType(fixtures.MessageA{})
+	c.Routes(
+		dogma.HandlesEvent[fixtures.MessageA](),
+	)
 }
 
 // HandleEvent updates the projection to reflect the occurrence of an event.
@@ -163,9 +166,10 @@ type FirstIntegrationHandler struct{}
 func (FirstIntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
 	c.Identity("<first-integration>", "14cf2812-eead-43b3-9c9c-10db5b469e94")
 
-	c.ConsumesCommandType(fixtures.MessageA{})
-
-	c.ProducesEventType(fixtures.MessageB{})
+	c.Routes(
+		dogma.HandlesCommand[fixtures.MessageA](),
+		dogma.RecordsEvent[fixtures.MessageB](),
+	)
 }
 
 // RouteCommandToInstance returns the ID of the integration instance that is

@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/dogmatiq/dogma"
-	"github.com/dogmatiq/dogma/fixtures"
 )
 
 // ProjectionHandler is a test implementation of dogma.ProjectionMessageHandler.
@@ -14,12 +13,9 @@ type ProjectionHandler struct{}
 // Configure configures the behavior of the engine as it relates to this
 // handler.
 func (ProjectionHandler) Configure(c dogma.ProjectionConfigurer) {
-	c.Identity("<projection>", "823e61d3-ace1-469d-b0a6-778e84c0a508")
+	c.Identity("<projection>", "9208f704-641c-44e4-91dc-5274598b30bd")
 
-	c.Routes(
-		dogma.HandlesEvent[fixtures.MessageA](),
-		dogma.HandlesEvent[fixtures.MessageB](),
-	)
+	c.Routes(nil)
 }
 
 // HandleEvent updates the projection to reflect the occurrence of an event.
