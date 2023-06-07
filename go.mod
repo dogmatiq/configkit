@@ -9,7 +9,7 @@ require (
 	github.com/emicklei/dot v1.4.2
 	github.com/google/uuid v1.3.0
 	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/gomega v1.27.7
+	github.com/onsi/gomega v1.27.8
 	golang.org/x/tools v0.9.3
 	google.golang.org/grpc v1.55.0
 )
