@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.3.1
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.28.0
-	golang.org/x/tools v0.13.0
+	golang.org/x/tools v0.14.0
 	google.golang.org/grpc v1.58.2
 )
 
@@ -20,9 +20,9 @@ require (
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
-	golang.org/x/mod v0.12.0 // indirect
-	golang.org/x/net v0.15.0 // indirect
-	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/mod v0.13.0 // indirect
+	golang.org/x/net v0.16.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230711160842-782d3b101e98 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
