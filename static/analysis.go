@@ -288,6 +288,12 @@ func addHandlerFromConfigureMethod(
 		switch c.Common().Method.Name() {
 		case "Identity":
 			hdr.IdentityValue = analyzeIdentityCall(c)
+		case "Routes":
+			addMessagesFromRoutes(
+				c.Common().Value.Parent(),
+				hdr.MessageNamesValue.Produced,
+				hdr.MessageNamesValue.Consumed,
+			)
 		case "ConsumesCommandType":
 			addMessageFromArguments(
 				args,
@@ -325,12 +331,6 @@ func addHandlerFromConfigureMethod(
 			)
 		}
 	}
-
-	addMessagesFromRoutes(
-		method,
-		hdr.MessageNamesValue.Produced,
-		hdr.MessageNamesValue.Consumed,
-	)
 
 	hs.Add(hdr)
 }

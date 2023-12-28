@@ -855,4 +855,139 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 			Expect(apps[0].Handlers()).To(Equal(configkit.HandlerSet{}))
 		})
 	})
+
+	When("the application contains handlers registered as pointers with method receivers passed by values", func() {
+		It("correctly returns configurations for such handlers", func() {
+			cfg := packages.Config{
+				Mode: packages.LoadAllSyntax,
+				Dir:  "testdata/handlers/non-pointer-registered-as-pointer",
+			}
+
+			pkgs := loadPackages(cfg)
+
+			apps := FromPackages(pkgs)
+			Expect(apps).To(HaveLen(1))
+			Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
+			Expect(apps[0].Handlers().Processes()).To(HaveLen(1))
+			Expect(apps[0].Handlers().Projections()).To(HaveLen(1))
+			Expect(apps[0].Handlers().Integrations()).To(HaveLen(1))
+
+			aggregate := apps[0].Handlers().Aggregates()[0]
+			Expect(aggregate.Identity()).To(
+				Equal(
+					configkit.Identity{
+						Name: "<aggregate>",
+						Key:  "ee1814e3-194d-438a-916e-ee7766598646",
+					},
+				),
+			)
+			Expect(aggregate.TypeName()).To(
+				Equal(
+					"*github.com/dogmatiq/configkit/static/testdata/handlers/non-pointer-registered-as-pointer.AggregateHandler",
+				),
+			)
+			Expect(aggregate.HandlerType()).To(Equal(configkit.AggregateHandlerType))
+
+			Expect(aggregate.MessageNames()).To(Equal(
+				configkit.EntityMessageNames{
+					Consumed: message.NameRoles{
+						cfixtures.MessageATypeName: message.CommandRole,
+						cfixtures.MessageBTypeName: message.CommandRole,
+					},
+					Produced: message.NameRoles{
+						cfixtures.MessageCTypeName: message.EventRole,
+						cfixtures.MessageDTypeName: message.EventRole,
+					},
+				},
+			))
+
+			process := apps[0].Handlers().Processes()[0]
+			Expect(process.Identity()).To(
+				Equal(
+					configkit.Identity{
+						Name: "<process>",
+						Key:  "39af6b34-5fa1-4f3a-b049-40a5e1d9b33b",
+					},
+				),
+			)
+			Expect(process.TypeName()).To(
+				Equal(
+					"*github.com/dogmatiq/configkit/static/testdata/handlers/non-pointer-registered-as-pointer.ProcessHandler",
+				),
+			)
+			Expect(process.HandlerType()).To(Equal(configkit.ProcessHandlerType))
+
+			Expect(process.MessageNames()).To(Equal(
+				configkit.EntityMessageNames{
+					Consumed: message.NameRoles{
+						cfixtures.MessageATypeName: message.EventRole,
+						cfixtures.MessageBTypeName: message.EventRole,
+						cfixtures.MessageETypeName: message.TimeoutRole,
+						cfixtures.MessageFTypeName: message.TimeoutRole,
+					},
+					Produced: message.NameRoles{
+						cfixtures.MessageCTypeName: message.CommandRole,
+						cfixtures.MessageDTypeName: message.CommandRole,
+						cfixtures.MessageETypeName: message.TimeoutRole,
+						cfixtures.MessageFTypeName: message.TimeoutRole,
+					},
+				},
+			))
+
+			projection := apps[0].Handlers().Projections()[0]
+			Expect(projection.Identity()).To(
+				Equal(
+					configkit.Identity{
+						Name: "<projection>",
+						Key:  "3dfcd7cd-1f63-47a1-9be7-3242bd252423",
+					},
+				),
+			)
+			Expect(projection.TypeName()).To(
+				Equal(
+					"*github.com/dogmatiq/configkit/static/testdata/handlers/non-pointer-registered-as-pointer.ProjectionHandler",
+				),
+			)
+			Expect(projection.HandlerType()).To(Equal(configkit.ProjectionHandlerType))
+
+			Expect(projection.MessageNames()).To(Equal(
+				configkit.EntityMessageNames{
+					Consumed: message.NameRoles{
+						cfixtures.MessageATypeName: message.EventRole,
+						cfixtures.MessageBTypeName: message.EventRole,
+					},
+					Produced: message.NameRoles{},
+				},
+			))
+
+			integration := apps[0].Handlers().Integrations()[0]
+			Expect(integration.Identity()).To(
+				Equal(
+					configkit.Identity{
+						Name: "<integration>",
+						Key:  "1425ca64-0448-4bfd-b18d-9fe63a95995f",
+					},
+				),
+			)
+			Expect(integration.TypeName()).To(
+				Equal(
+					"*github.com/dogmatiq/configkit/static/testdata/handlers/non-pointer-registered-as-pointer.IntegrationHandler",
+				),
+			)
+			Expect(integration.HandlerType()).To(Equal(configkit.IntegrationHandlerType))
+
+			Expect(integration.MessageNames()).To(Equal(
+				configkit.EntityMessageNames{
+					Consumed: message.NameRoles{
+						cfixtures.MessageATypeName: message.CommandRole,
+						cfixtures.MessageBTypeName: message.CommandRole,
+					},
+					Produced: message.NameRoles{
+						cfixtures.MessageCTypeName: message.EventRole,
+						cfixtures.MessageDTypeName: message.EventRole,
+					},
+				},
+			))
+		})
+	})
 })
