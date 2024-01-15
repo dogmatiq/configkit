@@ -856,11 +856,11 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 		})
 	})
 
-	When("the application contains handlers registered as pointers with method receivers passed by values", func() {
-		It("correctly returns configurations for such handlers", func() {
+	When("a handler with a non-pointer methodset is registered as a pointer", func() {
+		It("includes the handler in the application configuration", func() {
 			cfg := packages.Config{
 				Mode: packages.LoadAllSyntax,
-				Dir:  "testdata/handlers/non-pointer-registered-as-pointer",
+				Dir:  "testdata/handlers/pointer-handler-with-non-pointer-methodset",
 			}
 
 			pkgs := loadPackages(cfg)
@@ -883,7 +883,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 			)
 			Expect(aggregate.TypeName()).To(
 				Equal(
-					"*github.com/dogmatiq/configkit/static/testdata/handlers/non-pointer-registered-as-pointer.AggregateHandler",
+					"*github.com/dogmatiq/configkit/static/testdata/handlers/pointer-handler-with-non-pointer-methodset.AggregateHandler",
 				),
 			)
 			Expect(aggregate.HandlerType()).To(Equal(configkit.AggregateHandlerType))
@@ -912,7 +912,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 			)
 			Expect(process.TypeName()).To(
 				Equal(
-					"*github.com/dogmatiq/configkit/static/testdata/handlers/non-pointer-registered-as-pointer.ProcessHandler",
+					"*github.com/dogmatiq/configkit/static/testdata/handlers/pointer-handler-with-non-pointer-methodset.ProcessHandler",
 				),
 			)
 			Expect(process.HandlerType()).To(Equal(configkit.ProcessHandlerType))
@@ -945,7 +945,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 			)
 			Expect(projection.TypeName()).To(
 				Equal(
-					"*github.com/dogmatiq/configkit/static/testdata/handlers/non-pointer-registered-as-pointer.ProjectionHandler",
+					"*github.com/dogmatiq/configkit/static/testdata/handlers/pointer-handler-with-non-pointer-methodset.ProjectionHandler",
 				),
 			)
 			Expect(projection.HandlerType()).To(Equal(configkit.ProjectionHandlerType))
@@ -971,7 +971,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 			)
 			Expect(integration.TypeName()).To(
 				Equal(
-					"*github.com/dogmatiq/configkit/static/testdata/handlers/non-pointer-registered-as-pointer.IntegrationHandler",
+					"*github.com/dogmatiq/configkit/static/testdata/handlers/pointer-handler-with-non-pointer-methodset.IntegrationHandler",
 				),
 			)
 			Expect(integration.HandlerType()).To(Equal(configkit.IntegrationHandlerType))
