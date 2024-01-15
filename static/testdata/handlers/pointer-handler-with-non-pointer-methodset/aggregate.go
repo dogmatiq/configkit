@@ -23,11 +23,13 @@ func (AggregateHandler) New() dogma.AggregateRoot {
 // Configure configures the behavior of the engine as it relates to this
 // handler.
 func (AggregateHandler) Configure(c dogma.AggregateConfigurer) {
-	c.Identity("<aggregate>", "dad3b670-0852-4711-9efb-af25679734ee")
+	c.Identity("<aggregate>", "ee1814e3-194d-438a-916e-ee7766598646")
 
 	c.Routes(
 		dogma.HandlesCommand[fixtures.MessageA](),
-		dogma.RecordsEvent[fixtures.MessageB](),
+		dogma.HandlesCommand[fixtures.MessageB](),
+		dogma.RecordsEvent[fixtures.MessageC](),
+		dogma.RecordsEvent[fixtures.MessageD](),
 	)
 }
 
