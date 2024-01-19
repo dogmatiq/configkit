@@ -10,13 +10,14 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
-## [Unreleased]
+## [0.12.2] - 2024-01-19
 
 ### Fixed
 
-- Fix parsing indirect calls to handler's `.Configure()` method.
-- Ensure static analysis processes messages only within
-  `dogma.AggregateConfigurer.Routes()` call.
+- Ensure static analysis correctly identifies handlers with non-pointer
+  receivers when registered via a pointer.
+- Ensure static analysis ignores routes that are not actually passed to a
+  configurer via the `Routes()`.
 
 ## [0.12.1] - 2023-05-04
 
@@ -261,6 +262,7 @@ interfaces. It does not yet include support for static analysis of the new
 [0.11.1]: https://github.com/dogmatiq/configkit/releases/v0.11.1
 [0.12.0]: https://github.com/dogmatiq/configkit/releases/v0.12.0
 [0.12.1]: https://github.com/dogmatiq/configkit/releases/v0.12.1
+[0.12.2]: https://github.com/dogmatiq/configkit/releases/v0.12.2
 
 <!-- version template
 ## [0.0.1] - YYYY-MM-DD
