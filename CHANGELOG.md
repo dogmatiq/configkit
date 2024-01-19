@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog], and this project adheres to
 ### Fixed
 
 - Fix parsing indirect calls to handler's `.Configure()` method.
+- Ensure static analysis processes messages only within
+  `dogma.AggregateConfigurer.Routes()` call.
 
 ## [0.12.1] - 2023-05-04
 

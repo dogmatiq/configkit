@@ -290,7 +290,7 @@ func addHandlerFromConfigureMethod(
 			hdr.IdentityValue = analyzeIdentityCall(c)
 		case "Routes":
 			addMessagesFromRoutes(
-				c.Common().Value.Parent(),
+				args,
 				hdr.MessageNamesValue.Produced,
 				hdr.MessageNamesValue.Consumed,
 			)
@@ -339,64 +339,136 @@ func addHandlerFromConfigureMethod(
 // method Routes() to populate the messages that are produced and consumed by
 // the handler.
 func addMessagesFromRoutes(
-	method *ssa.Function,
+	args []ssa.Value,
 	produced, consumed message.NameRoles,
 ) {
-	for _, b := range method.Blocks {
-		for _, i := range b.Instrs {
-			if mi, ok := i.(*ssa.MakeInterface); ok {
-				// If this is the boxing to the following interfaces,
-				// we need to analyze the concrete types:
-				switch mi.X.Type().String() {
-				case "github.com/dogmatiq/dogma.HandlesCommandRoute",
-					"github.com/dogmatiq/dogma.HandlesEventRoute",
-					"github.com/dogmatiq/dogma.ExecutesCommandRoute",
-					"github.com/dogmatiq/dogma.SchedulesTimeoutRoute",
-					"github.com/dogmatiq/dogma.RecordsEventRoute":
-
-					// At this point we should expect that the interfaces above
-					// are produced as a result of calls to following functions:
-					// (At the time of writing this code, there is no other way
-					// to produce these interfaces)
-					//  `github.com/dogmatiq/dogma.HandlesCommand()
-					//  `github.com/dogmatiq/dogma.HandlesEvent()`
-					//  `github.com/dogmatiq/dogma.ExecutesCommand()`
-					//  `github.com/dogmatiq/dogma.RecordsEvent()`
-					//  `github.com/dogmatiq/dogma.SchedulesTimeout()`
-					if f, ok := mi.X.(*ssa.Call).Common().Value.(*ssa.Function); ok {
-						switch {
-						case strings.HasPrefix(f.Name(), "ExecutesCommand["):
-							produced.Add(
-								message.NameFromType(f.TypeArgs()[0]),
-								message.CommandRole,
-							)
-						case strings.HasPrefix(f.Name(), "RecordsEvent["):
-							produced.Add(
-								message.NameFromType(f.TypeArgs()[0]),
-								message.EventRole,
-							)
-						case strings.HasPrefix(f.Name(), "HandlesCommand["):
-							consumed.Add(
-								message.NameFromType(f.TypeArgs()[0]),
-								message.CommandRole,
-							)
-						case strings.HasPrefix(f.Name(), "HandlesEvent["):
-							consumed.Add(
-								message.NameFromType(f.TypeArgs()[0]),
-								message.EventRole,
-							)
-						case strings.HasPrefix(f.Name(), "SchedulesTimeout["):
-							produced.Add(
-								message.NameFromType(f.TypeArgs()[0]),
-								message.TimeoutRole,
-							)
-							consumed.Add(
-								message.NameFromType(f.TypeArgs()[0]),
-								message.TimeoutRole,
-							)
-						}
+	var mii []*ssa.MakeInterface
+	for _, arg := range args {
+		recurseSSAValues(
+			arg,
+			&[]ssa.Value{},
+			func(v ssa.Value) bool {
+				if v, ok := v.(*ssa.Call); ok {
+					// We don't want to recurse into the call to Routes() method
+					// itself.
+					if v.Common().IsInvoke() &&
+						v.Common().Method.Name() == "Routes" {
+						return true
 					}
 				}
+
+				// We do want to collect all of the MakeInterface instructions
+				// that can potentially indicate boxing into Dogma route
+				// interfaces.
+				if v, ok := v.(*ssa.MakeInterface); ok {
+					mii = append(mii, v)
+					return true
+				}
+
+				return false
+			},
+		)
+	}
+
+	for _, mi := range mii {
+		// If this is the boxing to the following interfaces,
+		// we need to analyze the concrete types:
+		switch mi.X.Type().String() {
+		case "github.com/dogmatiq/dogma.HandlesCommandRoute",
+			"github.com/dogmatiq/dogma.HandlesEventRoute",
+			"github.com/dogmatiq/dogma.ExecutesCommandRoute",
+			"github.com/dogmatiq/dogma.SchedulesTimeoutRoute",
+			"github.com/dogmatiq/dogma.RecordsEventRoute":
+
+			// At this point we should expect that the interfaces above
+			// are produced as a result of calls to following functions:
+			// (At the time of writing this code, there is no other way
+			// to produce these interfaces)
+			//  `github.com/dogmatiq/dogma.HandlesCommand()
+			//  `github.com/dogmatiq/dogma.HandlesEvent()`
+			//  `github.com/dogmatiq/dogma.ExecutesCommand()`
+			//  `github.com/dogmatiq/dogma.RecordsEvent()`
+			//  `github.com/dogmatiq/dogma.SchedulesTimeout()`
+			if f, ok := mi.X.(*ssa.Call).Common().Value.(*ssa.Function); ok {
+				switch {
+				case strings.HasPrefix(f.Name(), "ExecutesCommand["):
+					produced.Add(
+						message.NameFromType(f.TypeArgs()[0]),
+						message.CommandRole,
+					)
+				case strings.HasPrefix(f.Name(), "RecordsEvent["):
+					produced.Add(
+						message.NameFromType(f.TypeArgs()[0]),
+						message.EventRole,
+					)
+				case strings.HasPrefix(f.Name(), "HandlesCommand["):
+					consumed.Add(
+						message.NameFromType(f.TypeArgs()[0]),
+						message.CommandRole,
+					)
+				case strings.HasPrefix(f.Name(), "HandlesEvent["):
+					consumed.Add(
+						message.NameFromType(f.TypeArgs()[0]),
+						message.EventRole,
+					)
+				case strings.HasPrefix(f.Name(), "SchedulesTimeout["):
+					produced.Add(
+						message.NameFromType(f.TypeArgs()[0]),
+						message.TimeoutRole,
+					)
+					consumed.Add(
+						message.NameFromType(f.TypeArgs()[0]),
+						message.TimeoutRole,
+					)
+				}
+			}
+		}
+	}
+}
+
+// recurseSSAValues recursively traverses the SSA values reachable from val.
+// It calls f for each value it encounters. If f returns true, recursion stops.
+func recurseSSAValues(
+	val ssa.Value,
+	seen *[]ssa.Value,
+	f func(ssa.Value) bool,
+) {
+	if val == nil {
+		return
+	}
+
+	for _, v := range *seen {
+		if v == val {
+			return
+		}
+	}
+
+	*seen = append(*seen, val)
+
+	if f(val) {
+		return
+	}
+
+	// If the value is an instruction, recurse into its operands.
+	if instr, ok := val.(ssa.Instruction); ok {
+		for _, v := range instr.Operands(nil) {
+			recurseSSAValues(*v, seen, f)
+		}
+	}
+
+	// Check if val has any referrers.
+	if referrers := val.Referrers(); referrers != nil {
+		for _, instr := range *referrers {
+
+			// If the referrer is a value, recurse into it.
+			if v, ok := instr.(ssa.Value); ok {
+				recurseSSAValues(v, seen, f)
+				continue
+			}
+
+			// Otherwise, recurse into the referrer's operands.
+			for _, v := range instr.Operands(nil) {
+				recurseSSAValues(*v, seen, f)
 			}
 		}
 	}
