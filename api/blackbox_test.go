@@ -36,17 +36,21 @@ var _ = Context("end-to-end tests", func() {
 				c.RegisterAggregate(&AggregateMessageHandler{
 					ConfigureFunc: func(c dogma.AggregateConfigurer) {
 						c.Identity("<aggregate>", "938b829d-e4d7-4780-bf06-ea349453ba8f")
-						c.ConsumesCommandType(MessageC{})
-						c.ProducesEventType(MessageE{})
+						c.Routes(
+							dogma.HandlesCommand[MessageC](),
+							dogma.RecordsEvent[MessageE](),
+						)
 					},
 				})
 
 				c.RegisterProcess(&ProcessMessageHandler{
 					ConfigureFunc: func(c dogma.ProcessConfigurer) {
 						c.Identity("<process>", "2a87972b-547d-416b-b6e5-4dddb1187658")
-						c.ConsumesEventType(MessageE{})
-						c.ProducesCommandType(MessageC{})
-						c.SchedulesTimeoutType(MessageT{})
+						c.Routes(
+							dogma.HandlesEvent[MessageE](),
+							dogma.ExecutesCommand[MessageC](),
+							dogma.SchedulesTimeout[MessageT](),
+						)
 					},
 				})
 			},
@@ -59,16 +63,20 @@ var _ = Context("end-to-end tests", func() {
 				c.RegisterIntegration(&IntegrationMessageHandler{
 					ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 						c.Identity("<integration>", "e6f0ad02-d301-4f46-a03d-4f9d0d20f5cf")
-						c.ConsumesCommandType(MessageI{})
-						c.ProducesEventType(MessageJ{})
+						c.Routes(
+							dogma.HandlesCommand[MessageI](),
+							dogma.RecordsEvent[MessageJ](),
+						)
 					},
 				})
 
 				c.RegisterProjection(&ProjectionMessageHandler{
 					ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 						c.Identity("<projection>", "280a58bd-f154-46d7-863b-23ce70e49d2a")
-						c.ConsumesEventType(MessageE{})
-						c.ConsumesEventType(MessageJ{})
+						c.Routes(
+							dogma.HandlesEvent[MessageE](),
+							dogma.HandlesEvent[MessageJ](),
+						)
 					},
 				})
 			},

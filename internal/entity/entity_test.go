@@ -73,15 +73,19 @@ var _ = Describe("type Application", func() {
 			aggregate := configkit.FromAggregate(&fixtures.AggregateMessageHandler{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<agg-name>", "63990c32-ecdd-46dd-8e6a-7bb16f3b1730")
-					c.ConsumesCommandType(fixtures.MessageC{})
-					c.ProducesEventType(fixtures.MessageE{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageC](),
+						dogma.RecordsEvent[fixtures.MessageE](),
+					)
 				},
 			})
 
 			projection := configkit.FromProjection(&fixtures.ProjectionMessageHandler{
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 					c.Identity("<proj-name>", "b34181e8-2930-4b6c-a649-18a001836ec3")
-					c.ConsumesEventType(fixtures.MessageE{})
+					c.Routes(
+						dogma.HandlesEvent[fixtures.MessageE](),
+					)
 				},
 			})
 

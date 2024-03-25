@@ -17,34 +17,43 @@ func TestGenerate_coverage(t *testing.T) {
 			c.RegisterAggregate(&fixtures.AggregateMessageHandler{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("aggregate", "b2a8b880-5a1a-4792-ab03-5675b002230a")
-					c.ConsumesCommandType(fixtures.MessageC{})
-					c.ProducesEventType(fixtures.MessageE{})
-					c.ProducesEventType(fixtures.MessageF{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageC](),
+						dogma.RecordsEvent[fixtures.MessageE](),
+						dogma.RecordsEvent[fixtures.MessageF](),
+					)
 				},
 			})
 
 			c.RegisterProcess(&fixtures.ProcessMessageHandler{
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
 					c.Identity("process", "3d5bb944-1cb7-40f4-9298-e154acd5effd")
-					c.ConsumesEventType(fixtures.MessageE{})
-					c.ProducesCommandType(fixtures.MessageC{})
-					c.ProducesCommandType(fixtures.MessageX{}) // not handled by this app
+					c.Routes(
+						dogma.HandlesEvent[fixtures.MessageE](),
+						dogma.ExecutesCommand[fixtures.MessageC](),
+						dogma.ExecutesCommand[fixtures.MessageX](), // not handled by this app
+						dogma.SchedulesTimeout[fixtures.MessageT](),
+					)
 				},
 			})
 
 			c.RegisterIntegration(&fixtures.IntegrationMessageHandler{
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 					c.Identity("integration", "5a496ba8-92f4-439e-bdba-d0e4ef6dd03d")
-					c.ConsumesCommandType(fixtures.MessageI{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageI](),
+					)
 				},
 			})
 
 			c.RegisterProjection(&fixtures.ProjectionMessageHandler{
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 					c.Identity("projection", "3f060ff7-630a-4446-8313-35ace689d5ce")
-					c.ConsumesEventType(fixtures.MessageE{})
-					c.ConsumesEventType(fixtures.MessageF{})
-					c.ConsumesEventType(fixtures.MessageY{}) // not produced by this app
+					c.Routes(
+						dogma.HandlesEvent[fixtures.MessageE](),
+						dogma.HandlesEvent[fixtures.MessageF](),
+						dogma.HandlesEvent[fixtures.MessageY](), // not produced by this app
+					)
 				},
 			})
 		},

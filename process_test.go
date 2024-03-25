@@ -22,10 +22,12 @@ var _ = Describe("func FromProcess()", func() {
 		handler = &fixtures.ProcessMessageHandler{
 			ConfigureFunc: func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
-				c.ConsumesEventType(fixtures.MessageA{})
-				c.ConsumesEventType(fixtures.MessageB{})
-				c.ProducesCommandType(fixtures.MessageC{})
-				c.SchedulesTimeoutType(fixtures.MessageT{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.HandlesEvent[fixtures.MessageB](),
+					dogma.ExecutesCommand[fixtures.MessageC](),
+					dogma.SchedulesTimeout[fixtures.MessageT](),
+				)
 			},
 		}
 	})
@@ -162,8 +164,10 @@ var _ = Describe("func FromProcess()", func() {
 			"when the handler does not configure an identity",
 			`*fixtures.ProcessMessageHandler is configured without an identity, Identity() must be called exactly once within Configure()`,
 			func(c dogma.ProcessConfigurer) {
-				c.ConsumesEventType(fixtures.MessageA{})
-				c.ProducesCommandType(fixtures.MessageC{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.ExecutesCommand[fixtures.MessageC](),
+				)
 			},
 		),
 		Entry(
@@ -172,8 +176,10 @@ var _ = Describe("func FromProcess()", func() {
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Identity("<other>", processKey)
-				c.ConsumesEventType(fixtures.MessageA{})
-				c.ProducesCommandType(fixtures.MessageC{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.ExecutesCommand[fixtures.MessageC](),
+				)
 			},
 		),
 		Entry(
@@ -181,8 +187,10 @@ var _ = Describe("func FromProcess()", func() {
 			`*fixtures.ProcessMessageHandler is configured with an invalid identity, invalid name "\t \n", names must be non-empty, printable UTF-8 strings with no whitespace`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("\t \n", processKey)
-				c.ConsumesEventType(fixtures.MessageA{})
-				c.ProducesCommandType(fixtures.MessageC{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.ExecutesCommand[fixtures.MessageC](),
+				)
 			},
 		),
 		Entry(
@@ -190,8 +198,10 @@ var _ = Describe("func FromProcess()", func() {
 			`*fixtures.ProcessMessageHandler is configured with an invalid identity, invalid key "\t \n", keys must be RFC 4122 UUIDs`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", "\t \n")
-				c.ConsumesEventType(fixtures.MessageA{})
-				c.ProducesCommandType(fixtures.MessageC{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.ExecutesCommand[fixtures.MessageC](),
+				)
 			},
 		),
 		Entry(
@@ -199,7 +209,9 @@ var _ = Describe("func FromProcess()", func() {
 			`*fixtures.ProcessMessageHandler (<name>) is not configured to consume any events, ConsumesEventType() must be called at least once within Configure()`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
-				c.ProducesCommandType(fixtures.MessageC{})
+				c.Routes(
+					dogma.ExecutesCommand[fixtures.MessageC](),
+				)
 			},
 		),
 		Entry(
@@ -207,9 +219,11 @@ var _ = Describe("func FromProcess()", func() {
 			`*fixtures.ProcessMessageHandler (<name>) is configured to consume the fixtures.MessageA event more than once, should this refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
-				c.ConsumesEventType(fixtures.MessageA{})
-				c.ConsumesEventType(fixtures.MessageA{})
-				c.ProducesCommandType(fixtures.MessageC{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.ExecutesCommand[fixtures.MessageC](),
+				)
 			},
 		),
 		Entry(
@@ -217,7 +231,9 @@ var _ = Describe("func FromProcess()", func() {
 			`*fixtures.ProcessMessageHandler (<name>) is not configured to produce any commands, ProducesCommandType() must be called at least once within Configure()`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
-				c.ConsumesEventType(fixtures.MessageA{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+				)
 			},
 		),
 		Entry(
@@ -225,9 +241,11 @@ var _ = Describe("func FromProcess()", func() {
 			`*fixtures.ProcessMessageHandler (<name>) is configured to produce the fixtures.MessageC command more than once, should this refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
-				c.ConsumesEventType(fixtures.MessageA{})
-				c.ProducesCommandType(fixtures.MessageC{})
-				c.ProducesCommandType(fixtures.MessageC{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.ExecutesCommand[fixtures.MessageC](),
+					dogma.ExecutesCommand[fixtures.MessageC](),
+				)
 			},
 		),
 		Entry(
@@ -235,10 +253,12 @@ var _ = Describe("func FromProcess()", func() {
 			`*fixtures.ProcessMessageHandler (<name>) is configured to schedule the fixtures.MessageT timeout more than once, should this refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
-				c.ConsumesEventType(fixtures.MessageA{})
-				c.ProducesCommandType(fixtures.MessageC{})
-				c.SchedulesTimeoutType(fixtures.MessageT{})
-				c.SchedulesTimeoutType(fixtures.MessageT{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.ExecutesCommand[fixtures.MessageC](),
+					dogma.SchedulesTimeout[fixtures.MessageT](),
+					dogma.SchedulesTimeout[fixtures.MessageT](),
+				)
 			},
 		),
 		Entry(
@@ -246,16 +266,20 @@ var _ = Describe("func FromProcess()", func() {
 			`*fixtures.ProcessMessageHandler (<name>) is configured to use fixtures.MessageA as both an event and a timeout`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
-				c.ConsumesEventType(fixtures.MessageA{})
-				c.SchedulesTimeoutType(fixtures.MessageA{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.SchedulesTimeout[fixtures.MessageA](),
+				)
 			},
 		),
 		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
 			`*fixtures.ProcessMessageHandler is configured to consume the fixtures.MessageA event more than once, should this refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
-				c.ConsumesEventType(fixtures.MessageA{})
-				c.ConsumesEventType(fixtures.MessageA{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.HandlesEvent[fixtures.MessageA](),
+				)
 			},
 		),
 	)

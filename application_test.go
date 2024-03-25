@@ -29,34 +29,42 @@ var _ = Describe("func FromApplication()", func() {
 		aggregate = &fixtures.AggregateMessageHandler{
 			ConfigureFunc: func(c dogma.AggregateConfigurer) {
 				c.Identity("<aggregate>", aggregateKey)
-				c.ConsumesCommandType(fixtures.MessageA{})
-				c.ProducesEventType(fixtures.MessageE{})
+				c.Routes(
+					dogma.HandlesCommand[fixtures.MessageA](),
+					dogma.RecordsEvent[fixtures.MessageE](),
+				)
 			},
 		}
 
 		process = &fixtures.ProcessMessageHandler{
 			ConfigureFunc: func(c dogma.ProcessConfigurer) {
 				c.Identity("<process>", processKey)
-				c.ConsumesEventType(fixtures.MessageB{})
-				c.ConsumesEventType(fixtures.MessageE{}) // shared with <projection>
-				c.ProducesCommandType(fixtures.MessageC{})
-				c.SchedulesTimeoutType(fixtures.MessageT{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageB](),
+					dogma.HandlesEvent[fixtures.MessageE](), // shared with <projection>
+					dogma.ExecutesCommand[fixtures.MessageC](),
+					dogma.SchedulesTimeout[fixtures.MessageT](),
+				)
 			},
 		}
 
 		integration = &fixtures.IntegrationMessageHandler{
 			ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 				c.Identity("<integration>", integrationKey)
-				c.ConsumesCommandType(fixtures.MessageC{})
-				c.ProducesEventType(fixtures.MessageF{})
+				c.Routes(
+					dogma.HandlesCommand[fixtures.MessageC](),
+					dogma.RecordsEvent[fixtures.MessageF](),
+				)
 			},
 		}
 
 		projection = &fixtures.ProjectionMessageHandler{
 			ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 				c.Identity("<projection>", projectionKey)
-				c.ConsumesEventType(fixtures.MessageD{})
-				c.ConsumesEventType(fixtures.MessageE{}) // shared with <process>
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageD](),
+					dogma.HandlesEvent[fixtures.MessageE](), // shared with <process>
+				)
 			},
 		}
 
@@ -207,8 +215,10 @@ var _ = Describe("func FromApplication()", func() {
 		It("does not panic when the app name is shared with handler", func() {
 			aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
 				c.Identity("<app>", aggregateKey)
-				c.ConsumesCommandType(fixtures.MessageA{})
-				c.ProducesEventType(fixtures.MessageE{})
+				c.Routes(
+					dogma.HandlesCommand[fixtures.MessageA](),
+					dogma.RecordsEvent[fixtures.MessageE](),
+				)
 			}
 
 			Expect(func() {
@@ -220,18 +230,22 @@ var _ = Describe("func FromApplication()", func() {
 			process1 := &fixtures.ProcessMessageHandler{
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
 					c.Identity("<process-1>", "51621cac-73e2-48fa-95ad-8c3d06ab2ac3")
-					c.ConsumesEventType(fixtures.MessageB{})
-					c.ProducesCommandType(fixtures.MessageC{})
-					c.SchedulesTimeoutType(fixtures.MessageT{})
+					c.Routes(
+						dogma.HandlesEvent[fixtures.MessageB](),
+						dogma.ExecutesCommand[fixtures.MessageC](),
+						dogma.SchedulesTimeout[fixtures.MessageT](),
+					)
 				},
 			}
 
 			process2 := &fixtures.ProcessMessageHandler{
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
 					c.Identity("<process-2>", "97abc0e1-39c8-434a-8ff2-1f0e2d37486e")
-					c.ConsumesEventType(fixtures.MessageB{})
-					c.ProducesCommandType(fixtures.MessageC{})
-					c.SchedulesTimeoutType(fixtures.MessageT{})
+					c.Routes(
+						dogma.HandlesEvent[fixtures.MessageB](),
+						dogma.ExecutesCommand[fixtures.MessageC](),
+						dogma.SchedulesTimeout[fixtures.MessageT](),
+					)
 				},
 			}
 
@@ -331,8 +345,10 @@ var _ = Describe("func FromApplication()", func() {
 			func() {
 				aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
 					c.Identity("<aggregate>", appKey) // conflict!
-					c.ConsumesCommandType(fixtures.MessageA{})
-					c.ProducesEventType(fixtures.MessageE{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageA](),
+						dogma.RecordsEvent[fixtures.MessageE](),
+					)
 				}
 			},
 		),
@@ -370,8 +386,10 @@ var _ = Describe("func FromApplication()", func() {
 			func() {
 				aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
 					c.Identity("<process>", aggregateKey) // conflict!
-					c.ConsumesCommandType(fixtures.MessageA{})
-					c.ProducesEventType(fixtures.MessageE{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageA](),
+						dogma.RecordsEvent[fixtures.MessageE](),
+					)
 				}
 
 				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
@@ -387,8 +405,10 @@ var _ = Describe("func FromApplication()", func() {
 			func() {
 				aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
 					c.Identity("<aggregate>", processKey) // conflict!
-					c.ConsumesCommandType(fixtures.MessageA{})
-					c.ProducesEventType(fixtures.MessageE{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageA](),
+						dogma.RecordsEvent[fixtures.MessageE](),
+					)
 				}
 
 				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
@@ -404,8 +424,10 @@ var _ = Describe("func FromApplication()", func() {
 			func() {
 				integration.ConfigureFunc = func(c dogma.IntegrationConfigurer) {
 					c.Identity("<integration>", integrationKey)
-					c.ConsumesCommandType(fixtures.MessageA{}) // conflict with <aggregate>
-					c.ProducesEventType(fixtures.MessageF{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageA](), // conflict with <aggregate>
+						dogma.RecordsEvent[fixtures.MessageF](),
+					)
 				}
 			},
 		),
@@ -415,8 +437,10 @@ var _ = Describe("func FromApplication()", func() {
 			func() {
 				integration.ConfigureFunc = func(c dogma.IntegrationConfigurer) {
 					c.Identity("<integration>", integrationKey)
-					c.ConsumesCommandType(fixtures.MessageC{})
-					c.ProducesEventType(fixtures.MessageE{}) // conflict with <aggregate>
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageC](),
+						dogma.RecordsEvent[fixtures.MessageE](), // conflict with <aggregate>
+					)
 				}
 			},
 		),
@@ -426,7 +450,9 @@ var _ = Describe("func FromApplication()", func() {
 			func() {
 				projection.ConfigureFunc = func(c dogma.ProjectionConfigurer) {
 					c.Identity("<projection>", projectionKey)
-					c.ConsumesEventType(fixtures.MessageA{}) // conflict with <aggregate>
+					c.Routes(
+						dogma.HandlesEvent[fixtures.MessageA](), // conflict with <aggregate>
+					)
 				}
 
 				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
@@ -447,7 +473,9 @@ var _ = Describe("func IsApplicationEqual()", func() {
 				c.RegisterProjection(&fixtures.ProjectionMessageHandler{
 					ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 						c.Identity("<projection>", projectionKey)
-						c.ConsumesEventType(fixtures.MessageE{})
+						c.Routes(
+							dogma.HandlesEvent[fixtures.MessageE](),
+						)
 					},
 				})
 			},
@@ -475,7 +503,9 @@ var _ = Describe("func IsApplicationEqual()", func() {
 					c.RegisterProjection(&fixtures.ProjectionMessageHandler{
 						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 							c.Identity("<projection>", projectionKey)
-							c.ConsumesEventType(fixtures.MessageE{})
+							c.Routes(
+								dogma.HandlesEvent[fixtures.MessageE](),
+							)
 						},
 					})
 				},
@@ -494,7 +524,9 @@ var _ = Describe("func IsApplicationEqual()", func() {
 						c.RegisterProjection(&fixtures.ProjectionMessageHandler{
 							ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 								c.Identity("<projection>", projectionKey)
-								c.ConsumesEventType(fixtures.MessageE{})
+								c.Routes(
+									dogma.HandlesEvent[fixtures.MessageE](),
+								)
 							},
 						})
 					},
@@ -509,7 +541,9 @@ var _ = Describe("func IsApplicationEqual()", func() {
 					c.RegisterProjection(&fixtures.ProjectionMessageHandler{
 						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 							c.Identity("<projection>", projectionKey)
-							c.ConsumesEventType(fixtures.MessageE{})
+							c.Routes(
+								dogma.HandlesEvent[fixtures.MessageE](),
+							)
 						},
 					})
 				},
@@ -523,7 +557,9 @@ var _ = Describe("func IsApplicationEqual()", func() {
 					c.RegisterProjection(&fixtures.ProjectionMessageHandler{
 						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 							c.Identity("<projection>", projectionKey)
-							c.ConsumesEventType(fixtures.MessageE{})
+							c.Routes(
+								dogma.HandlesEvent[fixtures.MessageE](),
+							)
 						},
 					})
 				},
@@ -537,8 +573,10 @@ var _ = Describe("func IsApplicationEqual()", func() {
 					c.RegisterProjection(&fixtures.ProjectionMessageHandler{
 						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 							c.Identity("<projection>", projectionKey)
-							c.ConsumesEventType(fixtures.MessageE{})
-							c.ConsumesEventType(fixtures.MessageX{}) // diff
+							c.Routes(
+								dogma.HandlesEvent[fixtures.MessageE](),
+								dogma.HandlesEvent[fixtures.MessageX](), // diff
+							)
 						},
 					})
 				},
@@ -552,7 +590,9 @@ var _ = Describe("func IsApplicationEqual()", func() {
 					c.RegisterProjection(&fixtures.ProjectionMessageHandler{
 						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 							c.Identity("<projection-different>", projectionKey) // diff
-							c.ConsumesEventType(fixtures.MessageE{})
+							c.Routes(
+								dogma.HandlesEvent[fixtures.MessageE](),
+							)
 						},
 					})
 				},

@@ -26,22 +26,22 @@ func (c *applicationConfigurer) Identity(name, key string) {
 	c.entityConfigurer.Identity(name, key)
 }
 
-func (c *applicationConfigurer) RegisterAggregate(h dogma.AggregateMessageHandler) {
+func (c *applicationConfigurer) RegisterAggregate(h dogma.AggregateMessageHandler, _ ...dogma.RegisterAggregateOption) {
 	cfg := FromAggregate(h)
 	c.register(cfg)
 }
 
-func (c *applicationConfigurer) RegisterProcess(h dogma.ProcessMessageHandler) {
+func (c *applicationConfigurer) RegisterProcess(h dogma.ProcessMessageHandler, _ ...dogma.RegisterProcessOption) {
 	cfg := FromProcess(h)
 	c.register(cfg)
 }
 
-func (c *applicationConfigurer) RegisterIntegration(h dogma.IntegrationMessageHandler) {
+func (c *applicationConfigurer) RegisterIntegration(h dogma.IntegrationMessageHandler, _ ...dogma.RegisterIntegrationOption) {
 	cfg := FromIntegration(h)
 	c.register(cfg)
 }
 
-func (c *applicationConfigurer) RegisterProjection(h dogma.ProjectionMessageHandler) {
+func (c *applicationConfigurer) RegisterProjection(h dogma.ProjectionMessageHandler, _ ...dogma.RegisterProjectionOption) {
 	cfg := FromProjection(h)
 	c.register(cfg)
 }

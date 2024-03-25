@@ -21,33 +21,41 @@ var _ = Describe("func ToString()", func() {
 				c.RegisterAggregate(&fixtures.AggregateMessageHandler{
 					ConfigureFunc: func(c dogma.AggregateConfigurer) {
 						c.Identity("<aggregate>", aggregateKey)
-						c.ConsumesCommandType(fixtures.MessageC{})
-						c.ProducesEventType(fixtures.MessageE{})
+						c.Routes(
+							dogma.HandlesCommand[fixtures.MessageC](),
+							dogma.RecordsEvent[fixtures.MessageE](),
+						)
 					},
 				})
 
 				c.RegisterProcess(&fixtures.ProcessMessageHandler{
 					ConfigureFunc: func(c dogma.ProcessConfigurer) {
 						c.Identity("<process>", processKey)
-						c.ConsumesEventType(fixtures.MessageE{})
-						c.ProducesCommandType(fixtures.MessageC{})
-						c.SchedulesTimeoutType(fixtures.MessageT{})
+						c.Routes(
+							dogma.HandlesEvent[fixtures.MessageE](),
+							dogma.ExecutesCommand[fixtures.MessageC](),
+							dogma.SchedulesTimeout[fixtures.MessageT](),
+						)
 					},
 				})
 
 				c.RegisterIntegration(&fixtures.IntegrationMessageHandler{
 					ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 						c.Identity("<integration>", integrationKey)
-						c.ConsumesCommandType(fixtures.MessageI{})
-						c.ProducesEventType(fixtures.MessageJ{})
+						c.Routes(
+							dogma.HandlesCommand[fixtures.MessageI](),
+							dogma.RecordsEvent[fixtures.MessageJ](),
+						)
 					},
 				})
 
 				c.RegisterProjection(&fixtures.ProjectionMessageHandler{
 					ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 						c.Identity("<projection>", projectionKey)
-						c.ConsumesEventType(fixtures.MessageE{})
-						c.ConsumesEventType(fixtures.MessageJ{})
+						c.Routes(
+							dogma.HandlesEvent[fixtures.MessageE](),
+							dogma.HandlesEvent[fixtures.MessageJ](),
+						)
 					},
 				})
 			},

@@ -20,15 +20,19 @@ var _ = Describe("type HandlerSet", func() {
 	aggregate := FromAggregate(&fixtures.AggregateMessageHandler{
 		ConfigureFunc: func(c dogma.AggregateConfigurer) {
 			c.Identity("<agg-name>", aggregateKey)
-			c.ConsumesCommandType(fixtures.MessageC{})
-			c.ProducesEventType(fixtures.MessageE{})
+			c.Routes(
+				dogma.HandlesCommand[fixtures.MessageC](),
+				dogma.RecordsEvent[fixtures.MessageE](),
+			)
 		},
 	})
 
 	projection := FromProjection(&fixtures.ProjectionMessageHandler{
 		ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 			c.Identity("<proj-name>", projectionKey)
-			c.ConsumesEventType(fixtures.MessageE{})
+			c.Routes(
+				dogma.HandlesEvent[fixtures.MessageE](),
+			)
 		},
 	})
 
@@ -228,7 +232,9 @@ var _ = Describe("type HandlerSet", func() {
 				NewHandlerSet(aggregate, projection, FromIntegration(&fixtures.IntegrationMessageHandler{
 					ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 						c.Identity("<int-name>", integrationKey)
-						c.ConsumesCommandType(fixtures.MessageX{})
+						c.Routes(
+							dogma.HandlesCommand[fixtures.MessageX](),
+						)
 					},
 				})),
 			),
@@ -237,7 +243,9 @@ var _ = Describe("type HandlerSet", func() {
 				NewHandlerSet(aggregate, FromProjection(&fixtures.ProjectionMessageHandler{
 					ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 						c.Identity("<proj-name>", projectionKey)
-						c.ConsumesEventType(fixtures.MessageF{}) // diff
+						c.Routes(
+							dogma.HandlesEvent[fixtures.MessageF](), // diff
+						)
 					},
 				})),
 			),
@@ -336,62 +344,78 @@ var _ = Describe("type HandlerSet", func() {
 			aggregate1 = FromAggregate(&fixtures.AggregateMessageHandler{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<agg1-name>", "ca82de11-1794-486e-a190-78e2443de7dd")
-					c.ConsumesCommandType(fixtures.MessageC{})
-					c.ProducesEventType(fixtures.MessageD{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageC](),
+						dogma.RecordsEvent[fixtures.MessageD](),
+					)
 				},
 			})
 
 			aggregate2 = FromAggregate(&fixtures.AggregateMessageHandler{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<agg2-name>", "3a7ad56e-d9b9-42be-9a16-01f25e572c49")
-					c.ConsumesCommandType(fixtures.MessageC{})
-					c.ProducesEventType(fixtures.MessageD{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageC](),
+						dogma.RecordsEvent[fixtures.MessageD](),
+					)
 				},
 			})
 
 			process1 = FromProcess(&fixtures.ProcessMessageHandler{
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
 					c.Identity("<proc1-name>", "5695e728-33ca-4b0f-b063-ff0ff6f48276")
-					c.ConsumesEventType(fixtures.MessageE{})
-					c.ProducesCommandType(fixtures.MessageC{})
+					c.Routes(
+						dogma.HandlesEvent[fixtures.MessageE](),
+						dogma.ExecutesCommand[fixtures.MessageC](),
+					)
 				},
 			})
 
 			process2 = FromProcess(&fixtures.ProcessMessageHandler{
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
 					c.Identity("<proc2-name>", "3d510ba8-6dca-46bb-bcde-193015867834")
-					c.ConsumesEventType(fixtures.MessageE{})
-					c.ProducesCommandType(fixtures.MessageC{})
+					c.Routes(
+						dogma.HandlesEvent[fixtures.MessageE](),
+						dogma.ExecutesCommand[fixtures.MessageC](),
+					)
 				},
 			})
 
 			integration1 = FromIntegration(&fixtures.IntegrationMessageHandler{
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 					c.Identity("<int1-name>", "fdf0059e-8786-42db-a348-caac60d6118a")
-					c.ConsumesCommandType(fixtures.MessageC{})
-					c.ProducesEventType(fixtures.MessageD{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageC](),
+						dogma.RecordsEvent[fixtures.MessageD](),
+					)
 				},
 			})
 
 			integration2 = FromIntegration(&fixtures.IntegrationMessageHandler{
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 					c.Identity("<int2-name>", "34d19336-95c5-47c7-b36e-4e90b24b1b83")
-					c.ConsumesCommandType(fixtures.MessageC{})
-					c.ProducesEventType(fixtures.MessageD{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageC](),
+						dogma.RecordsEvent[fixtures.MessageD](),
+					)
 				},
 			})
 
 			projection1 = FromProjection(&fixtures.ProjectionMessageHandler{
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 					c.Identity("<proj1-name>", "ee9bd355-e9fd-413a-ac83-7182ea76cb89")
-					c.ConsumesEventType(fixtures.MessageE{})
+					c.Routes(
+						dogma.HandlesEvent[fixtures.MessageE](),
+					)
 				},
 			})
 
 			projection2 = FromProjection(&fixtures.ProjectionMessageHandler{
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 					c.Identity("<proj2-name>", "0fe3a5e3-b8e1-4ba0-8c90-f002f0a842f9")
-					c.ConsumesEventType(fixtures.MessageE{})
+					c.Routes(
+						dogma.HandlesEvent[fixtures.MessageE](),
+					)
 				},
 			})
 
@@ -541,15 +565,19 @@ var _ = Describe("type RichHandlerSet", func() {
 	aggregate := FromAggregate(&fixtures.AggregateMessageHandler{
 		ConfigureFunc: func(c dogma.AggregateConfigurer) {
 			c.Identity("<agg-name>", aggregateKey)
-			c.ConsumesCommandType(fixtures.MessageC{})
-			c.ProducesEventType(fixtures.MessageE{})
+			c.Routes(
+				dogma.HandlesCommand[fixtures.MessageC](),
+				dogma.RecordsEvent[fixtures.MessageE](),
+			)
 		},
 	})
 
 	projection := FromProjection(&fixtures.ProjectionMessageHandler{
 		ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 			c.Identity("<proj-name>", projectionKey)
-			c.ConsumesEventType(fixtures.MessageE{})
+			c.Routes(
+				dogma.HandlesEvent[fixtures.MessageE](),
+			)
 		},
 	})
 
@@ -749,7 +777,9 @@ var _ = Describe("type RichHandlerSet", func() {
 				NewRichHandlerSet(aggregate, projection, FromIntegration(&fixtures.IntegrationMessageHandler{
 					ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 						c.Identity("<int-name>", integrationKey)
-						c.ConsumesCommandType(fixtures.MessageX{})
+						c.Routes(
+							dogma.HandlesCommand[fixtures.MessageX](),
+						)
 					},
 				})),
 			),
@@ -758,7 +788,9 @@ var _ = Describe("type RichHandlerSet", func() {
 				NewRichHandlerSet(aggregate, FromProjection(&fixtures.ProjectionMessageHandler{
 					ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 						c.Identity("<proj-name>", projectionKey)
-						c.ConsumesEventType(fixtures.MessageF{}) // diff
+						c.Routes(
+							dogma.HandlesEvent[fixtures.MessageF](), // diff
+						)
 					},
 				})),
 			),
@@ -857,62 +889,78 @@ var _ = Describe("type RichHandlerSet", func() {
 			aggregate1 = FromAggregate(&fixtures.AggregateMessageHandler{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<agg1-name>", "648c035d-2a6a-49e6-8968-044bec062fed")
-					c.ConsumesCommandType(fixtures.MessageC{})
-					c.ProducesEventType(fixtures.MessageD{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageC](),
+						dogma.RecordsEvent[fixtures.MessageD](),
+					)
 				},
 			})
 
 			aggregate2 = FromAggregate(&fixtures.AggregateMessageHandler{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<agg2-name>", "e465c85d-4ac0-4aed-8054-665a86b9ef4e")
-					c.ConsumesCommandType(fixtures.MessageC{})
-					c.ProducesEventType(fixtures.MessageD{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageC](),
+						dogma.RecordsEvent[fixtures.MessageD](),
+					)
 				},
 			})
 
 			process1 = FromProcess(&fixtures.ProcessMessageHandler{
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
 					c.Identity("<proc1-name>", "71a4111b-ee0d-4df1-a059-d8bb94dc3e77")
-					c.ConsumesEventType(fixtures.MessageE{})
-					c.ProducesCommandType(fixtures.MessageC{})
+					c.Routes(
+						dogma.HandlesEvent[fixtures.MessageE](),
+						dogma.ExecutesCommand[fixtures.MessageC](),
+					)
 				},
 			})
 
 			process2 = FromProcess(&fixtures.ProcessMessageHandler{
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
 					c.Identity("<proc2-name>", "3b4ce9af-ca54-4c77-a8e7-285267f73c82")
-					c.ConsumesEventType(fixtures.MessageE{})
-					c.ProducesCommandType(fixtures.MessageC{})
+					c.Routes(
+						dogma.HandlesEvent[fixtures.MessageE](),
+						dogma.ExecutesCommand[fixtures.MessageC](),
+					)
 				},
 			})
 
 			integration1 = FromIntegration(&fixtures.IntegrationMessageHandler{
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 					c.Identity("<int1-name>", "22857e0c-7990-4dfe-9cd0-40d6dd160aaf")
-					c.ConsumesCommandType(fixtures.MessageC{})
-					c.ProducesEventType(fixtures.MessageD{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageC](),
+						dogma.RecordsEvent[fixtures.MessageD](),
+					)
 				},
 			})
 
 			integration2 = FromIntegration(&fixtures.IntegrationMessageHandler{
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 					c.Identity("<int2-name>", "26ae7db1-7a81-407d-ac08-52e35f7765d1")
-					c.ConsumesCommandType(fixtures.MessageC{})
-					c.ProducesEventType(fixtures.MessageD{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageC](),
+						dogma.RecordsEvent[fixtures.MessageD](),
+					)
 				},
 			})
 
 			projection1 = FromProjection(&fixtures.ProjectionMessageHandler{
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 					c.Identity("<proj1-name>", "400a4609-9e00-4ccd-8436-3ad9ef073f5d")
-					c.ConsumesEventType(fixtures.MessageE{})
+					c.Routes(
+						dogma.HandlesEvent[fixtures.MessageE](),
+					)
 				},
 			})
 
 			projection2 = FromProjection(&fixtures.ProjectionMessageHandler{
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 					c.Identity("<proj2-name>", "2d09f134-8971-4dff-8b84-b0e3c279ca88")
-					c.ConsumesEventType(fixtures.MessageE{})
+					c.Routes(
+						dogma.HandlesEvent[fixtures.MessageE](),
+					)
 				},
 			})
 

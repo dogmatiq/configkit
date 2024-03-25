@@ -14,9 +14,11 @@ var _ = Describe("func IsHandlerEqual()", func() {
 		h := &fixtures.AggregateMessageHandler{
 			ConfigureFunc: func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
-				c.ConsumesCommandType(fixtures.MessageA{})
-				c.ConsumesCommandType(fixtures.MessageB{})
-				c.ProducesEventType(fixtures.MessageE{})
+				c.Routes(
+					dogma.HandlesCommand[fixtures.MessageA](),
+					dogma.HandlesCommand[fixtures.MessageB](),
+					dogma.RecordsEvent[fixtures.MessageE](),
+				)
 			},
 		}
 
@@ -32,9 +34,11 @@ var _ = Describe("func IsHandlerEqual()", func() {
 			h := &fixtures.AggregateMessageHandler{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<name>", aggregateKey)
-					c.ConsumesCommandType(fixtures.MessageA{})
-					c.ConsumesCommandType(fixtures.MessageB{})
-					c.ProducesEventType(fixtures.MessageE{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageA](),
+						dogma.HandlesCommand[fixtures.MessageB](),
+						dogma.RecordsEvent[fixtures.MessageE](),
+					)
 				},
 			}
 
@@ -47,9 +51,11 @@ var _ = Describe("func IsHandlerEqual()", func() {
 			FromIntegration(&fixtures.IntegrationMessageHandler{
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 					c.Identity("<name>", integrationKey)
-					c.ConsumesCommandType(fixtures.MessageA{})
-					c.ProducesEventType(fixtures.MessageB{}) // diff
-					c.ProducesEventType(fixtures.MessageE{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageA](),
+						dogma.RecordsEvent[fixtures.MessageB](), // diff
+						dogma.RecordsEvent[fixtures.MessageE](),
+					)
 				},
 			}),
 		),
@@ -58,9 +64,11 @@ var _ = Describe("func IsHandlerEqual()", func() {
 			FromAggregate(&fixtures.AggregateMessageHandler{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<name-different>", aggregateKey) // diff
-					c.ConsumesCommandType(fixtures.MessageA{})
-					c.ConsumesCommandType(fixtures.MessageB{})
-					c.ProducesEventType(fixtures.MessageE{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageA](),
+						dogma.HandlesCommand[fixtures.MessageB](),
+						dogma.RecordsEvent[fixtures.MessageE](),
+					)
 				},
 			}),
 		),
@@ -69,9 +77,11 @@ var _ = Describe("func IsHandlerEqual()", func() {
 			FromAggregate(&fixtures.AggregateMessageHandler{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<name>", "799239e7-8c03-48f9-a324-14b7f9b76e30") // diff
-					c.ConsumesCommandType(fixtures.MessageA{})
-					c.ConsumesCommandType(fixtures.MessageB{})
-					c.ProducesEventType(fixtures.MessageE{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageA](),
+						dogma.HandlesCommand[fixtures.MessageB](),
+						dogma.RecordsEvent[fixtures.MessageE](),
+					)
 				},
 			}),
 		),
@@ -80,9 +90,11 @@ var _ = Describe("func IsHandlerEqual()", func() {
 			FromAggregate(&fixtures.AggregateMessageHandler{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<name>", aggregateKey)
-					c.ConsumesCommandType(fixtures.MessageA{})
-					c.ProducesEventType(fixtures.MessageB{}) // diff
-					c.ProducesEventType(fixtures.MessageE{})
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageA](),
+						dogma.RecordsEvent[fixtures.MessageB](), // diff
+						dogma.RecordsEvent[fixtures.MessageE](),
+					)
 				},
 			}),
 		),

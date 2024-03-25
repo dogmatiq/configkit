@@ -22,8 +22,10 @@ var _ = Describe("func FromProjection()", func() {
 		handler = &fixtures.ProjectionMessageHandler{
 			ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", projectionKey)
-				c.ConsumesEventType(fixtures.MessageA{})
-				c.ConsumesEventType(fixtures.MessageB{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.HandlesEvent[fixtures.MessageB](),
+				)
 				c.DeliveryPolicy(dogma.BroadcastProjectionDeliveryPolicy{
 					PrimaryFirst: true,
 				})
@@ -165,7 +167,9 @@ var _ = Describe("func FromProjection()", func() {
 			"when the handler does not configure an identity",
 			`*fixtures.ProjectionMessageHandler is configured without an identity, Identity() must be called exactly once within Configure()`,
 			func(c dogma.ProjectionConfigurer) {
-				c.ConsumesEventType(fixtures.MessageA{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+				)
 			},
 		),
 		Entry(
@@ -174,7 +178,9 @@ var _ = Describe("func FromProjection()", func() {
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", projectionKey)
 				c.Identity("<other>", projectionKey)
-				c.ConsumesEventType(fixtures.MessageA{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+				)
 			},
 		),
 		Entry(
@@ -182,7 +188,9 @@ var _ = Describe("func FromProjection()", func() {
 			`*fixtures.ProjectionMessageHandler is configured with an invalid identity, invalid name "\t \n", names must be non-empty, printable UTF-8 strings with no whitespace`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("\t \n", projectionKey)
-				c.ConsumesEventType(fixtures.MessageA{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+				)
 			},
 		),
 		Entry(
@@ -190,7 +198,9 @@ var _ = Describe("func FromProjection()", func() {
 			`*fixtures.ProjectionMessageHandler is configured with an invalid identity, invalid key "\t \n", keys must be RFC 4122 UUIDs`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", "\t \n")
-				c.ConsumesEventType(fixtures.MessageA{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+				)
 			},
 		),
 		Entry(
@@ -205,16 +215,20 @@ var _ = Describe("func FromProjection()", func() {
 			`*fixtures.ProjectionMessageHandler (<name>) is configured to consume the fixtures.MessageA event more than once, should this refer to different message types?`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", projectionKey)
-				c.ConsumesEventType(fixtures.MessageA{})
-				c.ConsumesEventType(fixtures.MessageA{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.HandlesEvent[fixtures.MessageA](),
+				)
 			},
 		),
 		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
 			`*fixtures.ProjectionMessageHandler is configured to consume the fixtures.MessageA event more than once, should this refer to different message types?`,
 			func(c dogma.ProjectionConfigurer) {
-				c.ConsumesEventType(fixtures.MessageA{})
-				c.ConsumesEventType(fixtures.MessageA{})
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.HandlesEvent[fixtures.MessageA](),
+				)
 			},
 		),
 	)
