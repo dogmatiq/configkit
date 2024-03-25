@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
+## [0.13.0] - 2024-03-26
+
+- **[BC]** Updated to Dogma v0.13.0
+
 ## [0.12.2] - 2024-01-19
 
 ### Fixed
@@ -263,6 +267,7 @@ interfaces. It does not yet include support for static analysis of the new
 [0.12.0]: https://github.com/dogmatiq/configkit/releases/v0.12.0
 [0.12.1]: https://github.com/dogmatiq/configkit/releases/v0.12.1
 [0.12.2]: https://github.com/dogmatiq/configkit/releases/v0.12.2
+[0.13.0]: https://github.com/dogmatiq/configkit/releases/v0.13.0
 
 <!-- version template
 ## [0.0.1] - YYYY-MM-DD
