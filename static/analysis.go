@@ -294,41 +294,6 @@ func addHandlerFromConfigureMethod(
 				hdr.MessageNamesValue.Produced,
 				hdr.MessageNamesValue.Consumed,
 			)
-		case "ConsumesCommandType":
-			addMessageFromArguments(
-				args,
-				hdr.MessageNamesValue.Consumed,
-				message.CommandRole,
-			)
-		case "ConsumesEventType":
-			addMessageFromArguments(
-				args,
-				hdr.MessageNamesValue.Consumed,
-				message.EventRole,
-			)
-		case "ProducesCommandType":
-			addMessageFromArguments(
-				args,
-				hdr.MessageNamesValue.Produced,
-				message.CommandRole,
-			)
-		case "ProducesEventType":
-			addMessageFromArguments(
-				args,
-				hdr.MessageNamesValue.Produced,
-				message.EventRole,
-			)
-		case "SchedulesTimeoutType":
-			addMessageFromArguments(
-				args,
-				hdr.MessageNamesValue.Consumed,
-				message.TimeoutRole,
-			)
-			addMessageFromArguments(
-				args,
-				hdr.MessageNamesValue.Produced,
-				message.TimeoutRole,
-			)
 		}
 	}
 
@@ -336,7 +301,7 @@ func addHandlerFromConfigureMethod(
 }
 
 // addMessagesFromRoutes analyzes the arguments in a call to a configurer's
-// method Routes() to populate the messages that are produced and consumed by
+// Routes() method to populate the messages that are produced and consumed by
 // the handler.
 func addMessagesFromRoutes(
 	args []ssa.Value,
@@ -471,25 +436,6 @@ func recurseSSAValues(
 				recurseSSAValues(*v, seen, f)
 			}
 		}
-	}
-}
-
-// addMessageFromArguments analyzes args to deduce the type of a message.
-// It assumes that the message is always the first argument.
-//
-// If the first argument is not a pointer to ssa.MakeInterface instruction, this
-// function has no effect; otherwise the message type is added to nr using the
-// role given by r.
-func addMessageFromArguments(
-	args []ssa.Value,
-	nr message.NameRoles,
-	r message.Role,
-) {
-	if mi, ok := args[0].(*ssa.MakeInterface); ok {
-		nr.Add(
-			message.NameFromType(mi.X.Type()),
-			r,
-		)
 	}
 }
 

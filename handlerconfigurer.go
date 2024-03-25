@@ -39,26 +39,6 @@ func (c *handlerConfigurer) route(r dogma.Route) {
 	}
 }
 
-func (c *handlerConfigurer) ConsumesCommandType(m dogma.Message) {
-	c.route(dogma.HandlesCommandRoute{Type: reflect.TypeOf(m)})
-}
-
-func (c *handlerConfigurer) ConsumesEventType(m dogma.Message) {
-	c.route(dogma.HandlesEventRoute{Type: reflect.TypeOf(m)})
-}
-
-func (c *handlerConfigurer) ProducesCommandType(m dogma.Message) {
-	c.route(dogma.ExecutesCommandRoute{Type: reflect.TypeOf(m)})
-}
-
-func (c *handlerConfigurer) ProducesEventType(m dogma.Message) {
-	c.route(dogma.RecordsEventRoute{Type: reflect.TypeOf(m)})
-}
-
-func (c *handlerConfigurer) SchedulesTimeoutType(m dogma.Message) {
-	c.route(dogma.SchedulesTimeoutRoute{Type: reflect.TypeOf(m)})
-}
-
 func (c *handlerConfigurer) consumes(t reflect.Type, r message.Role, verb string) {
 	mt := message.TypeFromReflect(t)
 	c.guardAgainstConflictingRoles(mt, r)
