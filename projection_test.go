@@ -204,15 +204,15 @@ var _ = Describe("func FromProjection()", func() {
 			},
 		),
 		Entry(
-			"when the handler does not configure any consumed event types",
-			`*fixtures.ProjectionMessageHandler (<name>) is not configured to consume any events, ConsumesEventType() must be called at least once within Configure()`,
+			"when the handler does not configure any event routes",
+			`*fixtures.ProjectionMessageHandler (<name>) is not configured to handle any events, at least one HandlesEvent() route must be added within Configure()`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", projectionKey)
 			},
 		),
 		Entry(
-			"when the handler configures the same consumed event type multiple times",
-			`*fixtures.ProjectionMessageHandler (<name>) is configured to consume the fixtures.MessageA event more than once, should this refer to different message types?`,
+			"when the handler configures multiple routes for the same event",
+			`*fixtures.ProjectionMessageHandler (<name>) is configured with multiple HandlesEvent() routes for fixtures.MessageA, should these refer to different message types?`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", projectionKey)
 				c.Routes(
@@ -223,7 +223,7 @@ var _ = Describe("func FromProjection()", func() {
 		),
 		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
-			`*fixtures.ProjectionMessageHandler is configured to consume the fixtures.MessageA event more than once, should this refer to different message types?`,
+			`*fixtures.ProjectionMessageHandler is configured with multiple HandlesEvent() routes for fixtures.MessageA, should these refer to different message types?`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Routes(
 					dogma.HandlesEvent[fixtures.MessageA](),

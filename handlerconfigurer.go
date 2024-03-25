@@ -24,32 +24,31 @@ type handlerConfigurer struct {
 func (c *handlerConfigurer) route(r dogma.Route) {
 	switch r := r.(type) {
 	case dogma.HandlesCommandRoute:
-		c.consumes(r.Type, message.CommandRole, "consume")
+		c.consumes(r.Type, message.CommandRole, "HandlesCommand")
 	case dogma.RecordsEventRoute:
-		c.produces(r.Type, message.EventRole, "produce")
+		c.produces(r.Type, message.EventRole, "RecordsEvent")
 	case dogma.HandlesEventRoute:
-		c.consumes(r.Type, message.EventRole, "consume")
+		c.consumes(r.Type, message.EventRole, "HandlesEvent")
 	case dogma.ExecutesCommandRoute:
-		c.produces(r.Type, message.CommandRole, "produce")
+		c.produces(r.Type, message.CommandRole, "ExecutesCommand")
 	case dogma.SchedulesTimeoutRoute:
-		c.consumes(r.Type, message.TimeoutRole, "schedule")
-		c.produces(r.Type, message.TimeoutRole, "schedule")
+		c.consumes(r.Type, message.TimeoutRole, "SchedulesTimeout")
+		c.produces(r.Type, message.TimeoutRole, "SchedulesTimeout")
 	default:
 		panic(fmt.Sprintf("unsupported route type: %T", r))
 	}
 }
 
-func (c *handlerConfigurer) consumes(t reflect.Type, r message.Role, verb string) {
+func (c *handlerConfigurer) consumes(t reflect.Type, r message.Role, route string) {
 	mt := message.TypeFromReflect(t)
 	c.guardAgainstConflictingRoles(mt, r)
 
 	if c.entity.types.Consumed.Has(mt) {
 		validation.Panicf(
-			"%s is configured to %s the %s %s more than once, should this refer to different message types?",
+			"%s is configured with multiple %s() routes for %s, should these refer to different message types?",
 			c.displayName(),
-			verb,
+			route,
 			mt,
-			r,
 		)
 	}
 
@@ -63,17 +62,16 @@ func (c *handlerConfigurer) consumes(t reflect.Type, r message.Role, verb string
 	c.entity.types.Consumed.Add(mt, r)
 }
 
-func (c *handlerConfigurer) produces(t reflect.Type, r message.Role, verb string) {
+func (c *handlerConfigurer) produces(t reflect.Type, r message.Role, route string) {
 	mt := message.TypeFromReflect(t)
 	c.guardAgainstConflictingRoles(mt, r)
 
 	if c.entity.types.Produced.Has(mt) {
 		validation.Panicf(
-			"%s is configured to %s the %s %s more than once, should this refer to different message types?",
+			"%s is configured with multiple %s() routes for %s, should these refer to different message types?",
 			c.displayName(),
-			verb,
+			route,
 			mt,
-			r,
 		)
 	}
 
@@ -104,7 +102,8 @@ func (c *handlerConfigurer) guardAgainstConflictingRoles(mt message.Type, r mess
 	)
 }
 
-// mustConsume panics if the handler does not consume any messages of the given role.
+// mustConsume panics if the handler is not configured to handle any messages of
+// the given role.
 func (c *handlerConfigurer) mustConsume(r message.Role) {
 	for mt := range c.entity.names.Consumed {
 		if x, ok := c.entity.names.RoleOf(mt); ok {
@@ -115,7 +114,7 @@ func (c *handlerConfigurer) mustConsume(r message.Role) {
 	}
 
 	validation.Panicf(
-		`%s (%s) is not configured to consume any %ss, Consumes%sType() must be called at least once within Configure()`,
+		`%s (%s) is not configured to handle any %ss, at least one Handles%s() route must be added within Configure()`,
 		c.entity.rt,
 		c.entity.ident.Name,
 		r,
@@ -123,7 +122,8 @@ func (c *handlerConfigurer) mustConsume(r message.Role) {
 	)
 }
 
-// mustProduce panics if the handler does not produce any messages of the given role.
+// mustProduce panics if the handler is not configured to produce any messages
+// of the given role.
 func (c *handlerConfigurer) mustProduce(r message.Role) {
 	for mt := range c.entity.names.Produced {
 		if x, ok := c.entity.names.RoleOf(mt); ok {
@@ -133,10 +133,25 @@ func (c *handlerConfigurer) mustProduce(r message.Role) {
 		}
 	}
 
+	verb := ""
+	route := ""
+	switch r {
+	case message.CommandRole:
+		verb = "execute"
+		route = "ExecutesCommand"
+	case message.EventRole:
+		verb = "record"
+		route = "RecordsEvent"
+	case message.TimeoutRole:
+		verb = "schedule"
+		route = "SchedulesTimeout"
+	}
+
 	validation.Panicf(
-		`%s is not configured to produce any %ss, Produces%sType() must be called at least once within Configure()`,
+		`%s is not configured to %s any %ss, at least one %s() route must be added within Configure()`,
 		c.displayName(),
+		verb,
 		r,
-		strings.Title(r.String()),
+		route,
 	)
 }

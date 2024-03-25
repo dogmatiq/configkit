@@ -76,15 +76,20 @@ func (s *stringer) visitHandler(cfg Handler) error {
 
 		must.Fprintf(
 			s.w,
-			"    consumes %s%s\n",
+			"    handles %s%s\n",
 			p.Name,
 			p.Role.Marker(),
 		)
 	}
 
 	for _, p := range sortNameRoles(cfg.MessageNames().Produced) {
-		verb := "produces"
-		if p.Role == message.TimeoutRole {
+		verb := ""
+		switch p.Role {
+		case message.CommandRole:
+			verb = "executes"
+		case message.EventRole:
+			verb = "records"
+		case message.TimeoutRole:
 			verb = "schedules"
 		}
 

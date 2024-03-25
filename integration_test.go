@@ -130,7 +130,7 @@ var _ = Describe("func FromIntegration()", func() {
 			})
 		})
 
-		When("the handler does not configure any produced events", func() {
+		When("the handler does not configure any event routes", func() {
 			BeforeEach(func() {
 				handler.ConfigureFunc = func(c dogma.IntegrationConfigurer) {
 					c.Identity("<name>", integrationKey)
@@ -215,8 +215,8 @@ var _ = Describe("func FromIntegration()", func() {
 			},
 		),
 		Entry(
-			"when the handler does not configure any consumed command types",
-			`*fixtures.IntegrationMessageHandler (<name>) is not configured to consume any commands, ConsumesCommandType() must be called at least once within Configure()`,
+			"when the handler does not configure any command routes",
+			`*fixtures.IntegrationMessageHandler (<name>) is not configured to handle any commands, at least one HandlesCommand() route must be added within Configure()`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", integrationKey)
 				c.Routes(
@@ -225,8 +225,8 @@ var _ = Describe("func FromIntegration()", func() {
 			},
 		),
 		Entry(
-			"when the handler configures the same consumed command type multiple times",
-			`*fixtures.IntegrationMessageHandler (<name>) is configured to consume the fixtures.MessageA command more than once, should this refer to different message types?`,
+			"when the handler configures multiple routes for the same command",
+			`*fixtures.IntegrationMessageHandler (<name>) is configured with multiple HandlesCommand() routes for fixtures.MessageA, should these refer to different message types?`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", integrationKey)
 				c.Routes(
@@ -237,8 +237,8 @@ var _ = Describe("func FromIntegration()", func() {
 			},
 		),
 		Entry(
-			"when the handler configures the same produced event type multiple times",
-			`*fixtures.IntegrationMessageHandler (<name>) is configured to produce the fixtures.MessageE event more than once, should this refer to different message types?`,
+			"when the handler configures multiple routes for the same event",
+			`*fixtures.IntegrationMessageHandler (<name>) is configured with multiple RecordsEvent() routes for fixtures.MessageE, should these refer to different message types?`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", integrationKey)
 				c.Routes(
@@ -261,7 +261,7 @@ var _ = Describe("func FromIntegration()", func() {
 		),
 		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
-			`*fixtures.IntegrationMessageHandler is configured to consume the fixtures.MessageA command more than once, should this refer to different message types?`,
+			`*fixtures.IntegrationMessageHandler is configured with multiple HandlesCommand() routes for fixtures.MessageA, should these refer to different message types?`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Routes(
 					dogma.HandlesCommand[fixtures.MessageA](),

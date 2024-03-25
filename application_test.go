@@ -419,8 +419,8 @@ var _ = Describe("func FromApplication()", func() {
 			},
 		),
 		Entry(
-			"when the app contains multiple consumers of the same command",
-			`*fixtures.IntegrationMessageHandler (<integration>) can not consume fixtures.MessageA commands because they are already consumed by *fixtures.AggregateMessageHandler (<aggregate>)`,
+			"when the app contains multiple handlers of the same command",
+			`*fixtures.IntegrationMessageHandler (<integration>) can not handle fixtures.MessageA commands because they are already configured to be handled by *fixtures.AggregateMessageHandler (<aggregate>)`,
 			func() {
 				integration.ConfigureFunc = func(c dogma.IntegrationConfigurer) {
 					c.Identity("<integration>", integrationKey)
@@ -432,8 +432,8 @@ var _ = Describe("func FromApplication()", func() {
 			},
 		),
 		Entry(
-			"when the app contains multiple producers of the same event",
-			`*fixtures.IntegrationMessageHandler (<integration>) can not produce fixtures.MessageE events because they are already produced by *fixtures.AggregateMessageHandler (<aggregate>)`,
+			"when the app contains multiple handlers that record the same event",
+			`*fixtures.IntegrationMessageHandler (<integration>) can not record fixtures.MessageE events because they are already configured to be recorded by *fixtures.AggregateMessageHandler (<aggregate>)`,
 			func() {
 				integration.ConfigureFunc = func(c dogma.IntegrationConfigurer) {
 					c.Identity("<integration>", integrationKey)

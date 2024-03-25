@@ -158,7 +158,7 @@ func (c *applicationConfigurer) guardAgainstConflictingRoutes(h RichHandler) {
 
 		for _, x := range c.app.richHandlers.ConsumersOf(mt) {
 			validation.Panicf(
-				`%s (%s) can not consume %s commands because they are already consumed by %s (%s)`,
+				`%s (%s) can not handle %s commands because they are already configured to be handled by %s (%s)`,
 				h.ReflectType(),
 				h.Identity().Name,
 				mt,
@@ -175,7 +175,7 @@ func (c *applicationConfigurer) guardAgainstConflictingRoutes(h RichHandler) {
 
 		for _, x := range c.app.richHandlers.ProducersOf(mt) {
 			validation.Panicf(
-				`%s (%s) can not produce %s events because they are already produced by %s (%s)`,
+				`%s (%s) can not record %s events because they are already configured to be recorded by %s (%s)`,
 				h.ReflectType(),
 				h.Identity().Name,
 				mt,

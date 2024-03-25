@@ -205,8 +205,8 @@ var _ = Describe("func FromProcess()", func() {
 			},
 		),
 		Entry(
-			"when the handler does not configure any consumed event types",
-			`*fixtures.ProcessMessageHandler (<name>) is not configured to consume any events, ConsumesEventType() must be called at least once within Configure()`,
+			"when the handler does not configure any event routes",
+			`*fixtures.ProcessMessageHandler (<name>) is not configured to handle any events, at least one HandlesEvent() route must be added within Configure()`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
@@ -215,8 +215,8 @@ var _ = Describe("func FromProcess()", func() {
 			},
 		),
 		Entry(
-			"when the handler configures the same consumed event type multiple times",
-			`*fixtures.ProcessMessageHandler (<name>) is configured to consume the fixtures.MessageA event more than once, should this refer to different message types?`,
+			"when the handler configures multiple routes for the same event",
+			`*fixtures.ProcessMessageHandler (<name>) is configured with multiple HandlesEvent() routes for fixtures.MessageA, should these refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
@@ -227,8 +227,8 @@ var _ = Describe("func FromProcess()", func() {
 			},
 		),
 		Entry(
-			"when the handler does not configure any produced commands",
-			`*fixtures.ProcessMessageHandler (<name>) is not configured to produce any commands, ProducesCommandType() must be called at least once within Configure()`,
+			"when the handler does not configure command routes",
+			`*fixtures.ProcessMessageHandler (<name>) is not configured to execute any commands, at least one ExecutesCommand() route must be added within Configure()`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
@@ -237,8 +237,8 @@ var _ = Describe("func FromProcess()", func() {
 			},
 		),
 		Entry(
-			"when the handler configures the same produced command type multiple times",
-			`*fixtures.ProcessMessageHandler (<name>) is configured to produce the fixtures.MessageC command more than once, should this refer to different message types?`,
+			"when the handler configures multiple routes for the same command",
+			`*fixtures.ProcessMessageHandler (<name>) is configured with multiple ExecutesCommand() routes for fixtures.MessageC, should these refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
@@ -249,8 +249,8 @@ var _ = Describe("func FromProcess()", func() {
 			},
 		),
 		Entry(
-			"when the handler configures the same scheudled timeout type multiple times",
-			`*fixtures.ProcessMessageHandler (<name>) is configured to schedule the fixtures.MessageT timeout more than once, should this refer to different message types?`,
+			"when the handler configures multiple routes for the same timeout",
+			`*fixtures.ProcessMessageHandler (<name>) is configured with multiple SchedulesTimeout() routes for fixtures.MessageT, should these refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
@@ -274,7 +274,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
-			`*fixtures.ProcessMessageHandler is configured to consume the fixtures.MessageA event more than once, should this refer to different message types?`,
+			`*fixtures.ProcessMessageHandler is configured with multiple HandlesEvent() routes for fixtures.MessageA, should these refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Routes(
 					dogma.HandlesEvent[fixtures.MessageA](),
