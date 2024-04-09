@@ -11,7 +11,7 @@ require (
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.32.0
 	golang.org/x/tools v0.20.0
-	google.golang.org/grpc v1.63.0
+	google.golang.org/grpc v1.63.2
 )
 
 require (
