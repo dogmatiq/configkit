@@ -6,6 +6,9 @@ type Handler interface {
 
 	// HandlerType returns the type of handler.
 	HandlerType() HandlerType
+
+	// IsDisabled returns true if the handler is disabled.
+	IsDisabled() bool
 }
 
 // RichHandler is a specialization of the Handler interface that exposes
@@ -15,6 +18,9 @@ type RichHandler interface {
 
 	// HandlerType returns the type of handler.
 	HandlerType() HandlerType
+
+	// IsDisabled returns true if the handler is disabled.
+	IsDisabled() bool
 }
 
 // IsHandlerEqual compares two handlers for equality.
@@ -37,4 +43,13 @@ func IsHandlerEqual(a, b Handler) bool {
 		a.TypeName() == b.TypeName() &&
 		a.HandlerType() == b.HandlerType() &&
 		a.MessageNames().IsEqual(b.MessageNames())
+}
+
+type handler struct {
+	entity
+	isDisabled bool
+}
+
+func (h *handler) IsDisabled() bool {
+	return h.isDisabled
 }

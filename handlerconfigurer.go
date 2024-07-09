@@ -19,6 +19,7 @@ import (
 //   - [dogma.ProjectionConfigurer]
 type handlerConfigurer struct {
 	entityConfigurer
+	handler *handler
 }
 
 func (c *handlerConfigurer) route(r dogma.Route) {
@@ -154,4 +155,8 @@ func (c *handlerConfigurer) mustProduce(r message.Role) {
 		r,
 		route,
 	)
+}
+
+func (c *handlerConfigurer) Disable(...dogma.DisableOption) {
+	c.handler.isDisabled = true
 }

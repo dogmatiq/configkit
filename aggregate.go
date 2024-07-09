@@ -29,8 +29,10 @@ type RichAggregate interface {
 // configuration related panic values to errors.
 func FromAggregate(h dogma.AggregateMessageHandler) RichAggregate {
 	cfg := &aggregate{
-		entity: entity{
-			rt: reflect.TypeOf(h),
+		handler: handler{
+			entity: entity{
+				rt: reflect.TypeOf(h),
+			},
 		},
 		impl: h,
 	}
@@ -40,6 +42,7 @@ func FromAggregate(h dogma.AggregateMessageHandler) RichAggregate {
 			entityConfigurer: entityConfigurer{
 				entity: &cfg.entity,
 			},
+			handler: &cfg.handler,
 		},
 	}
 
@@ -54,7 +57,7 @@ func FromAggregate(h dogma.AggregateMessageHandler) RichAggregate {
 
 // aggregate is an implementation of RichAggregate.
 type aggregate struct {
-	entity
+	handler
 
 	impl dogma.AggregateMessageHandler
 }

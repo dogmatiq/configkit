@@ -32,8 +32,10 @@ type RichProjection interface {
 // configuration related panic values to errors.
 func FromProjection(h dogma.ProjectionMessageHandler) RichProjection {
 	cfg := &projection{
-		entity: entity{
-			rt: reflect.TypeOf(h),
+		handler: handler{
+			entity: entity{
+				rt: reflect.TypeOf(h),
+			},
 		},
 		impl:           h,
 		deliveryPolicy: dogma.UnicastProjectionDeliveryPolicy{},
@@ -44,6 +46,7 @@ func FromProjection(h dogma.ProjectionMessageHandler) RichProjection {
 			entityConfigurer: entityConfigurer{
 				entity: &cfg.entity,
 			},
+			handler: &cfg.handler,
 		},
 	}
 
@@ -61,7 +64,7 @@ func FromProjection(h dogma.ProjectionMessageHandler) RichProjection {
 
 // projection is an implementation of RichProjection.
 type projection struct {
-	entity
+	handler
 
 	impl           dogma.ProjectionMessageHandler
 	deliveryPolicy dogma.ProjectionDeliveryPolicy

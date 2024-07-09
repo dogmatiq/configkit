@@ -29,8 +29,10 @@ type RichIntegration interface {
 // configuration related panic values to errors.
 func FromIntegration(h dogma.IntegrationMessageHandler) RichIntegration {
 	cfg := &integration{
-		entity: entity{
-			rt: reflect.TypeOf(h),
+		handler: handler{
+			entity: entity{
+				rt: reflect.TypeOf(h),
+			},
 		},
 		impl: h,
 	}
@@ -40,6 +42,7 @@ func FromIntegration(h dogma.IntegrationMessageHandler) RichIntegration {
 			entityConfigurer: entityConfigurer{
 				entity: &cfg.entity,
 			},
+			handler: &cfg.handler,
 		},
 	}
 
@@ -53,7 +56,7 @@ func FromIntegration(h dogma.IntegrationMessageHandler) RichIntegration {
 
 // integration is an implementation of RichIntegration.
 type integration struct {
-	entity
+	handler
 
 	impl dogma.IntegrationMessageHandler
 }

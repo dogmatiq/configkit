@@ -36,7 +36,7 @@ var _ = Describe("func FromProjection()", func() {
 	When("the configuration is valid", func() {
 		var cfg RichProjection
 
-		BeforeEach(func() {
+		JustBeforeEach(func() {
 			cfg = FromProjection(handler)
 		})
 
@@ -135,6 +135,22 @@ var _ = Describe("func FromProjection()", func() {
 		Describe("func Handler()", func() {
 			It("returns the underlying handler", func() {
 				Expect(cfg.Handler()).To(BeIdenticalTo(handler))
+			})
+		})
+
+		When("the handler is disabled", func() {
+			BeforeEach(func() {
+				configure := handler.ConfigureFunc
+				handler.ConfigureFunc = func(c dogma.ProjectionConfigurer) {
+					configure(c)
+					c.Disable()
+				}
+			})
+
+			Describe("func IsDisabled()", func() {
+				It("returns true", func() {
+					Expect(cfg.IsDisabled()).To(BeTrue())
+				})
 			})
 		})
 	})
