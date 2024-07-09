@@ -86,6 +86,20 @@ var _ = Describe("func IsHandlerEqual()", func() {
 			}),
 		),
 		Entry(
+			"disabled state differs",
+			FromAggregate(&fixtures.AggregateMessageHandler{
+				ConfigureFunc: func(c dogma.AggregateConfigurer) {
+					c.Identity("<name>", aggregateKey)
+					c.Routes(
+						dogma.HandlesCommand[fixtures.MessageA](),
+						dogma.HandlesCommand[fixtures.MessageB](),
+						dogma.RecordsEvent[fixtures.MessageE](),
+					)
+					c.Disable()
+				},
+			}),
+		),
+		Entry(
 			"messages differ",
 			FromAggregate(&fixtures.AggregateMessageHandler{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {

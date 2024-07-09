@@ -42,6 +42,7 @@ func IsHandlerEqual(a, b Handler) bool {
 	return a.Identity() == b.Identity() &&
 		a.TypeName() == b.TypeName() &&
 		a.HandlerType() == b.HandlerType() &&
+		a.IsDisabled() == b.IsDisabled() &&
 		a.MessageNames().IsEqual(b.MessageNames())
 }
 
