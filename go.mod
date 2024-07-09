@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/dogmatiq/dogma v0.13.1-0.20240708211023-af9214272677
 	github.com/dogmatiq/iago v0.4.0
-	github.com/dogmatiq/interopspec v0.5.3
+	github.com/dogmatiq/interopspec v0.5.4-0.20240709214918-063ff420b159
 	github.com/emicklei/dot v1.6.2
 	github.com/google/uuid v1.6.0
 	github.com/onsi/ginkgo v1.16.5
@@ -25,7 +25,7 @@ require (
 	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240528184218-531527333157 // indirect
-	google.golang.org/protobuf v1.34.1 // indirect
+	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

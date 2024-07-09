@@ -77,6 +77,7 @@ var _ = Context("end-to-end tests", func() {
 							dogma.HandlesEvent[MessageE](),
 							dogma.HandlesEvent[MessageJ](),
 						)
+						c.Disable()
 					},
 				})
 			},
