@@ -68,6 +68,15 @@ var _ = Describe("func FromApplication()", func() {
 			},
 		}
 
+		disabled := &fixtures.ProjectionMessageHandler{
+			ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+				// Verify that disabled handlers with no identity / route
+				// configuration are excluded from the application
+				// configuration.
+				c.Disable()
+			},
+		}
+
 		app = &fixtures.Application{
 			ConfigureFunc: func(c dogma.ApplicationConfigurer) {
 				c.Identity("<app>", appKey)
@@ -75,6 +84,7 @@ var _ = Describe("func FromApplication()", func() {
 				c.RegisterProcess(process)
 				c.RegisterIntegration(integration)
 				c.RegisterProjection(projection)
+				c.RegisterProjection(disabled)
 			},
 		}
 	})

@@ -27,27 +27,35 @@ func (c *applicationConfigurer) Identity(name, key string) {
 }
 
 func (c *applicationConfigurer) RegisterAggregate(h dogma.AggregateMessageHandler, _ ...dogma.RegisterAggregateOption) {
-	cfg := FromAggregate(h)
-	c.register(cfg)
+	c.registerIfConfigured(fromAggregate(h))
 }
 
 func (c *applicationConfigurer) RegisterProcess(h dogma.ProcessMessageHandler, _ ...dogma.RegisterProcessOption) {
-	cfg := FromProcess(h)
-	c.register(cfg)
+	c.registerIfConfigured(fromProcess(h))
 }
 
 func (c *applicationConfigurer) RegisterIntegration(h dogma.IntegrationMessageHandler, _ ...dogma.RegisterIntegrationOption) {
-	cfg := FromIntegration(h)
-	c.register(cfg)
+	c.registerIfConfigured(fromIntegration(h))
 }
 
 func (c *applicationConfigurer) RegisterProjection(h dogma.ProjectionMessageHandler, _ ...dogma.RegisterProjectionOption) {
-	cfg := FromProjection(h)
-	c.register(cfg)
+	c.registerIfConfigured(fromProjection(h))
 }
 
 // register adds a handler configuration to the application.
-func (c *applicationConfigurer) register(h RichHandler) {
+func (c *applicationConfigurer) registerIfConfigured(
+	h RichHandler,
+	hc interface {
+		isConfigured() bool
+		mustValidate()
+	},
+) {
+	if h.IsDisabled() && !hc.isConfigured() {
+		return
+	}
+
+	hc.mustValidate()
+
 	c.guardAgainstConflictingIdentities(h)
 	c.guardAgainstConflictingRoles(h)
 	c.guardAgainstConflictingRoutes(h)

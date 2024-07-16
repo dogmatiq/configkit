@@ -22,7 +22,13 @@ type handlerConfigurer struct {
 	handler *handler
 }
 
+func (c *handlerConfigurer) Disable(...dogma.DisableOption) {
+	c.handler.isDisabled = true
+}
+
 func (c *handlerConfigurer) route(r dogma.Route) {
+	c.configured = true
+
 	switch r := r.(type) {
 	case dogma.HandlesCommandRoute:
 		c.consumes(r.Type, message.CommandRole, "HandlesCommand")
@@ -155,8 +161,4 @@ func (c *handlerConfigurer) mustProduce(r message.Role) {
 		r,
 		route,
 	)
-}
-
-func (c *handlerConfigurer) Disable(...dogma.DisableOption) {
-	c.handler.isDisabled = true
 }
