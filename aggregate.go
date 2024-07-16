@@ -32,9 +32,7 @@ func FromAggregate(h dogma.AggregateMessageHandler) RichAggregate {
 	return cfg
 }
 
-func fromAggregate(
-	h dogma.AggregateMessageHandler,
-) (*aggregate, *aggregateConfigurer) {
+func fromAggregate(h dogma.AggregateMessageHandler) (*aggregate, *aggregateConfigurer) {
 	cfg := &aggregate{
 		handler: handler{
 			entity: entity{
