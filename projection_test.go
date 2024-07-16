@@ -231,5 +231,16 @@ var _ = Describe("func FromProjection()", func() {
 				)
 			},
 		),
+		Entry(
+			"when the handler configures a nil delivery policy",
+			`delivery policy must not be nil`,
+			func(c dogma.ProjectionConfigurer) {
+				c.Identity("<name>", projectionKey)
+				c.Routes(
+					dogma.HandlesEvent[fixtures.MessageA](),
+				)
+				c.DeliveryPolicy(nil)
+			},
+		),
 	)
 })
