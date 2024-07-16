@@ -36,6 +36,12 @@ type RichApplication interface {
 // It panics if the application is configured incorrectly. Use Recover() to
 // convert configuration related panic values to errors.
 func FromApplication(a dogma.Application) RichApplication {
+	cfg, c := fromApplication(a)
+	c.mustValidate()
+	return cfg
+}
+
+func fromApplication(a dogma.Application) (*application, *applicationConfigurer) {
 	cfg := &application{
 		entity: entity{
 			rt: reflect.TypeOf(a),
@@ -52,9 +58,7 @@ func FromApplication(a dogma.Application) RichApplication {
 
 	a.Configure(c)
 
-	c.validate()
-
-	return cfg
+	return cfg, c
 }
 
 // IsApplicationEqual compares two applications for equality.

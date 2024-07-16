@@ -82,7 +82,9 @@ func unmarshalApplication(in *configspec.Application) (configkit.Application, er
 
 // marshalHandler marshals a handler config to its protobuf representation.
 func marshalHandler(in configkit.Handler) (*configspec.Handler, error) {
-	out := &configspec.Handler{}
+	out := &configspec.Handler{
+		IsDisabled: in.IsDisabled(),
+	}
 
 	var err error
 	out.Identity, err = marshalIdentity(in.Identity())
@@ -122,6 +124,7 @@ func unmarshalHandler(in *configspec.Handler) (configkit.Handler, error) {
 			Produced: message.NameRoles{},
 			Consumed: message.NameRoles{},
 		},
+		IsDisabledValue: in.GetIsDisabled(),
 	}
 
 	var err error

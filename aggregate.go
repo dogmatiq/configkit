@@ -4,7 +4,6 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
 
@@ -28,9 +27,17 @@ type RichAggregate interface {
 // It panics if the handler is configured incorrectly. Use Recover() to convert
 // configuration related panic values to errors.
 func FromAggregate(h dogma.AggregateMessageHandler) RichAggregate {
+	cfg, c := fromAggregate(h)
+	c.mustValidate()
+	return cfg
+}
+
+func fromAggregate(h dogma.AggregateMessageHandler) (*aggregate, *aggregateConfigurer) {
 	cfg := &aggregate{
-		entity: entity{
-			rt: reflect.TypeOf(h),
+		handler: handler{
+			entity: entity{
+				rt: reflect.TypeOf(h),
+			},
 		},
 		impl: h,
 	}
@@ -40,21 +47,18 @@ func FromAggregate(h dogma.AggregateMessageHandler) RichAggregate {
 			entityConfigurer: entityConfigurer{
 				entity: &cfg.entity,
 			},
+			handler: &cfg.handler,
 		},
 	}
 
 	h.Configure(c)
 
-	c.validate()
-	c.mustConsume(message.CommandRole)
-	c.mustProduce(message.EventRole)
-
-	return cfg
+	return cfg, c
 }
 
 // aggregate is an implementation of RichAggregate.
 type aggregate struct {
-	entity
+	handler
 
 	impl dogma.AggregateMessageHandler
 }

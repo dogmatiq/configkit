@@ -4,7 +4,6 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
 
@@ -28,9 +27,17 @@ type RichIntegration interface {
 // It panics if the handler is configured incorrectly. Use Recover() to convert
 // configuration related panic values to errors.
 func FromIntegration(h dogma.IntegrationMessageHandler) RichIntegration {
+	cfg, c := fromIntegration(h)
+	c.mustValidate()
+	return cfg
+}
+
+func fromIntegration(h dogma.IntegrationMessageHandler) (*integration, *integrationConfigurer) {
 	cfg := &integration{
-		entity: entity{
-			rt: reflect.TypeOf(h),
+		handler: handler{
+			entity: entity{
+				rt: reflect.TypeOf(h),
+			},
 		},
 		impl: h,
 	}
@@ -40,20 +47,18 @@ func FromIntegration(h dogma.IntegrationMessageHandler) RichIntegration {
 			entityConfigurer: entityConfigurer{
 				entity: &cfg.entity,
 			},
+			handler: &cfg.handler,
 		},
 	}
 
 	h.Configure(c)
 
-	c.validate()
-	c.mustConsume(message.CommandRole)
-
-	return cfg
+	return cfg, c
 }
 
 // integration is an implementation of RichIntegration.
 type integration struct {
-	entity
+	handler
 
 	impl dogma.IntegrationMessageHandler
 }

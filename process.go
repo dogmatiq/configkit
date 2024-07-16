@@ -4,7 +4,6 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
 
@@ -28,9 +27,17 @@ type RichProcess interface {
 // It panics if the handler is configured incorrectly. Use Recover() to convert
 // configuration related panic values to errors.
 func FromProcess(h dogma.ProcessMessageHandler) RichProcess {
+	cfg, c := fromProcess(h)
+	c.mustValidate()
+	return cfg
+}
+
+func fromProcess(h dogma.ProcessMessageHandler) (*process, *processConfigurer) {
 	cfg := &process{
-		entity: entity{
-			rt: reflect.TypeOf(h),
+		handler: handler{
+			entity: entity{
+				rt: reflect.TypeOf(h),
+			},
 		},
 		impl: h,
 	}
@@ -40,21 +47,18 @@ func FromProcess(h dogma.ProcessMessageHandler) RichProcess {
 			entityConfigurer: entityConfigurer{
 				entity: &cfg.entity,
 			},
+			handler: &cfg.handler,
 		},
 	}
 
 	h.Configure(c)
 
-	c.validate()
-	c.mustConsume(message.EventRole)
-	c.mustProduce(message.CommandRole)
-
-	return cfg
+	return cfg, c
 }
 
 // process is an implementation of RichProcess.
 type process struct {
-	entity
+	handler
 
 	impl dogma.ProcessMessageHandler
 }

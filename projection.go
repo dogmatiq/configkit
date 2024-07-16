@@ -4,7 +4,6 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
 
@@ -31,9 +30,17 @@ type RichProjection interface {
 // It panics if the handler is configured incorrectly. Use Recover() to convert
 // configuration related panic values to errors.
 func FromProjection(h dogma.ProjectionMessageHandler) RichProjection {
+	cfg, c := fromProjection(h)
+	c.mustValidate()
+	return cfg
+}
+
+func fromProjection(h dogma.ProjectionMessageHandler) (*projection, *projectionConfigurer) {
 	cfg := &projection{
-		entity: entity{
-			rt: reflect.TypeOf(h),
+		handler: handler{
+			entity: entity{
+				rt: reflect.TypeOf(h),
+			},
 		},
 		impl:           h,
 		deliveryPolicy: dogma.UnicastProjectionDeliveryPolicy{},
@@ -44,24 +51,19 @@ func FromProjection(h dogma.ProjectionMessageHandler) RichProjection {
 			entityConfigurer: entityConfigurer{
 				entity: &cfg.entity,
 			},
+			handler: &cfg.handler,
 		},
+		projection: cfg,
 	}
 
 	h.Configure(c)
 
-	c.validate()
-	c.mustConsume(message.EventRole)
-
-	if c.deliveryPolicy != nil {
-		cfg.deliveryPolicy = c.deliveryPolicy
-	}
-
-	return cfg
+	return cfg, c
 }
 
 // projection is an implementation of RichProjection.
 type projection struct {
-	entity
+	handler
 
 	impl           dogma.ProjectionMessageHandler
 	deliveryPolicy dogma.ProjectionDeliveryPolicy

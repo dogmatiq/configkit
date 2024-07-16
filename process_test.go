@@ -35,7 +35,7 @@ var _ = Describe("func FromProcess()", func() {
 	When("the configuration is valid", func() {
 		var cfg RichProcess
 
-		BeforeEach(func() {
+		JustBeforeEach(func() {
 			cfg = FromProcess(handler)
 		})
 
@@ -132,6 +132,22 @@ var _ = Describe("func FromProcess()", func() {
 		Describe("func Handler()", func() {
 			It("returns the underlying handler", func() {
 				Expect(cfg.Handler()).To(BeIdenticalTo(handler))
+			})
+		})
+
+		When("the handler is disabled", func() {
+			BeforeEach(func() {
+				configure := handler.ConfigureFunc
+				handler.ConfigureFunc = func(c dogma.ProcessConfigurer) {
+					configure(c)
+					c.Disable()
+				}
+			})
+
+			Describe("func IsDisabled()", func() {
+				It("returns true", func() {
+					Expect(cfg.IsDisabled()).To(BeTrue())
+				})
 			})
 		})
 	})

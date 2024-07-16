@@ -60,13 +60,24 @@ func (s *stringer) VisitApplication(ctx context.Context, cfg Application) error 
 func (s *stringer) visitHandler(cfg Handler) error {
 	id := cfg.Identity()
 
+	var flags []string
+	if cfg.IsDisabled() {
+		flags = append(flags, "disabled")
+	}
+
+	flagString := ""
+	if len(flags) > 0 {
+		flagString = " [" + strings.Join(flags, ", ") + "]"
+	}
+
 	must.Fprintf(
 		s.w,
-		"%s %s (%s) %s\n",
+		"%s %s (%s) %s%s\n",
 		cfg.HandlerType(),
 		id.Name,
 		id.Key,
 		cfg.TypeName(),
+		flagString,
 	)
 
 	for _, p := range sortNameRoles(cfg.MessageNames().Consumed) {

@@ -56,6 +56,7 @@ var _ = Describe("func ToString()", func() {
 							dogma.HandlesEvent[fixtures.MessageE](),
 							dogma.HandlesEvent[fixtures.MessageJ](),
 						)
+						c.Disable()
 					},
 				})
 			},
@@ -80,7 +81,7 @@ var _ = Describe("func ToString()", func() {
 		expected += "        executes github.com/dogmatiq/dogma/fixtures.MessageC?\n"
 		expected += "        schedules github.com/dogmatiq/dogma/fixtures.MessageT@\n"
 		expected += "\n"
-		expected += "    - projection <projection> (70fdf7fa-4b24-448d-bd29-7ecc71d18c56) *github.com/dogmatiq/dogma/fixtures.ProjectionMessageHandler\n"
+		expected += "    - projection <projection> (70fdf7fa-4b24-448d-bd29-7ecc71d18c56) *github.com/dogmatiq/dogma/fixtures.ProjectionMessageHandler [disabled]\n"
 		expected += "        handles github.com/dogmatiq/dogma/fixtures.MessageE!\n"
 		expected += "        handles github.com/dogmatiq/dogma/fixtures.MessageJ!\n"
 

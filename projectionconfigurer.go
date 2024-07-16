@@ -2,12 +2,13 @@ package configkit
 
 import (
 	"github.com/dogmatiq/configkit/internal/validation"
+	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
 
 type projectionConfigurer struct {
 	handlerConfigurer
-	deliveryPolicy dogma.ProjectionDeliveryPolicy
+	projection *projection
 }
 
 func (c *projectionConfigurer) Routes(routes ...dogma.ProjectionRoute) {
@@ -17,9 +18,16 @@ func (c *projectionConfigurer) Routes(routes ...dogma.ProjectionRoute) {
 }
 
 func (c *projectionConfigurer) DeliveryPolicy(p dogma.ProjectionDeliveryPolicy) {
+	c.configured = true
+
 	if p == nil {
 		validation.Panicf("delivery policy must not be nil")
 	}
 
-	c.deliveryPolicy = p
+	c.projection.deliveryPolicy = p
+}
+
+func (c *projectionConfigurer) mustValidate() {
+	c.handlerConfigurer.mustValidate()
+	c.mustConsume(message.EventRole)
 }

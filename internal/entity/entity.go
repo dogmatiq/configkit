@@ -45,6 +45,7 @@ type Handler struct {
 	TypeNameValue     string
 	MessageNamesValue configkit.EntityMessageNames
 	HandlerTypeValue  configkit.HandlerType
+	IsDisabledValue   bool
 }
 
 // Identity returns the identity of the entity.
@@ -65,6 +66,11 @@ func (h *Handler) MessageNames() configkit.EntityMessageNames {
 // HandlerType returns the type of handler.
 func (h *Handler) HandlerType() configkit.HandlerType {
 	return h.HandlerTypeValue
+}
+
+// IsDisabled returns true if the handler is disabled.
+func (h *Handler) IsDisabled() bool {
+	return h.IsDisabledValue
 }
 
 // AcceptVisitor calls the appropriate method on v for this entity type.

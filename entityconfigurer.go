@@ -12,11 +12,14 @@ import "github.com/dogmatiq/configkit/internal/validation"
 //   - [dogma.ProjectionConfigurer]
 type entityConfigurer struct {
 	// entity is the target entity to populate with the configuration values.
-	entity *entity
+	entity     *entity
+	configured bool
 }
 
 // Identity sets the entity's identity.
 func (c *entityConfigurer) Identity(n string, k string) {
+	c.configured = true
+
 	if !c.entity.ident.IsZero() {
 		validation.Panicf(
 			"%s is configured with multiple identities (%s and %s/%s), Identity() must be called exactly once within Configure()",
@@ -39,8 +42,12 @@ func (c *entityConfigurer) Identity(n string, k string) {
 	}
 }
 
-// validate panics if the configuration is invalid.
-func (c *entityConfigurer) validate() {
+func (c *entityConfigurer) isConfigured() bool {
+	return c.configured
+}
+
+// mustValidate panics if the configuration is invalid.
+func (c *entityConfigurer) mustValidate() {
 	if c.entity.ident.IsZero() {
 		validation.Panicf(
 			"%s is configured without an identity, Identity() must be called exactly once within Configure()",

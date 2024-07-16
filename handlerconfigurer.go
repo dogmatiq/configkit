@@ -19,9 +19,16 @@ import (
 //   - [dogma.ProjectionConfigurer]
 type handlerConfigurer struct {
 	entityConfigurer
+	handler *handler
+}
+
+func (c *handlerConfigurer) Disable(...dogma.DisableOption) {
+	c.handler.isDisabled = true
 }
 
 func (c *handlerConfigurer) route(r dogma.Route) {
+	c.configured = true
+
 	switch r := r.(type) {
 	case dogma.HandlesCommandRoute:
 		c.consumes(r.Type, message.CommandRole, "HandlesCommand")

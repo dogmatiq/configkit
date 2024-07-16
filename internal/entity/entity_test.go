@@ -99,24 +99,24 @@ var _ = Describe("type Application", func() {
 })
 
 var _ = Describe("type Handler", func() {
-	var hnd *Handler
+	var handler *Handler
 
 	BeforeEach(func() {
-		hnd = &Handler{}
+		handler = &Handler{}
 	})
 
 	Describe("func Identity()", func() {
 		It("returns the value of .IdentityValue field", func() {
 			i := configkit.MustNewIdentity("<name>", "7502b306-8e9e-4f23-99ba-00c5bf138de5")
-			hnd.IdentityValue = i
-			Expect(hnd.Identity()).To(Equal(i))
+			handler.IdentityValue = i
+			Expect(handler.Identity()).To(Equal(i))
 		})
 	})
 
 	Describe("func TypeName()", func() {
 		It("returns the value of .TypeNameValue field", func() {
-			hnd.TypeNameValue = reflect.TypeOf(hnd).String()
-			Expect(hnd.TypeName()).To(Equal("*entity.Handler"))
+			handler.TypeNameValue = reflect.TypeOf(handler).String()
+			Expect(handler.TypeName()).To(Equal("*entity.Handler"))
 		})
 	})
 
@@ -131,15 +131,22 @@ var _ = Describe("type Handler", func() {
 				},
 			}
 
-			hnd.MessageNamesValue = m
-			Expect(hnd.MessageNames()).To(Equal(m))
+			handler.MessageNamesValue = m
+			Expect(handler.MessageNames()).To(Equal(m))
 		})
 	})
 
 	Describe("func HandlerType()", func() {
 		It("returns the value of .HandlerTypeValue field", func() {
-			hnd.HandlerTypeValue = configkit.AggregateHandlerType
-			Expect(hnd.HandlerType()).To(Equal(configkit.AggregateHandlerType))
+			handler.HandlerTypeValue = configkit.AggregateHandlerType
+			Expect(handler.HandlerType()).To(Equal(configkit.AggregateHandlerType))
+		})
+	})
+
+	Describe("func IsDisabled()", func() {
+		It("returns the value of .IsDisabledValue field", func() {
+			handler.IsDisabledValue = true
+			Expect(handler.IsDisabled()).To(BeTrue())
 		})
 	})
 
@@ -152,64 +159,64 @@ var _ = Describe("type Handler", func() {
 
 		When("the handler is an aggregate", func() {
 			BeforeEach(func() {
-				hnd.HandlerTypeValue = configkit.AggregateHandlerType
+				handler.HandlerTypeValue = configkit.AggregateHandlerType
 			})
 
 			It("calls the correct visitor method", func() {
 				visitor.VisitAggregateFunc = func(_ context.Context, h configkit.Aggregate) error {
-					Expect(h).To(Equal(hnd))
+					Expect(h).To(Equal(handler))
 					return errors.New("<error>")
 				}
 
-				err := hnd.AcceptVisitor(context.Background(), visitor)
+				err := handler.AcceptVisitor(context.Background(), visitor)
 				Expect(err).To(Equal(err))
 			})
 		})
 
 		When("the handler is a process", func() {
 			BeforeEach(func() {
-				hnd.HandlerTypeValue = configkit.ProcessHandlerType
+				handler.HandlerTypeValue = configkit.ProcessHandlerType
 			})
 
 			It("calls the correct visitor method", func() {
 				visitor.VisitProcessFunc = func(_ context.Context, h configkit.Process) error {
-					Expect(h).To(Equal(hnd))
+					Expect(h).To(Equal(handler))
 					return errors.New("<error>")
 				}
 
-				err := hnd.AcceptVisitor(context.Background(), visitor)
+				err := handler.AcceptVisitor(context.Background(), visitor)
 				Expect(err).To(Equal(err))
 			})
 		})
 
 		When("the handler is an integration", func() {
 			BeforeEach(func() {
-				hnd.HandlerTypeValue = configkit.IntegrationHandlerType
+				handler.HandlerTypeValue = configkit.IntegrationHandlerType
 			})
 
 			It("calls the correct visitor method", func() {
 				visitor.VisitIntegrationFunc = func(_ context.Context, h configkit.Integration) error {
-					Expect(h).To(Equal(hnd))
+					Expect(h).To(Equal(handler))
 					return errors.New("<error>")
 				}
 
-				err := hnd.AcceptVisitor(context.Background(), visitor)
+				err := handler.AcceptVisitor(context.Background(), visitor)
 				Expect(err).To(Equal(err))
 			})
 		})
 
 		When("the handler is a projection", func() {
 			BeforeEach(func() {
-				hnd.HandlerTypeValue = configkit.ProjectionHandlerType
+				handler.HandlerTypeValue = configkit.ProjectionHandlerType
 			})
 
 			It("calls the correct visitor method", func() {
 				visitor.VisitProjectionFunc = func(_ context.Context, h configkit.Projection) error {
-					Expect(h).To(Equal(hnd))
+					Expect(h).To(Equal(handler))
 					return errors.New("<error>")
 				}
 
-				err := hnd.AcceptVisitor(context.Background(), visitor)
+				err := handler.AcceptVisitor(context.Background(), visitor)
 				Expect(err).To(Equal(err))
 			})
 		})

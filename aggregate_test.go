@@ -34,7 +34,7 @@ var _ = Describe("func FromAggregate()", func() {
 	When("the configuration is valid", func() {
 		var cfg RichAggregate
 
-		BeforeEach(func() {
+		JustBeforeEach(func() {
 			cfg = FromAggregate(handler)
 		})
 
@@ -124,9 +124,31 @@ var _ = Describe("func FromAggregate()", func() {
 			})
 		})
 
+		Describe("func IsDisabled()", func() {
+			It("returns false", func() {
+				Expect(cfg.IsDisabled()).To(BeFalse())
+			})
+		})
+
 		Describe("func Handler()", func() {
 			It("returns the underlying handler", func() {
 				Expect(cfg.Handler()).To(BeIdenticalTo(handler))
+			})
+		})
+
+		When("the handler is disabled", func() {
+			BeforeEach(func() {
+				configure := handler.ConfigureFunc
+				handler.ConfigureFunc = func(c dogma.AggregateConfigurer) {
+					configure(c)
+					c.Disable()
+				}
+			})
+
+			Describe("func IsDisabled()", func() {
+				It("returns true", func() {
+					Expect(cfg.IsDisabled()).To(BeTrue())
+				})
 			})
 		})
 	})
