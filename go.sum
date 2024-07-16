@@ -3,6 +3,8 @@ github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dogmatiq/dogma v0.13.1-0.20240708211023-af9214272677 h1:2DDD3+89VQre3EOvkJL1syN5EUXNU06uAkXE5/fsaBU=
 github.com/dogmatiq/dogma v0.13.1-0.20240708211023-af9214272677/go.mod h1:9lyVA+6V2+E/exV0IrBOrkUiyFwIATEhv+b0vnB2umQ=
+github.com/dogmatiq/dogma v0.13.1 h1:b1nsqYNmICEG2egvZ43K8w04Jma+MWYL6yF5Ad12y9o=
+github.com/dogmatiq/dogma v0.13.1/go.mod h1:9lyVA+6V2+E/exV0IrBOrkUiyFwIATEhv+b0vnB2umQ=
 github.com/dogmatiq/iago v0.4.0 h1:57nZqVT34IZxtCZEW/RFif7DNUEjMXgevfr/Mmd0N8I=
 github.com/dogmatiq/iago v0.4.0/go.mod h1:fishMWBtzYcjgis6d873VTv9kFm/wHYLOzOyO9ECBDc=
 github.com/dogmatiq/interopspec v0.5.4-0.20240709214918-063ff420b159 h1:kcIQqg9QMoFALL74TaAMFEo+rAGw/wTxGZJWr73MTag=
