@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/dogmatiq/dogma v0.13.1
 	github.com/dogmatiq/iago v0.4.0
-	github.com/dogmatiq/interopspec v0.5.4-0.20240709214918-063ff420b159
+	github.com/dogmatiq/interopspec v0.5.4
 	github.com/emicklei/dot v1.6.2
 	github.com/google/uuid v1.6.0
 	github.com/onsi/ginkgo v1.16.5
