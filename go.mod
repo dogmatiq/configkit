@@ -9,7 +9,7 @@ require (
 	github.com/emicklei/dot v1.6.2
 	github.com/google/uuid v1.6.0
 	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/gomega v1.34.0
+	github.com/onsi/gomega v1.34.1
 	golang.org/x/tools v0.23.0
 	google.golang.org/grpc v1.65.0
 )
@@ -19,6 +19,7 @@ require (
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
+	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
 	golang.org/x/mod v0.19.0 // indirect
 	golang.org/x/net v0.27.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
