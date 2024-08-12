@@ -96,6 +96,10 @@ func findConfigurerCalls(
 		indices = []int{1}
 	}
 
+	if fn == nil {
+		return nil
+	}
+
 	configurers := map[ssa.Value]struct{}{}
 	for _, i := range indices {
 		v := fn.Params[i]
