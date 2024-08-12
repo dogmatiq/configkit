@@ -286,6 +286,7 @@ interfaces. It does not yet include support for static analysis of the new
 [0.12.2]: https://github.com/dogmatiq/configkit/releases/v0.12.2
 [0.13.0]: https://github.com/dogmatiq/configkit/releases/v0.13.0
 [0.13.1]: https://github.com/dogmatiq/configkit/releases/v0.13.1
+[0.13.2]: https://github.com/dogmatiq/configkit/releases/v0.13.2
 
 <!-- version template
 ## [0.0.1] - YYYY-MM-DD
