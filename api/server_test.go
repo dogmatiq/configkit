@@ -1,6 +1,7 @@
-package api
+package api_test
 
 import (
+	. "github.com/dogmatiq/configkit/api"
 	"github.com/dogmatiq/configkit/internal/entity"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

@@ -20,7 +20,7 @@ func NewServer(apps ...configkit.Application) *Server {
 	s := &Server{}
 
 	for _, in := range apps {
-		out, err := marshalApplication(in)
+		out, err := configkit.ToProto(in)
 		if err != nil {
 			panic(err)
 		}
