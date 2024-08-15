@@ -13,7 +13,7 @@ type SecondAggregate struct{}
 
 // ApplyEvent updates the aggregate instance to reflect the occurrence of an
 // event that was recorded against this instance.
-func (SecondAggregate) ApplyEvent(m dogma.Message) {}
+func (SecondAggregate) ApplyEvent(dogma.Event) {}
 
 // SecondAggregateHandler is a test implementation of
 // dogma.AggregateMessageHandler.
@@ -37,15 +37,15 @@ func (SecondAggregateHandler) Configure(c dogma.AggregateConfigurer) {
 
 // RouteCommandToInstance returns the ID of the aggregate instance that is
 // targetted by m.
-func (SecondAggregateHandler) RouteCommandToInstance(m dogma.Message) string {
+func (SecondAggregateHandler) RouteCommandToInstance(dogma.Command) string {
 	return "<second-aggregate>"
 }
 
 // HandleCommand handles a command message that has been routed to this handler.
 func (SecondAggregateHandler) HandleCommand(
-	r dogma.AggregateRoot,
-	s dogma.AggregateCommandScope,
-	m dogma.Message,
+	dogma.AggregateRoot,
+	dogma.AggregateCommandScope,
+	dogma.Command,
 ) {
 }
 
@@ -76,18 +76,18 @@ func (SecondProcessHandler) Configure(c dogma.ProcessConfigurer) {
 // RouteEventToInstance returns the ID of the process instance that is
 // targeted by m.
 func (SecondProcessHandler) RouteEventToInstance(
-	ctx context.Context,
-	m dogma.Message,
+	context.Context,
+	dogma.Event,
 ) (string, bool, error) {
 	return "<second-process>", true, nil
 }
 
 // HandleEvent handles an event message.
 func (SecondProcessHandler) HandleEvent(
-	ctx context.Context,
-	r dogma.ProcessRoot,
-	s dogma.ProcessEventScope,
-	m dogma.Message,
+	context.Context,
+	dogma.ProcessRoot,
+	dogma.ProcessEventScope,
+	dogma.Event,
 ) error {
 	return nil
 }
@@ -95,17 +95,17 @@ func (SecondProcessHandler) HandleEvent(
 // HandleTimeout handles a timeout message that has been scheduled with
 // ProcessScope.ScheduleTimeout().
 func (SecondProcessHandler) HandleTimeout(
-	ctx context.Context,
-	r dogma.ProcessRoot,
-	s dogma.ProcessTimeoutScope,
-	m dogma.Message,
+	context.Context,
+	dogma.ProcessRoot,
+	dogma.ProcessTimeoutScope,
+	dogma.Timeout,
 ) error {
 	return nil
 }
 
 // TimeoutHint returns a duration that is suitable for computing a deadline
 // for the handling of the given message by this handler.
-func (SecondProcessHandler) TimeoutHint(m dogma.Message) time.Duration {
+func (SecondProcessHandler) TimeoutHint(dogma.Message) time.Duration {
 	return 0
 }
 
@@ -125,36 +125,33 @@ func (SecondProjectionHandler) Configure(c dogma.ProjectionConfigurer) {
 
 // HandleEvent updates the projection to reflect the occurrence of an event.
 func (SecondProjectionHandler) HandleEvent(
-	ctx context.Context,
-	r, c, n []byte,
-	s dogma.ProjectionEventScope,
-	m dogma.Message,
+	_ context.Context,
+	_, _, _ []byte,
+	_ dogma.ProjectionEventScope,
+	_ dogma.Event,
 ) (ok bool, err error) {
 	return false, nil
 }
 
 // ResourceVersion returns the version of the resource r.
-func (SecondProjectionHandler) ResourceVersion(
-	ctx context.Context,
-	r []byte,
-) ([]byte, error) {
+func (SecondProjectionHandler) ResourceVersion(context.Context, []byte) ([]byte, error) {
 	return nil, nil
 }
 
 // CloseResource informs the projection that the resource r will not be
 // used in any future calls to HandleEvent().
-func (SecondProjectionHandler) CloseResource(ctx context.Context, r []byte) error {
+func (SecondProjectionHandler) CloseResource(context.Context, []byte) error {
 	return nil
 }
 
 // TimeoutHint returns a duration that is suitable for computing a deadline
 // for the handling of the given message by this handler.
-func (SecondProjectionHandler) TimeoutHint(m dogma.Message) time.Duration {
+func (SecondProjectionHandler) TimeoutHint(dogma.Message) time.Duration {
 	return 0
 }
 
 // Compact reduces the size of the projection's data.
-func (SecondProjectionHandler) Compact(ctx context.Context, s dogma.ProjectionCompactScope) error {
+func (SecondProjectionHandler) Compact(context.Context, dogma.ProjectionCompactScope) error {
 	return nil
 }
 
@@ -175,21 +172,21 @@ func (SecondIntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
 
 // RouteCommandToInstance returns the ID of the integration instance that is
 // targetted by m.
-func (SecondIntegrationHandler) RouteCommandToInstance(m dogma.Message) string {
+func (SecondIntegrationHandler) RouteCommandToInstance(dogma.Command) string {
 	return "<second-integration>"
 }
 
 // HandleCommand handles a command message that has been routed to this handler.
 func (SecondIntegrationHandler) HandleCommand(
-	ctx context.Context,
-	s dogma.IntegrationCommandScope,
-	m dogma.Message,
+	context.Context,
+	dogma.IntegrationCommandScope,
+	dogma.Command,
 ) error {
 	return nil
 }
 
 // TimeoutHint returns a duration that is suitable for computing a deadline
 // for the handling of the given message by this handler.
-func (SecondIntegrationHandler) TimeoutHint(m dogma.Message) time.Duration {
+func (SecondIntegrationHandler) TimeoutHint(dogma.Message) time.Duration {
 	return 0
 }

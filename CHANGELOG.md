@@ -19,6 +19,8 @@ The format is based on [Keep a Changelog], and this project adheres to
 ### Changed
 
 - Bumped minimum Go version to 1.22.
+- Use `dogma.Command`, `Event` and `Timeout` interfaces instead of
+  `dogma.Message` where appropriate.
 
 ## [0.13.3] - 2024-08-15
 

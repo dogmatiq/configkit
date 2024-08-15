@@ -13,7 +13,7 @@ type Integration struct{}
 
 // ApplyEvent updates the integration instance to reflect the occurrence of an
 // event that was recorded against this instance.
-func (Integration) ApplyEvent(m dogma.Message) {}
+func (Integration) ApplyEvent(dogma.Event) {}
 
 // IntegrationHandler is a test implementation of
 // dogma.IntegrationMessageHandler.
@@ -32,21 +32,21 @@ func (IntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
 
 // RouteCommandToInstance returns the ID of the integration instance that is
 // targetted by m.
-func (IntegrationHandler) RouteCommandToInstance(m dogma.Message) string {
+func (IntegrationHandler) RouteCommandToInstance(dogma.Command) string {
 	return "<integration>"
 }
 
 // HandleCommand handles a command message that has been routed to this handler.
 func (IntegrationHandler) HandleCommand(
-	ctx context.Context,
-	s dogma.IntegrationCommandScope,
-	m dogma.Message,
+	context.Context,
+	dogma.IntegrationCommandScope,
+	dogma.Command,
 ) error {
 	return nil
 }
 
 // TimeoutHint returns a duration that is suitable for computing a deadline
 // for the handling of the given message by this handler.
-func (IntegrationHandler) TimeoutHint(m dogma.Message) time.Duration {
+func (IntegrationHandler) TimeoutHint(dogma.Message) time.Duration {
 	return 0
 }

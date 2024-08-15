@@ -10,7 +10,7 @@ type Aggregate struct{}
 
 // ApplyEvent updates the aggregate instance to reflect the occurrence of an
 // event that was recorded against this instance.
-func (Aggregate) ApplyEvent(m dogma.Message) {}
+func (Aggregate) ApplyEvent(dogma.Event) {}
 
 // AggregateHandler is a test implementation of dogma.AggregateMessageHandler.
 type AggregateHandler struct{}
@@ -33,14 +33,14 @@ func (*AggregateHandler) Configure(c dogma.AggregateConfigurer) {
 
 // RouteCommandToInstance returns the ID of the aggregate instance that is
 // targetted by m.
-func (*AggregateHandler) RouteCommandToInstance(m dogma.Message) string {
+func (*AggregateHandler) RouteCommandToInstance(dogma.Command) string {
 	return "<aggregate>"
 }
 
 // HandleCommand handles a command message that has been routed to this handler.
 func (*AggregateHandler) HandleCommand(
-	r dogma.AggregateRoot,
-	s dogma.AggregateCommandScope,
-	m dogma.Message,
+	dogma.AggregateRoot,
+	dogma.AggregateCommandScope,
+	dogma.Command,
 ) {
 }

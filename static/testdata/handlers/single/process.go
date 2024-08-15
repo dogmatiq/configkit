@@ -38,18 +38,18 @@ func (ProcessHandler) Configure(c dogma.ProcessConfigurer) {
 // RouteEventToInstance returns the ID of the process instance that is
 // targeted by m.
 func (ProcessHandler) RouteEventToInstance(
-	ctx context.Context,
-	m dogma.Message,
+	context.Context,
+	dogma.Event,
 ) (string, bool, error) {
 	return "<process>", true, nil
 }
 
 // HandleEvent handles an event message.
 func (ProcessHandler) HandleEvent(
-	ctx context.Context,
-	r dogma.ProcessRoot,
-	s dogma.ProcessEventScope,
-	m dogma.Message,
+	context.Context,
+	dogma.ProcessRoot,
+	dogma.ProcessEventScope,
+	dogma.Event,
 ) error {
 	return nil
 }
@@ -57,16 +57,16 @@ func (ProcessHandler) HandleEvent(
 // HandleTimeout handles a timeout message that has been scheduled with
 // ProcessScope.ScheduleTimeout().
 func (ProcessHandler) HandleTimeout(
-	ctx context.Context,
-	r dogma.ProcessRoot,
-	s dogma.ProcessTimeoutScope,
-	m dogma.Message,
+	context.Context,
+	dogma.ProcessRoot,
+	dogma.ProcessTimeoutScope,
+	dogma.Timeout,
 ) error {
 	return nil
 }
 
 // TimeoutHint returns a duration that is suitable for computing a deadline
 // for the handling of the given message by this handler.
-func (ProcessHandler) TimeoutHint(m dogma.Message) time.Duration {
+func (ProcessHandler) TimeoutHint(dogma.Message) time.Duration {
 	return 0
 }
