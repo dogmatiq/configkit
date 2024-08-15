@@ -8,7 +8,7 @@ import (
 
 type projectionConfigurer struct {
 	handlerConfigurer
-	projection *projection
+	projection *richProjection
 }
 
 func (c *projectionConfigurer) Routes(routes ...dogma.ProjectionRoute) {

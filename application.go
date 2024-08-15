@@ -41,8 +41,8 @@ func FromApplication(a dogma.Application) RichApplication {
 	return cfg
 }
 
-func fromApplication(a dogma.Application) (*application, *applicationConfigurer) {
-	cfg := &application{
+func fromApplication(a dogma.Application) (*richApplication, *applicationConfigurer) {
+	cfg := &richApplication{
 		entity: entity{
 			rt: reflect.TypeOf(a),
 		},
@@ -79,8 +79,8 @@ func IsApplicationEqual(a, b Application) bool {
 		a.Handlers().IsEqual(b.Handlers())
 }
 
-// application is an implementation of RichApplication.
-type application struct {
+// richApplication is the default implementation of [RichApplication].
+type richApplication struct {
 	entity
 
 	handlers     HandlerSet
@@ -88,22 +88,22 @@ type application struct {
 	impl         dogma.Application
 }
 
-func (a *application) AcceptVisitor(ctx context.Context, v Visitor) error {
+func (a *richApplication) AcceptVisitor(ctx context.Context, v Visitor) error {
 	return v.VisitApplication(ctx, a)
 }
 
-func (a *application) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
+func (a *richApplication) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
 	return v.VisitRichApplication(ctx, a)
 }
 
-func (a *application) Handlers() HandlerSet {
+func (a *richApplication) Handlers() HandlerSet {
 	return a.handlers
 }
 
-func (a *application) RichHandlers() RichHandlerSet {
+func (a *richApplication) RichHandlers() RichHandlerSet {
 	return a.richHandlers
 }
 
-func (a *application) Application() dogma.Application {
+func (a *richApplication) Application() dogma.Application {
 	return a.impl
 }

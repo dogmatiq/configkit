@@ -46,6 +46,7 @@ func IsHandlerEqual(a, b Handler) bool {
 		a.MessageNames().IsEqual(b.MessageNames())
 }
 
+// handler is a partial implementation of [RichHandler].
 type handler struct {
 	entity
 	isDisabled bool

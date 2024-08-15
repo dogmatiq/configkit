@@ -19,7 +19,7 @@ import (
 //   - [dogma.ProjectionConfigurer]
 type handlerConfigurer struct {
 	entityConfigurer
-	handler *handler
+	handler *handlerEntity
 }
 
 func (c *handlerConfigurer) Disable(...dogma.DisableOption) {

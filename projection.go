@@ -35,9 +35,9 @@ func FromProjection(h dogma.ProjectionMessageHandler) RichProjection {
 	return cfg
 }
 
-func fromProjection(h dogma.ProjectionMessageHandler) (*projection, *projectionConfigurer) {
-	cfg := &projection{
-		handler: handler{
+func fromProjection(h dogma.ProjectionMessageHandler) (*richProjection, *projectionConfigurer) {
+	cfg := &richProjection{
+		handlerEntity: handlerEntity{
 			entity: entity{
 				rt: reflect.TypeOf(h),
 			},
@@ -51,7 +51,7 @@ func fromProjection(h dogma.ProjectionMessageHandler) (*projection, *projectionC
 			entityConfigurer: entityConfigurer{
 				entity: &cfg.entity,
 			},
-			handler: &cfg.handler,
+			handler: &cfg.handlerEntity,
 		},
 		projection: cfg,
 	}
@@ -61,30 +61,30 @@ func fromProjection(h dogma.ProjectionMessageHandler) (*projection, *projectionC
 	return cfg, c
 }
 
-// projection is an implementation of RichProjection.
-type projection struct {
-	handler
+// richProjection is the default implementation of [RichProjection].
+type richProjection struct {
+	handlerEntity
 
 	impl           dogma.ProjectionMessageHandler
 	deliveryPolicy dogma.ProjectionDeliveryPolicy
 }
 
-func (h *projection) AcceptVisitor(ctx context.Context, v Visitor) error {
+func (h *richProjection) AcceptVisitor(ctx context.Context, v Visitor) error {
 	return v.VisitProjection(ctx, h)
 }
 
-func (h *projection) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
+func (h *richProjection) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
 	return v.VisitRichProjection(ctx, h)
 }
 
-func (h *projection) HandlerType() HandlerType {
+func (h *richProjection) HandlerType() HandlerType {
 	return ProjectionHandlerType
 }
 
-func (h *projection) Handler() dogma.ProjectionMessageHandler {
+func (h *richProjection) Handler() dogma.ProjectionMessageHandler {
 	return h.impl
 }
 
-func (h *projection) DeliveryPolicy() dogma.ProjectionDeliveryPolicy {
+func (h *richProjection) DeliveryPolicy() dogma.ProjectionDeliveryPolicy {
 	return h.deliveryPolicy
 }

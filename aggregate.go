@@ -32,9 +32,9 @@ func FromAggregate(h dogma.AggregateMessageHandler) RichAggregate {
 	return cfg
 }
 
-func fromAggregate(h dogma.AggregateMessageHandler) (*aggregate, *aggregateConfigurer) {
-	cfg := &aggregate{
-		handler: handler{
+func fromAggregate(h dogma.AggregateMessageHandler) (*richAggregate, *aggregateConfigurer) {
+	cfg := &richAggregate{
+		handlerEntity: handlerEntity{
 			entity: entity{
 				rt: reflect.TypeOf(h),
 			},
@@ -47,7 +47,7 @@ func fromAggregate(h dogma.AggregateMessageHandler) (*aggregate, *aggregateConfi
 			entityConfigurer: entityConfigurer{
 				entity: &cfg.entity,
 			},
-			handler: &cfg.handler,
+			handler: &cfg.handlerEntity,
 		},
 	}
 
@@ -56,25 +56,25 @@ func fromAggregate(h dogma.AggregateMessageHandler) (*aggregate, *aggregateConfi
 	return cfg, c
 }
 
-// aggregate is an implementation of RichAggregate.
-type aggregate struct {
-	handler
+// richAggregate the default implementation of [RichAggregate].
+type richAggregate struct {
+	handlerEntity
 
 	impl dogma.AggregateMessageHandler
 }
 
-func (h *aggregate) AcceptVisitor(ctx context.Context, v Visitor) error {
+func (h *richAggregate) AcceptVisitor(ctx context.Context, v Visitor) error {
 	return v.VisitAggregate(ctx, h)
 }
 
-func (h *aggregate) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
+func (h *richAggregate) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
 	return v.VisitRichAggregate(ctx, h)
 }
 
-func (h *aggregate) HandlerType() HandlerType {
+func (h *richAggregate) HandlerType() HandlerType {
 	return AggregateHandlerType
 }
 
-func (h *aggregate) Handler() dogma.AggregateMessageHandler {
+func (h *richAggregate) Handler() dogma.AggregateMessageHandler {
 	return h.impl
 }

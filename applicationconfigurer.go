@@ -10,7 +10,7 @@ import (
 type applicationConfigurer struct {
 	entityConfigurer
 
-	app *application
+	app *richApplication
 }
 
 func (c *applicationConfigurer) Identity(name, key string) {
