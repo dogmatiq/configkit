@@ -99,3 +99,21 @@ func (h *richAggregate) mustValidate() {
 	mustHaveConsumerRoute(h.types, message.CommandRole, h.Identity(), h.ReflectType())
 	mustHaveProducerRoute(h.types, message.EventRole, h.Identity(), h.ReflectType())
 }
+
+// aggregateConfigurer is the default implementation of
+// [dogma.AggregateConfigurer].
+type aggregateConfigurer struct {
+	config *richAggregate
+}
+
+func (c *aggregateConfigurer) Identity(name, key string) {
+	configureIdentity(&c.config.ident, name, key, c.config.ReflectType())
+}
+
+func (c *aggregateConfigurer) Routes(routes ...dogma.AggregateRoute) {
+	configureRoutes(&c.config.types, routes, c.config.ident, c.config.ReflectType())
+}
+
+func (c *aggregateConfigurer) Disable(...dogma.DisableOption) {
+	c.config.isDisabled = true
+}

@@ -99,3 +99,20 @@ func (h *richProcess) mustValidate() {
 	mustHaveConsumerRoute(h.types, message.EventRole, h.Identity(), h.ReflectType())
 	mustHaveProducerRoute(h.types, message.CommandRole, h.Identity(), h.ReflectType())
 }
+
+// processConfigurer is the default implementation of [dogma.ProcessConfigurer].
+type processConfigurer struct {
+	config *richProcess
+}
+
+func (c *processConfigurer) Identity(name, key string) {
+	configureIdentity(&c.config.ident, name, key, c.config.ReflectType())
+}
+
+func (c *processConfigurer) Routes(routes ...dogma.ProcessRoute) {
+	configureRoutes(&c.config.types, routes, c.config.ident, c.config.ReflectType())
+}
+
+func (c *processConfigurer) Disable(...dogma.DisableOption) {
+	c.config.isDisabled = true
+}

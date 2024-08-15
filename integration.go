@@ -98,3 +98,21 @@ func (h *richIntegration) mustValidate() {
 	mustHaveValidIdentity(h.Identity(), h.ReflectType())
 	mustHaveConsumerRoute(h.types, message.CommandRole, h.Identity(), h.ReflectType())
 }
+
+// integrationConfigurer is the default implementation of
+// [dogma.IntegrationConfigurer].
+type integrationConfigurer struct {
+	config *richIntegration
+}
+
+func (c *integrationConfigurer) Identity(name, key string) {
+	configureIdentity(&c.config.ident, name, key, c.config.ReflectType())
+}
+
+func (c *integrationConfigurer) Routes(routes ...dogma.IntegrationRoute) {
+	configureRoutes(&c.config.types, routes, c.config.ident, c.config.ReflectType())
+}
+
+func (c *integrationConfigurer) Disable(...dogma.DisableOption) {
+	c.config.isDisabled = true
+}

@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/dogmatiq/configkit/internal/typename/goreflect"
+	"github.com/dogmatiq/configkit/internal/validation"
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
@@ -109,4 +110,29 @@ func (h *richProjection) isConfigured() bool {
 func (h *richProjection) mustValidate() {
 	mustHaveValidIdentity(h.Identity(), h.ReflectType())
 	mustHaveConsumerRoute(h.types, message.EventRole, h.Identity(), h.ReflectType())
+}
+
+// projectionConfigurer is the default implementation of
+// [dogma.ProjectionConfigurer].
+type projectionConfigurer struct {
+	config *richProjection
+}
+
+func (c *projectionConfigurer) Identity(name, key string) {
+	configureIdentity(&c.config.ident, name, key, c.config.ReflectType())
+}
+
+func (c *projectionConfigurer) Routes(routes ...dogma.ProjectionRoute) {
+	configureRoutes(&c.config.types, routes, c.config.ident, c.config.ReflectType())
+}
+
+func (c *projectionConfigurer) Disable(...dogma.DisableOption) {
+	c.config.isDisabled = true
+}
+
+func (c *projectionConfigurer) DeliveryPolicy(p dogma.ProjectionDeliveryPolicy) {
+	if p == nil {
+		validation.Panicf("delivery policy must not be nil")
+	}
+	c.config.deliveryPolicy = p
 }
