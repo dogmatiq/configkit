@@ -72,6 +72,11 @@ func TypeOf(m dogma.Message) Type {
 	return TypeFromReflect(reflect.TypeOf(m))
 }
 
+// TypeFor returns the message type for T.
+func TypeFor[T dogma.Message]() Type {
+	return TypeFromReflect(reflect.TypeFor[T]())
+}
+
 // TypeFromReflect returns the message type of the given reflect type.
 func TypeFromReflect(rt reflect.Type) Type {
 	// This is a compile-time assertion that the dogma.Message interface is

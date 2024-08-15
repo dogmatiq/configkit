@@ -1,6 +1,6 @@
 module github.com/dogmatiq/configkit
 
-go 1.21
+go 1.22
 
 require (
 	github.com/dogmatiq/dogma v0.13.1
