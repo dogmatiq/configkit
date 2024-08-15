@@ -4,6 +4,8 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/dogmatiq/configkit/internal/typename/goreflect"
+	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
 
@@ -27,40 +29,47 @@ type RichAggregate interface {
 // It panics if the handler is configured incorrectly. Use Recover() to convert
 // configuration related panic values to errors.
 func FromAggregate(h dogma.AggregateMessageHandler) RichAggregate {
-	cfg, c := fromAggregate(h)
-	c.mustValidate()
+	cfg := fromAggregateUnvalidated(h)
+	cfg.mustValidate()
 	return cfg
 }
 
-func fromAggregate(h dogma.AggregateMessageHandler) (*richAggregate, *aggregateConfigurer) {
-	cfg := &richAggregate{
-		handlerEntity: handlerEntity{
-			entity: entity{
-				rt: reflect.TypeOf(h),
-			},
-		},
-		impl: h,
-	}
-
-	c := &aggregateConfigurer{
-		handlerConfigurer: handlerConfigurer{
-			entityConfigurer: entityConfigurer{
-				entity: &cfg.entity,
-			},
-			handler: &cfg.handlerEntity,
-		},
-	}
-
-	h.Configure(c)
-
-	return cfg, c
+func fromAggregateUnvalidated(h dogma.AggregateMessageHandler) *richAggregate {
+	cfg := &richAggregate{handler: h}
+	h.Configure(&aggregateConfigurer{cfg})
+	return cfg
 }
 
 // richAggregate the default implementation of [RichAggregate].
 type richAggregate struct {
-	handlerEntity
+	ident      Identity
+	types      EntityMessageTypes
+	isDisabled bool
+	handler    dogma.AggregateMessageHandler
+}
 
-	impl dogma.AggregateMessageHandler
+func (h *richAggregate) Identity() Identity {
+	return h.ident
+}
+
+func (h *richAggregate) MessageNames() EntityMessageNames {
+	return h.types.asNames()
+}
+
+func (h *richAggregate) MessageTypes() EntityMessageTypes {
+	return h.types
+}
+
+func (h *richAggregate) TypeName() string {
+	return goreflect.NameOf(h.ReflectType())
+}
+
+func (h *richAggregate) ReflectType() reflect.Type {
+	return reflect.TypeOf(h.handler)
+}
+
+func (h *richAggregate) IsDisabled() bool {
+	return h.isDisabled
 }
 
 func (h *richAggregate) AcceptVisitor(ctx context.Context, v Visitor) error {
@@ -76,5 +85,35 @@ func (h *richAggregate) HandlerType() HandlerType {
 }
 
 func (h *richAggregate) Handler() dogma.AggregateMessageHandler {
-	return h.impl
+	return h.handler
+}
+
+func (h *richAggregate) isConfigured() bool {
+	return !h.ident.IsZero() ||
+		h.types.Consumed.Len() != 0 ||
+		h.types.Produced.Len() != 0
+}
+
+func (h *richAggregate) mustValidate() {
+	mustHaveValidIdentity(h.Identity(), h.ReflectType())
+	mustHaveConsumerRoute(h.types, message.CommandRole, h.Identity(), h.ReflectType())
+	mustHaveProducerRoute(h.types, message.EventRole, h.Identity(), h.ReflectType())
+}
+
+// aggregateConfigurer is the default implementation of
+// [dogma.AggregateConfigurer].
+type aggregateConfigurer struct {
+	config *richAggregate
+}
+
+func (c *aggregateConfigurer) Identity(name, key string) {
+	configureIdentity(&c.config.ident, name, key, c.config.ReflectType())
+}
+
+func (c *aggregateConfigurer) Routes(routes ...dogma.AggregateRoute) {
+	configureRoutes(&c.config.types, routes, c.config.ident, c.config.ReflectType())
+}
+
+func (c *aggregateConfigurer) Disable(...dogma.DisableOption) {
+	c.config.isDisabled = true
 }

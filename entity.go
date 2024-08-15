@@ -4,7 +4,6 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/dogmatiq/configkit/internal/typename/goreflect"
 	"github.com/dogmatiq/configkit/message"
 )
 
@@ -191,31 +190,22 @@ func (m EntityMessageTypes) Foreign() EntityMessageTypes {
 	return f
 }
 
-// entity is a partial implementation of [RichEntity].
-type entity struct {
-	rt reflect.Type
+func (m EntityMessageTypes) asNames() EntityMessageNames {
+	var names EntityMessageNames
 
-	ident Identity
-	names EntityMessageNames
-	types EntityMessageTypes
-}
+	if len(m.Produced) != 0 {
+		names.Produced = make(message.NameRoles, len(m.Produced))
+		for t, r := range m.Produced {
+			names.Produced.Add(t.Name(), r)
+		}
+	}
 
-func (e *entity) Identity() Identity {
-	return e.ident
-}
+	if len(m.Consumed) != 0 {
+		names.Consumed = make(message.NameRoles, len(m.Consumed))
+		for t, r := range m.Consumed {
+			names.Consumed.Add(t.Name(), r)
+		}
+	}
 
-func (e *entity) MessageNames() EntityMessageNames {
-	return e.names
-}
-
-func (e *entity) MessageTypes() EntityMessageTypes {
-	return e.types
-}
-
-func (e *entity) TypeName() string {
-	return goreflect.NameOf(e.ReflectType())
-}
-
-func (e *entity) ReflectType() reflect.Type {
-	return e.rt
+	return names
 }

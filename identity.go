@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"reflect"
 	"unicode"
 
 	"github.com/dogmatiq/configkit/internal/validation"
@@ -159,4 +160,43 @@ func isValidIdentityName(n string) bool {
 	}
 
 	return true
+}
+
+func configureIdentity(
+	entityIdent *Identity,
+	name, key string,
+	entityType reflect.Type,
+) {
+	if !entityIdent.IsZero() {
+		validation.Panicf(
+			"%s is configured with multiple identities (%s and %s/%s), Identity() must be called exactly once within Configure()",
+			entityType,
+			*entityIdent,
+			name,
+			key,
+		)
+	}
+
+	var err error
+	*entityIdent, err = NewIdentity(name, key)
+
+	if err != nil {
+		validation.Panicf(
+			"%s is configured with an invalid identity, %s",
+			entityType,
+			err,
+		)
+	}
+}
+
+func mustHaveValidIdentity(
+	entityIdent Identity,
+	entityType reflect.Type,
+) {
+	if entityIdent.IsZero() {
+		validation.Panicf(
+			"%s is configured without an identity, Identity() must be called exactly once within Configure()",
+			entityType,
+		)
+	}
 }
