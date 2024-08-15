@@ -151,12 +151,19 @@ func (c *applicationConfigurer) RegisterProjection(h dogma.ProjectionMessageHand
 	c.registerIfConfigured(fromProjectionUnvalidated(h))
 }
 
+type validatableHandler interface {
+	RichHandler
+
+	// isConfigured returns true if the handler has been configured in any way
+	// beyond being disabled, even if the configuration is invalid.
+	isConfigured() bool
+
+	// mustValidate panics if the handler is not configured correctly.
+	mustValidate()
+}
+
 func (c *applicationConfigurer) registerIfConfigured(
-	h interface {
-		RichHandler
-		isConfigured() bool
-		mustValidate()
-	},
+	h validatableHandler,
 ) {
 	if h.IsDisabled() && !h.isConfigured() {
 		return
