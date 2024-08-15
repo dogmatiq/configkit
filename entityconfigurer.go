@@ -1,7 +1,5 @@
 package configkit
 
-import "github.com/dogmatiq/configkit/internal/validation"
-
 // handlerConfigurer is a partial implementation of the configurer interfaces for
 // all of the Dogma entity types.
 //
@@ -17,29 +15,14 @@ type entityConfigurer struct {
 }
 
 // Identity sets the entity's identity.
-func (c *entityConfigurer) Identity(n string, k string) {
+func (c *entityConfigurer) Identity(n, k string) {
 	c.configured = true
-
-	if !c.entity.ident.IsZero() {
-		validation.Panicf(
-			"%s is configured with multiple identities (%s and %s/%s), Identity() must be called exactly once within Configure()",
-			c.entity.rt,
-			c.entity.ident,
-			n,
-			k,
-		)
-	}
-
-	var err error
-	c.entity.ident, err = NewIdentity(n, k)
-
-	if err != nil {
-		validation.Panicf(
-			"%s is configured with an invalid identity, %s",
-			c.entity.rt,
-			err,
-		)
-	}
+	configureIdentity(
+		c.entity.rt,
+		&c.entity.ident,
+		n,
+		k,
+	)
 }
 
 func (c *entityConfigurer) isConfigured() bool {
@@ -48,12 +31,7 @@ func (c *entityConfigurer) isConfigured() bool {
 
 // mustValidate panics if the configuration is invalid.
 func (c *entityConfigurer) mustValidate() {
-	if c.entity.ident.IsZero() {
-		validation.Panicf(
-			"%s is configured without an identity, Identity() must be called exactly once within Configure()",
-			c.entity.rt,
-		)
-	}
+	mustValidateIdentity(c.entity.rt, c.entity.ident)
 }
 
 // displayName returns a human-readable string used to refer to the entity in

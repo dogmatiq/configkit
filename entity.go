@@ -191,6 +191,23 @@ func (m EntityMessageTypes) Foreign() EntityMessageTypes {
 	return f
 }
 
+func (m EntityMessageTypes) asNames() EntityMessageNames {
+	names := EntityMessageNames{
+		Produced: make(message.NameRoles, len(m.Produced)),
+		Consumed: make(message.NameRoles, len(m.Consumed)),
+	}
+
+	for t, r := range m.Produced {
+		names.Produced.Add(t.Name(), r)
+	}
+
+	for t, r := range m.Consumed {
+		names.Consumed.Add(t.Name(), r)
+	}
+
+	return names
+}
+
 // entity is a partial implementation of RichEntity.
 type entity struct {
 	rt reflect.Type

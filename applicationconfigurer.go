@@ -6,24 +6,28 @@ import (
 	"github.com/dogmatiq/dogma"
 )
 
-// applicationConfigurer is an implementation of dogma.ApplicationConfigurer.
+// applicationConfigurer is the default implementation of
+// [dogma.ApplicationConfigurer].
 type applicationConfigurer struct {
-	entityConfigurer
-
-	app *application
+	config *richApplication
 }
 
 func (c *applicationConfigurer) Identity(name, key string) {
-	if h, ok := c.app.richHandlers.ByKey(key); ok {
+	if h, ok := c.config.handlers.ByKey(key); ok {
 		validation.Panicf(
 			`%s can not use the application key "%s", because it is already used by %s`,
-			c.entity.rt,
+			c.config.ReflectType(),
 			key,
 			h.ReflectType(),
 		)
 	}
 
-	c.entityConfigurer.Identity(name, key)
+	configureIdentity(
+		c.config.ReflectType(),
+		&c.config.ident,
+		name,
+		key,
+	)
 }
 
 func (c *applicationConfigurer) RegisterAggregate(h dogma.AggregateMessageHandler, _ ...dogma.RegisterAggregateOption) {
@@ -60,65 +64,59 @@ func (c *applicationConfigurer) registerIfConfigured(
 	c.guardAgainstConflictingRoles(h)
 	c.guardAgainstConflictingRoutes(h)
 
-	if c.app.handlers == nil {
-		c.app.handlers = HandlerSet{}
-		c.app.richHandlers = RichHandlerSet{}
+	if c.config.handlers == nil {
+		c.config.handlers = RichHandlerSet{}
 	}
 
-	c.app.handlers.Add(h)
-	c.app.richHandlers.Add(h)
+	c.config.handlers.Add(h)
+	c.config.handlers.Add(h)
 
 	types := h.MessageTypes()
 
 	for mt, r := range types.Produced {
-		if c.entity.names.Produced == nil {
-			c.entity.names.Produced = message.NameRoles{}
-			c.entity.types.Produced = message.TypeRoles{}
+		if c.config.types.Produced == nil {
+			c.config.types.Produced = message.TypeRoles{}
 		}
-
-		c.entity.names.Produced.Add(mt.Name(), r)
-		c.entity.types.Produced.Add(mt, r)
+		c.config.types.Produced.Add(mt, r)
 	}
 
 	for mt, r := range types.Consumed {
-		if c.entity.names.Consumed == nil {
-			c.entity.names.Consumed = message.NameRoles{}
-			c.entity.types.Consumed = message.TypeRoles{}
+		if c.config.types.Consumed == nil {
+			c.config.types.Consumed = message.TypeRoles{}
 		}
-
-		c.entity.names.Consumed.Add(mt.Name(), r)
-		c.entity.types.Consumed.Add(mt, r)
+		c.config.types.Consumed.Add(mt, r)
 	}
 }
 
 // guardAgainstConflictingIdentities panics if h's identity conflicts with the
 // application or any other handlers.
 func (c *applicationConfigurer) guardAgainstConflictingIdentities(h RichHandler) {
-	i := h.Identity()
+	appIdent := c.config.Identity()
+	handlerIdent := h.Identity()
 
-	if i.Key == c.entity.ident.Key {
+	if handlerIdent.Key == appIdent.Key {
 		validation.Panicf(
 			`%s can not use the handler key "%s", because it is already used by %s`,
 			h.ReflectType(),
-			i.Key,
-			c.entity.rt,
+			handlerIdent.Key,
+			c.config.ReflectType(),
 		)
 	}
 
-	if x, ok := c.app.richHandlers.ByName(i.Name); ok {
+	if x, ok := c.config.handlers.ByName(handlerIdent.Name); ok {
 		validation.Panicf(
 			`%s can not use the handler name "%s", because it is already used by %s`,
 			h.ReflectType(),
-			i.Name,
+			handlerIdent.Name,
 			x.ReflectType(),
 		)
 	}
 
-	if x, ok := c.app.richHandlers.ByKey(i.Key); ok {
+	if x, ok := c.config.handlers.ByKey(handlerIdent.Key); ok {
 		validation.Panicf(
 			`%s can not use the handler key "%s", because it is already used by %s`,
 			h.ReflectType(),
-			i.Key,
+			handlerIdent.Key,
 			x.ReflectType(),
 		)
 	}
@@ -128,7 +126,7 @@ func (c *applicationConfigurer) guardAgainstConflictingIdentities(h RichHandler)
 // contrary to the way they are configured by any other handler.
 func (c *applicationConfigurer) guardAgainstConflictingRoles(h RichHandler) {
 	for mt, r := range h.MessageTypes().All() {
-		xr, ok := c.entity.types.RoleOf(mt)
+		xr, ok := c.config.types.RoleOf(mt)
 
 		if !ok || xr == r {
 			continue
@@ -136,7 +134,7 @@ func (c *applicationConfigurer) guardAgainstConflictingRoles(h RichHandler) {
 
 		// we know there's a conflict, now we just need to find a handler that
 		// refers to this message type as some other role.
-		xh, _ := c.app.richHandlers.Find(func(h RichHandler) bool {
+		xh, _ := c.config.handlers.Find(func(h RichHandler) bool {
 			x, ok := h.MessageTypes().RoleOf(mt)
 			return ok && x != r
 		})
@@ -164,7 +162,7 @@ func (c *applicationConfigurer) guardAgainstConflictingRoutes(h RichHandler) {
 			continue
 		}
 
-		for _, x := range c.app.richHandlers.ConsumersOf(mt) {
+		for _, x := range c.config.handlers.ConsumersOf(mt) {
 			validation.Panicf(
 				`%s (%s) can not handle %s commands because they are already configured to be handled by %s (%s)`,
 				h.ReflectType(),
@@ -181,7 +179,7 @@ func (c *applicationConfigurer) guardAgainstConflictingRoutes(h RichHandler) {
 			continue
 		}
 
-		for _, x := range c.app.richHandlers.ProducersOf(mt) {
+		for _, x := range c.config.handlers.ProducersOf(mt) {
 			validation.Panicf(
 				`%s (%s) can not record %s events because they are already configured to be recorded by %s (%s)`,
 				h.ReflectType(),

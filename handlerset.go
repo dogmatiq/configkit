@@ -605,3 +605,11 @@ func (s RichHandlerSet) RangeProjections(fn func(RichProjection) bool) bool {
 
 	return true
 }
+
+func (s RichHandlerSet) asHandlerSet() HandlerSet {
+	set := make(HandlerSet, len(s))
+	for k, v := range s {
+		set[k] = v
+	}
+	return set
+}

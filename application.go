@@ -4,6 +4,7 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/dogmatiq/configkit/internal/typename/goreflect"
 	"github.com/dogmatiq/dogma"
 )
 
@@ -36,29 +37,20 @@ type RichApplication interface {
 // It panics if the application is configured incorrectly. Use Recover() to
 // convert configuration related panic values to errors.
 func FromApplication(a dogma.Application) RichApplication {
-	cfg, c := fromApplication(a)
-	c.mustValidate()
+	cfg := &richApplication{
+		app: a,
+	}
+
+	a.Configure(&applicationConfigurer{
+		config: cfg,
+	})
+
+	mustValidateIdentity(
+		cfg.ReflectType(),
+		cfg.Identity(),
+	)
+
 	return cfg
-}
-
-func fromApplication(a dogma.Application) (*application, *applicationConfigurer) {
-	cfg := &application{
-		entity: entity{
-			rt: reflect.TypeOf(a),
-		},
-		impl: a,
-	}
-
-	c := &applicationConfigurer{
-		entityConfigurer: entityConfigurer{
-			entity: &cfg.entity,
-		},
-		app: cfg,
-	}
-
-	a.Configure(c)
-
-	return cfg, c
 }
 
 // IsApplicationEqual compares two applications for equality.
@@ -79,31 +71,50 @@ func IsApplicationEqual(a, b Application) bool {
 		a.Handlers().IsEqual(b.Handlers())
 }
 
-// application is an implementation of RichApplication.
-type application struct {
-	entity
-
-	handlers     HandlerSet
-	richHandlers RichHandlerSet
-	impl         dogma.Application
+// richApplication is the default implementation of [RichApplication].
+type richApplication struct {
+	ident    Identity
+	types    EntityMessageTypes
+	handlers RichHandlerSet
+	app      dogma.Application
 }
 
-func (a *application) AcceptVisitor(ctx context.Context, v Visitor) error {
+func (a *richApplication) Identity() Identity {
+	return a.ident
+}
+
+func (a *richApplication) MessageNames() EntityMessageNames {
+	return a.types.asNames()
+}
+
+func (a *richApplication) MessageTypes() EntityMessageTypes {
+	return a.types
+}
+
+func (a *richApplication) TypeName() string {
+	return goreflect.NameOf(a.ReflectType())
+}
+
+func (a *richApplication) ReflectType() reflect.Type {
+	return reflect.TypeOf(a.app)
+}
+
+func (a *richApplication) AcceptVisitor(ctx context.Context, v Visitor) error {
 	return v.VisitApplication(ctx, a)
 }
 
-func (a *application) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
+func (a *richApplication) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
 	return v.VisitRichApplication(ctx, a)
 }
 
-func (a *application) Handlers() HandlerSet {
+func (a *richApplication) Handlers() HandlerSet {
+	return a.handlers.asHandlerSet()
+}
+
+func (a *richApplication) RichHandlers() RichHandlerSet {
 	return a.handlers
 }
 
-func (a *application) RichHandlers() RichHandlerSet {
-	return a.richHandlers
-}
-
-func (a *application) Application() dogma.Application {
-	return a.impl
+func (a *richApplication) Application() dogma.Application {
+	return a.app
 }
