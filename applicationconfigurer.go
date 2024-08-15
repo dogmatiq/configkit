@@ -35,7 +35,7 @@ func (c *applicationConfigurer) RegisterAggregate(h dogma.AggregateMessageHandle
 }
 
 func (c *applicationConfigurer) RegisterProcess(h dogma.ProcessMessageHandler, _ ...dogma.RegisterProcessOption) {
-	c.registerIfConfiguredX(fromProcess(h))
+	c.registerIfConfigured(fromProcessUnvalidated(h))
 }
 
 func (c *applicationConfigurer) RegisterIntegration(h dogma.IntegrationMessageHandler, _ ...dogma.RegisterIntegrationOption) {

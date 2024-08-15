@@ -4,6 +4,8 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/dogmatiq/configkit/internal/typename/goreflect"
+	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
 
@@ -27,54 +29,73 @@ type RichProcess interface {
 // It panics if the handler is configured incorrectly. Use Recover() to convert
 // configuration related panic values to errors.
 func FromProcess(h dogma.ProcessMessageHandler) RichProcess {
-	cfg, c := fromProcess(h)
-	c.mustValidate()
+	cfg := fromProcessUnvalidated(h)
+	cfg.mustValidate()
 	return cfg
 }
 
-func fromProcess(h dogma.ProcessMessageHandler) (*process, *processConfigurer) {
-	cfg := &process{
-		handler: handler{
-			entity: entity{
-				rt: reflect.TypeOf(h),
-			},
-		},
-		impl: h,
-	}
-
-	c := &processConfigurer{
-		handlerConfigurer: handlerConfigurer{
-			entityConfigurer: entityConfigurer{
-				entity: &cfg.entity,
-			},
-			handler: &cfg.handler,
-		},
-	}
-
-	h.Configure(c)
-
-	return cfg, c
+func fromProcessUnvalidated(h dogma.ProcessMessageHandler) *richProcess {
+	cfg := &richProcess{handler: h}
+	h.Configure(&processConfigurer{cfg})
+	return cfg
 }
 
-// process is an implementation of RichProcess.
-type process struct {
-	handler
-
-	impl dogma.ProcessMessageHandler
+// richProcess is the default implementation of [RichProcess].
+type richProcess struct {
+	ident      Identity
+	types      EntityMessageTypes
+	isDisabled bool
+	handler    dogma.ProcessMessageHandler
 }
 
-func (h *process) AcceptVisitor(ctx context.Context, v Visitor) error {
+func (h *richProcess) Identity() Identity {
+	return h.ident
+}
+
+func (h *richProcess) MessageNames() EntityMessageNames {
+	return h.types.asNames()
+}
+
+func (h *richProcess) MessageTypes() EntityMessageTypes {
+	return h.types
+}
+
+func (h *richProcess) TypeName() string {
+	return goreflect.NameOf(h.ReflectType())
+}
+
+func (h *richProcess) ReflectType() reflect.Type {
+	return reflect.TypeOf(h.handler)
+}
+
+func (h *richProcess) IsDisabled() bool {
+	return h.isDisabled
+}
+
+func (h *richProcess) AcceptVisitor(ctx context.Context, v Visitor) error {
 	return v.VisitProcess(ctx, h)
 }
 
-func (h *process) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
+func (h *richProcess) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
 	return v.VisitRichProcess(ctx, h)
 }
 
-func (h *process) HandlerType() HandlerType {
+func (h *richProcess) HandlerType() HandlerType {
 	return ProcessHandlerType
 }
 
-func (h *process) Handler() dogma.ProcessMessageHandler {
-	return h.impl
+func (h *richProcess) Handler() dogma.ProcessMessageHandler {
+	return h.handler
+}
+
+func (h *richProcess) isConfigured() bool {
+	return !h.ident.IsZero() ||
+		h.types.Consumed.Len() != 0 ||
+		h.types.Produced.Len() != 0
+}
+
+func (h *richProcess) mustValidate() {
+	mustHaveValidIdentity(h.Identity(), h.ReflectType())
+	mustHaveConsumerRoute(h.types, message.EventRole, h.Identity(), h.ReflectType())
+	mustHaveProducerRoute(h.types, message.CommandRole, h.Identity(), h.ReflectType())
 }

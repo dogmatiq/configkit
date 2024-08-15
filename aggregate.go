@@ -36,7 +36,7 @@ func FromAggregate(h dogma.AggregateMessageHandler) RichAggregate {
 
 func fromAggregateUnvalidated(h dogma.AggregateMessageHandler) *richAggregate {
 	cfg := &richAggregate{handler: h}
-	h.Configure(&aggregateConfigurer{config: cfg})
+	h.Configure(&aggregateConfigurer{cfg})
 	return cfg
 }
 

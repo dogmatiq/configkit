@@ -1,22 +1,33 @@
 package configkit
 
 import (
-	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
 
 type processConfigurer struct {
-	handlerConfigurer
+	config *richProcess
+}
+
+func (c *processConfigurer) Identity(name, key string) {
+	configureIdentity(
+		&c.config.ident,
+		name,
+		key,
+		c.config.ReflectType(),
+	)
 }
 
 func (c *processConfigurer) Routes(routes ...dogma.ProcessRoute) {
-	for _, r := range routes {
-		c.route(r)
+	for _, route := range routes {
+		configureRoute(
+			&c.config.types,
+			route,
+			c.config.ident,
+			c.config.ReflectType(),
+		)
 	}
 }
 
-func (c *processConfigurer) mustValidate() {
-	c.handlerConfigurer.mustValidate()
-	c.mustConsume(message.EventRole)
-	c.mustProduce(message.CommandRole)
+func (c *processConfigurer) Disable(...dogma.DisableOption) {
+	c.config.isDisabled = true
 }

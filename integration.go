@@ -36,7 +36,7 @@ func FromIntegration(h dogma.IntegrationMessageHandler) RichIntegration {
 
 func fromIntegrationUnvalidated(h dogma.IntegrationMessageHandler) *richIntegration {
 	cfg := &richIntegration{handler: h}
-	h.Configure(&integrationConfigurer{config: cfg})
+	h.Configure(&integrationConfigurer{cfg})
 	return cfg
 }
 

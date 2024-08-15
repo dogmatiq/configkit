@@ -38,7 +38,7 @@ type RichApplication interface {
 // convert configuration related panic values to errors.
 func FromApplication(a dogma.Application) RichApplication {
 	cfg := &richApplication{app: a}
-	a.Configure(&applicationConfigurer{config: cfg})
+	a.Configure(&applicationConfigurer{cfg})
 
 	mustHaveValidIdentity(
 		cfg.Identity(),
