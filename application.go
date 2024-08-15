@@ -45,7 +45,7 @@ func FromApplication(a dogma.Application) RichApplication {
 		config: cfg,
 	})
 
-	mustValidateIdentity(
+	mustHaveValidIdentity(
 		cfg.ReflectType(),
 		cfg.Identity(),
 	)

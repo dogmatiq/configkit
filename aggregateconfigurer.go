@@ -1,22 +1,35 @@
 package configkit
 
 import (
-	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
 
+// aggregateConfigurer is the default implementation of
+// [dogma.AggregateConfigurer].
 type aggregateConfigurer struct {
-	handlerConfigurer
+	config *richAggregate
+}
+
+func (c *aggregateConfigurer) Identity(name, key string) {
+	configureIdentity(
+		c.config.ReflectType(),
+		&c.config.ident,
+		name,
+		key,
+	)
 }
 
 func (c *aggregateConfigurer) Routes(routes ...dogma.AggregateRoute) {
 	for _, r := range routes {
-		c.route(r)
+		configureRoute(
+			c.config.ReflectType(),
+			c.config.ident,
+			&c.config.types,
+			r,
+		)
 	}
 }
 
-func (c *aggregateConfigurer) mustValidate() {
-	c.handlerConfigurer.mustValidate()
-	c.mustConsume(message.CommandRole)
-	c.mustProduce(message.EventRole)
+func (c *aggregateConfigurer) Disable(...dogma.DisableOption) {
+	c.config.isDisabled = true
 }

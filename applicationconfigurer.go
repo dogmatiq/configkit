@@ -35,19 +35,59 @@ func (c *applicationConfigurer) RegisterAggregate(h dogma.AggregateMessageHandle
 }
 
 func (c *applicationConfigurer) RegisterProcess(h dogma.ProcessMessageHandler, _ ...dogma.RegisterProcessOption) {
-	c.registerIfConfigured(fromProcess(h))
+	c.registerIfConfiguredX(fromProcess(h))
 }
 
 func (c *applicationConfigurer) RegisterIntegration(h dogma.IntegrationMessageHandler, _ ...dogma.RegisterIntegrationOption) {
-	c.registerIfConfigured(fromIntegration(h))
+	c.registerIfConfiguredX(fromIntegration(h))
 }
 
 func (c *applicationConfigurer) RegisterProjection(h dogma.ProjectionMessageHandler, _ ...dogma.RegisterProjectionOption) {
-	c.registerIfConfigured(fromProjection(h))
+	c.registerIfConfiguredX(fromProjection(h))
+}
+
+func (c *applicationConfigurer) registerIfConfigured(
+	h interface {
+		RichHandler
+		isConfigured() bool
+		mustValidate()
+	},
+) {
+	if h.IsDisabled() && !h.isConfigured() {
+		return
+	}
+
+	h.mustValidate()
+
+	c.guardAgainstConflictingIdentities(h)
+	c.guardAgainstConflictingRoles(h)
+	c.guardAgainstConflictingRoutes(h)
+
+	if c.config.handlers == nil {
+		c.config.handlers = RichHandlerSet{}
+	}
+	c.config.handlers.Add(h)
+
+	types := h.MessageTypes()
+
+	for mt, r := range types.Produced {
+		if c.config.types.Produced == nil {
+			c.config.types.Produced = message.TypeRoles{}
+		}
+		c.config.types.Produced.Add(mt, r)
+	}
+
+	for mt, r := range types.Consumed {
+		if c.config.types.Consumed == nil {
+			c.config.types.Consumed = message.TypeRoles{}
+		}
+		c.config.types.Consumed.Add(mt, r)
+	}
 }
 
 // register adds a handler configuration to the application.
-func (c *applicationConfigurer) registerIfConfigured(
+// deprecated: use registerIfConfigured() instead.
+func (c *applicationConfigurer) registerIfConfiguredX(
 	h RichHandler,
 	hc interface {
 		isConfigured() bool
@@ -67,8 +107,6 @@ func (c *applicationConfigurer) registerIfConfigured(
 	if c.config.handlers == nil {
 		c.config.handlers = RichHandlerSet{}
 	}
-
-	c.config.handlers.Add(h)
 	c.config.handlers.Add(h)
 
 	types := h.MessageTypes()

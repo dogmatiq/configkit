@@ -31,7 +31,7 @@ func (c *entityConfigurer) isConfigured() bool {
 
 // mustValidate panics if the configuration is invalid.
 func (c *entityConfigurer) mustValidate() {
-	mustValidateIdentity(c.entity.rt, c.entity.ident)
+	mustHaveValidIdentity(c.entity.rt, c.entity.ident)
 }
 
 // displayName returns a human-readable string used to refer to the entity in
