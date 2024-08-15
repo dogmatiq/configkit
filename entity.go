@@ -192,17 +192,20 @@ func (m EntityMessageTypes) Foreign() EntityMessageTypes {
 }
 
 func (m EntityMessageTypes) asNames() EntityMessageNames {
-	names := EntityMessageNames{
-		Produced: make(message.NameRoles, len(m.Produced)),
-		Consumed: make(message.NameRoles, len(m.Consumed)),
+	var names EntityMessageNames
+
+	if len(m.Produced) != 0 {
+		names.Produced = make(message.NameRoles, len(m.Produced))
+		for t, r := range m.Produced {
+			names.Produced.Add(t.Name(), r)
+		}
 	}
 
-	for t, r := range m.Produced {
-		names.Produced.Add(t.Name(), r)
-	}
-
-	for t, r := range m.Consumed {
-		names.Consumed.Add(t.Name(), r)
+	if len(m.Consumed) != 0 {
+		names.Consumed = make(message.NameRoles, len(m.Consumed))
+		for t, r := range m.Consumed {
+			names.Consumed.Add(t.Name(), r)
+		}
 	}
 
 	return names

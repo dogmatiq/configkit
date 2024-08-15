@@ -43,7 +43,7 @@ func (c *applicationConfigurer) RegisterIntegration(h dogma.IntegrationMessageHa
 }
 
 func (c *applicationConfigurer) RegisterProjection(h dogma.ProjectionMessageHandler, _ ...dogma.RegisterProjectionOption) {
-	c.registerIfConfiguredX(fromProjection(h))
+	c.registerIfConfigured(fromProjectionUnvalidated(h))
 }
 
 func (c *applicationConfigurer) registerIfConfigured(

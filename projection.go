@@ -4,6 +4,8 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/dogmatiq/configkit/internal/typename/goreflect"
+	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
 
@@ -30,61 +32,81 @@ type RichProjection interface {
 // It panics if the handler is configured incorrectly. Use Recover() to convert
 // configuration related panic values to errors.
 func FromProjection(h dogma.ProjectionMessageHandler) RichProjection {
-	cfg, c := fromProjection(h)
-	c.mustValidate()
+	cfg := fromProjectionUnvalidated(h)
+	cfg.mustValidate()
 	return cfg
 }
 
-func fromProjection(h dogma.ProjectionMessageHandler) (*projection, *projectionConfigurer) {
-	cfg := &projection{
-		handler: handler{
-			entity: entity{
-				rt: reflect.TypeOf(h),
-			},
-		},
-		impl:           h,
-		deliveryPolicy: dogma.UnicastProjectionDeliveryPolicy{},
-	}
-
-	c := &projectionConfigurer{
-		handlerConfigurer: handlerConfigurer{
-			entityConfigurer: entityConfigurer{
-				entity: &cfg.entity,
-			},
-			handler: &cfg.handler,
-		},
-		projection: cfg,
-	}
-
-	h.Configure(c)
-
-	return cfg, c
+func fromProjectionUnvalidated(h dogma.ProjectionMessageHandler) *richProjection {
+	cfg := &richProjection{handler: h}
+	h.Configure(&projectionConfigurer{cfg})
+	return cfg
 }
 
-// projection is an implementation of RichProjection.
-type projection struct {
-	handler
-
-	impl           dogma.ProjectionMessageHandler
+// richProjection is an implementation of RichProjection.
+type richProjection struct {
+	ident          Identity
+	types          EntityMessageTypes
 	deliveryPolicy dogma.ProjectionDeliveryPolicy
+	isDisabled     bool
+	handler        dogma.ProjectionMessageHandler
 }
 
-func (h *projection) AcceptVisitor(ctx context.Context, v Visitor) error {
+func (h *richProjection) Identity() Identity {
+	return h.ident
+}
+
+func (h *richProjection) MessageNames() EntityMessageNames {
+	return h.types.asNames()
+}
+
+func (h *richProjection) MessageTypes() EntityMessageTypes {
+	return h.types
+}
+
+func (h *richProjection) TypeName() string {
+	return goreflect.NameOf(h.ReflectType())
+}
+
+func (h *richProjection) ReflectType() reflect.Type {
+	return reflect.TypeOf(h.handler)
+}
+
+func (h *richProjection) IsDisabled() bool {
+	return h.isDisabled
+}
+
+func (h *richProjection) AcceptVisitor(ctx context.Context, v Visitor) error {
 	return v.VisitProjection(ctx, h)
 }
 
-func (h *projection) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
+func (h *richProjection) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
 	return v.VisitRichProjection(ctx, h)
 }
 
-func (h *projection) HandlerType() HandlerType {
+func (h *richProjection) HandlerType() HandlerType {
 	return ProjectionHandlerType
 }
 
-func (h *projection) Handler() dogma.ProjectionMessageHandler {
-	return h.impl
+func (h *richProjection) Handler() dogma.ProjectionMessageHandler {
+	return h.handler
 }
 
-func (h *projection) DeliveryPolicy() dogma.ProjectionDeliveryPolicy {
+func (h *richProjection) DeliveryPolicy() dogma.ProjectionDeliveryPolicy {
+	if h.deliveryPolicy == nil {
+		return dogma.UnicastProjectionDeliveryPolicy{}
+	}
 	return h.deliveryPolicy
+}
+
+func (h *richProjection) isConfigured() bool {
+	return !h.ident.IsZero() ||
+		h.types.Consumed.Len() != 0 ||
+		h.types.Produced.Len() != 0 ||
+		h.deliveryPolicy != nil
+}
+
+func (h *richProjection) mustValidate() {
+	mustHaveValidIdentity(h.Identity(), h.ReflectType())
+	mustHaveConsumerRoute(h.types, message.EventRole, h.Identity(), h.ReflectType())
 }
