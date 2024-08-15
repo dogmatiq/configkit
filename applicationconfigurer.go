@@ -23,15 +23,15 @@ func (c *applicationConfigurer) Identity(name, key string) {
 	}
 
 	configureIdentity(
-		c.config.ReflectType(),
 		&c.config.ident,
 		name,
 		key,
+		c.config.ReflectType(),
 	)
 }
 
 func (c *applicationConfigurer) RegisterAggregate(h dogma.AggregateMessageHandler, _ ...dogma.RegisterAggregateOption) {
-	c.registerIfConfigured(fromAggregate(h))
+	c.registerIfConfigured(fromAggregateUnvalidated(h))
 }
 
 func (c *applicationConfigurer) RegisterProcess(h dogma.ProcessMessageHandler, _ ...dogma.RegisterProcessOption) {
@@ -39,7 +39,7 @@ func (c *applicationConfigurer) RegisterProcess(h dogma.ProcessMessageHandler, _
 }
 
 func (c *applicationConfigurer) RegisterIntegration(h dogma.IntegrationMessageHandler, _ ...dogma.RegisterIntegrationOption) {
-	c.registerIfConfiguredX(fromIntegration(h))
+	c.registerIfConfigured(fromIntegrationUnvalidated(h))
 }
 
 func (c *applicationConfigurer) RegisterProjection(h dogma.ProjectionMessageHandler, _ ...dogma.RegisterProjectionOption) {

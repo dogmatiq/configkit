@@ -15,13 +15,12 @@ type entityConfigurer struct {
 }
 
 // Identity sets the entity's identity.
-func (c *entityConfigurer) Identity(n, k string) {
+func (c *entityConfigurer) Identity(name, key string) {
 	c.configured = true
 	configureIdentity(
-		c.entity.rt,
 		&c.entity.ident,
-		n,
-		k,
+		name, key,
+		c.entity.rt,
 	)
 }
 
@@ -31,7 +30,7 @@ func (c *entityConfigurer) isConfigured() bool {
 
 // mustValidate panics if the configuration is invalid.
 func (c *entityConfigurer) mustValidate() {
-	mustHaveValidIdentity(c.entity.rt, c.entity.ident)
+	mustHaveValidIdentity(c.entity.ident, c.entity.rt)
 }
 
 // displayName returns a human-readable string used to refer to the entity in

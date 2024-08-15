@@ -12,20 +12,20 @@ type aggregateConfigurer struct {
 
 func (c *aggregateConfigurer) Identity(name, key string) {
 	configureIdentity(
-		c.config.ReflectType(),
 		&c.config.ident,
 		name,
 		key,
+		c.config.ReflectType(),
 	)
 }
 
 func (c *aggregateConfigurer) Routes(routes ...dogma.AggregateRoute) {
-	for _, r := range routes {
+	for _, route := range routes {
 		configureRoute(
-			c.config.ReflectType(),
-			c.config.ident,
 			&c.config.types,
-			r,
+			route,
+			c.config.ident,
+			c.config.ReflectType(),
 		)
 	}
 }

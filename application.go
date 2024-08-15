@@ -37,17 +37,12 @@ type RichApplication interface {
 // It panics if the application is configured incorrectly. Use Recover() to
 // convert configuration related panic values to errors.
 func FromApplication(a dogma.Application) RichApplication {
-	cfg := &richApplication{
-		app: a,
-	}
-
-	a.Configure(&applicationConfigurer{
-		config: cfg,
-	})
+	cfg := &richApplication{app: a}
+	a.Configure(&applicationConfigurer{config: cfg})
 
 	mustHaveValidIdentity(
-		cfg.ReflectType(),
 		cfg.Identity(),
+		cfg.ReflectType(),
 	)
 
 	return cfg

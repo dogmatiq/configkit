@@ -12,163 +12,163 @@ import (
 )
 
 func configureIdentity(
-	rt reflect.Type,
-	id *Identity,
-	n, k string,
+	entityIdent *Identity,
+	name, key string,
+	entityType reflect.Type,
 ) {
-	if !id.IsZero() {
+	if !entityIdent.IsZero() {
 		validation.Panicf(
 			"%s is configured with multiple identities (%s and %s/%s), Identity() must be called exactly once within Configure()",
-			rt,
-			*id,
-			n,
-			k,
+			entityType,
+			*entityIdent,
+			name,
+			key,
 		)
 	}
 
 	var err error
-	*id, err = NewIdentity(n, k)
+	*entityIdent, err = NewIdentity(name, key)
 
 	if err != nil {
 		validation.Panicf(
 			"%s is configured with an invalid identity, %s",
-			rt,
+			entityType,
 			err,
 		)
 	}
 }
 
 func mustHaveValidIdentity(
-	rt reflect.Type,
-	id Identity,
+	entityIdent Identity,
+	entityType reflect.Type,
 ) {
-	if id.IsZero() {
+	if entityIdent.IsZero() {
 		validation.Panicf(
 			"%s is configured without an identity, Identity() must be called exactly once within Configure()",
-			rt,
+			entityType,
 		)
 	}
 }
 
 func configureRoute(
-	handlerType reflect.Type,
-	handlerIdent Identity,
 	types *EntityMessageTypes,
 	route dogma.Route,
+	handlerIdent Identity,
+	handlerType reflect.Type,
 ) {
 	switch route := route.(type) {
 	case dogma.HandlesCommandRoute:
-		configureConsumerRoute(handlerType, handlerIdent, types, "HandlesCommand", route.Type, message.CommandRole)
+		configureConsumerRoute(types, route.Type, message.CommandRole, "HandlesCommand", handlerIdent, handlerType)
 	case dogma.RecordsEventRoute:
-		configureProducerRoute(handlerType, handlerIdent, types, "RecordsEvent", route.Type, message.EventRole)
+		configureProducerRoute(types, route.Type, message.EventRole, "RecordsEvent", handlerIdent, handlerType)
 	case dogma.HandlesEventRoute:
-		configureConsumerRoute(handlerType, handlerIdent, types, "HandlesEvent", route.Type, message.EventRole)
+		configureConsumerRoute(types, route.Type, message.EventRole, "HandlesEvent", handlerIdent, handlerType)
 	case dogma.ExecutesCommandRoute:
-		configureProducerRoute(handlerType, handlerIdent, types, "ExecutesCommand", route.Type, message.CommandRole)
+		configureProducerRoute(types, route.Type, message.CommandRole, "ExecutesCommand", handlerIdent, handlerType)
 	case dogma.SchedulesTimeoutRoute:
-		configureConsumerRoute(handlerType, handlerIdent, types, "SchedulesTimeout", route.Type, message.TimeoutRole)
-		configureProducerRoute(handlerType, handlerIdent, types, "SchedulesTimeout", route.Type, message.TimeoutRole)
+		configureConsumerRoute(types, route.Type, message.TimeoutRole, "SchedulesTimeout", handlerIdent, handlerType)
+		configureProducerRoute(types, route.Type, message.TimeoutRole, "SchedulesTimeout", handlerIdent, handlerType)
 	default:
 		panic(fmt.Sprintf("unsupported route type: %T", route))
 	}
 }
 
 func configureConsumerRoute(
-	handlerType reflect.Type,
-	handlerIdent Identity,
 	types *EntityMessageTypes,
+	messageType reflect.Type,
+	role message.Role,
 	routeFunc string,
-	t reflect.Type,
-	r message.Role,
+	handlerIdent Identity,
+	handlerType reflect.Type,
 ) {
-	mt := message.TypeFromReflect(t)
+	t := message.TypeFromReflect(messageType)
 
 	guardAgainstConflictingRoles(
-		handlerType,
-		handlerIdent,
 		types,
-		mt,
-		r,
+		t,
+		role,
+		handlerIdent,
+		handlerType,
 	)
 
-	if types.Consumed.Has(mt) {
+	if types.Consumed.Has(t) {
 		validation.Panicf(
 			"%s is configured with multiple %s() routes for %s, should these refer to different message types?",
-			handlerDisplayName(handlerType, handlerIdent),
+			handlerDisplayName(handlerIdent, handlerType),
 			routeFunc,
-			mt,
+			t,
 		)
 	}
 
 	if types.Consumed == nil {
 		types.Consumed = message.TypeRoles{}
 	}
-	types.Consumed.Add(mt, r)
+	types.Consumed.Add(t, role)
 }
 
 func configureProducerRoute(
-	handlerType reflect.Type,
-	handlerIdent Identity,
 	types *EntityMessageTypes,
+	messageType reflect.Type,
+	role message.Role,
 	routeFunc string,
-	t reflect.Type,
-	r message.Role,
+	handlerIdent Identity,
+	handlerType reflect.Type,
 ) {
-	mt := message.TypeFromReflect(t)
+	t := message.TypeFromReflect(messageType)
 
 	guardAgainstConflictingRoles(
-		handlerType,
-		handlerIdent,
 		types,
-		mt,
-		r,
+		t,
+		role,
+		handlerIdent,
+		handlerType,
 	)
 
-	if types.Produced.Has(mt) {
+	if types.Produced.Has(t) {
 		validation.Panicf(
 			"%s is configured with multiple %s() routes for %s, should these refer to different message types?",
-			handlerDisplayName(handlerType, handlerIdent),
+			handlerDisplayName(handlerIdent, handlerType),
 			routeFunc,
-			mt,
+			t,
 		)
 	}
 
 	if types.Produced == nil {
 		types.Produced = message.TypeRoles{}
 	}
-	types.Produced.Add(mt, r)
+	types.Produced.Add(t, role)
 }
 
 func guardAgainstConflictingRoles(
-	handlerType reflect.Type,
-	handlerIdent Identity,
 	types *EntityMessageTypes,
-	mt message.Type,
-	r message.Role,
+	messageType message.Type,
+	proposed message.Role,
+	handlerIdent Identity,
+	handlerType reflect.Type,
 ) {
-	x, ok := types.RoleOf(mt)
+	existing, ok := types.RoleOf(messageType)
 
-	if !ok || x == r {
+	if !ok || existing == proposed {
 		return
 	}
 
 	validation.Panicf(
 		"%s is configured to use %s as both a %s and a %s",
-		handlerDisplayName(handlerType, handlerIdent),
-		mt,
-		x,
-		r,
+		handlerDisplayName(handlerIdent, handlerType),
+		messageType,
+		existing,
+		proposed,
 	)
 }
 
 func handlerDisplayName(
-	rt reflect.Type,
-	id Identity,
+	handlerIdent Identity,
+	handlerType reflect.Type,
 ) string {
-	s := rt.String()
+	s := handlerType.String()
 
-	if !id.IsZero() {
-		s += " (" + id.Name + ")"
+	if !handlerIdent.IsZero() {
+		s += " (" + handlerIdent.Name + ")"
 	}
 
 	return s
@@ -177,35 +177,35 @@ func handlerDisplayName(
 // mustHaveConsumerRoute panics if the handler is not configured to handle any
 // messages of the given role.
 func mustHaveConsumerRoute(
-	handlerType reflect.Type,
-	handlerIdent Identity,
 	types EntityMessageTypes,
-	r message.Role,
+	role message.Role,
+	handlerIdent Identity,
+	handlerType reflect.Type,
 ) {
-	for _, x := range types.Consumed {
-		if x == r {
+	for _, r := range types.Consumed {
+		if r == role {
 			return
 		}
 	}
 
 	validation.Panicf(
 		`%s is not configured to handle any %ss, at least one Handles%s() route must be added within Configure()`,
-		handlerDisplayName(handlerType, handlerIdent),
-		r,
-		titleCase(r.String()),
+		handlerDisplayName(handlerIdent, handlerType),
+		role,
+		titleCase(role.String()),
 	)
 }
 
 // mustHaveProducerRoute panics if the handler is not configured to produce any
 // messages of the given role.
 func mustHaveProducerRoute(
-	handlerType reflect.Type,
-	handlerIdent Identity,
 	types EntityMessageTypes,
-	r message.Role,
+	role message.Role,
+	handlerIdent Identity,
+	handlerType reflect.Type,
 ) {
-	for _, x := range types.Produced {
-		if x == r {
+	for _, r := range types.Produced {
+		if r == role {
 			return
 		}
 	}
@@ -213,7 +213,7 @@ func mustHaveProducerRoute(
 	verb := ""
 	routeFunc := ""
 
-	switch r {
+	switch role {
 	case message.CommandRole:
 		verb = "execute"
 		routeFunc = "ExecutesCommand"
@@ -227,9 +227,9 @@ func mustHaveProducerRoute(
 
 	validation.Panicf(
 		`%s is not configured to %s any %ss, at least one %s() route must be added within Configure()`,
-		handlerDisplayName(handlerType, handlerIdent),
+		handlerDisplayName(handlerIdent, handlerType),
 		verb,
-		r,
+		role,
 		routeFunc,
 	)
 }

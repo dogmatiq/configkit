@@ -29,25 +29,18 @@ type RichAggregate interface {
 // It panics if the handler is configured incorrectly. Use Recover() to convert
 // configuration related panic values to errors.
 func FromAggregate(h dogma.AggregateMessageHandler) RichAggregate {
-	cfg := fromAggregate(h)
+	cfg := fromAggregateUnvalidated(h)
 	cfg.mustValidate()
-
 	return cfg
 }
 
-func fromAggregate(h dogma.AggregateMessageHandler) *richAggregate {
-	cfg := &richAggregate{
-		handler: h,
-	}
-
-	h.Configure(&aggregateConfigurer{
-		config: cfg,
-	})
-
+func fromAggregateUnvalidated(h dogma.AggregateMessageHandler) *richAggregate {
+	cfg := &richAggregate{handler: h}
+	h.Configure(&aggregateConfigurer{config: cfg})
 	return cfg
 }
 
-// richAggregate is an implementation of RichAggregate.
+// richAggregate the default implementation of [RichAggregate].
 type richAggregate struct {
 	ident      Identity
 	types      EntityMessageTypes
@@ -102,7 +95,7 @@ func (h *richAggregate) isConfigured() bool {
 }
 
 func (h *richAggregate) mustValidate() {
-	mustHaveValidIdentity(h.ReflectType(), h.Identity())
-	mustHaveConsumerRoute(h.ReflectType(), h.Identity(), h.types, message.CommandRole)
-	mustHaveProducerRoute(h.ReflectType(), h.Identity(), h.types, message.EventRole)
+	mustHaveValidIdentity(h.Identity(), h.ReflectType())
+	mustHaveConsumerRoute(h.types, message.CommandRole, h.Identity(), h.ReflectType())
+	mustHaveProducerRoute(h.types, message.EventRole, h.Identity(), h.ReflectType())
 }

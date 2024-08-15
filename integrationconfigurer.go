@@ -1,21 +1,33 @@
 package configkit
 
 import (
-	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
 
 type integrationConfigurer struct {
-	handlerConfigurer
+	config *richIntegration
+}
+
+func (c *integrationConfigurer) Identity(name, key string) {
+	configureIdentity(
+		&c.config.ident,
+		name,
+		key,
+		c.config.ReflectType(),
+	)
 }
 
 func (c *integrationConfigurer) Routes(routes ...dogma.IntegrationRoute) {
-	for _, r := range routes {
-		c.route(r)
+	for _, route := range routes {
+		configureRoute(
+			&c.config.types,
+			route,
+			c.config.ident,
+			c.config.ReflectType(),
+		)
 	}
 }
 
-func (c *integrationConfigurer) mustValidate() {
-	c.handlerConfigurer.mustValidate()
-	c.mustConsume(message.CommandRole)
+func (c *integrationConfigurer) Disable(...dogma.DisableOption) {
+	c.config.isDisabled = true
 }

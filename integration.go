@@ -4,6 +4,8 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/dogmatiq/configkit/internal/typename/goreflect"
+	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 )
 
@@ -27,54 +29,72 @@ type RichIntegration interface {
 // It panics if the handler is configured incorrectly. Use Recover() to convert
 // configuration related panic values to errors.
 func FromIntegration(h dogma.IntegrationMessageHandler) RichIntegration {
-	cfg, c := fromIntegration(h)
-	c.mustValidate()
+	cfg := fromIntegrationUnvalidated(h)
+	cfg.mustValidate()
 	return cfg
 }
 
-func fromIntegration(h dogma.IntegrationMessageHandler) (*integration, *integrationConfigurer) {
-	cfg := &integration{
-		handler: handler{
-			entity: entity{
-				rt: reflect.TypeOf(h),
-			},
-		},
-		impl: h,
-	}
-
-	c := &integrationConfigurer{
-		handlerConfigurer: handlerConfigurer{
-			entityConfigurer: entityConfigurer{
-				entity: &cfg.entity,
-			},
-			handler: &cfg.handler,
-		},
-	}
-
-	h.Configure(c)
-
-	return cfg, c
+func fromIntegrationUnvalidated(h dogma.IntegrationMessageHandler) *richIntegration {
+	cfg := &richIntegration{handler: h}
+	h.Configure(&integrationConfigurer{config: cfg})
+	return cfg
 }
 
-// integration is an implementation of RichIntegration.
-type integration struct {
-	handler
-
-	impl dogma.IntegrationMessageHandler
+// richIntegration the default implementation of [RichIntegration].
+type richIntegration struct {
+	ident      Identity
+	types      EntityMessageTypes
+	isDisabled bool
+	handler    dogma.IntegrationMessageHandler
 }
 
-func (h *integration) AcceptVisitor(ctx context.Context, v Visitor) error {
+func (h *richIntegration) Identity() Identity {
+	return h.ident
+}
+
+func (h *richIntegration) MessageNames() EntityMessageNames {
+	return h.types.asNames()
+}
+
+func (h *richIntegration) MessageTypes() EntityMessageTypes {
+	return h.types
+}
+
+func (h *richIntegration) TypeName() string {
+	return goreflect.NameOf(h.ReflectType())
+}
+
+func (h *richIntegration) ReflectType() reflect.Type {
+	return reflect.TypeOf(h.handler)
+}
+
+func (h *richIntegration) IsDisabled() bool {
+	return h.isDisabled
+}
+
+func (h *richIntegration) AcceptVisitor(ctx context.Context, v Visitor) error {
 	return v.VisitIntegration(ctx, h)
 }
 
-func (h *integration) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
+func (h *richIntegration) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
 	return v.VisitRichIntegration(ctx, h)
 }
 
-func (h *integration) HandlerType() HandlerType {
+func (h *richIntegration) HandlerType() HandlerType {
 	return IntegrationHandlerType
 }
 
-func (h *integration) Handler() dogma.IntegrationMessageHandler {
-	return h.impl
+func (h *richIntegration) Handler() dogma.IntegrationMessageHandler {
+	return h.handler
+}
+
+func (h *richIntegration) isConfigured() bool {
+	return !h.ident.IsZero() ||
+		h.types.Consumed.Len() != 0 ||
+		h.types.Produced.Len() != 0
+}
+
+func (h *richIntegration) mustValidate() {
+	mustHaveValidIdentity(h.Identity(), h.ReflectType())
+	mustHaveConsumerRoute(h.types, message.CommandRole, h.Identity(), h.ReflectType())
 }
