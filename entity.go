@@ -191,7 +191,7 @@ func (m EntityMessageTypes) Foreign() EntityMessageTypes {
 	return f
 }
 
-// entity is a partial implementation of [RichEntity].
+// entity is a partial implementation of RichEntity.
 type entity struct {
 	rt reflect.Type
 

@@ -32,9 +32,9 @@ func FromIntegration(h dogma.IntegrationMessageHandler) RichIntegration {
 	return cfg
 }
 
-func fromIntegration(h dogma.IntegrationMessageHandler) (*richIntegration, *integrationConfigurer) {
-	cfg := &richIntegration{
-		handlerEntity: handlerEntity{
+func fromIntegration(h dogma.IntegrationMessageHandler) (*integration, *integrationConfigurer) {
+	cfg := &integration{
+		handler: handler{
 			entity: entity{
 				rt: reflect.TypeOf(h),
 			},
@@ -47,7 +47,7 @@ func fromIntegration(h dogma.IntegrationMessageHandler) (*richIntegration, *inte
 			entityConfigurer: entityConfigurer{
 				entity: &cfg.entity,
 			},
-			handler: &cfg.handlerEntity,
+			handler: &cfg.handler,
 		},
 	}
 
@@ -56,25 +56,25 @@ func fromIntegration(h dogma.IntegrationMessageHandler) (*richIntegration, *inte
 	return cfg, c
 }
 
-// richIntegration is the default implementation of [RichIntegration].
-type richIntegration struct {
-	handlerEntity
+// integration is an implementation of RichIntegration.
+type integration struct {
+	handler
 
 	impl dogma.IntegrationMessageHandler
 }
 
-func (h *richIntegration) AcceptVisitor(ctx context.Context, v Visitor) error {
+func (h *integration) AcceptVisitor(ctx context.Context, v Visitor) error {
 	return v.VisitIntegration(ctx, h)
 }
 
-func (h *richIntegration) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
+func (h *integration) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
 	return v.VisitRichIntegration(ctx, h)
 }
 
-func (h *richIntegration) HandlerType() HandlerType {
+func (h *integration) HandlerType() HandlerType {
 	return IntegrationHandlerType
 }
 
-func (h *richIntegration) Handler() dogma.IntegrationMessageHandler {
+func (h *integration) Handler() dogma.IntegrationMessageHandler {
 	return h.impl
 }

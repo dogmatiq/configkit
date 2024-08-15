@@ -32,9 +32,9 @@ func FromProcess(h dogma.ProcessMessageHandler) RichProcess {
 	return cfg
 }
 
-func fromProcess(h dogma.ProcessMessageHandler) (*richProcess, *processConfigurer) {
-	cfg := &richProcess{
-		handlerEntity: handlerEntity{
+func fromProcess(h dogma.ProcessMessageHandler) (*process, *processConfigurer) {
+	cfg := &process{
+		handler: handler{
 			entity: entity{
 				rt: reflect.TypeOf(h),
 			},
@@ -47,7 +47,7 @@ func fromProcess(h dogma.ProcessMessageHandler) (*richProcess, *processConfigure
 			entityConfigurer: entityConfigurer{
 				entity: &cfg.entity,
 			},
-			handler: &cfg.handlerEntity,
+			handler: &cfg.handler,
 		},
 	}
 
@@ -56,25 +56,25 @@ func fromProcess(h dogma.ProcessMessageHandler) (*richProcess, *processConfigure
 	return cfg, c
 }
 
-// richProcess is the default implementation of [RichProcess].
-type richProcess struct {
-	handlerEntity
+// process is an implementation of RichProcess.
+type process struct {
+	handler
 
 	impl dogma.ProcessMessageHandler
 }
 
-func (h *richProcess) AcceptVisitor(ctx context.Context, v Visitor) error {
+func (h *process) AcceptVisitor(ctx context.Context, v Visitor) error {
 	return v.VisitProcess(ctx, h)
 }
 
-func (h *richProcess) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
+func (h *process) AcceptRichVisitor(ctx context.Context, v RichVisitor) error {
 	return v.VisitRichProcess(ctx, h)
 }
 
-func (h *richProcess) HandlerType() HandlerType {
+func (h *process) HandlerType() HandlerType {
 	return ProcessHandlerType
 }
 
-func (h *richProcess) Handler() dogma.ProcessMessageHandler {
+func (h *process) Handler() dogma.ProcessMessageHandler {
 	return h.impl
 }
