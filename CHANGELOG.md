@@ -10,6 +10,13 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+### Added
+
+- Added `ToProto()` and `FromProto()` to convert application configurations to
+  and from their protocol buffers representations.
+
 ## [0.13.2] - 2024-08-12
 
 ### Fixed

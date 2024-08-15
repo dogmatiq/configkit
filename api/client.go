@@ -35,7 +35,7 @@ func (c *Client) ListApplications(
 
 	var configs []configkit.Application
 	for _, in := range res.GetApplications() {
-		out, err := unmarshalApplication(in)
+		out, err := configkit.FromProto(in)
 		if err != nil {
 			return nil, err
 		}
