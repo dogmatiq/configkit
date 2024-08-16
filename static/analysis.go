@@ -205,7 +205,7 @@ func addHandlerFromType(
 ) {
 	pkg := pkgOfNamedType(typ)
 	method := prog.LookupMethod(typ, pkg, "Configure")
-	addHandlerFromConfigureMethod(prog, method, hs, ht)
+	addHandlerFromConfigureMethod(prog, typ.String(), method, hs, ht)
 }
 
 // addHandlersFromAdaptorFunc analyzes the arguments of an "adaptor function" to
@@ -263,7 +263,7 @@ func addHandlersFromAdaptorFunc(
 			continue
 		}
 
-		addHandlerFromConfigureMethod(prog, method, hs, ht)
+		addHandlerFromConfigureMethod(prog, typ.String(), method, hs, ht)
 	}
 }
 
@@ -273,13 +273,14 @@ func addHandlersFromAdaptorFunc(
 // The handler configuration is added to hs.
 func addHandlerFromConfigureMethod(
 	prog *ssa.Program,
+	handlerType string,
 	method *ssa.Function,
 	hs configkit.HandlerSet,
 	ht configkit.HandlerType,
 ) {
 	hdr := &entity.Handler{
 		HandlerTypeValue: ht,
-		TypeNameValue:    method.Signature.Recv().Type().String(),
+		TypeNameValue:    handlerType,
 		MessageNamesValue: configkit.EntityMessageNames{
 			Produced: message.NameRoles{},
 			Consumed: message.NameRoles{},
@@ -461,6 +462,8 @@ func pkgOfNamedType(typ types.Type) *types.Package {
 func tryPkgOfNamedType(typ types.Type) (_ *types.Package, ok bool) {
 	switch t := typ.(type) {
 	case *types.Named:
+		return t.Obj().Pkg(), true
+	case *types.Alias:
 		return t.Obj().Pkg(), true
 	case *types.Pointer:
 		return tryPkgOfNamedType(t.Elem())

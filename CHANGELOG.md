@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
+## [0.13.5] - 2024-08-16
+
+### Fixed
+
+- Fixed panicking when handling type aliases in static analysis.
+
 ## [0.13.4] - 2024-08-16
 
 ### Added
@@ -308,6 +314,7 @@ interfaces. It does not yet include support for static analysis of the new
 [0.13.2]: https://github.com/dogmatiq/configkit/releases/v0.13.2
 [0.13.3]: https://github.com/dogmatiq/configkit/releases/v0.13.3
 [0.13.4]: https://github.com/dogmatiq/configkit/releases/v0.13.4
+[0.13.5]: https://github.com/dogmatiq/configkit/releases/v0.13.5
 
 <!-- version template
 ## [0.0.1] - YYYY-MM-DD

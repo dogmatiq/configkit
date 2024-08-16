@@ -14,7 +14,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 	When("a package contains a single application", func() {
 		It("returns the application configuration", func() {
 			cfg := packages.Config{
-				Mode: packages.LoadAllSyntax,
+				Mode: LoadPackagesConfigMode,
 				Dir:  "testdata/apps/single-app",
 			}
 
@@ -45,7 +45,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 	When("multiple packages contain applications", func() {
 		It("returns all of the application configurations", func() {
 			cfg := packages.Config{
-				Mode: packages.LoadAllSyntax,
+				Mode: LoadPackagesConfigMode,
 				Dir:  "testdata/apps/multiple-apps-in-pkgs",
 			}
 
@@ -77,7 +77,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 	When("a single package contains multiple applications", func() {
 		It("returns all of the application configurations", func() {
 			cfg := packages.Config{
-				Mode: packages.LoadAllSyntax,
+				Mode: LoadPackagesConfigMode,
 				Dir:  "testdata/apps/multiple-apps-in-single-pkg/apps",
 			}
 
@@ -109,7 +109,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 	When("a package contains an application implemented with pointer receivers", func() {
 		It("returns the application configuration", func() {
 			cfg := packages.Config{
-				Mode: packages.LoadAllSyntax,
+				Mode: LoadPackagesConfigMode,
 				Dir:  "testdata/apps/pointer-receiver-app",
 			}
 
@@ -132,7 +132,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 	When("none of the packages contain any applications", func() {
 		It("returns an empty slice", func() {
 			cfg := packages.Config{
-				Mode: packages.LoadAllSyntax,
+				Mode: LoadPackagesConfigMode,
 				Dir:  "testdata/apps/no-app",
 			}
 
@@ -147,7 +147,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 	When("a field within the application type is registered as a handler", func() {
 		It("includes the handler in the application configuration", func() {
 			cfg := packages.Config{
-				Mode: packages.LoadAllSyntax,
+				Mode: LoadPackagesConfigMode,
 				Dir:  "testdata/apps/handler-from-field",
 			}
 
@@ -172,7 +172,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 	When("an application in the package has multiple handlers", func() {
 		It("returns all messages consumed or produced by all handlers", func() {
 			cfg := packages.Config{
-				Mode: packages.LoadAllSyntax,
+				Mode: LoadPackagesConfigMode,
 				Dir:  "testdata/apps/app-level-messages",
 			}
 
