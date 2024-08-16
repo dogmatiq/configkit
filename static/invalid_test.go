@@ -11,7 +11,7 @@ var _ = Describe("func FromPackages() (unbuildable packages)", func() {
 	When("a package contains a file with invalid Go syntax", func() {
 		It("ignores the package", func() {
 			cfg := packages.Config{
-				Mode: LoadPackagesConfigMode,
+				Mode: PackagesLoadMode,
 				Dir:  "testdata/invalid/invalid-syntax",
 			}
 

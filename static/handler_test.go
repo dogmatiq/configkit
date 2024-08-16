@@ -9,7 +9,6 @@ import (
 	. "github.com/dogmatiq/configkit/static"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"golang.org/x/tools/go/packages"
 )
 
 // matchIdentities matches the given identities to those of the handlers in the
@@ -27,14 +26,7 @@ func matchIdentities(
 var _ = Describe("func FromPackages() (handler analysis)", func() {
 	When("the application contains a single handler of each type", func() {
 		It("returns a single configuration for each handler type", func() {
-			cfg := packages.Config{
-				Mode: LoadPackagesConfigMode,
-				Dir:  "testdata/handlers/single",
-			}
-
-			pkgs := loadPackages(cfg)
-
-			apps := FromPackages(pkgs)
+			apps := FromDir("testdata/handlers/single")
 			Expect(apps).To(HaveLen(1))
 			Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
 			Expect(apps[0].Handlers().Processes()).To(HaveLen(1))
@@ -176,14 +168,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 			})
 
 			It("returns a single configuration for each handler type", func() {
-				cfg := packages.Config{
-					Mode: LoadPackagesConfigMode,
-					Dir:  "testdata/handlers/typealias",
-				}
-
-				pkgs := loadPackages(cfg)
-
-				apps := FromPackages(pkgs)
+				apps := FromDir("testdata/handlers/typealias")
 				Expect(apps).To(HaveLen(1))
 				Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
 				Expect(apps[0].Handlers().Processes()).To(HaveLen(1))
@@ -311,14 +296,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 
 		When("messages are passed to the *Configurer.Routes() method", func() {
 			It("includes messages passed as args to *Configurer.Routes() method only", func() {
-				cfg := packages.Config{
-					Mode: LoadPackagesConfigMode,
-					Dir:  "testdata/handlers/only-routes-args",
-				}
-
-				pkgs := loadPackages(cfg)
-
-				apps := FromPackages(pkgs)
+				apps := FromDir("testdata/handlers/only-routes-args")
 				Expect(apps).To(HaveLen(1))
 				Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
 				Expect(apps[0].Handlers().Processes()).To(HaveLen(1))
@@ -446,14 +424,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 
 		When("messages are passed to the *Configurer.Routes() method as a dynamically populated splice", func() {
 			It("returns a single configuration for each handler type", func() {
-				cfg := packages.Config{
-					Mode: LoadPackagesConfigMode,
-					Dir:  "testdata/handlers/dynamic-routes",
-				}
-
-				pkgs := loadPackages(cfg)
-
-				apps := FromPackages(pkgs)
+				apps := FromDir("testdata/handlers/dynamic-routes")
 				Expect(apps).To(HaveLen(1))
 				Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
 				Expect(apps[0].Handlers().Processes()).To(HaveLen(1))
@@ -581,14 +552,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 
 		When("messages are passed to the *Configurer.Routes() method in conditional branches", func() {
 			It("returns messages populated in every conditional branch", func() {
-				cfg := packages.Config{
-					Mode: LoadPackagesConfigMode,
-					Dir:  "testdata/handlers/conditional-branches",
-				}
-
-				pkgs := loadPackages(cfg)
-
-				apps := FromPackages(pkgs)
+				apps := FromDir("testdata/handlers/conditional-branches")
 				Expect(apps).To(HaveLen(1))
 				Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
 				Expect(apps[0].Handlers().Processes()).To(HaveLen(1))
@@ -716,14 +680,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 
 		When("nil is passed to a call of *Configurer.Routes() methods", func() {
 			It("does not populate messages", func() {
-				cfg := packages.Config{
-					Mode: LoadPackagesConfigMode,
-					Dir:  "testdata/handlers/nil-routes",
-				}
-
-				pkgs := loadPackages(cfg)
-
-				apps := FromPackages(pkgs)
+				apps := FromDir("testdata/handlers/nil-routes")
 				Expect(apps).To(HaveLen(1))
 				Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
 				Expect(apps[0].Handlers().Processes()).To(HaveLen(1))
@@ -827,14 +784,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 
 	When("the application multiple handlers of each type", func() {
 		It("returns all of the handler configurations", func() {
-			cfg := packages.Config{
-				Mode: LoadPackagesConfigMode,
-				Dir:  "testdata/handlers/multiple",
-			}
-
-			pkgs := loadPackages(cfg)
-
-			apps := FromPackages(pkgs)
+			apps := FromDir("testdata/handlers/multiple")
 			Expect(apps).To(HaveLen(1))
 
 			matchIdentities(
@@ -877,14 +827,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 
 	When("a nil value is passed as a handler", func() {
 		It("does not add a handler to the application configuration", func() {
-			cfg := packages.Config{
-				Mode: LoadPackagesConfigMode,
-				Dir:  "testdata/handlers/nil-handler",
-			}
-
-			pkgs := loadPackages(cfg)
-
-			apps := FromPackages(pkgs)
+			apps := FromDir("testdata/handlers/nil-handler")
 			Expect(apps).To(HaveLen(1))
 			Expect(apps[0].Handlers()).To(Equal(configkit.HandlerSet{}))
 		})
@@ -892,14 +835,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 
 	When("a handler with a non-pointer methodset is registered as a pointer", func() {
 		It("includes the handler in the application configuration", func() {
-			cfg := packages.Config{
-				Mode: LoadPackagesConfigMode,
-				Dir:  "testdata/handlers/pointer-handler-with-non-pointer-methodset",
-			}
-
-			pkgs := loadPackages(cfg)
-
-			apps := FromPackages(pkgs)
+			apps := FromDir("testdata/handlers/pointer-handler-with-non-pointer-methodset")
 			Expect(apps).To(HaveLen(1))
 			Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
 			Expect(apps[0].Handlers().Processes()).To(HaveLen(1))

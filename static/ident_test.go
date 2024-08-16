@@ -6,20 +6,12 @@ import (
 	. "github.com/dogmatiq/configkit/static"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"golang.org/x/tools/go/packages"
 )
 
 var _ = Describe("func FromPackages() (application identity)", func() {
 	When("the identity is specified with non-literal constants", func() {
 		It("uses the values from the constants", func() {
-			cfg := packages.Config{
-				Mode: LoadPackagesConfigMode,
-				Dir:  "testdata/ident/const-value-ident",
-			}
-
-			pkgs := loadPackages(cfg)
-
-			apps := FromPackages(pkgs)
+			apps := FromDir("testdata/ident/const-value-ident")
 			Expect(apps).To(HaveLen(1))
 
 			Expect(apps[0].Identity()).To(
@@ -43,14 +35,7 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 
 	When("the identity is specified with string literals", func() {
 		It("uses the literal values", func() {
-			cfg := packages.Config{
-				Mode: LoadPackagesConfigMode,
-				Dir:  "testdata/ident/literal-value-ident",
-			}
-
-			pkgs := loadPackages(cfg)
-
-			apps := FromPackages(pkgs)
+			apps := FromDir("testdata/ident/literal-value-ident")
 			Expect(apps).To(HaveLen(1))
 
 			Expect(apps[0].Identity()).To(
@@ -74,14 +59,7 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 
 	When("the identity is specified with non-constant expressions", func() {
 		It("uses a zero-value identity", func() {
-			cfg := packages.Config{
-				Mode: LoadPackagesConfigMode,
-				Dir:  "testdata/ident/variable-value-ident",
-			}
-
-			pkgs := loadPackages(cfg)
-
-			apps := FromPackages(pkgs)
+			apps := FromDir("testdata/ident/variable-value-ident")
 			Expect(apps).To(HaveLen(1))
 
 			Expect(apps[0].Identity()).To(

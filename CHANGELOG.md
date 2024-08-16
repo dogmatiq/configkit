@@ -12,9 +12,17 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## [0.13.5] - 2024-08-16
 
+### Added
+
+- Added `static.PackagesLoadMode` as a convenience for using Go's built-in
+  `packages.Load()` with a mode suitable for static analysis.
+- Added `static.FromDir()` as a convenience for analyzing packages recursively
+  from a directory.
+
 ### Fixed
 
-- Fixed panicking when handling type aliases in static analysis.
+- Handle alias types under Go v1.23 (or when using `GODEBUG=gotypealias=1`), which
+  previously caused a panic.
 
 ## [0.13.4] - 2024-08-16
 

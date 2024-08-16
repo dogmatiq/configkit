@@ -7,20 +7,12 @@ import (
 	. "github.com/dogmatiq/configkit/static"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"golang.org/x/tools/go/packages"
 )
 
 var _ = Describe("func FromPackages() (application detection)", func() {
 	When("a package contains a single application", func() {
 		It("returns the application configuration", func() {
-			cfg := packages.Config{
-				Mode: LoadPackagesConfigMode,
-				Dir:  "testdata/apps/single-app",
-			}
-
-			pkgs := loadPackages(cfg)
-
-			apps := FromPackages(pkgs)
+			apps := FromDir("testdata/apps/single-app")
 			Expect(apps).To(HaveLen(1))
 
 			Expect(apps[0].Identity()).To(
@@ -44,14 +36,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 
 	When("multiple packages contain applications", func() {
 		It("returns all of the application configurations", func() {
-			cfg := packages.Config{
-				Mode: LoadPackagesConfigMode,
-				Dir:  "testdata/apps/multiple-apps-in-pkgs",
-			}
-
-			pkgs := loadPackages(cfg)
-
-			apps := FromPackages(pkgs)
+			apps := FromDir("testdata/apps/multiple-apps-in-pkgs")
 			Expect(apps).To(HaveLen(2))
 
 			Expect(
@@ -76,14 +61,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 
 	When("a single package contains multiple applications", func() {
 		It("returns all of the application configurations", func() {
-			cfg := packages.Config{
-				Mode: LoadPackagesConfigMode,
-				Dir:  "testdata/apps/multiple-apps-in-single-pkg/apps",
-			}
-
-			pkgs := loadPackages(cfg)
-
-			apps := FromPackages(pkgs)
+			apps := FromDir("testdata/apps/multiple-apps-in-single-pkg/apps")
 			Expect(apps).To(HaveLen(2))
 
 			Expect(
@@ -108,16 +86,9 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 
 	When("a package contains an application implemented with pointer receivers", func() {
 		It("returns the application configuration", func() {
-			cfg := packages.Config{
-				Mode: LoadPackagesConfigMode,
-				Dir:  "testdata/apps/pointer-receiver-app",
-			}
-
-			pkgs := loadPackages(cfg)
-
-			apps := FromPackages(pkgs)
-
+			apps := FromDir("testdata/apps/pointer-receiver-app")
 			Expect(apps).To(HaveLen(1))
+
 			Expect(apps[0].Identity()).To(
 				Equal(
 					configkit.Identity{
@@ -131,30 +102,16 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 
 	When("none of the packages contain any applications", func() {
 		It("returns an empty slice", func() {
-			cfg := packages.Config{
-				Mode: LoadPackagesConfigMode,
-				Dir:  "testdata/apps/no-app",
-			}
-
-			pkgs := loadPackages(cfg)
-
-			apps := FromPackages(pkgs)
-
+			apps := FromDir("testdata/apps/no-app")
 			Expect(apps).To(BeEmpty())
 		})
 	})
 
 	When("a field within the application type is registered as a handler", func() {
 		It("includes the handler in the application configuration", func() {
-			cfg := packages.Config{
-				Mode: LoadPackagesConfigMode,
-				Dir:  "testdata/apps/handler-from-field",
-			}
-
-			pkgs := loadPackages(cfg)
-
-			apps := FromPackages(pkgs)
+			apps := FromDir("testdata/apps/handler-from-field")
 			Expect(apps).To(HaveLen(1))
+
 			Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
 
 			a := apps[0].Handlers().Aggregates()[0]
@@ -171,14 +128,7 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 
 	When("an application in the package has multiple handlers", func() {
 		It("returns all messages consumed or produced by all handlers", func() {
-			cfg := packages.Config{
-				Mode: LoadPackagesConfigMode,
-				Dir:  "testdata/apps/app-level-messages",
-			}
-
-			pkgs := loadPackages(cfg)
-
-			apps := FromPackages(pkgs)
+			apps := FromDir("testdata/apps/app-level-messages")
 			Expect(apps).To(HaveLen(1))
 
 			Expect(apps[0].MessageNames()).To(Equal(
@@ -200,14 +150,3 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 		})
 	})
 })
-
-func loadPackages(cfg packages.Config) []*packages.Package {
-	pkgs, err := packages.Load(&cfg, "./...")
-	Expect(err).NotTo(HaveOccurred())
-
-	for _, pkg := range pkgs {
-		ExpectWithOffset(1, pkg.Errors).To(BeEmpty())
-	}
-
-	return pkgs
-}

@@ -7,20 +7,12 @@ import (
 	. "github.com/dogmatiq/configkit/static"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"golang.org/x/tools/go/packages"
 )
 
 var _ = Describe("func FromPackages() (constructor function)", func() {
 	When("the handler is created by a call to a 'constructor' function", func() {
 		It("builds the configuration from the adapted type", func() {
-			cfg := packages.Config{
-				Mode: LoadPackagesConfigMode,
-				Dir:  "testdata/handlers/constructor",
-			}
-
-			pkgs := loadPackages(cfg)
-
-			apps := FromPackages(pkgs)
+			apps := FromDir("testdata/handlers/constructor")
 			Expect(apps).To(HaveLen(1))
 			Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
 			Expect(apps[0].Handlers().Processes()).To(HaveLen(1))
