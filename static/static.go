@@ -9,7 +9,7 @@ import (
 	"golang.org/x/tools/go/ssa/ssautil"
 )
 
-// ConfigMode is the set of load mode values required to obtain the
+// LoadPackagesConfigMode is the set of load mode values required to obtain the
 // information necessary to statically analyze Dogma applications.
 const LoadPackagesConfigMode = packages.NeedFiles |
 	packages.NeedCompiledGoFiles |

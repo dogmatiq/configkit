@@ -14,7 +14,7 @@ var _ = Describe("func FromPackages() (constructor function)", func() {
 	When("the handler is created by a call to a 'constructor' function", func() {
 		It("builds the configuration from the adapted type", func() {
 			cfg := packages.Config{
-				Mode: ConfigMode,
+				Mode: LoadPackagesConfigMode,
 				Dir:  "testdata/handlers/constructor",
 			}
 
