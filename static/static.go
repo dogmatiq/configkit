@@ -11,7 +11,7 @@ import (
 
 // ConfigMode is the set of load mode values required to obtain the
 // information necessary to statically analyze Dogma applications.
-const ConfigMode = packages.NeedFiles |
+const LoadPackagesConfigMode = packages.NeedFiles |
 	packages.NeedCompiledGoFiles |
 	packages.NeedImports |
 	packages.NeedTypes |
