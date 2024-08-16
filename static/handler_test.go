@@ -1,6 +1,8 @@
 package static_test
 
 import (
+	"os"
+
 	"github.com/dogmatiq/configkit"
 	cfixtures "github.com/dogmatiq/configkit/fixtures"
 	"github.com/dogmatiq/configkit/message"
@@ -26,7 +28,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 	When("the application contains a single handler of each type", func() {
 		It("returns a single configuration for each handler type", func() {
 			cfg := packages.Config{
-				Mode: packages.LoadAllSyntax,
+				Mode: ConfigMode,
 				Dir:  "testdata/handlers/single",
 			}
 
@@ -156,11 +158,159 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				},
 			))
 		})
+		When("a handler is a type alias", func() {
+			BeforeEach(func() {
+				// Set the GODEBUG environment variable to enable type alias
+				// support.
+				//
+				// TODO: Remove this setting once the package is
+				// migrated to Go 1.23 that generates `types.Alias` types by
+				// default.
+				os.Setenv("GODEBUG", "gotypesalias=1")
+			})
+
+			AfterEach(func() {
+				os.Setenv("GODEBUG", "")
+			})
+
+			It("returns a single configuration for each handler type", func() {
+				cfg := packages.Config{
+					Mode: ConfigMode,
+					Dir:  "testdata/handlers/typealias",
+				}
+
+				pkgs := loadPackages(cfg)
+
+				apps := FromPackages(pkgs)
+				Expect(apps).To(HaveLen(1))
+				Expect(apps[0].Handlers().Aggregates()).To(HaveLen(1))
+				Expect(apps[0].Handlers().Processes()).To(HaveLen(1))
+				Expect(apps[0].Handlers().Projections()).To(HaveLen(1))
+				Expect(apps[0].Handlers().Integrations()).To(HaveLen(1))
+
+				aggregate := apps[0].Handlers().Aggregates()[0]
+				Expect(aggregate.Identity()).To(
+					Equal(
+						configkit.Identity{
+							Name: "<aggregate>",
+							Key:  "92623de9-c9cf-42f3-8338-33c50eeb06fb",
+						},
+					),
+				)
+				Expect(aggregate.TypeName()).To(
+					Equal(
+						"github.com/dogmatiq/configkit/static/testdata/handlers/typealias.AggregateHandler",
+					),
+				)
+				Expect(aggregate.HandlerType()).To(Equal(configkit.AggregateHandlerType))
+
+				Expect(aggregate.MessageNames()).To(Equal(
+					configkit.EntityMessageNames{
+						Consumed: message.NameRoles{
+							cfixtures.MessageATypeName: message.CommandRole,
+							cfixtures.MessageBTypeName: message.CommandRole,
+						},
+						Produced: message.NameRoles{
+							cfixtures.MessageCTypeName: message.EventRole,
+							cfixtures.MessageDTypeName: message.EventRole,
+						},
+					},
+				))
+
+				process := apps[0].Handlers().Processes()[0]
+				Expect(process.Identity()).To(
+					Equal(
+						configkit.Identity{
+							Name: "<process>",
+							Key:  "ad9d6955-893a-4d8d-a26e-e25886b113b2",
+						},
+					),
+				)
+				Expect(process.TypeName()).To(
+					Equal(
+						"github.com/dogmatiq/configkit/static/testdata/handlers/typealias.ProcessHandler",
+					),
+				)
+				Expect(process.HandlerType()).To(Equal(configkit.ProcessHandlerType))
+
+				Expect(process.MessageNames()).To(Equal(
+					configkit.EntityMessageNames{
+						Consumed: message.NameRoles{
+							cfixtures.MessageATypeName: message.EventRole,
+							cfixtures.MessageBTypeName: message.EventRole,
+							cfixtures.MessageETypeName: message.TimeoutRole,
+							cfixtures.MessageFTypeName: message.TimeoutRole,
+						},
+						Produced: message.NameRoles{
+							cfixtures.MessageCTypeName: message.CommandRole,
+							cfixtures.MessageDTypeName: message.CommandRole,
+							cfixtures.MessageETypeName: message.TimeoutRole,
+							cfixtures.MessageFTypeName: message.TimeoutRole,
+						},
+					},
+				))
+
+				projection := apps[0].Handlers().Projections()[0]
+				Expect(projection.Identity()).To(
+					Equal(
+						configkit.Identity{
+							Name: "<projection>",
+							Key:  "d012b7ed-3c4b-44db-9276-7bbc90fb54fd",
+						},
+					),
+				)
+				Expect(projection.TypeName()).To(
+					Equal(
+						"github.com/dogmatiq/configkit/static/testdata/handlers/typealias.ProjectionHandler",
+					),
+				)
+				Expect(projection.HandlerType()).To(Equal(configkit.ProjectionHandlerType))
+
+				Expect(projection.MessageNames()).To(Equal(
+					configkit.EntityMessageNames{
+						Consumed: message.NameRoles{
+							cfixtures.MessageATypeName: message.EventRole,
+							cfixtures.MessageBTypeName: message.EventRole,
+						},
+						Produced: message.NameRoles{},
+					},
+				))
+
+				integration := apps[0].Handlers().Integrations()[0]
+				Expect(integration.Identity()).To(
+					Equal(
+						configkit.Identity{
+							Name: "<integration>",
+							Key:  "4d8cd3f5-21dc-475b-a8dc-80138adde3f2",
+						},
+					),
+				)
+				Expect(integration.TypeName()).To(
+					Equal(
+						"github.com/dogmatiq/configkit/static/testdata/handlers/typealias.IntegrationHandler",
+					),
+				)
+				Expect(integration.HandlerType()).To(Equal(configkit.IntegrationHandlerType))
+
+				Expect(integration.MessageNames()).To(Equal(
+					configkit.EntityMessageNames{
+						Consumed: message.NameRoles{
+							cfixtures.MessageATypeName: message.CommandRole,
+							cfixtures.MessageBTypeName: message.CommandRole,
+						},
+						Produced: message.NameRoles{
+							cfixtures.MessageCTypeName: message.EventRole,
+							cfixtures.MessageDTypeName: message.EventRole,
+						},
+					},
+				))
+			})
+		})
 
 		When("messages are passed to the *Configurer.Routes() method", func() {
 			It("includes messages passed as args to *Configurer.Routes() method only", func() {
 				cfg := packages.Config{
-					Mode: packages.LoadAllSyntax,
+					Mode: ConfigMode,
 					Dir:  "testdata/handlers/only-routes-args",
 				}
 
@@ -295,7 +445,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 		When("messages are passed to the *Configurer.Routes() method as a dynamically populated splice", func() {
 			It("returns a single configuration for each handler type", func() {
 				cfg := packages.Config{
-					Mode: packages.LoadAllSyntax,
+					Mode: ConfigMode,
 					Dir:  "testdata/handlers/dynamic-routes",
 				}
 
@@ -430,7 +580,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 		When("messages are passed to the *Configurer.Routes() method in conditional branches", func() {
 			It("returns messages populated in every conditional branch", func() {
 				cfg := packages.Config{
-					Mode: packages.LoadAllSyntax,
+					Mode: ConfigMode,
 					Dir:  "testdata/handlers/conditional-branches",
 				}
 
@@ -565,7 +715,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 		When("nil is passed to a call of *Configurer.Routes() methods", func() {
 			It("does not populate messages", func() {
 				cfg := packages.Config{
-					Mode: packages.LoadAllSyntax,
+					Mode: ConfigMode,
 					Dir:  "testdata/handlers/nil-routes",
 				}
 
@@ -676,7 +826,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 	When("the application multiple handlers of each type", func() {
 		It("returns all of the handler configurations", func() {
 			cfg := packages.Config{
-				Mode: packages.LoadAllSyntax,
+				Mode: ConfigMode,
 				Dir:  "testdata/handlers/multiple",
 			}
 
@@ -726,7 +876,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 	When("a nil value is passed as a handler", func() {
 		It("does not add a handler to the application configuration", func() {
 			cfg := packages.Config{
-				Mode: packages.LoadAllSyntax,
+				Mode: ConfigMode,
 				Dir:  "testdata/handlers/nil-handler",
 			}
 
@@ -741,7 +891,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 	When("a handler with a non-pointer methodset is registered as a pointer", func() {
 		It("includes the handler in the application configuration", func() {
 			cfg := packages.Config{
-				Mode: packages.LoadAllSyntax,
+				Mode: ConfigMode,
 				Dir:  "testdata/handlers/pointer-handler-with-non-pointer-methodset",
 			}
 

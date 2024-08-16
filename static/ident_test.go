@@ -13,7 +13,7 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 	When("the identity is specified with non-literal constants", func() {
 		It("uses the values from the constants", func() {
 			cfg := packages.Config{
-				Mode: packages.LoadAllSyntax,
+				Mode: ConfigMode,
 				Dir:  "testdata/ident/const-value-ident",
 			}
 
@@ -44,7 +44,7 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 	When("the identity is specified with string literals", func() {
 		It("uses the literal values", func() {
 			cfg := packages.Config{
-				Mode: packages.LoadAllSyntax,
+				Mode: ConfigMode,
 				Dir:  "testdata/ident/literal-value-ident",
 			}
 
@@ -75,7 +75,7 @@ var _ = Describe("func FromPackages() (application identity)", func() {
 	When("the identity is specified with non-constant expressions", func() {
 		It("uses a zero-value identity", func() {
 			cfg := packages.Config{
-				Mode: packages.LoadAllSyntax,
+				Mode: ConfigMode,
 				Dir:  "testdata/ident/variable-value-ident",
 			}
 

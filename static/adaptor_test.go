@@ -14,7 +14,7 @@ var _ = Describe("func FromPackages() (adaptor function)", func() {
 	When("the the handler is created by adapting a partial handler implementation", func() {
 		It("builds the configuration from the adapted type", func() {
 			cfg := packages.Config{
-				Mode: packages.LoadAllSyntax,
+				Mode: ConfigMode,
 				Dir:  "testdata/handlers/adaptor",
 			}
 

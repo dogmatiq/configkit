@@ -462,6 +462,8 @@ func tryPkgOfNamedType(typ types.Type) (_ *types.Package, ok bool) {
 	switch t := typ.(type) {
 	case *types.Named:
 		return t.Obj().Pkg(), true
+	case *types.Alias:
+		return t.Obj().Pkg(), true
 	case *types.Pointer:
 		return tryPkgOfNamedType(t.Elem())
 	default:
