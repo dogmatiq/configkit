@@ -6,6 +6,7 @@ import (
 	. "github.com/dogmatiq/configkit"
 	"github.com/dogmatiq/dogma"
 	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflicts
+	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -14,11 +15,11 @@ var _ = Describe("func ToString()", func() {
 	var cfg Application
 
 	BeforeEach(func() {
-		app := &fixtures.Application{
+		app := &ApplicationStub{
 			ConfigureFunc: func(c dogma.ApplicationConfigurer) {
 				c.Identity("<app>", appKey)
 
-				c.RegisterAggregate(&fixtures.AggregateMessageHandler{
+				c.RegisterAggregate(&AggregateMessageHandlerStub{
 					ConfigureFunc: func(c dogma.AggregateConfigurer) {
 						c.Identity("<aggregate>", aggregateKey)
 						c.Routes(
@@ -28,7 +29,7 @@ var _ = Describe("func ToString()", func() {
 					},
 				})
 
-				c.RegisterProcess(&fixtures.ProcessMessageHandler{
+				c.RegisterProcess(&ProcessMessageHandlerStub{
 					ConfigureFunc: func(c dogma.ProcessConfigurer) {
 						c.Identity("<process>", processKey)
 						c.Routes(
@@ -39,7 +40,7 @@ var _ = Describe("func ToString()", func() {
 					},
 				})
 
-				c.RegisterIntegration(&fixtures.IntegrationMessageHandler{
+				c.RegisterIntegration(&IntegrationMessageHandlerStub{
 					ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 						c.Identity("<integration>", integrationKey)
 						c.Routes(
@@ -49,7 +50,7 @@ var _ = Describe("func ToString()", func() {
 					},
 				})
 
-				c.RegisterProjection(&fixtures.ProjectionMessageHandler{
+				c.RegisterProjection(&ProjectionMessageHandlerStub{
 					ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 						c.Identity("<projection>", projectionKey)
 						c.Routes(
@@ -66,22 +67,22 @@ var _ = Describe("func ToString()", func() {
 	})
 
 	It("returns a human readable string representation", func() {
-		expected := "application <app> (59a82a24-a181-41e8-9b93-17a6ce86956e) *github.com/dogmatiq/dogma/fixtures.Application\n"
+		expected := "application <app> (59a82a24-a181-41e8-9b93-17a6ce86956e) *github.com/dogmatiq/enginekit/enginetest/stubs.ApplicationStub\n"
 		expected += "\n"
-		expected += "    - aggregate <aggregate> (14769f7f-87fe-48dd-916e-5bcab6ba6aca) *github.com/dogmatiq/dogma/fixtures.AggregateMessageHandler\n"
+		expected += "    - aggregate <aggregate> (14769f7f-87fe-48dd-916e-5bcab6ba6aca) *github.com/dogmatiq/enginekit/enginetest/stubs.AggregateMessageHandlerStub\n"
 		expected += "        handles github.com/dogmatiq/dogma/fixtures.MessageC?\n"
 		expected += "        records github.com/dogmatiq/dogma/fixtures.MessageE!\n"
 		expected += "\n"
-		expected += "    - integration <integration> (e28f056e-e5a0-4ee7-aaf1-1d1fe02fb6e3) *github.com/dogmatiq/dogma/fixtures.IntegrationMessageHandler\n"
+		expected += "    - integration <integration> (e28f056e-e5a0-4ee7-aaf1-1d1fe02fb6e3) *github.com/dogmatiq/enginekit/enginetest/stubs.IntegrationMessageHandlerStub\n"
 		expected += "        handles github.com/dogmatiq/dogma/fixtures.MessageI?\n"
 		expected += "        records github.com/dogmatiq/dogma/fixtures.MessageJ!\n"
 		expected += "\n"
-		expected += "    - process <process> (bea52cf4-e403-4b18-819d-88ade7836308) *github.com/dogmatiq/dogma/fixtures.ProcessMessageHandler\n"
+		expected += "    - process <process> (bea52cf4-e403-4b18-819d-88ade7836308) *github.com/dogmatiq/enginekit/enginetest/stubs.ProcessMessageHandlerStub\n"
 		expected += "        handles github.com/dogmatiq/dogma/fixtures.MessageE!\n"
 		expected += "        executes github.com/dogmatiq/dogma/fixtures.MessageC?\n"
 		expected += "        schedules github.com/dogmatiq/dogma/fixtures.MessageT@\n"
 		expected += "\n"
-		expected += "    - projection <projection> (70fdf7fa-4b24-448d-bd29-7ecc71d18c56) *github.com/dogmatiq/dogma/fixtures.ProjectionMessageHandler [disabled]\n"
+		expected += "    - projection <projection> (70fdf7fa-4b24-448d-bd29-7ecc71d18c56) *github.com/dogmatiq/enginekit/enginetest/stubs.ProjectionMessageHandlerStub [disabled]\n"
 		expected += "        handles github.com/dogmatiq/dogma/fixtures.MessageE!\n"
 		expected += "        handles github.com/dogmatiq/dogma/fixtures.MessageJ!\n"
 

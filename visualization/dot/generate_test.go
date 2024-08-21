@@ -7,14 +7,15 @@ import (
 	. "github.com/dogmatiq/configkit/visualization/dot"
 	"github.com/dogmatiq/dogma"
 	"github.com/dogmatiq/dogma/fixtures"
+	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 )
 
 func TestGenerate_coverage(t *testing.T) {
-	app := &fixtures.Application{
+	app := &ApplicationStub{
 		ConfigureFunc: func(c dogma.ApplicationConfigurer) {
 			c.Identity("app", "a07d0caf-d9d0-4f9f-97d3-8779bcc304ab")
 
-			c.RegisterAggregate(&fixtures.AggregateMessageHandler{
+			c.RegisterAggregate(&AggregateMessageHandlerStub{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("aggregate", "b2a8b880-5a1a-4792-ab03-5675b002230a")
 					c.Routes(
@@ -25,7 +26,7 @@ func TestGenerate_coverage(t *testing.T) {
 				},
 			})
 
-			c.RegisterProcess(&fixtures.ProcessMessageHandler{
+			c.RegisterProcess(&ProcessMessageHandlerStub{
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
 					c.Identity("process", "3d5bb944-1cb7-40f4-9298-e154acd5effd")
 					c.Routes(
@@ -37,7 +38,7 @@ func TestGenerate_coverage(t *testing.T) {
 				},
 			})
 
-			c.RegisterIntegration(&fixtures.IntegrationMessageHandler{
+			c.RegisterIntegration(&IntegrationMessageHandlerStub{
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 					c.Identity("integration", "5a496ba8-92f4-439e-bdba-d0e4ef6dd03d")
 					c.Routes(
@@ -46,7 +47,7 @@ func TestGenerate_coverage(t *testing.T) {
 				},
 			})
 
-			c.RegisterProjection(&fixtures.ProjectionMessageHandler{
+			c.RegisterProjection(&ProjectionMessageHandlerStub{
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 					c.Identity("projection", "3f060ff7-630a-4446-8313-35ace689d5ce")
 					c.Routes(

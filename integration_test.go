@@ -10,16 +10,17 @@ import (
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflicts
+	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("func FromIntegration()", func() {
-	var handler *fixtures.IntegrationMessageHandler
+	var handler *IntegrationMessageHandlerStub
 
 	BeforeEach(func() {
-		handler = &fixtures.IntegrationMessageHandler{
+		handler = &IntegrationMessageHandlerStub{
 			ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", integrationKey)
 				c.Routes(
@@ -80,7 +81,7 @@ var _ = Describe("func FromIntegration()", func() {
 
 		Describe("func TypeName()", func() {
 			It("returns the fully-qualified type name of the handler", func() {
-				Expect(cfg.TypeName()).To(Equal("*github.com/dogmatiq/dogma/fixtures.IntegrationMessageHandler"))
+				Expect(cfg.TypeName()).To(Equal("*github.com/dogmatiq/enginekit/enginetest/stubs.IntegrationMessageHandlerStub"))
 			})
 		})
 
@@ -188,7 +189,7 @@ var _ = Describe("func FromIntegration()", func() {
 		),
 		Entry(
 			"when the handler does not configure an identity",
-			`*fixtures.IntegrationMessageHandler is configured without an identity, Identity() must be called exactly once within Configure()`,
+			`*stubs.IntegrationMessageHandlerStub is configured without an identity, Identity() must be called exactly once within Configure()`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Routes(
 					dogma.HandlesCommand[fixtures.MessageA](),
@@ -198,7 +199,7 @@ var _ = Describe("func FromIntegration()", func() {
 		),
 		Entry(
 			"when the handler configures multiple identities",
-			`*fixtures.IntegrationMessageHandler is configured with multiple identities (<name>/e28f056e-e5a0-4ee7-aaf1-1d1fe02fb6e3 and <other>/e28f056e-e5a0-4ee7-aaf1-1d1fe02fb6e3), Identity() must be called exactly once within Configure()`,
+			`*stubs.IntegrationMessageHandlerStub is configured with multiple identities (<name>/e28f056e-e5a0-4ee7-aaf1-1d1fe02fb6e3 and <other>/e28f056e-e5a0-4ee7-aaf1-1d1fe02fb6e3), Identity() must be called exactly once within Configure()`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", integrationKey)
 				c.Identity("<other>", integrationKey)
@@ -210,7 +211,7 @@ var _ = Describe("func FromIntegration()", func() {
 		),
 		Entry(
 			"when the handler configures an invalid name",
-			`*fixtures.IntegrationMessageHandler is configured with an invalid identity, invalid name "\t \n", names must be non-empty, printable UTF-8 strings with no whitespace`,
+			`*stubs.IntegrationMessageHandlerStub is configured with an invalid identity, invalid name "\t \n", names must be non-empty, printable UTF-8 strings with no whitespace`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("\t \n", integrationKey)
 				c.Routes(
@@ -221,7 +222,7 @@ var _ = Describe("func FromIntegration()", func() {
 		),
 		Entry(
 			"when the handler configures an invalid key",
-			`*fixtures.IntegrationMessageHandler is configured with an invalid identity, invalid key "\t \n", keys must be RFC 4122 UUIDs`,
+			`*stubs.IntegrationMessageHandlerStub is configured with an invalid identity, invalid key "\t \n", keys must be RFC 4122 UUIDs`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", "\t \n")
 				c.Routes(
@@ -232,7 +233,7 @@ var _ = Describe("func FromIntegration()", func() {
 		),
 		Entry(
 			"when the handler does not configure any command routes",
-			`*fixtures.IntegrationMessageHandler (<name>) is not configured to handle any commands, at least one HandlesCommand() route must be added within Configure()`,
+			`*stubs.IntegrationMessageHandlerStub (<name>) is not configured to handle any commands, at least one HandlesCommand() route must be added within Configure()`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", integrationKey)
 				c.Routes(
@@ -242,7 +243,7 @@ var _ = Describe("func FromIntegration()", func() {
 		),
 		Entry(
 			"when the handler configures multiple routes for the same command",
-			`*fixtures.IntegrationMessageHandler (<name>) is configured with multiple HandlesCommand() routes for fixtures.MessageA, should these refer to different message types?`,
+			`*stubs.IntegrationMessageHandlerStub (<name>) is configured with multiple HandlesCommand() routes for fixtures.MessageA, should these refer to different message types?`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", integrationKey)
 				c.Routes(
@@ -254,7 +255,7 @@ var _ = Describe("func FromIntegration()", func() {
 		),
 		Entry(
 			"when the handler configures multiple routes for the same event",
-			`*fixtures.IntegrationMessageHandler (<name>) is configured with multiple RecordsEvent() routes for fixtures.MessageE, should these refer to different message types?`,
+			`*stubs.IntegrationMessageHandlerStub (<name>) is configured with multiple RecordsEvent() routes for fixtures.MessageE, should these refer to different message types?`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", integrationKey)
 				c.Routes(
@@ -266,7 +267,7 @@ var _ = Describe("func FromIntegration()", func() {
 		),
 		Entry(
 			"when the handler configures the same message type with different roles",
-			`*fixtures.IntegrationMessageHandler (<name>) is configured to use fixtures.MessageA as both a command and an event`,
+			`*stubs.IntegrationMessageHandlerStub (<name>) is configured to use fixtures.MessageA as both a command and an event`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", integrationKey)
 				c.Routes(
@@ -277,7 +278,7 @@ var _ = Describe("func FromIntegration()", func() {
 		),
 		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
-			`*fixtures.IntegrationMessageHandler is configured with multiple HandlesCommand() routes for fixtures.MessageA, should these refer to different message types?`,
+			`*stubs.IntegrationMessageHandlerStub is configured with multiple HandlesCommand() routes for fixtures.MessageA, should these refer to different message types?`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Routes(
 					dogma.HandlesCommand[fixtures.MessageA](),

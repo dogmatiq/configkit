@@ -10,16 +10,17 @@ import (
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflicts
+	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("func FromProcess()", func() {
-	var handler *fixtures.ProcessMessageHandler
+	var handler *ProcessMessageHandlerStub
 
 	BeforeEach(func() {
-		handler = &fixtures.ProcessMessageHandler{
+		handler = &ProcessMessageHandlerStub{
 			ConfigureFunc: func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
@@ -85,7 +86,7 @@ var _ = Describe("func FromProcess()", func() {
 
 		Describe("func TypeName()", func() {
 			It("returns the fully-qualified type name of the handler", func() {
-				Expect(cfg.TypeName()).To(Equal("*github.com/dogmatiq/dogma/fixtures.ProcessMessageHandler"))
+				Expect(cfg.TypeName()).To(Equal("*github.com/dogmatiq/enginekit/enginetest/stubs.ProcessMessageHandlerStub"))
 			})
 		})
 
@@ -178,7 +179,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when the handler does not configure an identity",
-			`*fixtures.ProcessMessageHandler is configured without an identity, Identity() must be called exactly once within Configure()`,
+			`*stubs.ProcessMessageHandlerStub is configured without an identity, Identity() must be called exactly once within Configure()`,
 			func(c dogma.ProcessConfigurer) {
 				c.Routes(
 					dogma.HandlesEvent[fixtures.MessageA](),
@@ -188,7 +189,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when the handler configures multiple identities",
-			`*fixtures.ProcessMessageHandler is configured with multiple identities (<name>/bea52cf4-e403-4b18-819d-88ade7836308 and <other>/bea52cf4-e403-4b18-819d-88ade7836308), Identity() must be called exactly once within Configure()`,
+			`*stubs.ProcessMessageHandlerStub is configured with multiple identities (<name>/bea52cf4-e403-4b18-819d-88ade7836308 and <other>/bea52cf4-e403-4b18-819d-88ade7836308), Identity() must be called exactly once within Configure()`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Identity("<other>", processKey)
@@ -200,7 +201,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when the handler configures an invalid name",
-			`*fixtures.ProcessMessageHandler is configured with an invalid identity, invalid name "\t \n", names must be non-empty, printable UTF-8 strings with no whitespace`,
+			`*stubs.ProcessMessageHandlerStub is configured with an invalid identity, invalid name "\t \n", names must be non-empty, printable UTF-8 strings with no whitespace`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("\t \n", processKey)
 				c.Routes(
@@ -211,7 +212,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when the handler configures an invalid key",
-			`*fixtures.ProcessMessageHandler is configured with an invalid identity, invalid key "\t \n", keys must be RFC 4122 UUIDs`,
+			`*stubs.ProcessMessageHandlerStub is configured with an invalid identity, invalid key "\t \n", keys must be RFC 4122 UUIDs`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", "\t \n")
 				c.Routes(
@@ -222,7 +223,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when the handler does not configure any event routes",
-			`*fixtures.ProcessMessageHandler (<name>) is not configured to handle any events, at least one HandlesEvent() route must be added within Configure()`,
+			`*stubs.ProcessMessageHandlerStub (<name>) is not configured to handle any events, at least one HandlesEvent() route must be added within Configure()`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
@@ -232,7 +233,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when the handler configures multiple routes for the same event",
-			`*fixtures.ProcessMessageHandler (<name>) is configured with multiple HandlesEvent() routes for fixtures.MessageA, should these refer to different message types?`,
+			`*stubs.ProcessMessageHandlerStub (<name>) is configured with multiple HandlesEvent() routes for fixtures.MessageA, should these refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
@@ -244,7 +245,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when the handler does not configure command routes",
-			`*fixtures.ProcessMessageHandler (<name>) is not configured to execute any commands, at least one ExecutesCommand() route must be added within Configure()`,
+			`*stubs.ProcessMessageHandlerStub (<name>) is not configured to execute any commands, at least one ExecutesCommand() route must be added within Configure()`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
@@ -254,7 +255,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when the handler configures multiple routes for the same command",
-			`*fixtures.ProcessMessageHandler (<name>) is configured with multiple ExecutesCommand() routes for fixtures.MessageC, should these refer to different message types?`,
+			`*stubs.ProcessMessageHandlerStub (<name>) is configured with multiple ExecutesCommand() routes for fixtures.MessageC, should these refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
@@ -266,7 +267,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when the handler configures multiple routes for the same timeout",
-			`*fixtures.ProcessMessageHandler (<name>) is configured with multiple SchedulesTimeout() routes for fixtures.MessageT, should these refer to different message types?`,
+			`*stubs.ProcessMessageHandlerStub (<name>) is configured with multiple SchedulesTimeout() routes for fixtures.MessageT, should these refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
@@ -279,7 +280,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when the handler configures the same message type with different roles",
-			`*fixtures.ProcessMessageHandler (<name>) is configured to use fixtures.MessageA as both an event and a timeout`,
+			`*stubs.ProcessMessageHandlerStub (<name>) is configured to use fixtures.MessageA as both an event and a timeout`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
@@ -290,7 +291,7 @@ var _ = Describe("func FromProcess()", func() {
 		),
 		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
-			`*fixtures.ProcessMessageHandler is configured with multiple HandlesEvent() routes for fixtures.MessageA, should these refer to different message types?`,
+			`*stubs.ProcessMessageHandlerStub is configured with multiple HandlesEvent() routes for fixtures.MessageA, should these refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Routes(
 					dogma.HandlesEvent[fixtures.MessageA](),

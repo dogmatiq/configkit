@@ -10,16 +10,17 @@ import (
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflicts
+	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("func FromAggregate()", func() {
-	var handler *fixtures.AggregateMessageHandler
+	var handler *AggregateMessageHandlerStub
 
 	BeforeEach(func() {
-		handler = &fixtures.AggregateMessageHandler{
+		handler = &AggregateMessageHandlerStub{
 			ConfigureFunc: func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
@@ -80,7 +81,7 @@ var _ = Describe("func FromAggregate()", func() {
 
 		Describe("func TypeName()", func() {
 			It("returns the fully-qualified type name of the handler", func() {
-				Expect(cfg.TypeName()).To(Equal("*github.com/dogmatiq/dogma/fixtures.AggregateMessageHandler"))
+				Expect(cfg.TypeName()).To(Equal("*github.com/dogmatiq/enginekit/enginetest/stubs.AggregateMessageHandlerStub"))
 			})
 		})
 
@@ -179,7 +180,7 @@ var _ = Describe("func FromAggregate()", func() {
 		),
 		Entry(
 			"when the handler does not configure an identity",
-			`*fixtures.AggregateMessageHandler is configured without an identity, Identity() must be called exactly once within Configure()`,
+			`*stubs.AggregateMessageHandlerStub is configured without an identity, Identity() must be called exactly once within Configure()`,
 			func(c dogma.AggregateConfigurer) {
 				c.Routes(
 					dogma.HandlesCommand[fixtures.MessageA](),
@@ -189,7 +190,7 @@ var _ = Describe("func FromAggregate()", func() {
 		),
 		Entry(
 			"when the handler configures multiple identities",
-			`*fixtures.AggregateMessageHandler is configured with multiple identities (<name>/14769f7f-87fe-48dd-916e-5bcab6ba6aca and <other>/14769f7f-87fe-48dd-916e-5bcab6ba6aca), Identity() must be called exactly once within Configure()`,
+			`*stubs.AggregateMessageHandlerStub is configured with multiple identities (<name>/14769f7f-87fe-48dd-916e-5bcab6ba6aca and <other>/14769f7f-87fe-48dd-916e-5bcab6ba6aca), Identity() must be called exactly once within Configure()`,
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Identity("<other>", aggregateKey)
@@ -201,7 +202,7 @@ var _ = Describe("func FromAggregate()", func() {
 		),
 		Entry(
 			"when the handler configures an invalid name",
-			`*fixtures.AggregateMessageHandler is configured with an invalid identity, invalid name "\t \n", names must be non-empty, printable UTF-8 strings with no whitespace`,
+			`*stubs.AggregateMessageHandlerStub is configured with an invalid identity, invalid name "\t \n", names must be non-empty, printable UTF-8 strings with no whitespace`,
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("\t \n", appKey)
 				c.Routes(
@@ -212,7 +213,7 @@ var _ = Describe("func FromAggregate()", func() {
 		),
 		Entry(
 			"when the handler configures an invalid key",
-			`*fixtures.AggregateMessageHandler is configured with an invalid identity, invalid key "\t \n", keys must be RFC 4122 UUIDs`,
+			`*stubs.AggregateMessageHandlerStub is configured with an invalid identity, invalid key "\t \n", keys must be RFC 4122 UUIDs`,
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", "\t \n")
 				c.Routes(
@@ -223,7 +224,7 @@ var _ = Describe("func FromAggregate()", func() {
 		),
 		Entry(
 			"when the handler does not configure any command routes",
-			`*fixtures.AggregateMessageHandler (<name>) is not configured to handle any commands, at least one HandlesCommand() route must be added within Configure()`,
+			`*stubs.AggregateMessageHandlerStub (<name>) is not configured to handle any commands, at least one HandlesCommand() route must be added within Configure()`,
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
@@ -233,7 +234,7 @@ var _ = Describe("func FromAggregate()", func() {
 		),
 		Entry(
 			"when the handler configures multiple routes for the same command",
-			`*fixtures.AggregateMessageHandler (<name>) is configured with multiple HandlesCommand() routes for fixtures.MessageA, should these refer to different message types?`,
+			`*stubs.AggregateMessageHandlerStub (<name>) is configured with multiple HandlesCommand() routes for fixtures.MessageA, should these refer to different message types?`,
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
@@ -245,7 +246,7 @@ var _ = Describe("func FromAggregate()", func() {
 		),
 		Entry(
 			"when the handler does not configure any event routes",
-			`*fixtures.AggregateMessageHandler (<name>) is not configured to record any events, at least one RecordsEvent() route must be added within Configure()`,
+			`*stubs.AggregateMessageHandlerStub (<name>) is not configured to record any events, at least one RecordsEvent() route must be added within Configure()`,
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
@@ -255,7 +256,7 @@ var _ = Describe("func FromAggregate()", func() {
 		),
 		Entry(
 			"when the handler configures multiple routes for the same event",
-			`*fixtures.AggregateMessageHandler (<name>) is configured with multiple RecordsEvent() routes for fixtures.MessageE, should these refer to different message types?`,
+			`*stubs.AggregateMessageHandlerStub (<name>) is configured with multiple RecordsEvent() routes for fixtures.MessageE, should these refer to different message types?`,
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
@@ -267,7 +268,7 @@ var _ = Describe("func FromAggregate()", func() {
 		),
 		Entry(
 			"when the handler configures the same message type with different roles",
-			`*fixtures.AggregateMessageHandler (<name>) is configured to use fixtures.MessageA as both a command and an event`,
+			`*stubs.AggregateMessageHandlerStub (<name>) is configured to use fixtures.MessageA as both a command and an event`,
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
@@ -278,7 +279,7 @@ var _ = Describe("func FromAggregate()", func() {
 		),
 		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
-			`*fixtures.AggregateMessageHandler is configured with multiple HandlesCommand() routes for fixtures.MessageA, should these refer to different message types?`,
+			`*stubs.AggregateMessageHandlerStub is configured with multiple HandlesCommand() routes for fixtures.MessageA, should these refer to different message types?`,
 			func(c dogma.AggregateConfigurer) {
 				c.Routes(
 					dogma.HandlesCommand[fixtures.MessageA](),

@@ -12,6 +12,7 @@ import (
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflicts
+	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -70,7 +71,7 @@ var _ = Describe("type Application", func() {
 
 	Describe("func Handlers()", func() {
 		It("returns the value of .HandlersValue field", func() {
-			aggregate := configkit.FromAggregate(&fixtures.AggregateMessageHandler{
+			aggregate := configkit.FromAggregate(&AggregateMessageHandlerStub{
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<agg-name>", "63990c32-ecdd-46dd-8e6a-7bb16f3b1730")
 					c.Routes(
@@ -80,7 +81,7 @@ var _ = Describe("type Application", func() {
 				},
 			})
 
-			projection := configkit.FromProjection(&fixtures.ProjectionMessageHandler{
+			projection := configkit.FromProjection(&ProjectionMessageHandlerStub{
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 					c.Identity("<proj-name>", "b34181e8-2930-4b6c-a649-18a001836ec3")
 					c.Routes(

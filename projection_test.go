@@ -10,16 +10,17 @@ import (
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflicts
+	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("func FromProjection()", func() {
-	var handler *fixtures.ProjectionMessageHandler
+	var handler *ProjectionMessageHandlerStub
 
 	BeforeEach(func() {
-		handler = &fixtures.ProjectionMessageHandler{
+		handler = &ProjectionMessageHandlerStub{
 			ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", projectionKey)
 				c.Routes(
@@ -78,7 +79,7 @@ var _ = Describe("func FromProjection()", func() {
 
 		Describe("func TypeName()", func() {
 			It("returns the fully-qualified type name of the handler", func() {
-				Expect(cfg.TypeName()).To(Equal("*github.com/dogmatiq/dogma/fixtures.ProjectionMessageHandler"))
+				Expect(cfg.TypeName()).To(Equal("*github.com/dogmatiq/enginekit/enginetest/stubs.ProjectionMessageHandlerStub"))
 			})
 		})
 
@@ -181,7 +182,7 @@ var _ = Describe("func FromProjection()", func() {
 		),
 		Entry(
 			"when the handler does not configure an identity",
-			`*fixtures.ProjectionMessageHandler is configured without an identity, Identity() must be called exactly once within Configure()`,
+			`*stubs.ProjectionMessageHandlerStub is configured without an identity, Identity() must be called exactly once within Configure()`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Routes(
 					dogma.HandlesEvent[fixtures.MessageA](),
@@ -190,7 +191,7 @@ var _ = Describe("func FromProjection()", func() {
 		),
 		Entry(
 			"when the handler configures multiple identities",
-			`*fixtures.ProjectionMessageHandler is configured with multiple identities (<name>/70fdf7fa-4b24-448d-bd29-7ecc71d18c56 and <other>/70fdf7fa-4b24-448d-bd29-7ecc71d18c56), Identity() must be called exactly once within Configure()`,
+			`*stubs.ProjectionMessageHandlerStub is configured with multiple identities (<name>/70fdf7fa-4b24-448d-bd29-7ecc71d18c56 and <other>/70fdf7fa-4b24-448d-bd29-7ecc71d18c56), Identity() must be called exactly once within Configure()`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", projectionKey)
 				c.Identity("<other>", projectionKey)
@@ -201,7 +202,7 @@ var _ = Describe("func FromProjection()", func() {
 		),
 		Entry(
 			"when the handler configures an invalid name",
-			`*fixtures.ProjectionMessageHandler is configured with an invalid identity, invalid name "\t \n", names must be non-empty, printable UTF-8 strings with no whitespace`,
+			`*stubs.ProjectionMessageHandlerStub is configured with an invalid identity, invalid name "\t \n", names must be non-empty, printable UTF-8 strings with no whitespace`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("\t \n", projectionKey)
 				c.Routes(
@@ -211,7 +212,7 @@ var _ = Describe("func FromProjection()", func() {
 		),
 		Entry(
 			"when the handler configures an invalid key",
-			`*fixtures.ProjectionMessageHandler is configured with an invalid identity, invalid key "\t \n", keys must be RFC 4122 UUIDs`,
+			`*stubs.ProjectionMessageHandlerStub is configured with an invalid identity, invalid key "\t \n", keys must be RFC 4122 UUIDs`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", "\t \n")
 				c.Routes(
@@ -221,14 +222,14 @@ var _ = Describe("func FromProjection()", func() {
 		),
 		Entry(
 			"when the handler does not configure any event routes",
-			`*fixtures.ProjectionMessageHandler (<name>) is not configured to handle any events, at least one HandlesEvent() route must be added within Configure()`,
+			`*stubs.ProjectionMessageHandlerStub (<name>) is not configured to handle any events, at least one HandlesEvent() route must be added within Configure()`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", projectionKey)
 			},
 		),
 		Entry(
 			"when the handler configures multiple routes for the same event",
-			`*fixtures.ProjectionMessageHandler (<name>) is configured with multiple HandlesEvent() routes for fixtures.MessageA, should these refer to different message types?`,
+			`*stubs.ProjectionMessageHandlerStub (<name>) is configured with multiple HandlesEvent() routes for fixtures.MessageA, should these refer to different message types?`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", projectionKey)
 				c.Routes(
@@ -239,7 +240,7 @@ var _ = Describe("func FromProjection()", func() {
 		),
 		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
-			`*fixtures.ProjectionMessageHandler is configured with multiple HandlesEvent() routes for fixtures.MessageA, should these refer to different message types?`,
+			`*stubs.ProjectionMessageHandlerStub is configured with multiple HandlesEvent() routes for fixtures.MessageA, should these refer to different message types?`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Routes(
 					dogma.HandlesEvent[fixtures.MessageA](),
