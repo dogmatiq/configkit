@@ -1,4 +1,4 @@
-package entity
+package static
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"github.com/dogmatiq/configkit"
 )
 
-// Application is an implementation of config.Application.
-type Application struct {
+// application is an implementation of [configkit.Application].
+type application struct {
 	IdentityValue     configkit.Identity
 	TypeNameValue     string
 	MessageNamesValue configkit.EntityMessageNames
@@ -15,32 +15,32 @@ type Application struct {
 }
 
 // Identity returns the identity of the entity.
-func (a *Application) Identity() configkit.Identity {
+func (a *application) Identity() configkit.Identity {
 	return a.IdentityValue
 }
 
 // TypeName returns the fully-qualified type name of the entity.
-func (a *Application) TypeName() string {
+func (a *application) TypeName() string {
 	return a.TypeNameValue
 }
 
 // MessageNames returns information about the messages used by the entity.
-func (a *Application) MessageNames() configkit.EntityMessageNames {
+func (a *application) MessageNames() configkit.EntityMessageNames {
 	return a.MessageNamesValue
 }
 
 // Handlers returns the handlers within this application.
-func (a *Application) Handlers() configkit.HandlerSet {
+func (a *application) Handlers() configkit.HandlerSet {
 	return a.HandlersValue
 }
 
 // AcceptVisitor calls the appropriate method on v for this entity type.
-func (a *Application) AcceptVisitor(ctx context.Context, v configkit.Visitor) error {
+func (a *application) AcceptVisitor(ctx context.Context, v configkit.Visitor) error {
 	return v.VisitApplication(ctx, a)
 }
 
-// Handler is an implementation of config.Handler.
-type Handler struct {
+// handler is an implementation of [configkit.Handler].
+type handler struct {
 	IdentityValue     configkit.Identity
 	TypeNameValue     string
 	MessageNamesValue configkit.EntityMessageNames
@@ -49,32 +49,32 @@ type Handler struct {
 }
 
 // Identity returns the identity of the entity.
-func (h *Handler) Identity() configkit.Identity {
+func (h *handler) Identity() configkit.Identity {
 	return h.IdentityValue
 }
 
 // TypeName returns the fully-qualified type name of the entity.
-func (h *Handler) TypeName() string {
+func (h *handler) TypeName() string {
 	return h.TypeNameValue
 }
 
 // MessageNames returns information about the messages used by the entity.
-func (h *Handler) MessageNames() configkit.EntityMessageNames {
+func (h *handler) MessageNames() configkit.EntityMessageNames {
 	return h.MessageNamesValue
 }
 
 // HandlerType returns the type of handler.
-func (h *Handler) HandlerType() configkit.HandlerType {
+func (h *handler) HandlerType() configkit.HandlerType {
 	return h.HandlerTypeValue
 }
 
 // IsDisabled returns true if the handler is disabled.
-func (h *Handler) IsDisabled() bool {
+func (h *handler) IsDisabled() bool {
 	return h.IsDisabledValue
 }
 
 // AcceptVisitor calls the appropriate method on v for this entity type.
-func (h *Handler) AcceptVisitor(ctx context.Context, v configkit.Visitor) error {
+func (h *handler) AcceptVisitor(ctx context.Context, v configkit.Visitor) error {
 	h.HandlerTypeValue.MustValidate()
 
 	switch h.HandlerTypeValue {

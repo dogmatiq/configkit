@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/dogmatiq/configkit"
-	"github.com/dogmatiq/configkit/internal/entity"
 	"github.com/dogmatiq/configkit/internal/typename/gotypes"
 	"github.com/dogmatiq/configkit/message"
 	"golang.org/x/tools/go/ssa"
@@ -20,7 +19,7 @@ func analyzeApplication(
 	dogmaPkg dogmaPackage,
 	typ types.Type,
 ) configkit.Application {
-	app := &entity.Application{
+	app := &application{
 		TypeNameValue:     gotypes.NameOf(typ),
 		HandlersValue:     configkit.HandlerSet{},
 		MessageNamesValue: configkit.EntityMessageNames{},
@@ -278,7 +277,7 @@ func addHandlerFromConfigureMethod(
 	hs configkit.HandlerSet,
 	ht configkit.HandlerType,
 ) {
-	hdr := &entity.Handler{
+	hdr := &handler{
 		HandlerTypeValue: ht,
 		TypeNameValue:    handlerType,
 		MessageNamesValue: configkit.EntityMessageNames{
