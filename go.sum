@@ -1,8 +1,8 @@
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dogmatiq/dogma v0.14.1 h1:uSYkfDR9Wr7zCphDIZBZpKOr1QLD4UpTJy5vD+lDFpg=
-github.com/dogmatiq/dogma v0.14.1/go.mod h1:9lyVA+6V2+E/exV0IrBOrkUiyFwIATEhv+b0vnB2umQ=
+github.com/dogmatiq/dogma v0.14.2 h1:SrwuNGMbZ4W9jdxe9a9e7n1Fspo/dhsLLhMSVMdIQro=
+github.com/dogmatiq/dogma v0.14.2/go.mod h1:9lyVA+6V2+E/exV0IrBOrkUiyFwIATEhv+b0vnB2umQ=
 github.com/dogmatiq/enginekit v0.10.3 h1:56gLlryKud0qOjsLK80syH+V7mNT16UasVzoNxCofsw=
 github.com/dogmatiq/enginekit v0.10.3/go.mod h1:fBxEGdHPT4C9M1qnYO4wGTzmtXe/EUaefIm5eJSjG7Y=
 github.com/dogmatiq/iago v0.4.0 h1:57nZqVT34IZxtCZEW/RFif7DNUEjMXgevfr/Mmd0N8I=
