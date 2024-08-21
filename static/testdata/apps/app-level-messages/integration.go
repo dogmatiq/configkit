@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/dogmatiq/dogma"
-	"github.com/dogmatiq/dogma/fixtures"
+	"github.com/dogmatiq/enginekit/enginetest/stubs"
 )
 
 // Integration is an integration used for testing.
@@ -24,8 +24,8 @@ func (IntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
 	c.Identity("<integration>", "099b5b8d-9e04-422f-bcc3-bb0d451158c7")
 
 	c.Routes(
-		dogma.HandlesCommand[fixtures.MessageA](),
-		dogma.RecordsEvent[fixtures.MessageF](),
+		dogma.HandlesCommand[stubs.CommandStub[stubs.TypeA]](),
+		dogma.RecordsEvent[stubs.EventStub[stubs.TypeB]](),
 	)
 }
 

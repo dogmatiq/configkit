@@ -14,7 +14,6 @@ type IntegrationHandler struct{}
 // handler.
 func (IntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
 	c.Identity("<integration>", "363039e5-2938-4b2c-9bec-dcb29dee2da1")
-
 	c.Routes(nil)
 }
 

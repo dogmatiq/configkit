@@ -11,17 +11,19 @@ import (
 // dogma.IntegrationMessageHandler.
 type IntegrationHandler struct{}
 
+// NewIntegrationHandler returns a new IntegrationHandler.
+func NewIntegrationHandler() IntegrationHandler {
+	panic("the implementation of this function is irrelevant to the analyzer")
+}
+
 // Configure configures the behavior of the engine as it relates to this
 // handler.
 func (IntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
-	c.Identity("<integration>", "3a06b7da-1079-4e4b-a6a6-064c62241918")
+	c.Identity("<integration>", "099b5b8d-9e04-422f-bcc3-bb0d451158c7")
 
-	routes := []dogma.IntegrationRoute{
-		dogma.HandlesCommand[stubs.CommandStub[stubs.TypeA]](),
-		dogma.RecordsEvent[stubs.EventStub[stubs.TypeA]](),
-	}
-
-	c.Routes(routes...)
+	c.Routes(
+		dogma.HandlesCommand[stubs.CommandStub[stubs.TypeB]](),
+	)
 }
 
 // HandleCommand handles a command message that has been routed to this handler.

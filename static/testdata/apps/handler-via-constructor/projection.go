@@ -7,20 +7,21 @@ import (
 	"github.com/dogmatiq/enginekit/enginetest/stubs"
 )
 
-// Projection is a projection used for testing.
-type Projection struct{}
-
 // ProjectionHandler is a test implementation of dogma.ProjectionMessageHandler.
 type ProjectionHandler struct{}
+
+// NewProjectionHandler returns a new ProjectionHandler.
+func NewProjectionHandler() ProjectionHandler {
+	panic("the implementation of this function is irrelevant to the analyzer")
+}
 
 // Configure configures the behavior of the engine as it relates to this
 // handler.
 func (ProjectionHandler) Configure(c dogma.ProjectionConfigurer) {
-	c.Identity("<projection>", "7a5090e0-7248-4a58-8d70-a5dfd8c8abe1")
+	c.Identity("<projection>", "823e61d3-ace1-469d-b0a6-778e84c0a508")
 
 	c.Routes(
 		dogma.HandlesEvent[stubs.EventStub[stubs.TypeA]](),
-		dogma.HandlesEvent[stubs.EventStub[stubs.TypeC]](),
 	)
 }
 

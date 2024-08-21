@@ -5,6 +5,7 @@ import (
 
 	"github.com/dogmatiq/dogma"
 	"github.com/dogmatiq/enginekit/enginetest/stubs"
+	"golang.org/x/exp/rand"
 )
 
 // IntegrationHandler is a test implementation of
@@ -14,14 +15,19 @@ type IntegrationHandler struct{}
 // Configure configures the behavior of the engine as it relates to this
 // handler.
 func (IntegrationHandler) Configure(c dogma.IntegrationConfigurer) {
-	c.Identity("<integration>", "3a06b7da-1079-4e4b-a6a6-064c62241918")
+	c.Identity("<integration>", "92cce461-8d30-409b-8d5a-406f656cef2d")
 
-	routes := []dogma.IntegrationRoute{
-		dogma.HandlesCommand[stubs.CommandStub[stubs.TypeA]](),
-		dogma.RecordsEvent[stubs.EventStub[stubs.TypeA]](),
+	if rand.Int() == 0 {
+		c.Routes(
+			dogma.HandlesCommand[stubs.CommandStub[stubs.TypeA]](),
+			dogma.RecordsEvent[stubs.EventStub[stubs.TypeA]](),
+		)
+	} else {
+		c.Routes(
+			dogma.HandlesCommand[stubs.CommandStub[stubs.TypeB]](),
+			dogma.RecordsEvent[stubs.EventStub[stubs.TypeB]](),
+		)
 	}
-
-	c.Routes(routes...)
 }
 
 // HandleCommand handles a command message that has been routed to this handler.

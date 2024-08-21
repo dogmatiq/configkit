@@ -8,6 +8,6 @@ type App struct{}
 // Configure configures the behavior of the engine as it relates to this
 // application.
 func (App) Configure(c dogma.ApplicationConfigurer) {
-	c.Identity("<app>", "3bc3849b-abe0-4c4e-9db4-e48dc28c9a26")
+	c.Identity("<app>", "f2c08525-623e-4c76-851c-3172953269e3")
 	c.RegisterIntegration(IntegrationHandler{})
 }

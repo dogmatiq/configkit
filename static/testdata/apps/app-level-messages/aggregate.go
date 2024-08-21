@@ -2,7 +2,7 @@ package app
 
 import (
 	"github.com/dogmatiq/dogma"
-	"github.com/dogmatiq/dogma/fixtures"
+	"github.com/dogmatiq/enginekit/enginetest/stubs"
 )
 
 // Aggregate is an aggregate used for testing.
@@ -26,8 +26,8 @@ func (AggregateHandler) Configure(c dogma.AggregateConfigurer) {
 	c.Identity("<aggregate>", "ef16c9d1-d7b6-4c99-a0e7-a59218e544fc")
 
 	c.Routes(
-		dogma.HandlesCommand[fixtures.MessageA](),
-		dogma.RecordsEvent[fixtures.MessageB](),
+		dogma.HandlesCommand[stubs.CommandStub[stubs.TypeA]](),
+		dogma.RecordsEvent[stubs.EventStub[stubs.TypeA]](),
 	)
 }
 

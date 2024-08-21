@@ -16,29 +16,29 @@ func (Aggregate) ApplyEvent(dogma.Event) {}
 type AggregateHandler struct{}
 
 // New returns a new account instance.
-func (*AggregateHandler) New() dogma.AggregateRoot {
+func (AggregateHandler) New() dogma.AggregateRoot {
 	return Aggregate{}
 }
 
 // Configure configures the behavior of the engine as it relates to this
 // handler.
-func (*AggregateHandler) Configure(c dogma.AggregateConfigurer) {
-	c.Identity("<aggregate>", "195ede4a-3f26-4d19-a8fe-41b2a5f92d06")
+func (AggregateHandler) Configure(c dogma.AggregateConfigurer) {
+	c.Identity("<aggregate>", "ee1814e3-194d-438a-916e-ee7766598646")
 
 	c.Routes(
 		dogma.HandlesCommand[stubs.CommandStub[stubs.TypeA]](),
-		dogma.RecordsEvent[stubs.CommandStub[stubs.TypeB]](),
+		dogma.RecordsEvent[stubs.EventStub[stubs.TypeA]](),
 	)
 }
 
 // RouteCommandToInstance returns the ID of the aggregate instance that is
 // targetted by m.
-func (*AggregateHandler) RouteCommandToInstance(dogma.Command) string {
+func (AggregateHandler) RouteCommandToInstance(dogma.Command) string {
 	return "<aggregate>"
 }
 
 // HandleCommand handles a command message that has been routed to this handler.
-func (*AggregateHandler) HandleCommand(
+func (AggregateHandler) HandleCommand(
 	dogma.AggregateRoot,
 	dogma.AggregateCommandScope,
 	dogma.Command,

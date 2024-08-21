@@ -4,7 +4,7 @@ import (
 	"github.com/dogmatiq/configkit"
 	"github.com/dogmatiq/configkit/message"
 	. "github.com/dogmatiq/configkit/static"
-	"github.com/dogmatiq/dogma/fixtures"
+	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -134,16 +134,16 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 			Expect(apps[0].MessageNames()).To(Equal(
 				configkit.EntityMessageNames{
 					Consumed: message.NameRoles{
-						message.NameFor[fixtures.MessageA](): message.CommandRole,
-						message.NameFor[fixtures.MessageB](): message.EventRole,
-						message.NameFor[fixtures.MessageC](): message.EventRole,
-						message.NameFor[fixtures.MessageE](): message.TimeoutRole,
+						message.NameFor[CommandStub[TypeA]](): message.CommandRole,
+						message.NameFor[EventStub[TypeA]]():   message.EventRole,
+						message.NameFor[EventStub[TypeC]]():   message.EventRole,
+						message.NameFor[TimeoutStub[TypeA]](): message.TimeoutRole,
 					},
 					Produced: message.NameRoles{
-						message.NameFor[fixtures.MessageB](): message.EventRole,
-						message.NameFor[fixtures.MessageD](): message.CommandRole,
-						message.NameFor[fixtures.MessageE](): message.TimeoutRole,
-						message.NameFor[fixtures.MessageF](): message.EventRole,
+						message.NameFor[EventStub[TypeA]]():   message.EventRole,
+						message.NameFor[CommandStub[TypeB]](): message.CommandRole,
+						message.NameFor[TimeoutStub[TypeA]](): message.TimeoutRole,
+						message.NameFor[EventStub[TypeB]]():   message.EventRole,
 					},
 				},
 			))

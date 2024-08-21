@@ -8,10 +8,6 @@ type App struct{}
 // Configure configures the behavior of the engine as it relates to this
 // application.
 func (App) Configure(c dogma.ApplicationConfigurer) {
-	c.Identity("<nil-routes-app>", "c100edcc-6dcc-42ed-ac75-69eecb3d0ec4")
-
+	c.Identity("<app>", "c100edcc-6dcc-42ed-ac75-69eecb3d0ec4")
 	c.RegisterIntegration(IntegrationHandler{})
-	c.RegisterProjection(ProjectionHandler{})
-	c.RegisterAggregate(AggregateHandler{})
-	c.RegisterProcess(ProcessHandler{})
 }

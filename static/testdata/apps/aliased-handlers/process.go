@@ -22,12 +22,11 @@ func (ProcessHandler) New() dogma.ProcessRoot {
 // Configure configures the behavior of the engine as it relates to this
 // handler.
 func (ProcessHandler) Configure(c dogma.ProcessConfigurer) {
-	c.Identity("<process>", "9c3d8ca7-1846-4793-8e11-bd43b1a98822")
+	c.Identity("<process>", "ad9d6955-893a-4d8d-a26e-e25886b113b2")
 
 	c.Routes(
-		dogma.HandlesEvent[stubs.EventStub[stubs.TypeC]](),
+		dogma.HandlesEvent[stubs.EventStub[stubs.TypeA]](),
 		dogma.ExecutesCommand[stubs.CommandStub[stubs.TypeB]](),
-		dogma.SchedulesTimeout[stubs.TimeoutStub[stubs.TypeA]](),
 	)
 }
 

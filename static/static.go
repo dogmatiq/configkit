@@ -33,6 +33,12 @@ func FromDir(dir string) []configkit.Application {
 		panic(err)
 	}
 
+	for _, p := range pkgs {
+		for _, e := range p.Errors {
+			panic(e)
+		}
+	}
+
 	return FromPackages(pkgs)
 }
 

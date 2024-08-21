@@ -13,6 +13,11 @@ type Process struct{}
 // ProcessHandler is a test implementation of dogma.ProcessMessageHandler.
 type ProcessHandler struct{}
 
+// NewProcessHandler returns a new ProcessHandler.
+func NewProcessHandler() ProcessHandler {
+	panic("the implementation of this function is irrelevant to the analyzer")
+}
+
 // New constructs a new process instance initialized with any default values and
 // returns the process root.
 func (ProcessHandler) New() dogma.ProcessRoot {
@@ -22,12 +27,11 @@ func (ProcessHandler) New() dogma.ProcessRoot {
 // Configure configures the behavior of the engine as it relates to this
 // handler.
 func (ProcessHandler) Configure(c dogma.ProcessConfigurer) {
-	c.Identity("<process>", "9c3d8ca7-1846-4793-8e11-bd43b1a98822")
+	c.Identity("<process>", "5e839b73-170b-42c0-bf41-8feee4b5a583")
 
 	c.Routes(
-		dogma.HandlesEvent[stubs.EventStub[stubs.TypeC]](),
+		dogma.HandlesEvent[stubs.EventStub[stubs.TypeA]](),
 		dogma.ExecutesCommand[stubs.CommandStub[stubs.TypeB]](),
-		dogma.SchedulesTimeout[stubs.TimeoutStub[stubs.TypeA]](),
 	)
 }
 
