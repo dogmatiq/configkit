@@ -8,8 +8,7 @@ import (
 	. "github.com/dogmatiq/configkit"
 	cfixtures "github.com/dogmatiq/configkit/fixtures" // can't dot-import due to conflicts
 	"github.com/dogmatiq/configkit/message"
-	"github.com/dogmatiq/dogma"
-	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflicts
+	"github.com/dogmatiq/dogma" // can't dot-import due to conflicts
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -24,9 +23,9 @@ var _ = Describe("func FromAggregate()", func() {
 			ConfigureFunc: func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
-					dogma.HandlesCommand[fixtures.MessageA](),
-					dogma.HandlesCommand[fixtures.MessageB](),
-					dogma.RecordsEvent[fixtures.MessageE](),
+					dogma.HandlesCommand[CommandStub[TypeA]](),
+					dogma.HandlesCommand[CommandStub[TypeB]](),
+					dogma.RecordsEvent[EventStub[TypeA]](),
 				)
 			},
 		}
@@ -52,11 +51,11 @@ var _ = Describe("func FromAggregate()", func() {
 				Expect(cfg.MessageNames()).To(Equal(
 					EntityMessageNames{
 						Produced: message.NameRoles{
-							cfixtures.MessageETypeName: message.EventRole,
+							message.NameFor[EventStub[TypeA]](): message.EventRole,
 						},
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.CommandRole,
-							cfixtures.MessageBTypeName: message.CommandRole,
+							message.NameFor[CommandStub[TypeA]](): message.CommandRole,
+							message.NameFor[CommandStub[TypeB]](): message.CommandRole,
 						},
 					},
 				))
@@ -68,11 +67,11 @@ var _ = Describe("func FromAggregate()", func() {
 				Expect(cfg.MessageTypes()).To(Equal(
 					EntityMessageTypes{
 						Produced: message.TypeRoles{
-							cfixtures.MessageEType: message.EventRole,
+							message.TypeFor[EventStub[TypeA]](): message.EventRole,
 						},
 						Consumed: message.TypeRoles{
-							cfixtures.MessageAType: message.CommandRole,
-							cfixtures.MessageBType: message.CommandRole,
+							message.TypeFor[CommandStub[TypeA]](): message.CommandRole,
+							message.TypeFor[CommandStub[TypeB]](): message.CommandRole,
 						},
 					},
 				))
@@ -183,8 +182,8 @@ var _ = Describe("func FromAggregate()", func() {
 			`*stubs.AggregateMessageHandlerStub is configured without an identity, Identity() must be called exactly once within Configure()`,
 			func(c dogma.AggregateConfigurer) {
 				c.Routes(
-					dogma.HandlesCommand[fixtures.MessageA](),
-					dogma.RecordsEvent[fixtures.MessageE](),
+					dogma.HandlesCommand[CommandStub[TypeA]](),
+					dogma.RecordsEvent[EventStub[TypeA]](),
 				)
 			},
 		),
@@ -195,8 +194,8 @@ var _ = Describe("func FromAggregate()", func() {
 				c.Identity("<name>", aggregateKey)
 				c.Identity("<other>", aggregateKey)
 				c.Routes(
-					dogma.HandlesCommand[fixtures.MessageA](),
-					dogma.RecordsEvent[fixtures.MessageE](),
+					dogma.HandlesCommand[CommandStub[TypeA]](),
+					dogma.RecordsEvent[EventStub[TypeA]](),
 				)
 			},
 		),
@@ -206,8 +205,8 @@ var _ = Describe("func FromAggregate()", func() {
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("\t \n", appKey)
 				c.Routes(
-					dogma.HandlesCommand[fixtures.MessageA](),
-					dogma.RecordsEvent[fixtures.MessageE](),
+					dogma.HandlesCommand[CommandStub[TypeA]](),
+					dogma.RecordsEvent[EventStub[TypeA]](),
 				)
 			},
 		),
@@ -217,8 +216,8 @@ var _ = Describe("func FromAggregate()", func() {
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", "\t \n")
 				c.Routes(
-					dogma.HandlesCommand[fixtures.MessageA](),
-					dogma.RecordsEvent[fixtures.MessageE](),
+					dogma.HandlesCommand[CommandStub[TypeA]](),
+					dogma.RecordsEvent[EventStub[TypeA]](),
 				)
 			},
 		),
@@ -228,19 +227,19 @@ var _ = Describe("func FromAggregate()", func() {
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
-					dogma.RecordsEvent[fixtures.MessageE](),
+					dogma.RecordsEvent[EventStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when the handler configures multiple routes for the same command",
-			`*stubs.AggregateMessageHandlerStub (<name>) is configured with multiple HandlesCommand() routes for fixtures.MessageA, should these refer to different message types?`,
+			`*stubs.AggregateMessageHandlerStub (<name>) is configured with multiple HandlesCommand() routes for stubs.CommandStub[TypeA], should these refer to different message types?`,
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
-					dogma.HandlesCommand[fixtures.MessageA](),
-					dogma.HandlesCommand[fixtures.MessageA](),
-					dogma.RecordsEvent[fixtures.MessageE](),
+					dogma.HandlesCommand[CommandStub[TypeA]](),
+					dogma.HandlesCommand[CommandStub[TypeA]](),
+					dogma.RecordsEvent[EventStub[TypeA]](),
 				)
 			},
 		),
@@ -250,40 +249,40 @@ var _ = Describe("func FromAggregate()", func() {
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
-					dogma.HandlesCommand[fixtures.MessageA](),
+					dogma.HandlesCommand[CommandStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when the handler configures multiple routes for the same event",
-			`*stubs.AggregateMessageHandlerStub (<name>) is configured with multiple RecordsEvent() routes for fixtures.MessageE, should these refer to different message types?`,
+			`*stubs.AggregateMessageHandlerStub (<name>) is configured with multiple RecordsEvent() routes for stubs.EventStub[TypeA], should these refer to different message types?`,
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
-					dogma.HandlesCommand[fixtures.MessageA](),
-					dogma.RecordsEvent[fixtures.MessageE](),
-					dogma.RecordsEvent[fixtures.MessageE](),
+					dogma.HandlesCommand[CommandStub[TypeA]](),
+					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.RecordsEvent[EventStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when the handler configures the same message type with different roles",
-			`*stubs.AggregateMessageHandlerStub (<name>) is configured to use fixtures.MessageA as both a command and an event`,
+			`*stubs.AggregateMessageHandlerStub (<name>) is configured to use stubs.CommandStub[TypeA] as both a command and an event`,
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
-					dogma.HandlesCommand[fixtures.MessageA](),
-					dogma.RecordsEvent[fixtures.MessageA](),
+					dogma.HandlesCommand[CommandStub[TypeA]](),
+					dogma.RecordsEvent[CommandStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
-			`*stubs.AggregateMessageHandlerStub is configured with multiple HandlesCommand() routes for fixtures.MessageA, should these refer to different message types?`,
+			`*stubs.AggregateMessageHandlerStub is configured with multiple HandlesCommand() routes for stubs.CommandStub[TypeA], should these refer to different message types?`,
 			func(c dogma.AggregateConfigurer) {
 				c.Routes(
-					dogma.HandlesCommand[fixtures.MessageA](),
-					dogma.HandlesCommand[fixtures.MessageA](),
+					dogma.HandlesCommand[CommandStub[TypeA]](),
+					dogma.HandlesCommand[CommandStub[TypeA]](),
 				)
 			},
 		),
