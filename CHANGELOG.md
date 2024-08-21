@@ -16,6 +16,11 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 - Added `message.NameFor()`.
 
+### Changed
+
+- Shorten generic message type names when the type parameter is in the same
+  package as the generic type.
+
 ## [0.13.6] - 2024-08-17
 
 ### Changed

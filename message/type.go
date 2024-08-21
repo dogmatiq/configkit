@@ -2,6 +2,7 @@ package message
 
 import (
 	"reflect"
+	"strings"
 
 	"github.com/dogmatiq/configkit/internal/typename/goreflect"
 	"github.com/dogmatiq/dogma"
@@ -118,7 +119,11 @@ func (t Type) ReflectType() reflect.Type {
 //
 // The returned name is not necessarily globally-unique.
 func (t Type) String() string {
-	return t.rt.String()
+	return strings.ReplaceAll(
+		t.rt.String(),
+		t.rt.PkgPath()+".",
+		"",
+	)
 }
 
 // IsZero returns true if t is the zero-value.
