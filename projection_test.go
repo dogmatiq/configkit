@@ -6,10 +6,9 @@ import (
 	"reflect"
 
 	. "github.com/dogmatiq/configkit"
-	cfixtures "github.com/dogmatiq/configkit/fixtures" // can't dot-import due to conflicts
+	"github.com/dogmatiq/configkit/fixtures" // can't dot-import due to conflicts
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
-	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflicts
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -24,8 +23,8 @@ var _ = Describe("func FromProjection()", func() {
 			ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", projectionKey)
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
-					dogma.HandlesEvent[fixtures.MessageB](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.HandlesEvent[EventStub[TypeB]](),
 				)
 				c.DeliveryPolicy(dogma.BroadcastProjectionDeliveryPolicy{
 					PrimaryFirst: true,
@@ -55,8 +54,8 @@ var _ = Describe("func FromProjection()", func() {
 					EntityMessageNames{
 						Produced: nil,
 						Consumed: message.NameRoles{
-							message.NameFor[fixtures.MessageA](): message.EventRole,
-							message.NameFor[fixtures.MessageB](): message.EventRole,
+							message.NameFor[EventStub[TypeA]](): message.EventRole,
+							message.NameFor[EventStub[TypeB]](): message.EventRole,
 						},
 					},
 				))
@@ -69,8 +68,8 @@ var _ = Describe("func FromProjection()", func() {
 					EntityMessageTypes{
 						Produced: nil,
 						Consumed: message.TypeRoles{
-							message.TypeFor[fixtures.MessageA](): message.EventRole,
-							message.TypeFor[fixtures.MessageB](): message.EventRole,
+							message.TypeFor[EventStub[TypeA]](): message.EventRole,
+							message.TypeFor[EventStub[TypeB]](): message.EventRole,
 						},
 					},
 				))
@@ -101,7 +100,7 @@ var _ = Describe("func FromProjection()", func() {
 
 		Describe("func AcceptVisitor()", func() {
 			It("calls the appropriate method on the visitor", func() {
-				v := &cfixtures.Visitor{
+				v := &fixtures.Visitor{
 					VisitProjectionFunc: func(_ context.Context, c Projection) error {
 						Expect(c).To(BeIdenticalTo(cfg))
 						return errors.New("<error>")
@@ -115,7 +114,7 @@ var _ = Describe("func FromProjection()", func() {
 
 		Describe("func AcceptRichVisitor()", func() {
 			It("calls the appropriate method on the visitor", func() {
-				v := &cfixtures.RichVisitor{
+				v := &fixtures.RichVisitor{
 					VisitRichProjectionFunc: func(_ context.Context, c RichProjection) error {
 						Expect(c).To(BeIdenticalTo(cfg))
 						return errors.New("<error>")
@@ -185,7 +184,7 @@ var _ = Describe("func FromProjection()", func() {
 			`*stubs.ProjectionMessageHandlerStub is configured without an identity, Identity() must be called exactly once within Configure()`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
 				)
 			},
 		),
@@ -196,7 +195,7 @@ var _ = Describe("func FromProjection()", func() {
 				c.Identity("<name>", projectionKey)
 				c.Identity("<other>", projectionKey)
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
 				)
 			},
 		),
@@ -206,7 +205,7 @@ var _ = Describe("func FromProjection()", func() {
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("\t \n", projectionKey)
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
 				)
 			},
 		),
@@ -216,7 +215,7 @@ var _ = Describe("func FromProjection()", func() {
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", "\t \n")
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
 				)
 			},
 		),
@@ -229,22 +228,22 @@ var _ = Describe("func FromProjection()", func() {
 		),
 		Entry(
 			"when the handler configures multiple routes for the same event",
-			`*stubs.ProjectionMessageHandlerStub (<name>) is configured with multiple HandlesEvent() routes for fixtures.MessageA, should these refer to different message types?`,
+			`*stubs.ProjectionMessageHandlerStub (<name>) is configured with multiple HandlesEvent() routes for stubs.EventStub[TypeA], should these refer to different message types?`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", projectionKey)
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
-					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
-			`*stubs.ProjectionMessageHandlerStub is configured with multiple HandlesEvent() routes for fixtures.MessageA, should these refer to different message types?`,
+			`*stubs.ProjectionMessageHandlerStub is configured with multiple HandlesEvent() routes for stubs.EventStub[TypeA], should these refer to different message types?`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
-					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
 				)
 			},
 		),
@@ -254,7 +253,7 @@ var _ = Describe("func FromProjection()", func() {
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", projectionKey)
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
 				)
 				c.DeliveryPolicy(nil)
 			},

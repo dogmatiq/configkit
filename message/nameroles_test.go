@@ -1,9 +1,8 @@
 package message_test
 
 import (
-	. "github.com/dogmatiq/configkit/fixtures"
 	. "github.com/dogmatiq/configkit/message"
-	. "github.com/dogmatiq/dogma/fixtures"
+	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -14,49 +13,51 @@ var _ NameCollection = NameRoles{}
 var _ = Describe("type NameRoles", func() {
 	Describe("func Has()", func() {
 		nr := NameRoles{
-			MessageATypeName: CommandRole,
-			MessageBTypeName: EventRole,
+			NameFor[CommandStub[TypeA]](): CommandRole,
+			NameFor[EventStub[TypeA]]():   EventRole,
 		}
 
 		It("returns true if the name is in the map", func() {
 			Expect(
-				nr.Has(MessageATypeName),
+				nr.Has(NameFor[CommandStub[TypeA]]()),
 			).To(BeTrue())
 		})
 
 		It("returns false if the name is not in the map", func() {
 			Expect(
-				nr.Has(MessageCTypeName),
+				nr.Has(NameFor[CommandStub[TypeX]]()),
 			).To(BeFalse())
 		})
 	})
 
 	Describe("func HasM()", func() {
 		nr := NameRoles{
-			MessageATypeName: CommandRole,
-			MessageBTypeName: EventRole,
+			NameFor[CommandStub[TypeA]](): CommandRole,
+			NameFor[EventStub[TypeA]]():   EventRole,
 		}
 
 		It("returns true if the name is in the map", func() {
 			Expect(
-				nr.HasM(MessageA1),
+				nr.HasM(CommandA1),
 			).To(BeTrue())
 		})
 
 		It("returns false if the name is not in the map", func() {
 			Expect(
-				nr.HasM(MessageC1),
+				nr.HasM(CommandX1),
 			).To(BeFalse())
 		})
 	})
 
 	Describe("func Add()", func() {
 		It("adds the name to the map", func() {
+			n := NameFor[CommandStub[TypeA]]()
 			nr := NameRoles{}
-			nr.Add(MessageATypeName, CommandRole)
+
+			nr.Add(n, CommandRole)
 
 			Expect(
-				nr.Has(MessageATypeName),
+				nr.Has(n),
 			).To(BeTrue())
 		})
 
@@ -64,20 +65,22 @@ var _ = Describe("type NameRoles", func() {
 			nr := NameRoles{}
 
 			Expect(
-				nr.Add(MessageATypeName, CommandRole),
+				nr.Add(NameFor[CommandStub[TypeA]](), CommandRole),
 			).To(BeTrue())
 		})
 
 		It("returns false if the name is already in the map", func() {
+			n := NameFor[CommandStub[TypeA]]()
 			nr := NameRoles{}
-			nr.Add(MessageATypeName, CommandRole)
+
+			nr.Add(n, CommandRole)
 
 			Expect(
-				nr.Add(MessageATypeName, EventRole),
+				nr.Add(n, EventRole),
 			).To(BeFalse())
 
 			Expect(
-				nr[MessageATypeName],
+				nr[n],
 			).To(Equal(CommandRole))
 		})
 	})
@@ -85,10 +88,10 @@ var _ = Describe("type NameRoles", func() {
 	Describe("func AddM()", func() {
 		It("adds the name of the message to the map", func() {
 			nr := NameRoles{}
-			nr.AddM(MessageA1, CommandRole)
+			nr.AddM(CommandA1, CommandRole)
 
 			Expect(
-				nr.Has(MessageATypeName),
+				nr.Has(NameFor[CommandStub[TypeA]]()),
 			).To(BeTrue())
 		})
 
@@ -96,39 +99,46 @@ var _ = Describe("type NameRoles", func() {
 			nr := NameRoles{}
 
 			Expect(
-				nr.AddM(MessageA1, CommandRole),
+				nr.AddM(CommandA1, CommandRole),
 			).To(BeTrue())
 		})
 
 		It("returns false if the name is already in the map", func() {
 			nr := NameRoles{}
-			nr.AddM(MessageA1, CommandRole)
+			nr.AddM(CommandA1, CommandRole)
 
 			Expect(
-				nr.AddM(MessageA1, EventRole),
+				nr.AddM(CommandA1, EventRole),
 			).To(BeFalse())
 
 			Expect(
-				nr[MessageATypeName],
+				nr[NameFor[CommandStub[TypeA]]()],
 			).To(Equal(CommandRole))
 		})
 	})
 
 	Describe("func Remove()", func() {
 		It("removes the name from the set", func() {
-			nr := NameRoles{MessageATypeName: CommandRole}
-			nr.Remove(MessageATypeName)
+			n := NameFor[CommandStub[TypeA]]()
+			nr := NameRoles{
+				n: CommandRole,
+			}
+
+			nr.Remove(n)
 
 			Expect(
-				nr.Has(MessageATypeName),
+				nr.Has(n),
 			).To(BeFalse())
 		})
 
 		It("returns true if the name is already in the set", func() {
-			nr := NameRoles{MessageATypeName: CommandRole}
+			n := NameFor[CommandStub[TypeA]]()
+			nr := NameRoles{
+				n: CommandRole,
+			}
 
 			Expect(
-				nr.Remove(MessageATypeName),
+				nr.Remove(n),
 			).To(BeTrue())
 		})
 
@@ -136,26 +146,32 @@ var _ = Describe("type NameRoles", func() {
 			nr := NameRoles{}
 
 			Expect(
-				nr.Remove(MessageATypeName),
+				nr.Remove(NameFor[CommandStub[TypeA]]()),
 			).To(BeFalse())
 		})
 	})
 
 	Describe("func RemoveM()", func() {
 		It("removes the name of the message from the set", func() {
-			nr := NameRoles{MessageATypeName: CommandRole}
-			nr.RemoveM(MessageA1)
+			n := NameFor[CommandStub[TypeA]]()
+			nr := NameRoles{
+				n: CommandRole,
+			}
+
+			nr.RemoveM(CommandA1)
 
 			Expect(
-				nr.Has(MessageATypeName),
+				nr.Has(n),
 			).To(BeFalse())
 		})
 
 		It("returns true if the name is already in the set", func() {
-			nr := NameRoles{MessageATypeName: CommandRole}
+			nr := NameRoles{
+				NameFor[CommandStub[TypeA]](): CommandRole,
+			}
 
 			Expect(
-				nr.RemoveM(MessageA1),
+				nr.RemoveM(CommandA1),
 			).To(BeTrue())
 		})
 
@@ -163,7 +179,7 @@ var _ = Describe("type NameRoles", func() {
 			nr := NameRoles{}
 
 			Expect(
-				nr.RemoveM(MessageA1),
+				nr.RemoveM(CommandA1),
 			).To(BeFalse())
 		})
 	})
@@ -177,12 +193,12 @@ var _ = Describe("type NameRoles", func() {
 			Entry(
 				"equivalent",
 				NameRoles{
-					MessageATypeName: CommandRole,
-					MessageBTypeName: EventRole,
+					NameFor[CommandStub[TypeA]](): CommandRole,
+					NameFor[EventStub[TypeA]]():   EventRole,
 				},
 				NameRoles{
-					MessageATypeName: CommandRole,
-					MessageBTypeName: EventRole,
+					NameFor[CommandStub[TypeA]](): CommandRole,
+					NameFor[EventStub[TypeA]]():   EventRole,
 				},
 			),
 			Entry(
@@ -196,37 +212,37 @@ var _ = Describe("type NameRoles", func() {
 			"returns false if the sets are not equivalent",
 			func(b NameRoles) {
 				a := NameRoles{
-					MessageATypeName: CommandRole,
-					MessageBTypeName: EventRole,
+					NameFor[CommandStub[TypeA]](): CommandRole,
+					NameFor[EventStub[TypeA]]():   EventRole,
 				}
 				Expect(a.IsEqual(b)).To(BeFalse())
 			},
 			Entry(
 				"subset",
 				NameRoles{
-					MessageATypeName: CommandRole,
+					NameFor[CommandStub[TypeA]](): CommandRole,
 				},
 			),
 			Entry(
 				"superset",
 				NameRoles{
-					MessageATypeName: CommandRole,
-					MessageBTypeName: EventRole,
-					MessageCTypeName: TimeoutRole,
+					NameFor[CommandStub[TypeA]](): CommandRole,
+					NameFor[EventStub[TypeA]]():   EventRole,
+					NameFor[TimeoutStub[TypeA]](): TimeoutRole,
 				},
 			),
 			Entry(
 				"same-length, disjoint type",
 				NameRoles{
-					MessageATypeName: CommandRole,
-					MessageCTypeName: EventRole,
+					NameFor[CommandStub[TypeA]](): CommandRole,
+					NameFor[EventStub[TypeB]]():   EventRole,
 				},
 			),
 			Entry(
 				"same-length, disjoint role",
 				NameRoles{
-					MessageATypeName: CommandRole,
-					MessageBTypeName: TimeoutRole,
+					NameFor[CommandStub[TypeA]](): CommandRole,
+					NameFor[EventStub[TypeA]]():   TimeoutRole,
 				},
 			),
 		)
@@ -235,8 +251,8 @@ var _ = Describe("type NameRoles", func() {
 	Describe("func Len()", func() {
 		It("returns the number of names in the collection", func() {
 			nr := NameRoles{
-				MessageATypeName: CommandRole,
-				MessageBTypeName: EventRole,
+				NameFor[CommandStub[TypeA]](): CommandRole,
+				NameFor[EventStub[TypeA]]():   EventRole,
 			}
 
 			Expect(nr.Len()).To(Equal(2))
@@ -245,8 +261,8 @@ var _ = Describe("type NameRoles", func() {
 
 	Describe("func Range()", func() {
 		nr := NameRoles{
-			MessageATypeName: CommandRole,
-			MessageBTypeName: EventRole,
+			NameFor[CommandStub[TypeA]](): CommandRole,
+			NameFor[EventStub[TypeA]]():   EventRole,
 		}
 
 		It("calls fn for each name in the container", func() {
@@ -257,7 +273,10 @@ var _ = Describe("type NameRoles", func() {
 				return true
 			})
 
-			Expect(names).To(ConsistOf(MessageATypeName, MessageBTypeName))
+			Expect(names).To(ConsistOf(
+				NameFor[CommandStub[TypeA]](),
+				NameFor[EventStub[TypeA]](),
+			))
 			Expect(all).To(BeTrue())
 		})
 
@@ -276,9 +295,9 @@ var _ = Describe("type NameRoles", func() {
 
 	Describe("func RangeByRole()", func() {
 		nr := NameRoles{
-			MessageATypeName: CommandRole,
-			MessageBTypeName: EventRole,
-			MessageCTypeName: CommandRole,
+			NameFor[CommandStub[TypeA]](): CommandRole,
+			NameFor[CommandStub[TypeB]](): CommandRole,
+			NameFor[EventStub[TypeA]]():   EventRole,
 		}
 
 		It("calls fn for each name in the container with the given role", func() {
@@ -292,7 +311,10 @@ var _ = Describe("type NameRoles", func() {
 				},
 			)
 
-			Expect(names).To(ConsistOf(MessageATypeName, MessageCTypeName))
+			Expect(names).To(ConsistOf(
+				NameFor[CommandStub[TypeA]](),
+				NameFor[CommandStub[TypeB]](),
+			))
 			Expect(all).To(BeTrue())
 		})
 
@@ -315,17 +337,17 @@ var _ = Describe("type NameRoles", func() {
 	Describe("func FilterByRole()", func() {
 		It("returns a subset containing only the given roles", func() {
 			nr := NameRoles{
-				MessageATypeName: CommandRole,
-				MessageBTypeName: EventRole,
-				MessageCTypeName: CommandRole,
+				NameFor[CommandStub[TypeA]](): CommandRole,
+				NameFor[CommandStub[TypeB]](): CommandRole,
+				NameFor[EventStub[TypeA]]():   EventRole,
 			}
 
 			subset := nr.FilterByRole(CommandRole)
 
 			Expect(subset).To(Equal(
 				NameRoles{
-					MessageATypeName: CommandRole,
-					MessageCTypeName: CommandRole,
+					NameFor[CommandStub[TypeA]](): CommandRole,
+					NameFor[CommandStub[TypeB]](): CommandRole,
 				},
 			))
 		})

@@ -1,10 +1,8 @@
 package message_test
 
 import (
-	. "github.com/dogmatiq/configkit/fixtures"
 	. "github.com/dogmatiq/configkit/message"
-	"github.com/dogmatiq/dogma/fixtures"
-	. "github.com/dogmatiq/dogma/fixtures"
+	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -16,11 +14,11 @@ var _ = Describe("type NameSet", func() {
 	Describe("func NewNameSet()", func() {
 		It("returns a set containing the given names", func() {
 			Expect(NewNameSet(
-				MessageATypeName,
-				MessageBTypeName,
+				NameFor[CommandStub[TypeA]](),
+				NameFor[EventStub[TypeA]](),
 			)).To(Equal(NameSet{
-				MessageATypeName: struct{}{},
-				MessageBTypeName: struct{}{},
+				NameFor[CommandStub[TypeA]](): struct{}{},
+				NameFor[EventStub[TypeA]]():   struct{}{},
 			}))
 		})
 	})
@@ -28,11 +26,11 @@ var _ = Describe("type NameSet", func() {
 	Describe("func NamesOf()", func() {
 		It("returns a set containing the names of the given messages", func() {
 			Expect(NamesOf(
-				MessageA1,
-				MessageB1,
+				CommandA1,
+				EventA1,
 			)).To(Equal(NameSet{
-				MessageATypeName: struct{}{},
-				MessageBTypeName: struct{}{},
+				NameFor[CommandStub[TypeA]](): struct{}{},
+				NameFor[EventStub[TypeA]]():   struct{}{},
 			}))
 		})
 	})
@@ -43,29 +41,29 @@ var _ = Describe("type NameSet", func() {
 		})
 
 		It("returns the original set if a single set is given", func() {
-			a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+			a := NamesOf(CommandA1, EventA1)
 			Expect(IntersectionN(a)).To(Equal(a))
 		})
 
 		It("returns the original set for identical sets", func() {
-			a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
-			b := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
-			c := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+			a := NamesOf(CommandA1, EventA1)
+			b := NamesOf(CommandA1, EventA1)
+			c := NamesOf(CommandA1, EventA1)
 			Expect(IntersectionN(a, b, c)).To(Equal(a))
 		})
 
 		It("returns an empty set for disjoint sets", func() {
-			a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
-			b := NamesOf(fixtures.MessageC1, fixtures.MessageD1) // disjoint to a
-			c := NamesOf(fixtures.MessageC1, fixtures.MessageD1) // same as c
+			a := NamesOf(CommandA1, EventA1)
+			b := NamesOf(CommandB1, EventB1) // disjoint to a
+			c := NamesOf(CommandB1, EventB1) // same as c
 			Expect(IntersectionN(a, b, c)).To(BeEmpty())
 		})
 
 		It("returns the intersection", func() {
-			a := NamesOf(fixtures.MessageA1, fixtures.MessageB1, fixtures.MessageC1)
-			b := NamesOf(fixtures.MessageB1, fixtures.MessageC1, fixtures.MessageD1)
-			c := NamesOf(fixtures.MessageC1, fixtures.MessageD1, fixtures.MessageE1)
-			Expect(IntersectionN(a, b, c)).To(Equal(NamesOf(fixtures.MessageC1)))
+			a := NamesOf(CommandA1, EventA1, CommandB1)
+			b := NamesOf(EventA1, CommandB1, EventB1)
+			c := NamesOf(CommandB1, EventB1, TimeoutA1)
+			Expect(IntersectionN(a, b, c)).To(Equal(NamesOf(CommandB1)))
 		})
 	})
 
@@ -75,198 +73,210 @@ var _ = Describe("type NameSet", func() {
 		})
 
 		It("returns the original set if a single set is given", func() {
-			a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+			a := NamesOf(CommandA1, EventA1)
 			Expect(UnionN(a)).To(Equal(a))
 		})
 
 		It("returns the original set for identical sets", func() {
-			a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
-			b := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
-			c := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+			a := NamesOf(CommandA1, EventA1)
+			b := NamesOf(CommandA1, EventA1)
+			c := NamesOf(CommandA1, EventA1)
 			Expect(UnionN(a, b, c)).To(Equal(a))
 		})
 
 		It("returns the union", func() {
-			a := NamesOf(fixtures.MessageA1, fixtures.MessageB1, fixtures.MessageC1)
-			b := NamesOf(fixtures.MessageB1, fixtures.MessageC1, fixtures.MessageD1)
-			c := NamesOf(fixtures.MessageC1, fixtures.MessageD1, fixtures.MessageE1)
+			a := NamesOf(CommandA1, EventA1, CommandB1)
+			b := NamesOf(EventA1, CommandB1, EventB1)
+			c := NamesOf(CommandB1, EventB1, TimeoutA1)
 
 			Expect(UnionN(a, b, c)).To(Equal(NamesOf(
-				fixtures.MessageA1,
-				fixtures.MessageB1,
-				fixtures.MessageC1,
-				fixtures.MessageD1,
-				fixtures.MessageE1,
+				CommandA1,
+				EventA1,
+				CommandB1,
+				EventB1,
+				TimeoutA1,
 			)))
 		})
 	})
 
 	Describe("func DiffN()", func() {
 		It("returns an empty set for identical sets", func() {
-			a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
-			b := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+			a := NamesOf(CommandA1, EventA1)
+			b := NamesOf(CommandA1, EventA1)
 			Expect(DiffN(a, b)).To(BeEmpty())
 		})
 
 		It("returns an the original set for disjoint sets", func() {
-			a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
-			b := NamesOf(fixtures.MessageC1, fixtures.MessageD1)
+			a := NamesOf(CommandA1, EventA1)
+			b := NamesOf(CommandB1, EventB1)
 			Expect(DiffN(a, b)).To(Equal(a))
 		})
 
 		It("returns the diff", func() {
-			a := NamesOf(fixtures.MessageA1, fixtures.MessageB1, fixtures.MessageC1)
-			b := NamesOf(fixtures.MessageB1, fixtures.MessageC1)
-			Expect(DiffN(a, b)).To(Equal(NamesOf(fixtures.MessageA1)))
+			a := NamesOf(CommandA1, EventA1, CommandB1)
+			b := NamesOf(EventA1, CommandB1)
+			Expect(DiffN(a, b)).To(Equal(NamesOf(CommandA1)))
 		})
 	})
 
 	Describe("func Has()", func() {
-		set := NamesOf(
-			MessageA1,
-			MessageB1,
+		set := NewNameSet(
+			NameFor[CommandStub[TypeA]](),
+			NameFor[EventStub[TypeA]](),
 		)
 
 		It("returns true if the name is in the set", func() {
 			Expect(
-				set.Has(MessageATypeName),
+				set.Has(NameFor[CommandStub[TypeA]]()),
 			).To(BeTrue())
 		})
 
 		It("returns false if the name is not in the set", func() {
 			Expect(
-				set.Has(MessageCTypeName),
+				set.Has(NameFor[CommandStub[TypeX]]()),
 			).To(BeFalse())
 		})
 	})
 
 	Describe("func HasM()", func() {
-		set := NamesOf(
-			MessageA1,
-			MessageB1,
+		set := NewNameSet(
+			NameFor[CommandStub[TypeA]](),
+			NameFor[EventStub[TypeA]](),
 		)
 
 		It("returns true if the name is in the set", func() {
 			Expect(
-				set.HasM(MessageA1),
+				set.HasM(CommandA1),
 			).To(BeTrue())
 		})
 
 		It("returns false if the name is not in the set", func() {
 			Expect(
-				set.HasM(MessageC1),
+				set.HasM(CommandX1),
 			).To(BeFalse())
 		})
 	})
 
 	Describe(("func Add()"), func() {
 		It("adds the name to the set", func() {
-			s := NamesOf()
-			s.Add(MessageATypeName)
+			n := NameFor[CommandStub[TypeA]]()
+			s := NewNameSet()
+
+			s.Add(n)
 
 			Expect(
-				s.Has(MessageATypeName),
+				s.Has(n),
 			).To(BeTrue())
 		})
 
 		It("returns true if the name is not already in the set", func() {
-			s := NamesOf()
+			s := NewNameSet()
 
 			Expect(
-				s.Add(MessageATypeName),
+				s.Add(NameFor[CommandStub[TypeA]]()),
 			).To(BeTrue())
 		})
 
 		It("returns false if the name is already in the set", func() {
-			s := NamesOf()
-			s.Add(MessageATypeName)
+			n := NameFor[CommandStub[TypeA]]()
+			s := NewNameSet()
+
+			s.Add(n)
 
 			Expect(
-				s.Add(MessageATypeName),
+				s.Add(n),
 			).To(BeFalse())
 		})
 	})
 
 	Describe("func AddM()", func() {
 		It("adds the name of the message to the set", func() {
-			s := NamesOf()
-			s.AddM(MessageA1)
+			s := NewNameSet()
+			s.AddM(CommandA1)
 
 			Expect(
-				s.Has(MessageATypeName),
+				s.Has(NameFor[CommandStub[TypeA]]()),
 			).To(BeTrue())
 		})
 
 		It("returns true if the name is not already in the set", func() {
-			s := NamesOf()
+			s := NewNameSet()
 
 			Expect(
-				s.AddM(MessageA1),
+				s.AddM(CommandA1),
 			).To(BeTrue())
 		})
 
 		It("returns false if the name is already in the set", func() {
-			s := NamesOf()
-			s.Add(MessageATypeName)
+			s := NewNameSet()
+
+			s.Add(NameFor[CommandStub[TypeA]]())
 
 			Expect(
-				s.AddM(MessageA1),
+				s.AddM(CommandA1),
 			).To(BeFalse())
 		})
 	})
 
 	Describe("func Remove()", func() {
 		It("removes the name from the set", func() {
-			s := NamesOf(MessageA1)
-			s.Remove(MessageATypeName)
+			n := NameFor[CommandStub[TypeA]]()
+			s := NewNameSet(n)
+
+			s.Remove(n)
 
 			Expect(
-				s.Has(MessageATypeName),
+				s.Has(n),
 			).To(BeFalse())
 		})
 
 		It("returns true if the name is already in the set", func() {
-			s := NamesOf()
-			s.Add(MessageATypeName)
+			n := NameFor[CommandStub[TypeA]]()
+			s := NewNameSet()
+
+			s.Add(n)
 
 			Expect(
-				s.Remove(MessageATypeName),
+				s.Remove(n),
 			).To(BeTrue())
 		})
 
 		It("returns false if the name is not already in the set", func() {
-			s := NamesOf()
+			s := NewNameSet()
 
 			Expect(
-				s.Remove(MessageATypeName),
+				s.Remove(NameFor[CommandStub[TypeA]]()),
 			).To(BeFalse())
 		})
 	})
 
 	Describe("func RemoveM()", func() {
 		It("removes the name of the message from the set", func() {
-			s := NamesOf(MessageA1)
-			s.RemoveM(MessageA1)
+			n := NameFor[CommandStub[TypeA]]()
+			s := NewNameSet(n)
+
+			s.RemoveM(CommandA1)
 
 			Expect(
-				s.Has(MessageATypeName),
+				s.Has(n),
 			).To(BeFalse())
 		})
 
 		It("returns true if the name is already in the set", func() {
-			s := NamesOf()
-			s.Add(MessageATypeName)
+			s := NewNameSet()
+
+			s.Add(NameFor[CommandStub[TypeA]]())
 
 			Expect(
-				s.RemoveM(MessageA1),
+				s.RemoveM(CommandA1),
 			).To(BeTrue())
 		})
 
 		It("returns false if the name is not already in the set", func() {
-			s := NamesOf()
+			s := NewNameSet()
 
 			Expect(
-				s.RemoveM(MessageA1),
+				s.RemoveM(CommandA1),
 			).To(BeFalse())
 		})
 	})
@@ -279,8 +289,14 @@ var _ = Describe("type NameSet", func() {
 			},
 			Entry(
 				"equivalent",
-				NewNameSet(MessageATypeName, MessageBTypeName),
-				NewNameSet(MessageATypeName, MessageBTypeName),
+				NewNameSet(
+					NameFor[CommandStub[TypeA]](),
+					NameFor[EventStub[TypeA]](),
+				),
+				NewNameSet(
+					NameFor[CommandStub[TypeA]](),
+					NameFor[EventStub[TypeA]](),
+				),
 			),
 			Entry(
 				"nil and empty",
@@ -293,22 +309,31 @@ var _ = Describe("type NameSet", func() {
 			"returns false if the sets are not equivalent",
 			func(b NameSet) {
 				a := NewNameSet(
-					MessageATypeName,
-					MessageBTypeName,
+					NameFor[CommandStub[TypeA]](),
+					NameFor[EventStub[TypeA]](),
 				)
 				Expect(a.IsEqual(b)).To(BeFalse())
 			},
 			Entry(
 				"subset",
-				NewNameSet(MessageATypeName),
+				NewNameSet(
+					NameFor[CommandStub[TypeA]](),
+				),
 			),
 			Entry(
 				"superset",
-				NewNameSet(MessageATypeName, MessageBTypeName, MessageCTypeName),
+				NewNameSet(
+					NameFor[CommandStub[TypeA]](),
+					NameFor[EventStub[TypeA]](),
+					NameFor[TimeoutStub[TypeA]](),
+				),
 			),
 			Entry(
 				"same-length, disjoint",
-				NewNameSet(MessageATypeName, MessageCTypeName),
+				NewNameSet(
+					NameFor[CommandStub[TypeA]](),
+					NameFor[TimeoutStub[TypeA]](),
+				),
 			),
 		)
 	})
@@ -316,8 +341,8 @@ var _ = Describe("type NameSet", func() {
 	Describe("func Len()", func() {
 		It("returns the number of names in the collection", func() {
 			s := NewNameSet(
-				MessageATypeName,
-				MessageBTypeName,
+				NameFor[CommandStub[TypeA]](),
+				NameFor[EventStub[TypeA]](),
 			)
 
 			Expect(s.Len()).To(Equal(2))
@@ -326,8 +351,8 @@ var _ = Describe("type NameSet", func() {
 
 	Describe("func Range()", func() {
 		s := NewNameSet(
-			MessageATypeName,
-			MessageBTypeName,
+			NameFor[CommandStub[TypeA]](),
+			NameFor[EventStub[TypeA]](),
 		)
 
 		It("calls fn for each name in the container", func() {
@@ -338,7 +363,10 @@ var _ = Describe("type NameSet", func() {
 				return true
 			})
 
-			Expect(names).To(ConsistOf(MessageATypeName, MessageBTypeName))
+			Expect(names).To(ConsistOf(
+				NameFor[CommandStub[TypeA]](),
+				NameFor[EventStub[TypeA]](),
+			))
 			Expect(all).To(BeTrue())
 		})
 

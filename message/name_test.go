@@ -5,73 +5,73 @@ import (
 	"go/types"
 
 	. "github.com/dogmatiq/configkit/message"
-	"github.com/dogmatiq/dogma/fixtures"
+	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("func IsEqualSetN()", func() {
 	It("returns true for identical sets", func() {
-		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
-		b := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+		a := NamesOf(CommandA1, CommandB1)
+		b := NamesOf(CommandA1, CommandB1)
 		Expect(IsEqualSetN(a, b)).To(BeTrue())
 	})
 
 	It("returns false for disjoint sets", func() {
-		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
-		b := NamesOf(fixtures.MessageC1, fixtures.MessageD1)
+		a := NamesOf(CommandA1, CommandB1)
+		b := NamesOf(EventA1, EventB1)
 		Expect(IsEqualSetN(a, b)).To(BeFalse())
 	})
 
 	It("returns false for intersecting sets", func() {
-		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
-		b := NamesOf(fixtures.MessageB1, fixtures.MessageC1)
+		a := NamesOf(CommandA1, CommandB1)
+		b := NamesOf(CommandB1, EventA1)
 		Expect(IsEqualSetN(a, b)).To(BeFalse())
 	})
 })
 
 var _ = Describe("func IsIntersectingN()", func() {
 	It("returns true for identical sets", func() {
-		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
-		b := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+		a := NamesOf(CommandA1, CommandB1)
+		b := NamesOf(CommandA1, CommandB1)
 		Expect(IsIntersectingN(a, b)).To(BeTrue())
 	})
 
 	It("returns false for disjoint sets", func() {
-		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
-		b := NamesOf(fixtures.MessageC1, fixtures.MessageD1)
+		a := NamesOf(CommandA1, CommandB1)
+		b := NamesOf(EventA1, EventB1)
 		Expect(IsIntersectingN(a, b)).To(BeFalse())
 	})
 
 	It("returns true for intersecting sets", func() {
-		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
-		b := NamesOf(fixtures.MessageB1, fixtures.MessageC1)
+		a := NamesOf(CommandA1, CommandB1)
+		b := NamesOf(CommandB1, EventA1)
 		Expect(IsIntersectingN(a, b)).To(BeTrue())
 	})
 })
 
 var _ = Describe("func IsSubsetN()", func() {
 	It("returns true for identical sets", func() {
-		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
-		b := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+		a := NamesOf(CommandA1, CommandB1)
+		b := NamesOf(CommandA1, CommandB1)
 		Expect(IsSubsetN(a, b)).To(BeTrue())
 	})
 
 	It("returns true for strict subsets", func() {
-		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
-		b := NamesOf(fixtures.MessageA1, fixtures.MessageB1, fixtures.MessageC1)
+		a := NamesOf(CommandA1, CommandB1)
+		b := NamesOf(CommandA1, CommandB1, EventA1)
 		Expect(IsSubsetN(a, b)).To(BeTrue())
 	})
 
 	It("returns false for supersets", func() {
-		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1, fixtures.MessageC1)
-		b := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
+		a := NamesOf(CommandA1, CommandB1, EventA1)
+		b := NamesOf(CommandA1, CommandB1)
 		Expect(IsSubsetN(a, b)).To(BeFalse())
 	})
 
 	It("returns false for disjoint sets", func() {
-		a := NamesOf(fixtures.MessageA1, fixtures.MessageB1)
-		b := NamesOf(fixtures.MessageC1, fixtures.MessageD1)
+		a := NamesOf(CommandA1, CommandB1)
+		b := NamesOf(EventA1, EventB1)
 		Expect(IsSubsetN(a, b)).To(BeFalse())
 	})
 })
@@ -79,8 +79,8 @@ var _ = Describe("func IsSubsetN()", func() {
 var _ = Describe("type Name", func() {
 	Describe("func NameOf()", func() {
 		It("returns the fully-qualified name", func() {
-			n := NameOf(fixtures.MessageA1)
-			Expect(n.String()).To(Equal("github.com/dogmatiq/dogma/fixtures.MessageA"))
+			n := NameOf(CommandA1)
+			Expect(n.String()).To(Equal("github.com/dogmatiq/enginekit/enginetest/stubs.CommandStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeA]"))
 		})
 
 		It("panics if the message is nil", func() {
@@ -92,8 +92,8 @@ var _ = Describe("type Name", func() {
 
 	Describe("func NameFor()", func() {
 		It("returns the name", func() {
-			na := NameFor[fixtures.MessageA]()
-			nb := NameOf(fixtures.MessageA1)
+			na := NameFor[CommandStub[TypeA]]()
+			nb := NameOf(CommandA1)
 			Expect(na).To(Equal(nb))
 		})
 	})
@@ -101,15 +101,15 @@ var _ = Describe("type Name", func() {
 	Describe("func NameFromType()", func() {
 		It("returns the fully-qualified name", func() {
 			pkg := types.NewPackage(
-				"github.com/dogmatiq/dogma/fixtures",
-				"fixtures",
+				"example.org/somepackage",
+				"somepackage",
 			)
 
 			named := types.NewNamed(
 				types.NewTypeName(
 					token.NoPos,
 					pkg,
-					"MessageA",
+					"Message",
 					&types.Struct{},
 				),
 				nil,
@@ -117,7 +117,7 @@ var _ = Describe("type Name", func() {
 			)
 
 			n := NameFromType(named)
-			Expect(n.String()).To(Equal("github.com/dogmatiq/dogma/fixtures.MessageA"))
+			Expect(n.String()).To(Equal("example.org/somepackage.Message"))
 		})
 
 		It("panics if the type is nil", func() {
@@ -129,11 +129,11 @@ var _ = Describe("type Name", func() {
 
 	Describe("func MarshalText()", func() {
 		It("marshals to a textual representation", func() {
-			n := NameOf(fixtures.MessageA1)
+			n := NameOf(CommandA1)
 
 			buf, err := n.MarshalText()
 			Expect(err).ShouldNot(HaveOccurred())
-			Expect(buf).To(Equal([]byte("github.com/dogmatiq/dogma/fixtures.MessageA")))
+			Expect(buf).To(Equal([]byte("github.com/dogmatiq/enginekit/enginetest/stubs.CommandStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeA]")))
 		})
 
 		It("returns an error if the type is the zero-value", func() {
@@ -148,9 +148,9 @@ var _ = Describe("type Name", func() {
 		It("unmarshals from a textual representation", func() {
 			var n Name
 
-			err := n.UnmarshalText([]byte("github.com/dogmatiq/dogma/fixtures.MessageA"))
+			err := n.UnmarshalText([]byte("github.com/dogmatiq/enginekit/enginetest/stubs.CommandStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeA]"))
 			Expect(err).ShouldNot(HaveOccurred())
-			Expect(n).To(Equal(NameOf(fixtures.MessageA1)))
+			Expect(n).To(Equal(NameFor[CommandStub[TypeA]]()))
 		})
 
 		It("returns an error if the data is empty", func() {
@@ -163,11 +163,11 @@ var _ = Describe("type Name", func() {
 
 	Describe("func MarshalBinary()", func() {
 		It("marshals to a textual representation", func() {
-			n := NameOf(fixtures.MessageA1)
+			n := NameFor[CommandStub[TypeA]]()
 
 			buf, err := n.MarshalBinary()
 			Expect(err).ShouldNot(HaveOccurred())
-			Expect(buf).To(Equal([]byte("github.com/dogmatiq/dogma/fixtures.MessageA")))
+			Expect(buf).To(Equal([]byte("github.com/dogmatiq/enginekit/enginetest/stubs.CommandStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeA]")))
 		})
 
 		It("returns an error if the type is the zero-value", func() {
@@ -182,9 +182,9 @@ var _ = Describe("type Name", func() {
 		It("unmarshals from a textual representation", func() {
 			var n Name
 
-			err := n.UnmarshalBinary([]byte("github.com/dogmatiq/dogma/fixtures.MessageA"))
+			err := n.UnmarshalBinary([]byte("github.com/dogmatiq/enginekit/enginetest/stubs.CommandStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeA]"))
 			Expect(err).ShouldNot(HaveOccurred())
-			Expect(n).To(Equal(NameOf(fixtures.MessageA1)))
+			Expect(n).To(Equal(NameFor[CommandStub[TypeA]]()))
 		})
 
 		It("returns an error if the data is empty", func() {

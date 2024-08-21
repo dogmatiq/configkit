@@ -6,9 +6,9 @@ import (
 	"reflect"
 
 	. "github.com/dogmatiq/configkit"
-	cfixtures "github.com/dogmatiq/configkit/fixtures" // can't dot-import due to conflicts
+	"github.com/dogmatiq/configkit/fixtures" // can't dot-import due to conflicts
 	"github.com/dogmatiq/configkit/message"
-	"github.com/dogmatiq/dogma" // can't dot-import due to conflicts
+	"github.com/dogmatiq/dogma"
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -92,7 +92,7 @@ var _ = Describe("func FromAggregate()", func() {
 
 		Describe("func AcceptVisitor()", func() {
 			It("calls the appropriate method on the visitor", func() {
-				v := &cfixtures.Visitor{
+				v := &fixtures.Visitor{
 					VisitAggregateFunc: func(_ context.Context, c Aggregate) error {
 						Expect(c).To(BeIdenticalTo(cfg))
 						return errors.New("<error>")
@@ -106,7 +106,7 @@ var _ = Describe("func FromAggregate()", func() {
 
 		Describe("func AcceptRichVisitor()", func() {
 			It("calls the appropriate method on the visitor", func() {
-				v := &cfixtures.RichVisitor{
+				v := &fixtures.RichVisitor{
 					VisitRichAggregateFunc: func(_ context.Context, c RichAggregate) error {
 						Expect(c).To(BeIdenticalTo(cfg))
 						return errors.New("<error>")

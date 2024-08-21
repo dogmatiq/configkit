@@ -5,10 +5,9 @@ import (
 	"errors"
 
 	. "github.com/dogmatiq/configkit"
-	cfixtures "github.com/dogmatiq/configkit/fixtures"
+	"github.com/dogmatiq/configkit/fixtures"
 	"github.com/dogmatiq/configkit/message"
-	"github.com/dogmatiq/dogma"
-	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflicts
+	"github.com/dogmatiq/dogma" // can't dot-import due to conflicts
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -22,8 +21,8 @@ var _ = Describe("type HandlerSet", func() {
 		ConfigureFunc: func(c dogma.AggregateConfigurer) {
 			c.Identity("<agg-name>", aggregateKey)
 			c.Routes(
-				dogma.HandlesCommand[fixtures.MessageC](),
-				dogma.RecordsEvent[fixtures.MessageE](),
+				dogma.HandlesCommand[CommandStub[TypeA]](),
+				dogma.RecordsEvent[EventStub[TypeA]](),
 			)
 		},
 	})
@@ -32,7 +31,7 @@ var _ = Describe("type HandlerSet", func() {
 		ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 			c.Identity("<proj-name>", projectionKey)
 			c.Routes(
-				dogma.HandlesEvent[fixtures.MessageE](),
+				dogma.HandlesEvent[EventStub[TypeA]](),
 			)
 		},
 	})
@@ -159,7 +158,7 @@ var _ = Describe("type HandlerSet", func() {
 		})
 
 		It("returns the handlers that consume the given message", func() {
-			subset := set.ConsumersOf(message.NameFor[fixtures.MessageC]())
+			subset := set.ConsumersOf(message.NameFor[CommandStub[TypeA]]())
 			Expect(subset).To(HaveLen(1))
 			Expect(set.Has(aggregate)).To(BeTrue())
 		})
@@ -172,7 +171,7 @@ var _ = Describe("type HandlerSet", func() {
 		})
 
 		It("returns the handlers the produce the given message", func() {
-			subset := set.ProducersOf(message.NameFor[fixtures.MessageE]())
+			subset := set.ProducersOf(message.NameFor[EventStub[TypeA]]())
 			Expect(subset).To(HaveLen(1))
 			Expect(set.Has(aggregate)).To(BeTrue())
 		})
@@ -188,11 +187,11 @@ var _ = Describe("type HandlerSet", func() {
 			Expect(set.MessageNames()).To(Equal(
 				EntityMessageNames{
 					Produced: message.NameRoles{
-						message.NameFor[fixtures.MessageE](): message.EventRole,
+						message.NameFor[EventStub[TypeA]](): message.EventRole,
 					},
 					Consumed: message.NameRoles{
-						message.NameFor[fixtures.MessageC](): message.CommandRole,
-						message.NameFor[fixtures.MessageE](): message.EventRole,
+						message.NameFor[CommandStub[TypeA]](): message.CommandRole,
+						message.NameFor[EventStub[TypeA]]():   message.EventRole,
 					},
 				},
 			))
@@ -234,7 +233,7 @@ var _ = Describe("type HandlerSet", func() {
 					ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 						c.Identity("<int-name>", integrationKey)
 						c.Routes(
-							dogma.HandlesCommand[fixtures.MessageX](),
+							dogma.HandlesCommand[CommandStub[TypeX]](),
 						)
 					},
 				})),
@@ -245,7 +244,7 @@ var _ = Describe("type HandlerSet", func() {
 					ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 						c.Identity("<proj-name>", projectionKey)
 						c.Routes(
-							dogma.HandlesEvent[fixtures.MessageF](), // diff
+							dogma.HandlesEvent[EventStub[TypeX]](), // diff
 						)
 					},
 				})),
@@ -301,7 +300,7 @@ var _ = Describe("type HandlerSet", func() {
 
 			err := set.AcceptVisitor(
 				context.Background(),
-				&cfixtures.Visitor{
+				&fixtures.Visitor{
 					VisitAggregateFunc: func(_ context.Context, cfg Aggregate) error {
 						Expect(cfg).To(BeIdenticalTo(aggregate))
 						visited = append(visited, cfg)
@@ -322,7 +321,7 @@ var _ = Describe("type HandlerSet", func() {
 		It("returns an error if one of the handlers fails", func() {
 			err := set.AcceptVisitor(
 				context.Background(),
-				&cfixtures.Visitor{
+				&fixtures.Visitor{
 					VisitProjectionFunc: func(_ context.Context, cfg Projection) error {
 						return errors.New("<error>")
 					},
@@ -346,8 +345,8 @@ var _ = Describe("type HandlerSet", func() {
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<agg1-name>", "ca82de11-1794-486e-a190-78e2443de7dd")
 					c.Routes(
-						dogma.HandlesCommand[fixtures.MessageC](),
-						dogma.RecordsEvent[fixtures.MessageD](),
+						dogma.HandlesCommand[CommandStub[TypeA]](),
+						dogma.RecordsEvent[EventStub[TypeB]](),
 					)
 				},
 			})
@@ -356,8 +355,8 @@ var _ = Describe("type HandlerSet", func() {
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<agg2-name>", "3a7ad56e-d9b9-42be-9a16-01f25e572c49")
 					c.Routes(
-						dogma.HandlesCommand[fixtures.MessageC](),
-						dogma.RecordsEvent[fixtures.MessageD](),
+						dogma.HandlesCommand[CommandStub[TypeA]](),
+						dogma.RecordsEvent[EventStub[TypeB]](),
 					)
 				},
 			})
@@ -366,8 +365,8 @@ var _ = Describe("type HandlerSet", func() {
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
 					c.Identity("<proc1-name>", "5695e728-33ca-4b0f-b063-ff0ff6f48276")
 					c.Routes(
-						dogma.HandlesEvent[fixtures.MessageE](),
-						dogma.ExecutesCommand[fixtures.MessageC](),
+						dogma.HandlesEvent[EventStub[TypeA]](),
+						dogma.ExecutesCommand[CommandStub[TypeA]](),
 					)
 				},
 			})
@@ -376,8 +375,8 @@ var _ = Describe("type HandlerSet", func() {
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
 					c.Identity("<proc2-name>", "3d510ba8-6dca-46bb-bcde-193015867834")
 					c.Routes(
-						dogma.HandlesEvent[fixtures.MessageE](),
-						dogma.ExecutesCommand[fixtures.MessageC](),
+						dogma.HandlesEvent[EventStub[TypeA]](),
+						dogma.ExecutesCommand[CommandStub[TypeA]](),
 					)
 				},
 			})
@@ -386,8 +385,8 @@ var _ = Describe("type HandlerSet", func() {
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 					c.Identity("<int1-name>", "fdf0059e-8786-42db-a348-caac60d6118a")
 					c.Routes(
-						dogma.HandlesCommand[fixtures.MessageC](),
-						dogma.RecordsEvent[fixtures.MessageD](),
+						dogma.HandlesCommand[CommandStub[TypeA]](),
+						dogma.RecordsEvent[EventStub[TypeB]](),
 					)
 				},
 			})
@@ -396,8 +395,8 @@ var _ = Describe("type HandlerSet", func() {
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 					c.Identity("<int2-name>", "34d19336-95c5-47c7-b36e-4e90b24b1b83")
 					c.Routes(
-						dogma.HandlesCommand[fixtures.MessageC](),
-						dogma.RecordsEvent[fixtures.MessageD](),
+						dogma.HandlesCommand[CommandStub[TypeA]](),
+						dogma.RecordsEvent[EventStub[TypeB]](),
 					)
 				},
 			})
@@ -406,7 +405,7 @@ var _ = Describe("type HandlerSet", func() {
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 					c.Identity("<proj1-name>", "ee9bd355-e9fd-413a-ac83-7182ea76cb89")
 					c.Routes(
-						dogma.HandlesEvent[fixtures.MessageE](),
+						dogma.HandlesEvent[EventStub[TypeA]](),
 					)
 				},
 			})
@@ -415,7 +414,7 @@ var _ = Describe("type HandlerSet", func() {
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 					c.Identity("<proj2-name>", "0fe3a5e3-b8e1-4ba0-8c90-f002f0a842f9")
 					c.Routes(
-						dogma.HandlesEvent[fixtures.MessageE](),
+						dogma.HandlesEvent[EventStub[TypeA]](),
 					)
 				},
 			})
@@ -567,8 +566,8 @@ var _ = Describe("type RichHandlerSet", func() {
 		ConfigureFunc: func(c dogma.AggregateConfigurer) {
 			c.Identity("<agg-name>", aggregateKey)
 			c.Routes(
-				dogma.HandlesCommand[fixtures.MessageC](),
-				dogma.RecordsEvent[fixtures.MessageE](),
+				dogma.HandlesCommand[CommandStub[TypeA]](),
+				dogma.RecordsEvent[EventStub[TypeA]](),
 			)
 		},
 	})
@@ -577,7 +576,7 @@ var _ = Describe("type RichHandlerSet", func() {
 		ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 			c.Identity("<proj-name>", projectionKey)
 			c.Routes(
-				dogma.HandlesEvent[fixtures.MessageE](),
+				dogma.HandlesEvent[EventStub[TypeA]](),
 			)
 		},
 	})
@@ -704,7 +703,7 @@ var _ = Describe("type RichHandlerSet", func() {
 		})
 
 		It("returns the handlers that consume the given message", func() {
-			subset := set.ConsumersOf(message.TypeFor[fixtures.MessageC]())
+			subset := set.ConsumersOf(message.TypeFor[CommandStub[TypeA]]())
 			Expect(subset).To(HaveLen(1))
 			Expect(set.Has(aggregate)).To(BeTrue())
 		})
@@ -717,7 +716,7 @@ var _ = Describe("type RichHandlerSet", func() {
 		})
 
 		It("returns the handlers the produce the given message", func() {
-			subset := set.ProducersOf(message.TypeFor[fixtures.MessageE]())
+			subset := set.ProducersOf(message.TypeFor[EventStub[TypeA]]())
 			Expect(subset).To(HaveLen(1))
 			Expect(set.Has(aggregate)).To(BeTrue())
 		})
@@ -733,11 +732,11 @@ var _ = Describe("type RichHandlerSet", func() {
 			Expect(set.MessageTypes()).To(Equal(
 				EntityMessageTypes{
 					Produced: message.TypeRoles{
-						message.TypeFor[fixtures.MessageE](): message.EventRole,
+						message.TypeFor[EventStub[TypeA]](): message.EventRole,
 					},
 					Consumed: message.TypeRoles{
-						message.TypeFor[fixtures.MessageC](): message.CommandRole,
-						message.TypeFor[fixtures.MessageE](): message.EventRole,
+						message.TypeFor[CommandStub[TypeA]](): message.CommandRole,
+						message.TypeFor[EventStub[TypeA]]():   message.EventRole,
 					},
 				},
 			))
@@ -779,7 +778,7 @@ var _ = Describe("type RichHandlerSet", func() {
 					ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 						c.Identity("<int-name>", integrationKey)
 						c.Routes(
-							dogma.HandlesCommand[fixtures.MessageX](),
+							dogma.HandlesCommand[CommandStub[TypeX]](),
 						)
 					},
 				})),
@@ -790,7 +789,7 @@ var _ = Describe("type RichHandlerSet", func() {
 					ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 						c.Identity("<proj-name>", projectionKey)
 						c.Routes(
-							dogma.HandlesEvent[fixtures.MessageF](), // diff
+							dogma.HandlesEvent[EventStub[TypeX]](), // diff
 						)
 					},
 				})),
@@ -846,7 +845,7 @@ var _ = Describe("type RichHandlerSet", func() {
 
 			err := set.AcceptRichVisitor(
 				context.Background(),
-				&cfixtures.RichVisitor{
+				&fixtures.RichVisitor{
 					VisitRichAggregateFunc: func(_ context.Context, cfg RichAggregate) error {
 						Expect(cfg).To(BeIdenticalTo(aggregate))
 						visited = append(visited, cfg)
@@ -867,7 +866,7 @@ var _ = Describe("type RichHandlerSet", func() {
 		It("returns an error if one of the handlers fails", func() {
 			err := set.AcceptRichVisitor(
 				context.Background(),
-				&cfixtures.RichVisitor{
+				&fixtures.RichVisitor{
 					VisitRichProjectionFunc: func(_ context.Context, cfg RichProjection) error {
 						return errors.New("<error>")
 					},
@@ -891,8 +890,8 @@ var _ = Describe("type RichHandlerSet", func() {
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<agg1-name>", "648c035d-2a6a-49e6-8968-044bec062fed")
 					c.Routes(
-						dogma.HandlesCommand[fixtures.MessageC](),
-						dogma.RecordsEvent[fixtures.MessageD](),
+						dogma.HandlesCommand[CommandStub[TypeA]](),
+						dogma.RecordsEvent[EventStub[TypeB]](),
 					)
 				},
 			})
@@ -901,8 +900,8 @@ var _ = Describe("type RichHandlerSet", func() {
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<agg2-name>", "e465c85d-4ac0-4aed-8054-665a86b9ef4e")
 					c.Routes(
-						dogma.HandlesCommand[fixtures.MessageC](),
-						dogma.RecordsEvent[fixtures.MessageD](),
+						dogma.HandlesCommand[CommandStub[TypeA]](),
+						dogma.RecordsEvent[EventStub[TypeB]](),
 					)
 				},
 			})
@@ -911,8 +910,8 @@ var _ = Describe("type RichHandlerSet", func() {
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
 					c.Identity("<proc1-name>", "71a4111b-ee0d-4df1-a059-d8bb94dc3e77")
 					c.Routes(
-						dogma.HandlesEvent[fixtures.MessageE](),
-						dogma.ExecutesCommand[fixtures.MessageC](),
+						dogma.HandlesEvent[EventStub[TypeA]](),
+						dogma.ExecutesCommand[CommandStub[TypeA]](),
 					)
 				},
 			})
@@ -921,8 +920,8 @@ var _ = Describe("type RichHandlerSet", func() {
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
 					c.Identity("<proc2-name>", "3b4ce9af-ca54-4c77-a8e7-285267f73c82")
 					c.Routes(
-						dogma.HandlesEvent[fixtures.MessageE](),
-						dogma.ExecutesCommand[fixtures.MessageC](),
+						dogma.HandlesEvent[EventStub[TypeA]](),
+						dogma.ExecutesCommand[CommandStub[TypeA]](),
 					)
 				},
 			})
@@ -931,8 +930,8 @@ var _ = Describe("type RichHandlerSet", func() {
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 					c.Identity("<int1-name>", "22857e0c-7990-4dfe-9cd0-40d6dd160aaf")
 					c.Routes(
-						dogma.HandlesCommand[fixtures.MessageC](),
-						dogma.RecordsEvent[fixtures.MessageD](),
+						dogma.HandlesCommand[CommandStub[TypeA]](),
+						dogma.RecordsEvent[EventStub[TypeB]](),
 					)
 				},
 			})
@@ -941,8 +940,8 @@ var _ = Describe("type RichHandlerSet", func() {
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 					c.Identity("<int2-name>", "26ae7db1-7a81-407d-ac08-52e35f7765d1")
 					c.Routes(
-						dogma.HandlesCommand[fixtures.MessageC](),
-						dogma.RecordsEvent[fixtures.MessageD](),
+						dogma.HandlesCommand[CommandStub[TypeA]](),
+						dogma.RecordsEvent[EventStub[TypeB]](),
 					)
 				},
 			})
@@ -951,7 +950,7 @@ var _ = Describe("type RichHandlerSet", func() {
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 					c.Identity("<proj1-name>", "400a4609-9e00-4ccd-8436-3ad9ef073f5d")
 					c.Routes(
-						dogma.HandlesEvent[fixtures.MessageE](),
+						dogma.HandlesEvent[EventStub[TypeA]](),
 					)
 				},
 			})
@@ -960,7 +959,7 @@ var _ = Describe("type RichHandlerSet", func() {
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 					c.Identity("<proj2-name>", "2d09f134-8971-4dff-8b84-b0e3c279ca88")
 					c.Routes(
-						dogma.HandlesEvent[fixtures.MessageE](),
+						dogma.HandlesEvent[EventStub[TypeA]](),
 					)
 				},
 			})

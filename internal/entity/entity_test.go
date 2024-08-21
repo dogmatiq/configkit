@@ -10,7 +10,6 @@ import (
 	. "github.com/dogmatiq/configkit/internal/entity"
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
-	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflicts
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -42,10 +41,10 @@ var _ = Describe("type Application", func() {
 		It("returns the value of .MessageNamesValue field", func() {
 			m := configkit.EntityMessageNames{
 				Produced: message.NameRoles{
-					message.NameFor[fixtures.MessageC](): message.CommandRole,
+					message.NameFor[CommandStub[TypeA]](): message.CommandRole,
 				},
 				Consumed: message.NameRoles{
-					message.NameFor[fixtures.MessageE](): message.EventRole,
+					message.NameFor[EventStub[TypeA]](): message.EventRole,
 				},
 			}
 
@@ -74,8 +73,8 @@ var _ = Describe("type Application", func() {
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<agg-name>", "63990c32-ecdd-46dd-8e6a-7bb16f3b1730")
 					c.Routes(
-						dogma.HandlesCommand[fixtures.MessageC](),
-						dogma.RecordsEvent[fixtures.MessageE](),
+						dogma.HandlesCommand[CommandStub[TypeA]](),
+						dogma.RecordsEvent[EventStub[TypeA]](),
 					)
 				},
 			})
@@ -84,7 +83,7 @@ var _ = Describe("type Application", func() {
 				ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 					c.Identity("<proj-name>", "b34181e8-2930-4b6c-a649-18a001836ec3")
 					c.Routes(
-						dogma.HandlesEvent[fixtures.MessageE](),
+						dogma.HandlesEvent[EventStub[TypeA]](),
 					)
 				},
 			})
@@ -124,10 +123,10 @@ var _ = Describe("type Handler", func() {
 		It("returns the value of .MessageNamesValue field", func() {
 			m := configkit.EntityMessageNames{
 				Produced: message.NameRoles{
-					message.NameFor[fixtures.MessageC](): message.CommandRole,
+					message.NameFor[CommandStub[TypeA]](): message.CommandRole,
 				},
 				Consumed: message.NameRoles{
-					message.NameFor[fixtures.MessageE](): message.EventRole,
+					message.NameFor[EventStub[TypeA]](): message.EventRole,
 				},
 			}
 

@@ -2,8 +2,7 @@ package configkit_test
 
 import (
 	. "github.com/dogmatiq/configkit"
-	"github.com/dogmatiq/dogma"
-	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflicts
+	"github.com/dogmatiq/dogma" // can't dot-import due to conflicts
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -16,9 +15,9 @@ var _ = Describe("func IsHandlerEqual()", func() {
 			ConfigureFunc: func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
-					dogma.HandlesCommand[fixtures.MessageA](),
-					dogma.HandlesCommand[fixtures.MessageB](),
-					dogma.RecordsEvent[fixtures.MessageE](),
+					dogma.HandlesCommand[CommandStub[TypeA]](),
+					dogma.HandlesCommand[CommandStub[TypeB]](),
+					dogma.RecordsEvent[EventStub[TypeA]](),
 				)
 			},
 		}
@@ -36,9 +35,9 @@ var _ = Describe("func IsHandlerEqual()", func() {
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<name>", aggregateKey)
 					c.Routes(
-						dogma.HandlesCommand[fixtures.MessageA](),
-						dogma.HandlesCommand[fixtures.MessageB](),
-						dogma.RecordsEvent[fixtures.MessageE](),
+						dogma.HandlesCommand[CommandStub[TypeA]](),
+						dogma.HandlesCommand[CommandStub[TypeB]](),
+						dogma.RecordsEvent[EventStub[TypeA]](),
 					)
 				},
 			}
@@ -53,9 +52,9 @@ var _ = Describe("func IsHandlerEqual()", func() {
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 					c.Identity("<name>", integrationKey)
 					c.Routes(
-						dogma.HandlesCommand[fixtures.MessageA](),
-						dogma.RecordsEvent[fixtures.MessageB](), // diff
-						dogma.RecordsEvent[fixtures.MessageE](),
+						dogma.HandlesCommand[CommandStub[TypeA]](),
+						dogma.RecordsEvent[CommandStub[TypeB]](), // diff
+						dogma.RecordsEvent[EventStub[TypeA]](),
 					)
 				},
 			}),
@@ -66,9 +65,9 @@ var _ = Describe("func IsHandlerEqual()", func() {
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<name-different>", aggregateKey) // diff
 					c.Routes(
-						dogma.HandlesCommand[fixtures.MessageA](),
-						dogma.HandlesCommand[fixtures.MessageB](),
-						dogma.RecordsEvent[fixtures.MessageE](),
+						dogma.HandlesCommand[CommandStub[TypeA]](),
+						dogma.HandlesCommand[CommandStub[TypeB]](),
+						dogma.RecordsEvent[EventStub[TypeA]](),
 					)
 				},
 			}),
@@ -79,9 +78,9 @@ var _ = Describe("func IsHandlerEqual()", func() {
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<name>", "799239e7-8c03-48f9-a324-14b7f9b76e30") // diff
 					c.Routes(
-						dogma.HandlesCommand[fixtures.MessageA](),
-						dogma.HandlesCommand[fixtures.MessageB](),
-						dogma.RecordsEvent[fixtures.MessageE](),
+						dogma.HandlesCommand[CommandStub[TypeA]](),
+						dogma.HandlesCommand[CommandStub[TypeB]](),
+						dogma.RecordsEvent[EventStub[TypeA]](),
 					)
 				},
 			}),
@@ -92,9 +91,9 @@ var _ = Describe("func IsHandlerEqual()", func() {
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<name>", aggregateKey)
 					c.Routes(
-						dogma.HandlesCommand[fixtures.MessageA](),
-						dogma.HandlesCommand[fixtures.MessageB](),
-						dogma.RecordsEvent[fixtures.MessageE](),
+						dogma.HandlesCommand[CommandStub[TypeA]](),
+						dogma.HandlesCommand[CommandStub[TypeB]](),
+						dogma.RecordsEvent[EventStub[TypeA]](),
 					)
 					c.Disable()
 				},
@@ -106,9 +105,9 @@ var _ = Describe("func IsHandlerEqual()", func() {
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<name>", aggregateKey)
 					c.Routes(
-						dogma.HandlesCommand[fixtures.MessageA](),
-						dogma.RecordsEvent[fixtures.MessageB](), // diff
-						dogma.RecordsEvent[fixtures.MessageE](),
+						dogma.HandlesCommand[CommandStub[TypeA]](),
+						dogma.RecordsEvent[CommandStub[TypeB]](), // diff
+						dogma.RecordsEvent[EventStub[TypeA]](),
 					)
 				},
 			}),

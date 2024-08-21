@@ -6,10 +6,9 @@ import (
 	"reflect"
 
 	. "github.com/dogmatiq/configkit"
-	cfixtures "github.com/dogmatiq/configkit/fixtures" // can't dot-import due to conflicts
+	"github.com/dogmatiq/configkit/fixtures" // can't dot-import due to conflicts
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
-	"github.com/dogmatiq/dogma/fixtures" // can't dot-import due to conflicts
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -24,10 +23,10 @@ var _ = Describe("func FromProcess()", func() {
 			ConfigureFunc: func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
-					dogma.HandlesEvent[fixtures.MessageB](),
-					dogma.ExecutesCommand[fixtures.MessageC](),
-					dogma.SchedulesTimeout[fixtures.MessageT](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.HandlesEvent[EventStub[TypeB]](),
+					dogma.ExecutesCommand[CommandStub[TypeA]](),
+					dogma.SchedulesTimeout[TimeoutStub[TypeA]](),
 				)
 			},
 		}
@@ -53,13 +52,13 @@ var _ = Describe("func FromProcess()", func() {
 				Expect(cfg.MessageNames()).To(Equal(
 					EntityMessageNames{
 						Produced: message.NameRoles{
-							message.NameFor[fixtures.MessageC](): message.CommandRole,
-							message.NameFor[fixtures.MessageT](): message.TimeoutRole,
+							message.NameFor[CommandStub[TypeA]](): message.CommandRole,
+							message.NameFor[TimeoutStub[TypeA]](): message.TimeoutRole,
 						},
 						Consumed: message.NameRoles{
-							message.NameFor[fixtures.MessageA](): message.EventRole,
-							message.NameFor[fixtures.MessageB](): message.EventRole,
-							message.NameFor[fixtures.MessageT](): message.TimeoutRole,
+							message.NameFor[EventStub[TypeA]]():   message.EventRole,
+							message.NameFor[EventStub[TypeB]]():   message.EventRole,
+							message.NameFor[TimeoutStub[TypeA]](): message.TimeoutRole,
 						},
 					},
 				))
@@ -71,13 +70,13 @@ var _ = Describe("func FromProcess()", func() {
 				Expect(cfg.MessageTypes()).To(Equal(
 					EntityMessageTypes{
 						Produced: message.TypeRoles{
-							message.TypeFor[fixtures.MessageC](): message.CommandRole,
-							message.TypeFor[fixtures.MessageT](): message.TimeoutRole,
+							message.TypeFor[CommandStub[TypeA]](): message.CommandRole,
+							message.TypeFor[TimeoutStub[TypeA]](): message.TimeoutRole,
 						},
 						Consumed: message.TypeRoles{
-							message.TypeFor[fixtures.MessageA](): message.EventRole,
-							message.TypeFor[fixtures.MessageB](): message.EventRole,
-							message.TypeFor[fixtures.MessageT](): message.TimeoutRole,
+							message.TypeFor[EventStub[TypeA]]():   message.EventRole,
+							message.TypeFor[EventStub[TypeB]]():   message.EventRole,
+							message.TypeFor[TimeoutStub[TypeA]](): message.TimeoutRole,
 						},
 					},
 				))
@@ -98,7 +97,7 @@ var _ = Describe("func FromProcess()", func() {
 
 		Describe("func AcceptVisitor()", func() {
 			It("calls the appropriate method on the visitor", func() {
-				v := &cfixtures.Visitor{
+				v := &fixtures.Visitor{
 					VisitProcessFunc: func(_ context.Context, c Process) error {
 						Expect(c).To(BeIdenticalTo(cfg))
 						return errors.New("<error>")
@@ -112,7 +111,7 @@ var _ = Describe("func FromProcess()", func() {
 
 		Describe("func AcceptRichVisitor()", func() {
 			It("calls the appropriate method on the visitor", func() {
-				v := &cfixtures.RichVisitor{
+				v := &fixtures.RichVisitor{
 					VisitRichProcessFunc: func(_ context.Context, c RichProcess) error {
 						Expect(c).To(BeIdenticalTo(cfg))
 						return errors.New("<error>")
@@ -182,8 +181,8 @@ var _ = Describe("func FromProcess()", func() {
 			`*stubs.ProcessMessageHandlerStub is configured without an identity, Identity() must be called exactly once within Configure()`,
 			func(c dogma.ProcessConfigurer) {
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
-					dogma.ExecutesCommand[fixtures.MessageC](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.ExecutesCommand[CommandStub[TypeA]](),
 				)
 			},
 		),
@@ -194,8 +193,8 @@ var _ = Describe("func FromProcess()", func() {
 				c.Identity("<name>", processKey)
 				c.Identity("<other>", processKey)
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
-					dogma.ExecutesCommand[fixtures.MessageC](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.ExecutesCommand[CommandStub[TypeA]](),
 				)
 			},
 		),
@@ -205,8 +204,8 @@ var _ = Describe("func FromProcess()", func() {
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("\t \n", processKey)
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
-					dogma.ExecutesCommand[fixtures.MessageC](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.ExecutesCommand[CommandStub[TypeA]](),
 				)
 			},
 		),
@@ -216,8 +215,8 @@ var _ = Describe("func FromProcess()", func() {
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", "\t \n")
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
-					dogma.ExecutesCommand[fixtures.MessageC](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.ExecutesCommand[CommandStub[TypeA]](),
 				)
 			},
 		),
@@ -227,19 +226,19 @@ var _ = Describe("func FromProcess()", func() {
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
-					dogma.ExecutesCommand[fixtures.MessageC](),
+					dogma.ExecutesCommand[CommandStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when the handler configures multiple routes for the same event",
-			`*stubs.ProcessMessageHandlerStub (<name>) is configured with multiple HandlesEvent() routes for fixtures.MessageA, should these refer to different message types?`,
+			`*stubs.ProcessMessageHandlerStub (<name>) is configured with multiple HandlesEvent() routes for stubs.EventStub[TypeA], should these refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
-					dogma.HandlesEvent[fixtures.MessageA](),
-					dogma.ExecutesCommand[fixtures.MessageC](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.ExecutesCommand[CommandStub[TypeA]](),
 				)
 			},
 		),
@@ -249,53 +248,53 @@ var _ = Describe("func FromProcess()", func() {
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when the handler configures multiple routes for the same command",
-			`*stubs.ProcessMessageHandlerStub (<name>) is configured with multiple ExecutesCommand() routes for fixtures.MessageC, should these refer to different message types?`,
+			`*stubs.ProcessMessageHandlerStub (<name>) is configured with multiple ExecutesCommand() routes for stubs.CommandStub[TypeA], should these refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
-					dogma.ExecutesCommand[fixtures.MessageC](),
-					dogma.ExecutesCommand[fixtures.MessageC](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.ExecutesCommand[CommandStub[TypeA]](),
+					dogma.ExecutesCommand[CommandStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when the handler configures multiple routes for the same timeout",
-			`*stubs.ProcessMessageHandlerStub (<name>) is configured with multiple SchedulesTimeout() routes for fixtures.MessageT, should these refer to different message types?`,
+			`*stubs.ProcessMessageHandlerStub (<name>) is configured with multiple SchedulesTimeout() routes for stubs.TimeoutStub[TypeA], should these refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
-					dogma.ExecutesCommand[fixtures.MessageC](),
-					dogma.SchedulesTimeout[fixtures.MessageT](),
-					dogma.SchedulesTimeout[fixtures.MessageT](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.ExecutesCommand[CommandStub[TypeA]](),
+					dogma.SchedulesTimeout[TimeoutStub[TypeA]](),
+					dogma.SchedulesTimeout[TimeoutStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when the handler configures the same message type with different roles",
-			`*stubs.ProcessMessageHandlerStub (<name>) is configured to use fixtures.MessageA as both an event and a timeout`,
+			`*stubs.ProcessMessageHandlerStub (<name>) is configured to use stubs.EventStub[TypeA] as both an event and a timeout`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
-					dogma.SchedulesTimeout[fixtures.MessageA](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.SchedulesTimeout[EventStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
-			`*stubs.ProcessMessageHandlerStub is configured with multiple HandlesEvent() routes for fixtures.MessageA, should these refer to different message types?`,
+			`*stubs.ProcessMessageHandlerStub is configured with multiple HandlesEvent() routes for stubs.EventStub[TypeA], should these refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Routes(
-					dogma.HandlesEvent[fixtures.MessageA](),
-					dogma.HandlesEvent[fixtures.MessageA](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.HandlesEvent[EventStub[TypeA]](),
 				)
 			},
 		),

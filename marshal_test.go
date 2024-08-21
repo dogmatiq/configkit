@@ -2,7 +2,7 @@ package configkit
 
 import (
 	"github.com/dogmatiq/configkit/message"
-	"github.com/dogmatiq/dogma/fixtures"
+	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	"github.com/dogmatiq/interopspec/configspec"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -75,7 +75,7 @@ var _ = Describe("func marshalHandler()", func() {
 	BeforeEach(func() {
 		handler = &unmarshaledHandler{
 			ident:       MustNewIdentity("<name>", "26c19bed-f9e8-45b1-8f60-746f7ca6ef36"),
-			typeName:    "github.com/dogmatiq/dogma/fixtures.MessageA",
+			typeName:    "example.com/somepackage.Message",
 			names:       EntityMessageNames{},
 			handlerType: AggregateHandlerType,
 		}
@@ -101,7 +101,7 @@ var _ = Describe("func marshalHandler()", func() {
 
 	It("returns an error if the consumed name/roles are invalid", func() {
 		handler.names.Consumed = message.NameRoles{
-			message.NameOf(fixtures.MessageA{}): "<unknown>",
+			message.NameFor[CommandStub[TypeA]](): "<unknown>",
 		}
 
 		_, err := marshalHandler(handler)
@@ -110,7 +110,7 @@ var _ = Describe("func marshalHandler()", func() {
 
 	It("returns an error if the produced name/roles are invalid", func() {
 		handler.names.Produced = message.NameRoles{
-			message.NameOf(fixtures.MessageA{}): "<unknown>",
+			message.NameFor[CommandStub[TypeA]](): "<unknown>",
 		}
 
 		_, err := marshalHandler(handler)
@@ -179,7 +179,7 @@ var _ = Describe("func marshalNameRoles()", func() {
 
 	It("returns an error if the role can not be marshaled", func() {
 		in := message.NameRoles{
-			message.NameOf(fixtures.MessageA{}): "<invalid>",
+			message.NameFor[CommandStub[TypeA]](): "<invalid>",
 		}
 		_, err := marshalNameRoles(in)
 		Expect(err).Should(HaveOccurred())
