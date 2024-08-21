@@ -4,9 +4,9 @@ import (
 	"os"
 
 	"github.com/dogmatiq/configkit"
-	cfixtures "github.com/dogmatiq/configkit/fixtures"
 	"github.com/dogmatiq/configkit/message"
 	. "github.com/dogmatiq/configkit/static"
+	"github.com/dogmatiq/dogma/fixtures"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -52,12 +52,12 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 			Expect(aggregate.MessageNames()).To(Equal(
 				configkit.EntityMessageNames{
 					Consumed: message.NameRoles{
-						cfixtures.MessageATypeName: message.CommandRole,
-						cfixtures.MessageBTypeName: message.CommandRole,
+						message.NameFor[fixtures.MessageA](): message.CommandRole,
+						message.NameFor[fixtures.MessageB](): message.CommandRole,
 					},
 					Produced: message.NameRoles{
-						cfixtures.MessageCTypeName: message.EventRole,
-						cfixtures.MessageDTypeName: message.EventRole,
+						message.NameFor[fixtures.MessageC](): message.EventRole,
+						message.NameFor[fixtures.MessageD](): message.EventRole,
 					},
 				},
 			))
@@ -81,16 +81,16 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 			Expect(process.MessageNames()).To(Equal(
 				configkit.EntityMessageNames{
 					Consumed: message.NameRoles{
-						cfixtures.MessageATypeName: message.EventRole,
-						cfixtures.MessageBTypeName: message.EventRole,
-						cfixtures.MessageETypeName: message.TimeoutRole,
-						cfixtures.MessageFTypeName: message.TimeoutRole,
+						message.NameFor[fixtures.MessageA](): message.EventRole,
+						message.NameFor[fixtures.MessageB](): message.EventRole,
+						message.NameFor[fixtures.MessageE](): message.TimeoutRole,
+						message.NameFor[fixtures.MessageF](): message.TimeoutRole,
 					},
 					Produced: message.NameRoles{
-						cfixtures.MessageCTypeName: message.CommandRole,
-						cfixtures.MessageDTypeName: message.CommandRole,
-						cfixtures.MessageETypeName: message.TimeoutRole,
-						cfixtures.MessageFTypeName: message.TimeoutRole,
+						message.NameFor[fixtures.MessageC](): message.CommandRole,
+						message.NameFor[fixtures.MessageD](): message.CommandRole,
+						message.NameFor[fixtures.MessageE](): message.TimeoutRole,
+						message.NameFor[fixtures.MessageF](): message.TimeoutRole,
 					},
 				},
 			))
@@ -114,8 +114,8 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 			Expect(projection.MessageNames()).To(Equal(
 				configkit.EntityMessageNames{
 					Consumed: message.NameRoles{
-						cfixtures.MessageATypeName: message.EventRole,
-						cfixtures.MessageBTypeName: message.EventRole,
+						message.NameFor[fixtures.MessageA](): message.EventRole,
+						message.NameFor[fixtures.MessageB](): message.EventRole,
 					},
 					Produced: message.NameRoles{},
 				},
@@ -140,12 +140,12 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 			Expect(integration.MessageNames()).To(Equal(
 				configkit.EntityMessageNames{
 					Consumed: message.NameRoles{
-						cfixtures.MessageATypeName: message.CommandRole,
-						cfixtures.MessageBTypeName: message.CommandRole,
+						message.NameFor[fixtures.MessageA](): message.CommandRole,
+						message.NameFor[fixtures.MessageB](): message.CommandRole,
 					},
 					Produced: message.NameRoles{
-						cfixtures.MessageCTypeName: message.EventRole,
-						cfixtures.MessageDTypeName: message.EventRole,
+						message.NameFor[fixtures.MessageC](): message.EventRole,
+						message.NameFor[fixtures.MessageD](): message.EventRole,
 					},
 				},
 			))
@@ -194,12 +194,12 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Expect(aggregate.MessageNames()).To(Equal(
 					configkit.EntityMessageNames{
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.CommandRole,
-							cfixtures.MessageBTypeName: message.CommandRole,
+							message.NameFor[fixtures.MessageA](): message.CommandRole,
+							message.NameFor[fixtures.MessageB](): message.CommandRole,
 						},
 						Produced: message.NameRoles{
-							cfixtures.MessageCTypeName: message.EventRole,
-							cfixtures.MessageDTypeName: message.EventRole,
+							message.NameFor[fixtures.MessageC](): message.EventRole,
+							message.NameFor[fixtures.MessageD](): message.EventRole,
 						},
 					},
 				))
@@ -223,16 +223,16 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Expect(process.MessageNames()).To(Equal(
 					configkit.EntityMessageNames{
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.EventRole,
-							cfixtures.MessageBTypeName: message.EventRole,
-							cfixtures.MessageETypeName: message.TimeoutRole,
-							cfixtures.MessageFTypeName: message.TimeoutRole,
+							message.NameFor[fixtures.MessageA](): message.EventRole,
+							message.NameFor[fixtures.MessageB](): message.EventRole,
+							message.NameFor[fixtures.MessageE](): message.TimeoutRole,
+							message.NameFor[fixtures.MessageF](): message.TimeoutRole,
 						},
 						Produced: message.NameRoles{
-							cfixtures.MessageCTypeName: message.CommandRole,
-							cfixtures.MessageDTypeName: message.CommandRole,
-							cfixtures.MessageETypeName: message.TimeoutRole,
-							cfixtures.MessageFTypeName: message.TimeoutRole,
+							message.NameFor[fixtures.MessageC](): message.CommandRole,
+							message.NameFor[fixtures.MessageD](): message.CommandRole,
+							message.NameFor[fixtures.MessageE](): message.TimeoutRole,
+							message.NameFor[fixtures.MessageF](): message.TimeoutRole,
 						},
 					},
 				))
@@ -256,8 +256,8 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Expect(projection.MessageNames()).To(Equal(
 					configkit.EntityMessageNames{
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.EventRole,
-							cfixtures.MessageBTypeName: message.EventRole,
+							message.NameFor[fixtures.MessageA](): message.EventRole,
+							message.NameFor[fixtures.MessageB](): message.EventRole,
 						},
 						Produced: message.NameRoles{},
 					},
@@ -282,12 +282,12 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Expect(integration.MessageNames()).To(Equal(
 					configkit.EntityMessageNames{
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.CommandRole,
-							cfixtures.MessageBTypeName: message.CommandRole,
+							message.NameFor[fixtures.MessageA](): message.CommandRole,
+							message.NameFor[fixtures.MessageB](): message.CommandRole,
 						},
 						Produced: message.NameRoles{
-							cfixtures.MessageCTypeName: message.EventRole,
-							cfixtures.MessageDTypeName: message.EventRole,
+							message.NameFor[fixtures.MessageC](): message.EventRole,
+							message.NameFor[fixtures.MessageD](): message.EventRole,
 						},
 					},
 				))
@@ -322,12 +322,12 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Expect(aggregate.MessageNames()).To(Equal(
 					configkit.EntityMessageNames{
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.CommandRole,
-							cfixtures.MessageBTypeName: message.CommandRole,
+							message.NameFor[fixtures.MessageA](): message.CommandRole,
+							message.NameFor[fixtures.MessageB](): message.CommandRole,
 						},
 						Produced: message.NameRoles{
-							cfixtures.MessageCTypeName: message.EventRole,
-							cfixtures.MessageDTypeName: message.EventRole,
+							message.NameFor[fixtures.MessageC](): message.EventRole,
+							message.NameFor[fixtures.MessageD](): message.EventRole,
 						},
 					},
 				))
@@ -351,16 +351,16 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Expect(process.MessageNames()).To(Equal(
 					configkit.EntityMessageNames{
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.EventRole,
-							cfixtures.MessageBTypeName: message.EventRole,
-							cfixtures.MessageETypeName: message.TimeoutRole,
-							cfixtures.MessageFTypeName: message.TimeoutRole,
+							message.NameFor[fixtures.MessageA](): message.EventRole,
+							message.NameFor[fixtures.MessageB](): message.EventRole,
+							message.NameFor[fixtures.MessageE](): message.TimeoutRole,
+							message.NameFor[fixtures.MessageF](): message.TimeoutRole,
 						},
 						Produced: message.NameRoles{
-							cfixtures.MessageCTypeName: message.CommandRole,
-							cfixtures.MessageDTypeName: message.CommandRole,
-							cfixtures.MessageETypeName: message.TimeoutRole,
-							cfixtures.MessageFTypeName: message.TimeoutRole,
+							message.NameFor[fixtures.MessageC](): message.CommandRole,
+							message.NameFor[fixtures.MessageD](): message.CommandRole,
+							message.NameFor[fixtures.MessageE](): message.TimeoutRole,
+							message.NameFor[fixtures.MessageF](): message.TimeoutRole,
 						},
 					},
 				))
@@ -384,8 +384,8 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Expect(projection.MessageNames()).To(Equal(
 					configkit.EntityMessageNames{
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.EventRole,
-							cfixtures.MessageBTypeName: message.EventRole,
+							message.NameFor[fixtures.MessageA](): message.EventRole,
+							message.NameFor[fixtures.MessageB](): message.EventRole,
 						},
 						Produced: message.NameRoles{},
 					},
@@ -410,12 +410,12 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Expect(integration.MessageNames()).To(Equal(
 					configkit.EntityMessageNames{
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.CommandRole,
-							cfixtures.MessageBTypeName: message.CommandRole,
+							message.NameFor[fixtures.MessageA](): message.CommandRole,
+							message.NameFor[fixtures.MessageB](): message.CommandRole,
 						},
 						Produced: message.NameRoles{
-							cfixtures.MessageCTypeName: message.EventRole,
-							cfixtures.MessageDTypeName: message.EventRole,
+							message.NameFor[fixtures.MessageC](): message.EventRole,
+							message.NameFor[fixtures.MessageD](): message.EventRole,
 						},
 					},
 				))
@@ -450,12 +450,12 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Expect(aggregate.MessageNames()).To(Equal(
 					configkit.EntityMessageNames{
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.CommandRole,
-							cfixtures.MessageBTypeName: message.CommandRole,
+							message.NameFor[fixtures.MessageA](): message.CommandRole,
+							message.NameFor[fixtures.MessageB](): message.CommandRole,
 						},
 						Produced: message.NameRoles{
-							cfixtures.MessageCTypeName: message.EventRole,
-							cfixtures.MessageDTypeName: message.EventRole,
+							message.NameFor[fixtures.MessageC](): message.EventRole,
+							message.NameFor[fixtures.MessageD](): message.EventRole,
 						},
 					},
 				))
@@ -479,16 +479,16 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Expect(process.MessageNames()).To(Equal(
 					configkit.EntityMessageNames{
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.EventRole,
-							cfixtures.MessageBTypeName: message.EventRole,
-							cfixtures.MessageETypeName: message.TimeoutRole,
-							cfixtures.MessageFTypeName: message.TimeoutRole,
+							message.NameFor[fixtures.MessageA](): message.EventRole,
+							message.NameFor[fixtures.MessageB](): message.EventRole,
+							message.NameFor[fixtures.MessageE](): message.TimeoutRole,
+							message.NameFor[fixtures.MessageF](): message.TimeoutRole,
 						},
 						Produced: message.NameRoles{
-							cfixtures.MessageCTypeName: message.CommandRole,
-							cfixtures.MessageDTypeName: message.CommandRole,
-							cfixtures.MessageETypeName: message.TimeoutRole,
-							cfixtures.MessageFTypeName: message.TimeoutRole,
+							message.NameFor[fixtures.MessageC](): message.CommandRole,
+							message.NameFor[fixtures.MessageD](): message.CommandRole,
+							message.NameFor[fixtures.MessageE](): message.TimeoutRole,
+							message.NameFor[fixtures.MessageF](): message.TimeoutRole,
 						},
 					},
 				))
@@ -512,8 +512,8 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Expect(projection.MessageNames()).To(Equal(
 					configkit.EntityMessageNames{
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.EventRole,
-							cfixtures.MessageBTypeName: message.EventRole,
+							message.NameFor[fixtures.MessageA](): message.EventRole,
+							message.NameFor[fixtures.MessageB](): message.EventRole,
 						},
 						Produced: message.NameRoles{},
 					},
@@ -538,12 +538,12 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Expect(integration.MessageNames()).To(Equal(
 					configkit.EntityMessageNames{
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.CommandRole,
-							cfixtures.MessageBTypeName: message.CommandRole,
+							message.NameFor[fixtures.MessageA](): message.CommandRole,
+							message.NameFor[fixtures.MessageB](): message.CommandRole,
 						},
 						Produced: message.NameRoles{
-							cfixtures.MessageCTypeName: message.EventRole,
-							cfixtures.MessageDTypeName: message.EventRole,
+							message.NameFor[fixtures.MessageC](): message.EventRole,
+							message.NameFor[fixtures.MessageD](): message.EventRole,
 						},
 					},
 				))
@@ -578,12 +578,12 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Expect(aggregate.MessageNames()).To(Equal(
 					configkit.EntityMessageNames{
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.CommandRole,
-							cfixtures.MessageBTypeName: message.CommandRole,
+							message.NameFor[fixtures.MessageA](): message.CommandRole,
+							message.NameFor[fixtures.MessageB](): message.CommandRole,
 						},
 						Produced: message.NameRoles{
-							cfixtures.MessageCTypeName: message.EventRole,
-							cfixtures.MessageDTypeName: message.EventRole,
+							message.NameFor[fixtures.MessageC](): message.EventRole,
+							message.NameFor[fixtures.MessageD](): message.EventRole,
 						},
 					},
 				))
@@ -607,16 +607,16 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Expect(process.MessageNames()).To(Equal(
 					configkit.EntityMessageNames{
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.EventRole,
-							cfixtures.MessageBTypeName: message.EventRole,
-							cfixtures.MessageETypeName: message.TimeoutRole,
-							cfixtures.MessageFTypeName: message.TimeoutRole,
+							message.NameFor[fixtures.MessageA](): message.EventRole,
+							message.NameFor[fixtures.MessageB](): message.EventRole,
+							message.NameFor[fixtures.MessageE](): message.TimeoutRole,
+							message.NameFor[fixtures.MessageF](): message.TimeoutRole,
 						},
 						Produced: message.NameRoles{
-							cfixtures.MessageCTypeName: message.CommandRole,
-							cfixtures.MessageDTypeName: message.CommandRole,
-							cfixtures.MessageETypeName: message.TimeoutRole,
-							cfixtures.MessageFTypeName: message.TimeoutRole,
+							message.NameFor[fixtures.MessageC](): message.CommandRole,
+							message.NameFor[fixtures.MessageD](): message.CommandRole,
+							message.NameFor[fixtures.MessageE](): message.TimeoutRole,
+							message.NameFor[fixtures.MessageF](): message.TimeoutRole,
 						},
 					},
 				))
@@ -640,8 +640,8 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Expect(projection.MessageNames()).To(Equal(
 					configkit.EntityMessageNames{
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.EventRole,
-							cfixtures.MessageBTypeName: message.EventRole,
+							message.NameFor[fixtures.MessageA](): message.EventRole,
+							message.NameFor[fixtures.MessageB](): message.EventRole,
 						},
 						Produced: message.NameRoles{},
 					},
@@ -666,12 +666,12 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				Expect(integration.MessageNames()).To(Equal(
 					configkit.EntityMessageNames{
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.CommandRole,
-							cfixtures.MessageBTypeName: message.CommandRole,
+							message.NameFor[fixtures.MessageA](): message.CommandRole,
+							message.NameFor[fixtures.MessageB](): message.CommandRole,
 						},
 						Produced: message.NameRoles{
-							cfixtures.MessageCTypeName: message.EventRole,
-							cfixtures.MessageDTypeName: message.EventRole,
+							message.NameFor[fixtures.MessageC](): message.EventRole,
+							message.NameFor[fixtures.MessageD](): message.EventRole,
 						},
 					},
 				))
@@ -861,12 +861,12 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 			Expect(aggregate.MessageNames()).To(Equal(
 				configkit.EntityMessageNames{
 					Consumed: message.NameRoles{
-						cfixtures.MessageATypeName: message.CommandRole,
-						cfixtures.MessageBTypeName: message.CommandRole,
+						message.NameFor[fixtures.MessageA](): message.CommandRole,
+						message.NameFor[fixtures.MessageB](): message.CommandRole,
 					},
 					Produced: message.NameRoles{
-						cfixtures.MessageCTypeName: message.EventRole,
-						cfixtures.MessageDTypeName: message.EventRole,
+						message.NameFor[fixtures.MessageC](): message.EventRole,
+						message.NameFor[fixtures.MessageD](): message.EventRole,
 					},
 				},
 			))
@@ -890,16 +890,16 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 			Expect(process.MessageNames()).To(Equal(
 				configkit.EntityMessageNames{
 					Consumed: message.NameRoles{
-						cfixtures.MessageATypeName: message.EventRole,
-						cfixtures.MessageBTypeName: message.EventRole,
-						cfixtures.MessageETypeName: message.TimeoutRole,
-						cfixtures.MessageFTypeName: message.TimeoutRole,
+						message.NameFor[fixtures.MessageA](): message.EventRole,
+						message.NameFor[fixtures.MessageB](): message.EventRole,
+						message.NameFor[fixtures.MessageE](): message.TimeoutRole,
+						message.NameFor[fixtures.MessageF](): message.TimeoutRole,
 					},
 					Produced: message.NameRoles{
-						cfixtures.MessageCTypeName: message.CommandRole,
-						cfixtures.MessageDTypeName: message.CommandRole,
-						cfixtures.MessageETypeName: message.TimeoutRole,
-						cfixtures.MessageFTypeName: message.TimeoutRole,
+						message.NameFor[fixtures.MessageC](): message.CommandRole,
+						message.NameFor[fixtures.MessageD](): message.CommandRole,
+						message.NameFor[fixtures.MessageE](): message.TimeoutRole,
+						message.NameFor[fixtures.MessageF](): message.TimeoutRole,
 					},
 				},
 			))
@@ -923,8 +923,8 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 			Expect(projection.MessageNames()).To(Equal(
 				configkit.EntityMessageNames{
 					Consumed: message.NameRoles{
-						cfixtures.MessageATypeName: message.EventRole,
-						cfixtures.MessageBTypeName: message.EventRole,
+						message.NameFor[fixtures.MessageA](): message.EventRole,
+						message.NameFor[fixtures.MessageB](): message.EventRole,
 					},
 					Produced: message.NameRoles{},
 				},
@@ -949,12 +949,12 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 			Expect(integration.MessageNames()).To(Equal(
 				configkit.EntityMessageNames{
 					Consumed: message.NameRoles{
-						cfixtures.MessageATypeName: message.CommandRole,
-						cfixtures.MessageBTypeName: message.CommandRole,
+						message.NameFor[fixtures.MessageA](): message.CommandRole,
+						message.NameFor[fixtures.MessageB](): message.CommandRole,
 					},
 					Produced: message.NameRoles{
-						cfixtures.MessageCTypeName: message.EventRole,
-						cfixtures.MessageDTypeName: message.EventRole,
+						message.NameFor[fixtures.MessageC](): message.EventRole,
+						message.NameFor[fixtures.MessageD](): message.EventRole,
 					},
 				},
 			))

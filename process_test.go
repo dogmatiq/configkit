@@ -53,13 +53,13 @@ var _ = Describe("func FromProcess()", func() {
 				Expect(cfg.MessageNames()).To(Equal(
 					EntityMessageNames{
 						Produced: message.NameRoles{
-							cfixtures.MessageCTypeName: message.CommandRole,
-							cfixtures.MessageTTypeName: message.TimeoutRole,
+							message.NameFor[fixtures.MessageC](): message.CommandRole,
+							message.NameFor[fixtures.MessageT](): message.TimeoutRole,
 						},
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.EventRole,
-							cfixtures.MessageBTypeName: message.EventRole,
-							cfixtures.MessageTTypeName: message.TimeoutRole,
+							message.NameFor[fixtures.MessageA](): message.EventRole,
+							message.NameFor[fixtures.MessageB](): message.EventRole,
+							message.NameFor[fixtures.MessageT](): message.TimeoutRole,
 						},
 					},
 				))
@@ -71,13 +71,13 @@ var _ = Describe("func FromProcess()", func() {
 				Expect(cfg.MessageTypes()).To(Equal(
 					EntityMessageTypes{
 						Produced: message.TypeRoles{
-							cfixtures.MessageCType: message.CommandRole,
-							cfixtures.MessageTType: message.TimeoutRole,
+							message.TypeFor[fixtures.MessageC](): message.CommandRole,
+							message.TypeFor[fixtures.MessageT](): message.TimeoutRole,
 						},
 						Consumed: message.TypeRoles{
-							cfixtures.MessageAType: message.EventRole,
-							cfixtures.MessageBType: message.EventRole,
-							cfixtures.MessageTType: message.TimeoutRole,
+							message.TypeFor[fixtures.MessageA](): message.EventRole,
+							message.TypeFor[fixtures.MessageB](): message.EventRole,
+							message.TypeFor[fixtures.MessageT](): message.TimeoutRole,
 						},
 					},
 				))

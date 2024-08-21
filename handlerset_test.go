@@ -159,7 +159,7 @@ var _ = Describe("type HandlerSet", func() {
 		})
 
 		It("returns the handlers that consume the given message", func() {
-			subset := set.ConsumersOf(cfixtures.MessageCTypeName)
+			subset := set.ConsumersOf(message.NameFor[fixtures.MessageC]())
 			Expect(subset).To(HaveLen(1))
 			Expect(set.Has(aggregate)).To(BeTrue())
 		})
@@ -172,7 +172,7 @@ var _ = Describe("type HandlerSet", func() {
 		})
 
 		It("returns the handlers the produce the given message", func() {
-			subset := set.ProducersOf(cfixtures.MessageETypeName)
+			subset := set.ProducersOf(message.NameFor[fixtures.MessageE]())
 			Expect(subset).To(HaveLen(1))
 			Expect(set.Has(aggregate)).To(BeTrue())
 		})
@@ -188,11 +188,11 @@ var _ = Describe("type HandlerSet", func() {
 			Expect(set.MessageNames()).To(Equal(
 				EntityMessageNames{
 					Produced: message.NameRoles{
-						cfixtures.MessageETypeName: message.EventRole,
+						message.NameFor[fixtures.MessageE](): message.EventRole,
 					},
 					Consumed: message.NameRoles{
-						cfixtures.MessageCTypeName: message.CommandRole,
-						cfixtures.MessageETypeName: message.EventRole,
+						message.NameFor[fixtures.MessageC](): message.CommandRole,
+						message.NameFor[fixtures.MessageE](): message.EventRole,
 					},
 				},
 			))
@@ -704,7 +704,7 @@ var _ = Describe("type RichHandlerSet", func() {
 		})
 
 		It("returns the handlers that consume the given message", func() {
-			subset := set.ConsumersOf(cfixtures.MessageCType)
+			subset := set.ConsumersOf(message.TypeFor[fixtures.MessageC]())
 			Expect(subset).To(HaveLen(1))
 			Expect(set.Has(aggregate)).To(BeTrue())
 		})
@@ -717,7 +717,7 @@ var _ = Describe("type RichHandlerSet", func() {
 		})
 
 		It("returns the handlers the produce the given message", func() {
-			subset := set.ProducersOf(cfixtures.MessageEType)
+			subset := set.ProducersOf(message.TypeFor[fixtures.MessageE]())
 			Expect(subset).To(HaveLen(1))
 			Expect(set.Has(aggregate)).To(BeTrue())
 		})
@@ -733,11 +733,11 @@ var _ = Describe("type RichHandlerSet", func() {
 			Expect(set.MessageTypes()).To(Equal(
 				EntityMessageTypes{
 					Produced: message.TypeRoles{
-						cfixtures.MessageEType: message.EventRole,
+						message.TypeFor[fixtures.MessageE](): message.EventRole,
 					},
 					Consumed: message.TypeRoles{
-						cfixtures.MessageCType: message.CommandRole,
-						cfixtures.MessageEType: message.EventRole,
+						message.TypeFor[fixtures.MessageC](): message.CommandRole,
+						message.TypeFor[fixtures.MessageE](): message.EventRole,
 					},
 				},
 			))

@@ -7,7 +7,6 @@ import (
 
 	"github.com/dogmatiq/configkit"
 	. "github.com/dogmatiq/configkit/fixtures"
-	cfixtures "github.com/dogmatiq/configkit/fixtures"
 	. "github.com/dogmatiq/configkit/internal/entity"
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
@@ -43,10 +42,10 @@ var _ = Describe("type Application", func() {
 		It("returns the value of .MessageNamesValue field", func() {
 			m := configkit.EntityMessageNames{
 				Produced: message.NameRoles{
-					cfixtures.MessageCTypeName: message.CommandRole,
+					message.NameFor[fixtures.MessageC](): message.CommandRole,
 				},
 				Consumed: message.NameRoles{
-					cfixtures.MessageETypeName: message.EventRole,
+					message.NameFor[fixtures.MessageE](): message.EventRole,
 				},
 			}
 
@@ -125,10 +124,10 @@ var _ = Describe("type Handler", func() {
 		It("returns the value of .MessageNamesValue field", func() {
 			m := configkit.EntityMessageNames{
 				Produced: message.NameRoles{
-					cfixtures.MessageCTypeName: message.CommandRole,
+					message.NameFor[fixtures.MessageC](): message.CommandRole,
 				},
 				Consumed: message.NameRoles{
-					cfixtures.MessageETypeName: message.EventRole,
+					message.NameFor[fixtures.MessageE](): message.EventRole,
 				},
 			}
 

@@ -52,11 +52,11 @@ var _ = Describe("func FromIntegration()", func() {
 				Expect(cfg.MessageNames()).To(Equal(
 					EntityMessageNames{
 						Produced: message.NameRoles{
-							cfixtures.MessageETypeName: message.EventRole,
+							message.NameFor[fixtures.MessageE](): message.EventRole,
 						},
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.CommandRole,
-							cfixtures.MessageBTypeName: message.CommandRole,
+							message.NameFor[fixtures.MessageA](): message.CommandRole,
+							message.NameFor[fixtures.MessageB](): message.CommandRole,
 						},
 					},
 				))
@@ -68,11 +68,11 @@ var _ = Describe("func FromIntegration()", func() {
 				Expect(cfg.MessageTypes()).To(Equal(
 					EntityMessageTypes{
 						Produced: message.TypeRoles{
-							cfixtures.MessageEType: message.EventRole,
+							message.TypeFor[fixtures.MessageE](): message.EventRole,
 						},
 						Consumed: message.TypeRoles{
-							cfixtures.MessageAType: message.CommandRole,
-							cfixtures.MessageBType: message.CommandRole,
+							message.TypeFor[fixtures.MessageA](): message.CommandRole,
+							message.TypeFor[fixtures.MessageB](): message.CommandRole,
 						},
 					},
 				))

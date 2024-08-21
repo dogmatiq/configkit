@@ -110,18 +110,18 @@ var _ = Describe("func FromApplication()", func() {
 				Expect(cfg.MessageNames()).To(Equal(
 					EntityMessageNames{
 						Produced: message.NameRoles{
-							cfixtures.MessageCTypeName: message.CommandRole,
-							cfixtures.MessageETypeName: message.EventRole,
-							cfixtures.MessageFTypeName: message.EventRole,
-							cfixtures.MessageTTypeName: message.TimeoutRole,
+							message.NameFor[fixtures.MessageC](): message.CommandRole,
+							message.NameFor[fixtures.MessageE](): message.EventRole,
+							message.NameFor[fixtures.MessageF](): message.EventRole,
+							message.NameFor[fixtures.MessageT](): message.TimeoutRole,
 						},
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.CommandRole,
-							cfixtures.MessageBTypeName: message.EventRole,
-							cfixtures.MessageCTypeName: message.CommandRole,
-							cfixtures.MessageDTypeName: message.EventRole,
-							cfixtures.MessageETypeName: message.EventRole,
-							cfixtures.MessageTTypeName: message.TimeoutRole,
+							message.NameFor[fixtures.MessageA](): message.CommandRole,
+							message.NameFor[fixtures.MessageB](): message.EventRole,
+							message.NameFor[fixtures.MessageC](): message.CommandRole,
+							message.NameFor[fixtures.MessageD](): message.EventRole,
+							message.NameFor[fixtures.MessageE](): message.EventRole,
+							message.NameFor[fixtures.MessageT](): message.TimeoutRole,
 						},
 					},
 				))
@@ -133,18 +133,18 @@ var _ = Describe("func FromApplication()", func() {
 				Expect(cfg.MessageTypes()).To(Equal(
 					EntityMessageTypes{
 						Produced: message.TypeRoles{
-							cfixtures.MessageCType: message.CommandRole,
-							cfixtures.MessageEType: message.EventRole,
-							cfixtures.MessageFType: message.EventRole,
-							cfixtures.MessageTType: message.TimeoutRole,
+							message.TypeFor[fixtures.MessageC](): message.CommandRole,
+							message.TypeFor[fixtures.MessageE](): message.EventRole,
+							message.TypeFor[fixtures.MessageF](): message.EventRole,
+							message.TypeFor[fixtures.MessageT](): message.TimeoutRole,
 						},
 						Consumed: message.TypeRoles{
-							cfixtures.MessageAType: message.CommandRole,
-							cfixtures.MessageBType: message.EventRole,
-							cfixtures.MessageCType: message.CommandRole,
-							cfixtures.MessageDType: message.EventRole,
-							cfixtures.MessageEType: message.EventRole,
-							cfixtures.MessageTType: message.TimeoutRole,
+							message.TypeFor[fixtures.MessageA](): message.CommandRole,
+							message.TypeFor[fixtures.MessageB](): message.EventRole,
+							message.TypeFor[fixtures.MessageC](): message.CommandRole,
+							message.TypeFor[fixtures.MessageD](): message.EventRole,
+							message.TypeFor[fixtures.MessageE](): message.EventRole,
+							message.TypeFor[fixtures.MessageT](): message.TimeoutRole,
 						},
 					},
 				))

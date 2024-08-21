@@ -55,8 +55,8 @@ var _ = Describe("func FromProjection()", func() {
 					EntityMessageNames{
 						Produced: nil,
 						Consumed: message.NameRoles{
-							cfixtures.MessageATypeName: message.EventRole,
-							cfixtures.MessageBTypeName: message.EventRole,
+							message.NameFor[fixtures.MessageA](): message.EventRole,
+							message.NameFor[fixtures.MessageB](): message.EventRole,
 						},
 					},
 				))
@@ -69,8 +69,8 @@ var _ = Describe("func FromProjection()", func() {
 					EntityMessageTypes{
 						Produced: nil,
 						Consumed: message.TypeRoles{
-							cfixtures.MessageAType: message.EventRole,
-							cfixtures.MessageBType: message.EventRole,
+							message.TypeFor[fixtures.MessageA](): message.EventRole,
+							message.TypeFor[fixtures.MessageB](): message.EventRole,
 						},
 					},
 				))

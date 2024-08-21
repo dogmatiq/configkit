@@ -2,9 +2,9 @@ package static_test
 
 import (
 	"github.com/dogmatiq/configkit"
-	cfixtures "github.com/dogmatiq/configkit/fixtures"
 	"github.com/dogmatiq/configkit/message"
 	. "github.com/dogmatiq/configkit/static"
+	"github.com/dogmatiq/dogma/fixtures"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -134,16 +134,16 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 			Expect(apps[0].MessageNames()).To(Equal(
 				configkit.EntityMessageNames{
 					Consumed: message.NameRoles{
-						cfixtures.MessageATypeName: message.CommandRole,
-						cfixtures.MessageBTypeName: message.EventRole,
-						cfixtures.MessageCTypeName: message.EventRole,
-						cfixtures.MessageETypeName: message.TimeoutRole,
+						message.NameFor[fixtures.MessageA](): message.CommandRole,
+						message.NameFor[fixtures.MessageB](): message.EventRole,
+						message.NameFor[fixtures.MessageC](): message.EventRole,
+						message.NameFor[fixtures.MessageE](): message.TimeoutRole,
 					},
 					Produced: message.NameRoles{
-						cfixtures.MessageBTypeName: message.EventRole,
-						cfixtures.MessageDTypeName: message.CommandRole,
-						cfixtures.MessageETypeName: message.TimeoutRole,
-						cfixtures.MessageFTypeName: message.EventRole,
+						message.NameFor[fixtures.MessageB](): message.EventRole,
+						message.NameFor[fixtures.MessageD](): message.CommandRole,
+						message.NameFor[fixtures.MessageE](): message.TimeoutRole,
+						message.NameFor[fixtures.MessageF](): message.EventRole,
 					},
 				},
 			))
