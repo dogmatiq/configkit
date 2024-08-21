@@ -102,8 +102,8 @@ var _ = Describe("type Type", func() {
 
 	Describe("func TypeFor()", func() {
 		It("returns the type", func() {
-			tb := TypeOf(fixtures.MessageA1)
 			ta := TypeFor[fixtures.MessageA]()
+			tb := TypeOf(fixtures.MessageA1)
 
 			Expect(ta).To(Equal(tb))
 			Expect(ta == tb).To(BeTrue()) // we're testing == here specifically, hence not using To(Equal())

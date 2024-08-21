@@ -90,6 +90,14 @@ var _ = Describe("type Name", func() {
 		})
 	})
 
+	Describe("func NameFor()", func() {
+		It("returns the name", func() {
+			na := NameFor[fixtures.MessageA]()
+			nb := NameOf(fixtures.MessageA1)
+			Expect(na).To(Equal(nb))
+		})
+	})
+
 	Describe("func NameFromType()", func() {
 		It("returns the fully-qualified name", func() {
 			pkg := types.NewPackage(

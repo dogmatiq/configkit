@@ -76,6 +76,13 @@ func NameOf(m dogma.Message) Name {
 	return Name{n}
 }
 
+// NameFor returns the message name for T.
+func NameFor[T dogma.Message]() Name {
+	rt := reflect.TypeFor[T]()
+	n := goreflect.NameOf(rt)
+	return Name{n}
+}
+
 // NameFromType returns the fully-qualified type name of t.
 func NameFromType(t types.Type) Name {
 	if t == nil {
