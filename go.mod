@@ -3,6 +3,7 @@ module github.com/dogmatiq/configkit
 go 1.22
 
 require (
+	github.com/dogmatiq/aureus v0.1.0
 	github.com/dogmatiq/dogma v0.14.2
 	github.com/dogmatiq/enginekit v0.10.3
 	github.com/dogmatiq/iago v0.4.0
@@ -21,6 +22,7 @@ require (
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
+	github.com/yuin/goldmark v1.7.0 // indirect
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
 	golang.org/x/mod v0.20.0 // indirect
 	golang.org/x/net v0.28.0 // indirect
