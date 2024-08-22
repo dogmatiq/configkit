@@ -3,8 +3,8 @@ package app
 import "github.com/dogmatiq/dogma"
 
 type (
-	// IntergrationHandlerAlias is a test type alias of IntegrationHandler.
-	IntergrationHandlerAlias = IntegrationHandler
+	// IntegrationHandlerAlias is a test type alias of IntegrationHandler.
+	IntegrationHandlerAlias = IntegrationHandler
 	// ProjectionHandlerAlias is a test type alias of ProjectionHandler.
 	ProjectionHandlerAlias = ProjectionHandler
 	// AggregateHandlerAlias is a test type alias of AggregateHandler.
@@ -21,7 +21,7 @@ type App struct{}
 func (App) Configure(c dogma.ApplicationConfigurer) {
 	c.Identity("<handler-as-typealias-app>", "1b828a1c-eba1-4e4c-88b8-e49f78ad15c7")
 
-	c.RegisterIntegration(IntergrationHandlerAlias{})
+	c.RegisterIntegration(IntegrationHandlerAlias{})
 	c.RegisterProjection(ProjectionHandlerAlias{})
 	c.RegisterAggregate(AggregateHandlerAlias{})
 	c.RegisterProcess(ProcessHandlerAlias{})

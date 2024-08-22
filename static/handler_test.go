@@ -274,7 +274,7 @@ var _ = Describe("func FromPackages() (handler analysis)", func() {
 				)
 				Expect(integration.TypeName()).To(
 					Equal(
-						"github.com/dogmatiq/configkit/static/testdata/handlers/typealias.IntergrationHandlerAlias",
+						"github.com/dogmatiq/configkit/static/testdata/handlers/typealias.IntegrationHandlerAlias",
 					),
 				)
 				Expect(integration.HandlerType()).To(Equal(configkit.IntegrationHandlerType))
