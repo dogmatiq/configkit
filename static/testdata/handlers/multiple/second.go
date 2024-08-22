@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"time"
 
 	"github.com/dogmatiq/dogma"
 	"github.com/dogmatiq/dogma/fixtures"
@@ -103,12 +102,6 @@ func (SecondProcessHandler) HandleTimeout(
 	return nil
 }
 
-// TimeoutHint returns a duration that is suitable for computing a deadline
-// for the handling of the given message by this handler.
-func (SecondProcessHandler) TimeoutHint(dogma.Message) time.Duration {
-	return 0
-}
-
 // SecondProjectionHandler is a test implementation of
 // dogma.ProjectionMessageHandler.
 type SecondProjectionHandler struct{}
@@ -144,12 +137,6 @@ func (SecondProjectionHandler) CloseResource(context.Context, []byte) error {
 	return nil
 }
 
-// TimeoutHint returns a duration that is suitable for computing a deadline
-// for the handling of the given message by this handler.
-func (SecondProjectionHandler) TimeoutHint(dogma.Message) time.Duration {
-	return 0
-}
-
 // Compact reduces the size of the projection's data.
 func (SecondProjectionHandler) Compact(context.Context, dogma.ProjectionCompactScope) error {
 	return nil
@@ -183,10 +170,4 @@ func (SecondIntegrationHandler) HandleCommand(
 	dogma.Command,
 ) error {
 	return nil
-}
-
-// TimeoutHint returns a duration that is suitable for computing a deadline
-// for the handling of the given message by this handler.
-func (SecondIntegrationHandler) TimeoutHint(dogma.Message) time.Duration {
-	return 0
 }

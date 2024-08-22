@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"time"
 
 	"github.com/dogmatiq/dogma"
 )
@@ -55,10 +54,4 @@ func (ProcessHandler) HandleTimeout(
 	dogma.Timeout,
 ) error {
 	return nil
-}
-
-// TimeoutHint returns a duration that is suitable for computing a deadline
-// for the handling of the given message by this handler.
-func (ProcessHandler) TimeoutHint(dogma.Message) time.Duration {
-	return 0
 }

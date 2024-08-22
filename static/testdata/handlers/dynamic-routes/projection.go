@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"time"
 
 	"github.com/dogmatiq/dogma"
 	"github.com/dogmatiq/dogma/fixtures"
@@ -43,12 +42,6 @@ func (ProjectionHandler) ResourceVersion(context.Context, []byte) ([]byte, error
 // used in any future calls to HandleEvent().
 func (ProjectionHandler) CloseResource(context.Context, []byte) error {
 	return nil
-}
-
-// TimeoutHint returns a duration that is suitable for computing a deadline
-// for the handling of the given message by this handler.
-func (ProjectionHandler) TimeoutHint(dogma.Message) time.Duration {
-	return 0
 }
 
 // Compact reduces the size of the projection's data.
