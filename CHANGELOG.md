@@ -10,6 +10,13 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
+## [0.13.8] - 2024-08-23
+
+### Fixed
+
+- Fixed bug that caused `message.Type.String()` to remove periods after package
+  names when rendering the type of a pointer message.
+
 ## [0.13.7] - 2024-08-23
 
 ### Added
@@ -347,6 +354,7 @@ interfaces. It does not yet include support for static analysis of the new
 [0.13.5]: https://github.com/dogmatiq/configkit/releases/v0.13.5
 [0.13.6]: https://github.com/dogmatiq/configkit/releases/v0.13.6
 [0.13.7]: https://github.com/dogmatiq/configkit/releases/v0.13.7
+[0.13.8]: https://github.com/dogmatiq/configkit/releases/v0.13.8
 
 <!-- version template
 ## [0.0.1] - YYYY-MM-DD

@@ -119,14 +119,24 @@ func (t Type) ReflectType() reflect.Type {
 //
 // The returned name is not necessarily globally-unique.
 func (t Type) String() string {
-	return strings.ReplaceAll(
-		t.rt.String(),
-		t.rt.PkgPath()+".",
-		"",
-	)
+	return typeToString(t.rt)
 }
 
 // IsZero returns true if t is the zero-value.
 func (t Type) IsZero() bool {
 	return t.n.IsZero()
+}
+
+func typeToString(t reflect.Type) string {
+	if t.Kind() == reflect.Ptr {
+		return "*" + typeToString(t.Elem())
+	}
+
+	str := t.String()
+
+	if pkg := t.PkgPath(); pkg != "" {
+		str = strings.ReplaceAll(str, pkg+".", "")
+	}
+
+	return str
 }
