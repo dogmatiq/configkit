@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
-## [Unreleased]
+## [0.13.7] - 2024-08-23
 
 ### Added
 
@@ -20,6 +20,11 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 - Shorten generic message type names when the type parameter is in the same
   package as the generic type.
+
+### Deprecated
+
+- Deprecated the `fixtures` sub-package. This package will be removed in a
+  future release.
 
 ## [0.13.6] - 2024-08-17
 
@@ -341,6 +346,7 @@ interfaces. It does not yet include support for static analysis of the new
 [0.13.4]: https://github.com/dogmatiq/configkit/releases/v0.13.4
 [0.13.5]: https://github.com/dogmatiq/configkit/releases/v0.13.5
 [0.13.6]: https://github.com/dogmatiq/configkit/releases/v0.13.6
+[0.13.7]: https://github.com/dogmatiq/configkit/releases/v0.13.7
 
 <!-- version template
 ## [0.0.1] - YYYY-MM-DD
