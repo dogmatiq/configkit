@@ -2,10 +2,10 @@ package app
 
 import (
 	"context"
+	"math/rand"
 
 	"github.com/dogmatiq/dogma"
 	"github.com/dogmatiq/enginekit/enginetest/stubs"
-	"golang.org/x/exp/rand"
 )
 
 // IntegrationHandler is a test implementation of
