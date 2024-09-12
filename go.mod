@@ -14,7 +14,7 @@ require (
 	github.com/onsi/gomega v1.34.2
 	golang.org/x/text v0.18.0
 	golang.org/x/tools v0.24.0
-	google.golang.org/grpc v1.66.1
+	google.golang.org/grpc v1.66.2
 )
 
 require (
