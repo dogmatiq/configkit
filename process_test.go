@@ -277,17 +277,6 @@ var _ = Describe("func FromProcess()", func() {
 			},
 		),
 		Entry(
-			"when the handler configures the same message type with different roles",
-			`*stubs.ProcessMessageHandlerStub (<name>) is configured to use stubs.EventStub[TypeA] as both an event and a timeout`,
-			func(c dogma.ProcessConfigurer) {
-				c.Identity("<name>", processKey)
-				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
-					dogma.SchedulesTimeout[EventStub[TypeA]](),
-				)
-			},
-		),
-		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
 			`*stubs.ProcessMessageHandlerStub is configured with multiple HandlesEvent() routes for stubs.EventStub[TypeA], should these refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {

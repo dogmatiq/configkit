@@ -47,13 +47,13 @@ var _ = Describe("func IsHandlerEqual()", func() {
 			Expect(IsHandlerEqual(a, b)).To(BeFalse())
 		},
 		Entry(
-			"type differs",
-			FromIntegration(&IntegrationMessageHandlerStub{
+			"handler type differs",
+			FromIntegration(&IntegrationMessageHandlerStub{ // diff
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 					c.Identity("<name>", integrationKey)
 					c.Routes(
 						dogma.HandlesCommand[CommandStub[TypeA]](),
-						dogma.RecordsEvent[CommandStub[TypeB]](), // diff
+						dogma.HandlesCommand[CommandStub[TypeB]](),
 						dogma.RecordsEvent[EventStub[TypeA]](),
 					)
 				},
@@ -106,7 +106,7 @@ var _ = Describe("func IsHandlerEqual()", func() {
 					c.Identity("<name>", aggregateKey)
 					c.Routes(
 						dogma.HandlesCommand[CommandStub[TypeA]](),
-						dogma.RecordsEvent[CommandStub[TypeB]](), // diff
+						dogma.HandlesCommand[CommandStub[TypeC]](), // diff
 						dogma.RecordsEvent[EventStub[TypeA]](),
 					)
 				},

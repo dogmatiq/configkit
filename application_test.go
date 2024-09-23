@@ -453,24 +453,6 @@ var _ = Describe("func FromApplication()", func() {
 				}
 			},
 		),
-		Entry(
-			"when multiple handlers use a single message type in differing roles",
-			`*stubs.ProjectionMessageHandlerStub (<projection>) configures stubs.CommandStub[TypeA] as an event but *stubs.AggregateMessageHandlerStub (<aggregate>) configures it as a command`,
-			func() {
-				projection.ConfigureFunc = func(c dogma.ProjectionConfigurer) {
-					c.Identity("<projection>", projectionKey)
-					c.Routes(
-						dogma.HandlesEvent[CommandStub[TypeA]](), // conflict with <aggregate>
-					)
-				}
-
-				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
-					c.Identity("<app>", appKey)
-					c.RegisterAggregate(aggregate)
-					c.RegisterProjection(projection)
-				}
-			},
-		),
 	)
 })
 

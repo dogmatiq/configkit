@@ -3,10 +3,17 @@ github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dogmatiq/aureus v0.1.0 h1:BIUF1G4pdCiJ+WQ6GnTmbhaejbjtX35Z9w2somdgslA=
 github.com/dogmatiq/aureus v0.1.0/go.mod h1:eTm6/WDfVI2tNjg1WCXiPt4fqjMhjO2kNM522ENa6mM=
+<<<<<<< HEAD
 github.com/dogmatiq/dogma v0.14.3 h1:qwZqU1yqp80toUJcJBdFxLlh6xvlFd7jb7rycmriRUo=
 github.com/dogmatiq/dogma v0.14.3/go.mod h1:9lyVA+6V2+E/exV0IrBOrkUiyFwIATEhv+b0vnB2umQ=
 github.com/dogmatiq/enginekit v0.15.1 h1:i5FhnfTNyIZwgqHlH9MNU/9kDoOXvnDLi40FtIkUhbo=
 github.com/dogmatiq/enginekit v0.15.1/go.mod h1:VYNGtuEGGYOnJqvSzi40QnkptFSfuSGeVk0jV83lzUA=
+=======
+github.com/dogmatiq/dogma v0.14.3-0.20240923090950-ee623b679849 h1:iAfnsLzgfSJBkseLyvotVLHCbTWDh90o2fZml+al3fg=
+github.com/dogmatiq/dogma v0.14.3-0.20240923090950-ee623b679849/go.mod h1:9lyVA+6V2+E/exV0IrBOrkUiyFwIATEhv+b0vnB2umQ=
+github.com/dogmatiq/enginekit v0.10.4-0.20240923092053-25759210ba4b h1:ma3oA4xwLq69dzYJju+GN6n4u7IQeDzI9I+y6fxKkPc=
+github.com/dogmatiq/enginekit v0.10.4-0.20240923092053-25759210ba4b/go.mod h1:XZcFZ9U5bMIu05rUmDtUHEhL49kCoSxcuZdr6o8Fih4=
+>>>>>>> b9bb4a5 (Add validation scopes, update to Go v1.23.)
 github.com/dogmatiq/iago v0.4.0 h1:57nZqVT34IZxtCZEW/RFif7DNUEjMXgevfr/Mmd0N8I=
 github.com/dogmatiq/iago v0.4.0/go.mod h1:fishMWBtzYcjgis6d873VTv9kFm/wHYLOzOyO9ECBDc=
 github.com/dogmatiq/interopspec v0.5.4 h1:klyGPy16zUKJartJIJOBZ4JrQ4LxFiY3wgzFTTiNlDk=

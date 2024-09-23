@@ -265,17 +265,6 @@ var _ = Describe("func FromAggregate()", func() {
 			},
 		),
 		Entry(
-			"when the handler configures the same message type with different roles",
-			`*stubs.AggregateMessageHandlerStub (<name>) is configured to use stubs.CommandStub[TypeA] as both a command and an event`,
-			func(c dogma.AggregateConfigurer) {
-				c.Identity("<name>", aggregateKey)
-				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.RecordsEvent[CommandStub[TypeA]](),
-				)
-			},
-		),
-		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
 			`*stubs.AggregateMessageHandlerStub is configured with multiple HandlesCommand() routes for stubs.CommandStub[TypeA], should these refer to different message types?`,
 			func(c dogma.AggregateConfigurer) {

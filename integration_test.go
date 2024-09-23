@@ -264,17 +264,6 @@ var _ = Describe("func FromIntegration()", func() {
 			},
 		),
 		Entry(
-			"when the handler configures the same message type with different roles",
-			`*stubs.IntegrationMessageHandlerStub (<name>) is configured to use stubs.CommandStub[TypeA] as both a command and an event`,
-			func(c dogma.IntegrationConfigurer) {
-				c.Identity("<name>", integrationKey)
-				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.RecordsEvent[CommandStub[TypeA]](),
-				)
-			},
-		),
-		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
 			`*stubs.IntegrationMessageHandlerStub is configured with multiple HandlesCommand() routes for stubs.CommandStub[TypeA], should these refer to different message types?`,
 			func(c dogma.IntegrationConfigurer) {
