@@ -1,6 +1,7 @@
 package configkit
 
 import (
+	//revive:disable:dot-imports
 	"github.com/dogmatiq/configkit/message"
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	"github.com/dogmatiq/interopspec/configspec"

@@ -92,14 +92,6 @@ func configureConsumerRoute(
 ) {
 	t := message.TypeFromReflect(messageType)
 
-	guardAgainstConflictingRoles(
-		types,
-		t,
-		role,
-		handlerIdent,
-		handlerType,
-	)
-
 	if types.Consumed.Has(t) {
 		validation.Panicf(
 			"%s is configured with multiple %s() routes for %s, should these refer to different message types?",
@@ -125,14 +117,6 @@ func configureProducerRoute(
 ) {
 	t := message.TypeFromReflect(messageType)
 
-	guardAgainstConflictingRoles(
-		types,
-		t,
-		role,
-		handlerIdent,
-		handlerType,
-	)
-
 	if types.Produced.Has(t) {
 		validation.Panicf(
 			"%s is configured with multiple %s() routes for %s, should these refer to different message types?",
@@ -146,28 +130,6 @@ func configureProducerRoute(
 		types.Produced = message.TypeRoles{}
 	}
 	types.Produced.Add(t, role)
-}
-
-func guardAgainstConflictingRoles(
-	types *EntityMessageTypes,
-	messageType message.Type,
-	proposed message.Role,
-	handlerIdent Identity,
-	handlerType reflect.Type,
-) {
-	existing, ok := types.RoleOf(messageType)
-
-	if !ok || existing == proposed {
-		return
-	}
-
-	validation.Panicf(
-		"%s is configured to use %s as both a %s and a %s",
-		handlerDisplayName(handlerIdent, handlerType),
-		messageType,
-		existing,
-		proposed,
-	)
 }
 
 func handlerDisplayName(
@@ -230,8 +192,7 @@ func mustHaveProducerRoute(
 		verb = "record"
 		routeFunc = "RecordsEvent"
 	case message.TimeoutRole:
-		verb = "schedule"
-		routeFunc = "SchedulesTimeout"
+		panic("no handlers mandate use of timeout messages")
 	}
 
 	validation.Panicf(

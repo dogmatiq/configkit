@@ -172,7 +172,6 @@ func (c *applicationConfigurer) registerIfConfigured(
 	h.mustValidate()
 
 	c.guardAgainstConflictingIdentities(h)
-	c.guardAgainstConflictingRoles(h)
 	c.guardAgainstConflictingRoutes(h)
 
 	if c.config.handlers == nil {
@@ -227,36 +226,6 @@ func (c *applicationConfigurer) guardAgainstConflictingIdentities(h RichHandler)
 			h.ReflectType(),
 			handlerIdent.Key,
 			x.ReflectType(),
-		)
-	}
-}
-
-// guardAgainstConflictingRoles panics if h configures any messages in roles
-// contrary to the way they are configured by any other handler.
-func (c *applicationConfigurer) guardAgainstConflictingRoles(h RichHandler) {
-	for mt, r := range h.MessageTypes().All() {
-		xr, ok := c.config.types.RoleOf(mt)
-
-		if !ok || xr == r {
-			continue
-		}
-
-		// we know there's a conflict, now we just need to find a handler that
-		// refers to this message type as some other role.
-		xh, _ := c.config.handlers.Find(func(h RichHandler) bool {
-			x, ok := h.MessageTypes().RoleOf(mt)
-			return ok && x != r
-		})
-
-		validation.Panicf(
-			`%s (%s) configures %s as a %s but %s (%s) configures it as a %s`,
-			h.ReflectType(),
-			h.Identity().Name,
-			mt,
-			r,
-			xh.ReflectType(),
-			xh.Identity().Name,
-			xr,
 		)
 	}
 }
