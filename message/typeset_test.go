@@ -2,7 +2,6 @@ package message_test
 
 import (
 	. "github.com/dogmatiq/configkit/message"
-	"github.com/dogmatiq/dogma/fixtures"
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -74,49 +73,49 @@ var _ = Describe("type TypeSet", func() {
 		})
 
 		It("returns the original set if a single set is given", func() {
-			a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+			a := TypesOf(CommandA1, CommandB1)
 			Expect(UnionT(a)).To(Equal(a))
 		})
 
 		It("returns the original set for identical sets", func() {
-			a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
-			b := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
-			c := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+			a := TypesOf(CommandA1, CommandB1)
+			b := TypesOf(CommandA1, CommandB1)
+			c := TypesOf(CommandA1, CommandB1)
 			Expect(UnionT(a, b, c)).To(Equal(a))
 		})
 
 		It("returns the union", func() {
-			a := TypesOf(fixtures.MessageA1, fixtures.MessageB1, fixtures.MessageC1)
-			b := TypesOf(fixtures.MessageB1, fixtures.MessageC1, fixtures.MessageD1)
-			c := TypesOf(fixtures.MessageC1, fixtures.MessageD1, fixtures.MessageE1)
+			a := TypesOf(CommandA1, CommandB1, CommandC1)
+			b := TypesOf(CommandB1, CommandC1, CommandD1)
+			c := TypesOf(CommandC1, CommandD1, CommandE1)
 
 			Expect(UnionT(a, b, c)).To(Equal(TypesOf(
-				fixtures.MessageA1,
-				fixtures.MessageB1,
-				fixtures.MessageC1,
-				fixtures.MessageD1,
-				fixtures.MessageE1,
+				CommandA1,
+				CommandB1,
+				CommandC1,
+				CommandD1,
+				CommandE1,
 			)))
 		})
 	})
 
 	Describe("func DiffT()", func() {
 		It("returns an empty set for identical sets", func() {
-			a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
-			b := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
+			a := TypesOf(CommandA1, CommandB1)
+			b := TypesOf(CommandA1, CommandB1)
 			Expect(DiffT(a, b)).To(BeEmpty())
 		})
 
 		It("returns an the original set for disjoint sets", func() {
-			a := TypesOf(fixtures.MessageA1, fixtures.MessageB1)
-			b := TypesOf(fixtures.MessageC1, fixtures.MessageD1)
+			a := TypesOf(CommandA1, CommandB1)
+			b := TypesOf(CommandC1, CommandD1)
 			Expect(DiffT(a, b)).To(Equal(a))
 		})
 
 		It("returns the diff", func() {
-			a := TypesOf(fixtures.MessageA1, fixtures.MessageB1, fixtures.MessageC1)
-			b := TypesOf(fixtures.MessageB1, fixtures.MessageC1)
-			Expect(DiffT(a, b)).To(Equal(TypesOf(fixtures.MessageA1)))
+			a := TypesOf(CommandA1, CommandB1, CommandC1)
+			b := TypesOf(CommandB1, CommandC1)
+			Expect(DiffT(a, b)).To(Equal(TypesOf(CommandA1)))
 		})
 	})
 

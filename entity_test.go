@@ -2,7 +2,7 @@ package configkit_test
 
 import (
 	. "github.com/dogmatiq/configkit"
-	"github.com/dogmatiq/configkit/message" // can't dot-import due to conflicts
+	"github.com/dogmatiq/configkit/message"
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"

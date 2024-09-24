@@ -7,7 +7,7 @@ import (
 	. "github.com/dogmatiq/configkit"
 	"github.com/dogmatiq/configkit/fixtures"
 	"github.com/dogmatiq/configkit/message"
-	"github.com/dogmatiq/dogma" // can't dot-import due to conflicts
+	"github.com/dogmatiq/dogma"
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
