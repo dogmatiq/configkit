@@ -16,6 +16,10 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 - Bumped minimum Go version to 1.23.
 
+### Added
+
+- Added `message.Switch()`, `Map()` and `TryMap()`.
+
 ### Removed
 
 - **[BC]** Removed deprecated `fixtures` package.

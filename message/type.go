@@ -79,37 +79,20 @@ func TypeFor[T dogma.Message]() Type {
 	return TypeFromReflect(reflect.TypeFor[T]())
 }
 
-var (
-	interfaces = []reflect.Type{
-		reflect.TypeFor[dogma.Command](),
-		reflect.TypeFor[dogma.Event](),
-		reflect.TypeFor[dogma.Timeout](),
-	}
-)
+var messageInterface = reflect.TypeFor[dogma.Message]()
 
 // TypeFromReflect returns the message type of the given reflect type.
 func TypeFromReflect(rt reflect.Type) Type {
+	if !rt.Implements(messageInterface) {
+		panic(fmt.Sprintf("%T does not implement %s", rt, messageInterface))
+	}
+
 	n := goreflect.NameOf(rt)
 
-	for _, i := range interfaces {
-		if rt.Implements(i) {
-			return Type{
-				Name{n},
-				rt,
-			}
-		}
-	}
-
-	names := make([]string, len(interfaces))
-	for i, x := range interfaces {
-		names[i] = typeToString(x)
-	}
-
-	panic(fmt.Sprintf(
-		"%s does not implement any of the specific message interfaces (%s)",
+	return Type{
+		Name{n},
 		rt,
-		strings.Join(names, ", "),
-	))
+	}
 }
 
 // Name returns the fully-qualified name for the Go type.
