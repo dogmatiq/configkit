@@ -143,14 +143,6 @@ var _ = Describe("type Type", func() {
 		})
 	})
 
-	Describe("func Role()", func() {
-		It("returns the role of the message", func() {
-			Expect(TypeOf(CommandA1).Role()).To(Equal(CommandRole))
-			Expect(TypeOf(EventA1).Role()).To(Equal(EventRole))
-			Expect(TypeOf(TimeoutA1).Role()).To(Equal(TimeoutRole))
-		})
-	})
-
 	Describe("func ReflectType()", func() {
 		It("returns the reflect.Type for the message", func() {
 			mt := TypeOf(CommandA1)
