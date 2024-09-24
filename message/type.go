@@ -1,6 +1,7 @@
 package message
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -61,6 +62,7 @@ func IsSubsetT(sub, sup TypeCollection) bool {
 // Type represents the type of a Dogma message.
 type Type struct {
 	n  Name
+	r  Role
 	rt reflect.Type
 }
 
@@ -78,19 +80,32 @@ func TypeFor[T dogma.Message]() Type {
 	return TypeFromReflect(reflect.TypeFor[T]())
 }
 
+var (
+	interfaces = map[Role]reflect.Type{
+		CommandRole: reflect.TypeFor[dogma.Command](),
+		EventRole:   reflect.TypeFor[dogma.Event](),
+		TimeoutRole: reflect.TypeFor[dogma.Timeout](),
+	}
+)
+
 // TypeFromReflect returns the message type of the given reflect type.
 func TypeFromReflect(rt reflect.Type) Type {
-	// This is a compile-time assertion that the dogma.Message interface is
-	// empty. If this fails to compile, this function needs additional logic to
-	// verify that the type represented by rt actually implements dogma.Message.
-	var _ interface{} = (dogma.Message)(nil)
-
 	n := goreflect.NameOf(rt)
 
-	return Type{
-		Name{n},
-		rt,
+	for r, i := range interfaces {
+		if rt.Implements(i) {
+			return Type{
+				Name{n},
+				r,
+				rt,
+			}
+		}
 	}
+
+	panic(fmt.Sprintf(
+		"%s does not implement dogma.Command, dogma.Event, or dogma.Timeout",
+		rt,
+	))
 }
 
 // Name returns the fully-qualified name for the Go type.
@@ -102,6 +117,14 @@ func (t Type) Name() Name {
 	}
 
 	return t.n
+}
+
+// Role returns the role of the message.
+func (t Type) Role() Role {
+	if t.IsZero() {
+		panic("can not obtain role of zero-value type")
+	}
+	return t.r
 }
 
 // ReflectType returns the reflect.Type of the message.
