@@ -9,6 +9,10 @@ import (
 
 // Role is an enumeration of the roles a message can perform within an
 // application.
+//
+// Deprecated: Any given message type can now only implement one of
+// [dogma.Command], [dogma.Event] or [dogma.Timeout], and therefore its "role"
+// does not depend on the application configuration. Use [Kind] instead.
 type Role string
 
 const (
