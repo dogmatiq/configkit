@@ -1,7 +1,6 @@
 package message
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 
@@ -62,6 +61,7 @@ func IsSubsetT(sub, sup TypeCollection) bool {
 // Type represents the type of a Dogma message.
 type Type struct {
 	n  Name
+	k  Kind
 	rt reflect.Type
 }
 
@@ -79,18 +79,11 @@ func TypeFor[T dogma.Message]() Type {
 	return TypeFromReflect(reflect.TypeFor[T]())
 }
 
-var messageInterface = reflect.TypeFor[dogma.Message]()
-
 // TypeFromReflect returns the message type of the given reflect type.
 func TypeFromReflect(rt reflect.Type) Type {
-	if !rt.Implements(messageInterface) {
-		panic(fmt.Sprintf("%T does not implement %s", rt, messageInterface))
-	}
-
-	n := goreflect.NameOf(rt)
-
 	return Type{
-		Name{n},
+		Name{goreflect.NameOf(rt)},
+		kindFromReflect(rt),
 		rt,
 	}
 }
@@ -104,6 +97,18 @@ func (t Type) Name() Name {
 	}
 
 	return t.n
+}
+
+// Kind returns the kind of the message represented by t.
+//
+// It panics of t does not implement [dogma.Command], [dogma.Event] or
+// [dogma.Timeout].
+func (t Type) Kind() Kind {
+	if t.IsZero() {
+		panic("can not obtain kind of zero-value type")
+	}
+
+	return t.k
 }
 
 // ReflectType returns the reflect.Type of the message.
