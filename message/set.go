@@ -12,6 +12,13 @@ type Set[T comparable] struct {
 	m map[T]struct{}
 }
 
+// NewSet returns a new set containing the given elements.
+func NewSet[T comparable](elements ...T) Set[T] {
+	var s Set[T]
+	s.Add(elements...)
+	return s
+}
+
 // NamesOf returns a name set containing the names of the given messages.
 func NamesOf(messages ...dogma.Message) Set[Name] {
 	var names Set[Name]
@@ -50,6 +57,11 @@ func (s *Set[T]) Remove(elements ...T) {
 	for _, e := range elements {
 		delete(s.m, e)
 	}
+}
+
+// Clear removes all elements from the set.
+func (s *Set[T]) Clear() {
+	s.m = nil
 }
 
 // Has returns true if the set contains all of the given elements.
@@ -92,6 +104,11 @@ func (s Set[T]) IsEqual(other Set[T]) bool {
 // Len returns the number of elements in the set.
 func (s Set[T]) Len() int {
 	return len(s.m)
+}
+
+// Clone returns a clone of the set.
+func (s Set[T]) Clone() Set[T] {
+	return Set[T]{m: maps.Clone(s.m)}
 }
 
 // Union returns the union of a and b.
