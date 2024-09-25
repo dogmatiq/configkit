@@ -18,22 +18,34 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ### Added
 
-- Added `message.Switch()`, `Map()` and `TryMap()`.
-- Added `message.Kind` enumeration.
+- Added `message.Kind` enumeration to represent the different kinds of message,
+  that is `Command`, `Event`, and `Timeout`. This is a replacement for the (now
+  removed) `message.Role` enumeration, which had the same elements but referred
+  specifically to how the message was used within a specific application, which
+  could differ from one application to another.
+- Added `message.SwitchKind()` and `MapKind()` to perform exhaustive switches
+  and maps on a `Kind`.
+- Added `message.Switch()`, `Map()` and `MapErr()` to perform exchaustive
+  switches on the kind of a `dogma.Message`.
+- Added a generic `message.Set` type.
+- Added `EntityMessage[Names|Types].Has()` methods.
 
 ### Removed
 
-- **[BC]** Removed deprecated `fixtures` package.
+- **[BC]** Removed `message.Role`.
+- **[BC]** Removed `message.NameRoles` and `TypeRoles`.
+- **[BC]** Removed `message.NameSet` and `TypeSet`, use `message.Set` instead.
+- **[BC]** Removed `message.NameCollection`, `NameSet`, `TypeCollection` and
+  `TypeSet`, and their associated set functions, use `message.Set` instead.
 - **[BC]** Removed `EntityMessage[Names|Types].Foreign()` methods.
 - **[BC]** Removed `EntityMessage[Names|Types].RoleOf()` methods.
 - **[BC]** Removed `EntityMessage[Names|Types].All()` methods.
-- **[BC]** Removed `message.Role`, `NameRoles` and `TypeRoles` types.
-- **[BC]** Removed `message.NameSet` and `TypeSet`, use the generic
-  `message.Set` instead.
+- **[BC]** Removed deprecated `fixtures` package.
 
 ### Changed
 
 - **[BC]** Renamed `message.NameFromType()` to `NameFromStaticType()`.
+- **[BC]** Changed `EntityMessage[Names|Types]` to use `message.Set` internally.
 
 ## [0.13.8] - 2024-08-23
 
