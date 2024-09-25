@@ -133,12 +133,12 @@ func Map[T any](
 	return result
 }
 
-// TryMap invokes one of the provided functions based on the [Kind] of m, and
+// MapErr invokes one of the provided functions based on the [Kind] of m, and
 // returns the result.
 //
 // It panics if m does not implement [dogma.Command], [dogma.Event] or
 // [dogma.Timeout].
-func TryMap[T any](
+func MapErr[T any](
 	m dogma.Message,
 	command func(dogma.Command) (T, error),
 	event func(dogma.Event) (T, error),

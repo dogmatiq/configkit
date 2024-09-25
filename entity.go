@@ -78,27 +78,36 @@ func (names EntityMessageNames) IsEqual(n EntityMessageNames) bool {
 }
 
 func (names *EntityMessageNames) union(n EntityMessageNames) {
-	if names.Kinds == nil {
-		names.Kinds = map[message.Name]message.Kind{}
-	}
-
-	for n, k := range n.Kinds {
-		names.Kinds[n] = k
-
-		if x, ok := names.Kinds[n]; ok {
-			if x != k {
+	merge := func(dst, src *message.Set[message.Name]) {
+		for name := range src.All() {
+			k, ok := n.Kinds[name]
+			if !ok {
 				panic(fmt.Sprintf(
-					"message type with name %q has conflicting kinds %s and %s",
-					n,
+					"message type %q has no associated message kind",
+					name,
+				))
+			}
+
+			if x, ok := names.Kinds[name]; !ok {
+				if names.Kinds == nil {
+					names.Kinds = map[message.Name]message.Kind{}
+				}
+				names.Kinds[name] = k
+			} else if x != k {
+				panic(fmt.Sprintf(
+					"message type %q has conflicting kinds %s and %s",
+					name,
 					x,
 					k,
 				))
 			}
+
+			dst.Add(name)
 		}
 	}
 
-	names.Produced.Union(n.Produced)
-	names.Consumed.Union(n.Consumed)
+	merge(&names.Produced, &n.Produced)
+	merge(&names.Consumed, &n.Consumed)
 }
 
 // EntityMessageTypes describes the message types used by a Dogma entity.
