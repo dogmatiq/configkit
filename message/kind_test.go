@@ -200,7 +200,7 @@ func TestMap(t *testing.T) {
 	})
 }
 
-func TestMapErr(t *testing.T) {
+func TestTryMap(t *testing.T) {
 	cases := []struct {
 		Message dogma.Message
 		Want    string
@@ -211,7 +211,7 @@ func TestMapErr(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		got, gotErr := MapErr(
+		got, gotErr := TryMap(
 			c.Message,
 			func(m dogma.Command) (string, error) { return "command", errors.New("command") },
 			func(m dogma.Event) (string, error) { return "event", errors.New("event") },
@@ -238,7 +238,7 @@ func TestMapErr(t *testing.T) {
 			}
 		}()
 
-		MapErr(
+		TryMap(
 			nil,
 			func(m dogma.Command) (string, error) { t.Fatal("unexpected call to command case"); return "", nil },
 			func(m dogma.Event) (string, error) { t.Fatal("unexpected call to event case"); return "", nil },

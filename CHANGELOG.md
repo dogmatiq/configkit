@@ -25,7 +25,7 @@ The format is based on [Keep a Changelog], and this project adheres to
   could differ from one application to another.
 - Added `message.SwitchKind()` and `MapKind()` to perform exhaustive switches
   and maps on a `Kind`.
-- Added `message.Switch()`, `Map()` and `MapErr()` to perform exchaustive
+- Added `message.Switch()`, `Map()` and `TryMap()` to perform exchaustive
   switches on the kind of a `dogma.Message`.
 - Added a generic `message.Set` type.
 - Added `EntityMessage[Names|Types].Has()` methods.

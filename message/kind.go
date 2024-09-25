@@ -90,6 +90,9 @@ var (
 
 // Switch invokes one of the provided functions based on the [Kind] of m.
 //
+// It provides a compile-time guarantee that all kinds are handled, even if new
+// [Kind] values are added in the future.
+//
 // It panics if m does not implement [dogma.Command], [dogma.Event] or
 // [dogma.Timeout].
 func Switch(
@@ -113,7 +116,11 @@ func Switch(
 	}
 }
 
-// Map maps m's kind to a value of type T.
+// Map invokes one of the provided functions based on the [Kind] of m, and
+// returns the result.
+//
+// It provides a compile-time guarantee that all kinds are handled, even if new
+// [Kind] values are added in the future.
 //
 // It panics if m does not implement [dogma.Command], [dogma.Event] or
 // [dogma.Timeout].
@@ -133,12 +140,15 @@ func Map[T any](
 	return result
 }
 
-// MapErr invokes one of the provided functions based on the [Kind] of m, and
-// returns the result.
+// TryMap invokes one of the provided functions based on the [Kind] of m, and
+// returns the result and error.
+//
+// It provides a compile-time guarantee that all kinds are handled, even if new
+// [Kind] values are added in the future.
 //
 // It panics if m does not implement [dogma.Command], [dogma.Event] or
 // [dogma.Timeout].
-func MapErr[T any](
+func TryMap[T any](
 	m dogma.Message,
 	command func(dogma.Command) (T, error),
 	event func(dogma.Event) (T, error),
@@ -155,6 +165,9 @@ func MapErr[T any](
 }
 
 // SwitchKind invokes one of the provided functions based on k.
+//
+// It provides a compile-time guarantee that all possible values are handled,
+// even if new [Kind] values are added in the future.
 //
 // It panics if k is not a valid [Kind].
 func SwitchKind(
@@ -176,6 +189,9 @@ func SwitchKind(
 }
 
 // MapKind maps k to a value of type T.
+//
+// It provides a compile-time guarantee that all possible values are handled,
+// even if new [Kind] values are added in the future.
 //
 // It panics if k is not a valid [Kind].
 func MapKind[T any](
