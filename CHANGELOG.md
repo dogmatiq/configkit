@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 ### Removed
 
 - **[BC]** Removed deprecated `fixtures` package.
+- **[BC]** Removed `EntityMessage[Names|Types].Foreign()` methods.
 
 ## [0.13.8] - 2024-08-23
 

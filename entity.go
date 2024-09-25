@@ -77,39 +77,6 @@ func (m EntityMessageNames) All() message.NameRoles {
 	return roles
 }
 
-// Foreign returns the subset of message names used by a set of entities that
-// must be communicated beyond the scope of those entities.
-//
-// This includes:
-//   - commands that are produced by the entity, but consumed elsewhere
-//   - commands that are consumed by the entity, but produced elsewhere
-//   - events that are consumed by the entity, but produced elsewhere
-func (m EntityMessageNames) Foreign() EntityMessageNames {
-	f := EntityMessageNames{
-		Produced: message.NameRoles{},
-		Consumed: message.NameRoles{},
-	}
-
-	for n, r := range m.Produced {
-		// Commands MUST always have a handler. Therefore, any command that is
-		// produced by this application, but not consumed by this application is
-		// considered foreign.
-		if r == message.CommandRole && !m.Consumed.Has(n) {
-			f.Produced.Add(n, r)
-		}
-	}
-
-	for n, r := range m.Consumed {
-		// Any message, of any role, that is consumed by this application but
-		// not produced by this application is considered foreign.
-		if !m.Produced.Has(n) {
-			f.Consumed.Add(n, r)
-		}
-	}
-
-	return f
-}
-
 // IsEqual returns true if m is equal to o.
 func (m EntityMessageNames) IsEqual(o EntityMessageNames) bool {
 	return m.Produced.IsEqual(o.Produced) &&
@@ -155,39 +122,6 @@ func (m EntityMessageTypes) All() message.TypeRoles {
 func (m EntityMessageTypes) IsEqual(o EntityMessageTypes) bool {
 	return m.Produced.IsEqual(o.Produced) &&
 		m.Consumed.IsEqual(o.Consumed)
-}
-
-// Foreign returns the subset of message types used by a set of entities that
-// must be communicated beyond the scope of those entities.
-//
-// This includes:
-//   - commands that are produced by this entity, but consumed elsewhere
-//   - commands that are consumed by this entity, but produced elsewhere
-//   - events that are consumed by this entity, but produced elsewhere
-func (m EntityMessageTypes) Foreign() EntityMessageTypes {
-	f := EntityMessageTypes{
-		Produced: message.TypeRoles{},
-		Consumed: message.TypeRoles{},
-	}
-
-	for t, r := range m.Produced {
-		// Commands MUST always have a handler. Therefore, any command that is
-		// produced by this application, but not consumed by this application is
-		// considered foreign.
-		if r == message.CommandRole && !m.Consumed.Has(t) {
-			f.Produced.Add(t, r)
-		}
-	}
-
-	for t, r := range m.Consumed {
-		// Any message, of any role, that is consumed by this application but
-		// not produced by this application is considered foreign.
-		if !m.Produced.Has(t) {
-			f.Consumed.Add(t, r)
-		}
-	}
-
-	return f
 }
 
 func (m EntityMessageTypes) asNames() EntityMessageNames {

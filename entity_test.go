@@ -63,34 +63,6 @@ var _ = Describe("type EntityMessageNames", func() {
 		})
 	})
 
-	Describe("func ForeignMessageNames()", func() {
-		It("returns the set of messages that belong to another application", func() {
-			m := EntityMessageNames{
-				Produced: message.NameRoles{
-					message.NameFor[EventStub[TypeA]]():   message.EventRole,
-					message.NameFor[CommandStub[TypeA]](): message.CommandRole, // foreign-consumed command
-				},
-				Consumed: message.NameRoles{
-					message.NameFor[CommandStub[TypeB]](): message.CommandRole, // foreign-produced command
-					message.NameFor[EventStub[TypeB]]():   message.EventRole,   // foreign-produced event
-					message.NameFor[EventStub[TypeA]]():   message.EventRole,
-				},
-			}
-
-			Expect(m.Foreign()).To(Equal(
-				EntityMessageNames{
-					Produced: message.NameRoles{
-						message.NameFor[CommandStub[TypeA]](): message.CommandRole,
-					},
-					Consumed: message.NameRoles{
-						message.NameFor[CommandStub[TypeB]](): message.CommandRole,
-						message.NameFor[EventStub[TypeB]]():   message.EventRole,
-					},
-				},
-			))
-		})
-	})
-
 	Describe("func IsEqual()", func() {
 		It("returns true if the sets are equivalent", func() {
 			a := EntityMessageNames{
@@ -204,34 +176,6 @@ var _ = Describe("type EntityMessageTypes", func() {
 				message.TypeRoles{
 					message.TypeFor[CommandStub[TypeA]](): message.CommandRole,
 					message.TypeFor[EventStub[TypeA]]():   message.EventRole,
-				},
-			))
-		})
-	})
-
-	Describe("func Foreign()", func() {
-		It("returns the set of messages that belong to another entity", func() {
-			m := EntityMessageTypes{
-				Produced: message.TypeRoles{
-					message.TypeFor[EventStub[TypeA]]():   message.EventRole,
-					message.TypeFor[CommandStub[TypeA]](): message.CommandRole, // foreign-consumed command
-				},
-				Consumed: message.TypeRoles{
-					message.TypeFor[CommandStub[TypeB]](): message.CommandRole, // foreign-produced command
-					message.TypeFor[EventStub[TypeB]]():   message.EventRole,   // foreign-produced event
-					message.TypeFor[EventStub[TypeA]]():   message.EventRole,
-				},
-			}
-
-			Expect(m.Foreign()).To(Equal(
-				EntityMessageTypes{
-					Produced: message.TypeRoles{
-						message.TypeFor[CommandStub[TypeA]](): message.CommandRole,
-					},
-					Consumed: message.TypeRoles{
-						message.TypeFor[CommandStub[TypeB]](): message.CommandRole,
-						message.TypeFor[EventStub[TypeB]]():   message.EventRole,
-					},
 				},
 			))
 		})
