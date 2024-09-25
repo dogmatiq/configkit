@@ -10,6 +10,23 @@ import (
 )
 
 var _ = Describe("type EntityMessageNames", func() {
+	Describe("func Has()", func() {
+		It("returns true if the message is either produced or consumed", func() {
+			names := EntityMessageNames{
+				Kinds: map[message.Name]message.Kind{
+					message.NameOf(EventA1):   message.EventKind,
+					message.NameOf(CommandA1): message.CommandKind,
+				},
+				Produced: message.NamesOf(EventA1),
+				Consumed: message.NamesOf(CommandA1),
+			}
+
+			Expect(names.Has(message.NameOf(EventA1))).To(BeTrue())
+			Expect(names.Has(message.NameOf(CommandA1))).To(BeTrue())
+			Expect(names.Has(message.NameOf(TimeoutA1))).To(BeFalse())
+		})
+	})
+
 	Describe("func IsEqual()", func() {
 		It("returns true if the sets are equivalent", func() {
 			a := EntityMessageNames{
@@ -90,6 +107,19 @@ var _ = Describe("type EntityMessageNames", func() {
 })
 
 var _ = Describe("type EntityMessageTypes", func() {
+	Describe("func Has()", func() {
+		It("returns true if the message is either produced or consumed", func() {
+			types := EntityMessageTypes{
+				Produced: message.TypesOf(EventA1),
+				Consumed: message.TypesOf(CommandA1),
+			}
+
+			Expect(types.Has(message.TypeOf(EventA1))).To(BeTrue())
+			Expect(types.Has(message.TypeOf(CommandA1))).To(BeTrue())
+			Expect(types.Has(message.TypeOf(TimeoutA1))).To(BeFalse())
+		})
+	})
+
 	Describe("func IsEqual()", func() {
 		It("returns true if the sets are equivalent", func() {
 			a := EntityMessageTypes{

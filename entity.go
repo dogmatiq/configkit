@@ -58,8 +58,7 @@ type EntityMessageNames struct {
 
 // Has returns true if entity uses a message type with the given name.
 func (names EntityMessageNames) Has(n message.Name) bool {
-	_, ok := names.Kinds[n]
-	return ok
+	return names.Produced.Has(n) || names.Consumed.Has(n)
 }
 
 // IsEqual returns true if names is equal to n.
