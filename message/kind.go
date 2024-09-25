@@ -47,8 +47,9 @@ func (k Kind) String() string {
 // It panics if T does not implement [dogma.Command], [dogma.Event] or
 // [dogma.Timeout].
 func KindFor[T dogma.Message]() Kind {
-	var m T
-	return KindOf(m)
+	return kindFromReflect(
+		reflect.TypeFor[T](),
+	)
 }
 
 // KindOf returns the [Kind] of m.
