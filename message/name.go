@@ -11,6 +11,8 @@ import (
 )
 
 // NameCollection is an interface for containers of message names.
+//
+// Deprecated: Use [Set] instead.
 type NameCollection interface {
 	// Has returns true if n is in the container.
 	Has(n Name) bool
@@ -83,8 +85,8 @@ func NameFor[T dogma.Message]() Name {
 	return Name{n}
 }
 
-// NameFromType returns the fully-qualified type name of t.
-func NameFromType(t types.Type) Name {
+// NameFromStaticType returns the fully-qualified type name of t.
+func NameFromStaticType(t types.Type) Name {
 	if t == nil {
 		panic("type must not be nil")
 	}

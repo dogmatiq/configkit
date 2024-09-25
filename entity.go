@@ -2,6 +2,7 @@ package configkit
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 
 	"github.com/dogmatiq/configkit/message"
@@ -42,103 +43,111 @@ type RichEntity interface {
 	AcceptRichVisitor(ctx context.Context, v RichVisitor) error
 }
 
-// EntityMessageNames describes how messages are used within a Dogma entity
-// where each message is identified by its name.
+// EntityMessageNames describes the messages used by a Dogma entity where each
+// message is identified by its name.
 type EntityMessageNames struct {
-	// Produced is a set of message names produced by the entity.
-	Produced message.NameRoles
+	// Kinds is a map of message type name to that type's kind.
+	Kinds map[message.Name]message.Kind
 
-	// Consumed is a set of message names consumed by the entity.
-	Consumed message.NameRoles
+	// Produced contains the names of the messages produced by the entity.
+	Produced message.Set[message.Name]
+
+	// Consumed contains the names of the messages consumed by the entity.
+	Consumed message.Set[message.Name]
 }
 
-// RoleOf returns the role associated with n, if any.
-func (m EntityMessageNames) RoleOf(n message.Name) (message.Role, bool) {
-	if r, ok := m.Produced[n]; ok {
-		return r, true
+// Has returns true if entity uses a message type with the given name.
+func (names EntityMessageNames) Has(n message.Name) bool {
+	_, ok := names.Kinds[n]
+	return ok
+}
+
+// IsEqual returns true if names is equal to n.
+func (names EntityMessageNames) IsEqual(n EntityMessageNames) bool {
+	if len(names.Kinds) != len(n.Kinds) {
+		return false
 	}
 
-	r, ok := m.Consumed[n]
-	return r, ok
-}
-
-// All returns the type roles of all messages, both produced and consumed.
-func (m EntityMessageNames) All() message.NameRoles {
-	roles := message.NameRoles{}
-
-	for n, r := range m.Produced {
-		roles[n] = r
+	for name, k := range names.Kinds {
+		if x, ok := n.Kinds[name]; !ok || x != k {
+			return false
+		}
 	}
 
-	for n, r := range m.Consumed {
-		roles[n] = r
+	return names.Produced.IsEqual(n.Produced) &&
+		names.Consumed.IsEqual(n.Consumed)
+}
+
+func (names *EntityMessageNames) union(n EntityMessageNames) {
+	if names.Kinds == nil {
+		names.Kinds = map[message.Name]message.Kind{}
 	}
 
-	return roles
+	for n, k := range n.Kinds {
+		names.Kinds[n] = k
+
+		if x, ok := names.Kinds[n]; ok {
+			if x != k {
+				panic(fmt.Sprintf(
+					"message type with name %q has conflicting kinds %s and %s",
+					n,
+					x,
+					k,
+				))
+			}
+		}
+	}
+
+	names.Produced.Union(n.Produced)
+	names.Consumed.Union(n.Consumed)
 }
 
-// IsEqual returns true if m is equal to o.
-func (m EntityMessageNames) IsEqual(o EntityMessageNames) bool {
-	return m.Produced.IsEqual(o.Produced) &&
-		m.Consumed.IsEqual(o.Consumed)
-}
-
-// EntityMessageTypes describes how messages are used within a Dogma entity
-// where each message is identified by its type.
+// EntityMessageTypes describes the message types used by a Dogma entity.
 type EntityMessageTypes struct {
 	// Produced is a set of message types produced by the entity.
-	Produced message.TypeRoles
+	Produced message.Set[message.Type]
 
 	// Consumed is a set of message types consumed by the entity.
-	Consumed message.TypeRoles
+	Consumed message.Set[message.Type]
 }
 
-// RoleOf returns the role associated with t, if any.
-func (m EntityMessageTypes) RoleOf(t message.Type) (message.Role, bool) {
-	if r, ok := m.Produced[t]; ok {
-		return r, true
-	}
-
-	r, ok := m.Consumed[t]
-	return r, ok
+// Has returns true if the entity uses messages of the given type.
+func (types EntityMessageTypes) Has(t message.Type) bool {
+	return types.Produced.Has(t) || types.Consumed.Has(t)
 }
 
-// All returns the type roles of all messages, both produced and consumed.
-func (m EntityMessageTypes) All() message.TypeRoles {
-	roles := message.TypeRoles{}
-
-	for t, r := range m.Produced {
-		roles[t] = r
-	}
-
-	for t, r := range m.Consumed {
-		roles[t] = r
-	}
-
-	return roles
+// IsEqual returns true if types is equal to t.
+func (types EntityMessageTypes) IsEqual(t EntityMessageTypes) bool {
+	return types.Produced.IsEqual(t.Produced) &&
+		types.Consumed.IsEqual(t.Consumed)
 }
 
-// IsEqual returns true if m is equal to o.
-func (m EntityMessageTypes) IsEqual(o EntityMessageTypes) bool {
-	return m.Produced.IsEqual(o.Produced) &&
-		m.Consumed.IsEqual(o.Consumed)
+func (types *EntityMessageTypes) union(t EntityMessageTypes) {
+	types.Produced.Union(t.Produced)
+	types.Consumed.Union(t.Consumed)
 }
 
-func (m EntityMessageTypes) asNames() EntityMessageNames {
+func (types EntityMessageTypes) asNames() EntityMessageNames {
 	var names EntityMessageNames
 
-	if len(m.Produced) != 0 {
-		names.Produced = make(message.NameRoles, len(m.Produced))
-		for t, r := range m.Produced {
-			names.Produced.Add(t.Name(), r)
+	for t := range types.Produced.All() {
+		if names.Kinds == nil {
+			names.Kinds = map[message.Name]message.Kind{}
 		}
+
+		n := t.Name()
+		names.Kinds[n] = t.Kind()
+		names.Produced.Add(n)
 	}
 
-	if len(m.Consumed) != 0 {
-		names.Consumed = make(message.NameRoles, len(m.Consumed))
-		for t, r := range m.Consumed {
-			names.Consumed.Add(t.Name(), r)
+	for t := range types.Consumed.All() {
+		if names.Kinds == nil {
+			names.Kinds = map[message.Name]message.Kind{}
 		}
+
+		n := t.Name()
+		names.Kinds[n] = t.Kind()
+		names.Consumed.Add(n)
 	}
 
 	return names

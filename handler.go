@@ -66,16 +66,16 @@ func configureRoutes[T dogma.Route](
 	for _, route := range routes {
 		switch route := any(route).(type) {
 		case dogma.HandlesCommandRoute:
-			configureConsumerRoute(types, route.Type, message.CommandRole, "HandlesCommand", handlerIdent, handlerType)
+			configureConsumerRoute(types, route.Type, "HandlesCommand", handlerIdent, handlerType)
 		case dogma.RecordsEventRoute:
-			configureProducerRoute(types, route.Type, message.EventRole, "RecordsEvent", handlerIdent, handlerType)
+			configureProducerRoute(types, route.Type, "RecordsEvent", handlerIdent, handlerType)
 		case dogma.HandlesEventRoute:
-			configureConsumerRoute(types, route.Type, message.EventRole, "HandlesEvent", handlerIdent, handlerType)
+			configureConsumerRoute(types, route.Type, "HandlesEvent", handlerIdent, handlerType)
 		case dogma.ExecutesCommandRoute:
-			configureProducerRoute(types, route.Type, message.CommandRole, "ExecutesCommand", handlerIdent, handlerType)
+			configureProducerRoute(types, route.Type, "ExecutesCommand", handlerIdent, handlerType)
 		case dogma.SchedulesTimeoutRoute:
-			configureConsumerRoute(types, route.Type, message.TimeoutRole, "SchedulesTimeout", handlerIdent, handlerType)
-			configureProducerRoute(types, route.Type, message.TimeoutRole, "SchedulesTimeout", handlerIdent, handlerType)
+			configureConsumerRoute(types, route.Type, "SchedulesTimeout", handlerIdent, handlerType)
+			configureProducerRoute(types, route.Type, "SchedulesTimeout", handlerIdent, handlerType)
 		default:
 			panic(fmt.Sprintf("unsupported route type: %T", route))
 		}
@@ -85,7 +85,6 @@ func configureRoutes[T dogma.Route](
 func configureConsumerRoute(
 	types *EntityMessageTypes,
 	messageType reflect.Type,
-	role message.Role,
 	routeFunc string,
 	handlerIdent Identity,
 	handlerType reflect.Type,
@@ -101,16 +100,12 @@ func configureConsumerRoute(
 		)
 	}
 
-	if types.Consumed == nil {
-		types.Consumed = message.TypeRoles{}
-	}
-	types.Consumed.Add(t, role)
+	types.Consumed.Add(t)
 }
 
 func configureProducerRoute(
 	types *EntityMessageTypes,
 	messageType reflect.Type,
-	role message.Role,
 	routeFunc string,
 	handlerIdent Identity,
 	handlerType reflect.Type,
@@ -126,10 +121,7 @@ func configureProducerRoute(
 		)
 	}
 
-	if types.Produced == nil {
-		types.Produced = message.TypeRoles{}
-	}
-	types.Produced.Add(t, role)
+	types.Produced.Add(t)
 }
 
 func handlerDisplayName(
@@ -146,15 +138,15 @@ func handlerDisplayName(
 }
 
 // mustHaveConsumerRoute panics if the handler is not configured to handle any
-// messages of the given role.
+// messages of the given kind.
 func mustHaveConsumerRoute(
 	types EntityMessageTypes,
-	role message.Role,
+	kind message.Kind,
 	handlerIdent Identity,
 	handlerType reflect.Type,
 ) {
-	for _, r := range types.Consumed {
-		if r == role {
+	for t := range types.Consumed.All() {
+		if t.Kind() == kind {
 			return
 		}
 	}
@@ -162,21 +154,21 @@ func mustHaveConsumerRoute(
 	validation.Panicf(
 		`%s is not configured to handle any %ss, at least one Handles%s() route must be added within Configure()`,
 		handlerDisplayName(handlerIdent, handlerType),
-		role,
-		cases.Title(language.English).String(role.String()),
+		kind,
+		cases.Title(language.English).String(kind.String()),
 	)
 }
 
 // mustHaveProducerRoute panics if the handler is not configured to produce any
-// messages of the given role.
+// messages of the given kind.
 func mustHaveProducerRoute(
 	types EntityMessageTypes,
-	role message.Role,
+	kind message.Kind,
 	handlerIdent Identity,
 	handlerType reflect.Type,
 ) {
-	for _, r := range types.Produced {
-		if r == role {
+	for t := range types.Produced.All() {
+		if t.Kind() == kind {
 			return
 		}
 	}
@@ -184,22 +176,26 @@ func mustHaveProducerRoute(
 	verb := ""
 	routeFunc := ""
 
-	switch role {
-	case message.CommandRole:
-		verb = "execute"
-		routeFunc = "ExecutesCommand"
-	case message.EventRole:
-		verb = "record"
-		routeFunc = "RecordsEvent"
-	case message.TimeoutRole:
-		panic("no handlers mandate use of timeout messages")
-	}
+	message.SwitchKind(
+		kind,
+		func() {
+			verb = "execute"
+			routeFunc = "ExecutesCommand"
+		},
+		func() {
+			verb = "record"
+			routeFunc = "RecordsEvent"
+		},
+		func() {
+			panic("no handlers mandate use of timeout messages")
+		},
+	)
 
 	validation.Panicf(
 		`%s is not configured to %s any %ss, at least one %s() route must be added within Configure()`,
 		handlerDisplayName(handlerIdent, handlerType),
 		verb,
-		role,
+		kind,
 		routeFunc,
 	)
 }

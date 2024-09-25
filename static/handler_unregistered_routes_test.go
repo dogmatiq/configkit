@@ -15,8 +15,8 @@ var _ = Describe("constructing routes that are never passed to the configurer's 
 		Expect(apps[0].Handlers().Integrations()).To(HaveLen(1))
 
 		integration := apps[0].Handlers().Integrations()[0]
-		Expect(integration.MessageNames().All()).ShouldNot(
-			HaveKey(message.NameFor[CommandStub[TypeX]]()),
+		Expect(integration.MessageNames().Kinds).ShouldNot(
+			HaveKey(message.NameOf(CommandX1)),
 		)
 	})
 })

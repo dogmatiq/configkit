@@ -96,7 +96,7 @@ func (h *richIntegration) isConfigured() bool {
 
 func (h *richIntegration) mustValidate() {
 	mustHaveValidIdentity(h.Identity(), h.ReflectType())
-	mustHaveConsumerRoute(h.types, message.CommandRole, h.Identity(), h.ReflectType())
+	mustHaveConsumerRoute(h.types, message.CommandKind, h.Identity(), h.ReflectType())
 }
 
 // integrationConfigurer is the default implementation of

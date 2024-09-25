@@ -8,16 +8,16 @@ import (
 
 const fontName = "Helvetica"
 
-var roleFontColors = map[message.Role]string{
-	message.CommandRole: "#ffffff",
-	message.EventRole:   "#000000",
-	message.TimeoutRole: "#ffffff",
+var kindFontColors = map[message.Kind]string{
+	message.CommandKind: "#ffffff",
+	message.EventKind:   "#000000",
+	message.TimeoutKind: "#ffffff",
 }
 
-var roleBackgroundColors = map[message.Role]string{
-	message.CommandRole: "#0066ff",
-	message.EventRole:   "#ff6600",
-	message.TimeoutRole: "#444444",
+var kindBackgroundColors = map[message.Kind]string{
+	message.CommandKind: "#0066ff",
+	message.EventKind:   "#ff6600",
+	message.TimeoutKind: "#444444",
 }
 
 var handlerShapes = map[configkit.HandlerType]string{
@@ -67,23 +67,23 @@ func styleHandler(n dot.Node, cfg configkit.Handler) {
 
 // styleMessageEdge applies style attributes to an edge representing message
 // flow between two handlers.
-func styleMessageEdge(e dot.Edge, r message.Role) {
+func styleMessageEdge(e dot.Edge, k message.Kind) {
 	e.Attr("fontname", fontName)
 	e.Attr("penwidth", "2")
 	e.Attr("arrowsize", "0.75")
-	e.Attr("color", roleBackgroundColors[r])
-	e.Attr("fontcolor", roleBackgroundColors[r])
+	e.Attr("color", kindBackgroundColors[k])
+	e.Attr("fontcolor", kindBackgroundColors[k])
 }
 
 // styleForeignNode applies style attributes to a graph node representing a
 // foreign message producer or consumer.
-func styleForeignNode(n dot.Node, r message.Role) {
+func styleForeignNode(n dot.Node, k message.Kind) {
 	n.Attr("fontname", fontName)
 	n.Attr("style", "filled")
 	n.Attr("margin", "0.15")
 	n.Attr("penwidth", "2")
 	n.Attr("color", "#ffffff")
-	n.Attr("fontcolor", roleFontColors[r])
-	n.Attr("fillcolor", roleBackgroundColors[r])
+	n.Attr("fontcolor", kindFontColors[k])
+	n.Attr("fillcolor", kindBackgroundColors[k])
 	n.Attr("shape", "box")
 }

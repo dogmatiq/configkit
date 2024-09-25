@@ -91,21 +91,10 @@ func (s HandlerSet) ProducersOf(n message.Name) HandlerSet {
 
 // MessageNames returns information about the messages used all handlers in s.
 func (s HandlerSet) MessageNames() EntityMessageNames {
-	names := EntityMessageNames{
-		Produced: message.NameRoles{},
-		Consumed: message.NameRoles{},
-	}
+	var names EntityMessageNames
 
 	for _, h := range s {
-		m := h.MessageNames()
-
-		for n, r := range m.Consumed {
-			names.Consumed[n] = r
-		}
-
-		for n, r := range m.Produced {
-			names.Produced[n] = r
-		}
+		names.union(h.MessageNames())
 	}
 
 	return names
@@ -404,21 +393,10 @@ func (s RichHandlerSet) ProducersOf(t message.Type) RichHandlerSet {
 
 // MessageTypes returns information about the messages used all handlers in s.
 func (s RichHandlerSet) MessageTypes() EntityMessageTypes {
-	types := EntityMessageTypes{
-		Produced: message.TypeRoles{},
-		Consumed: message.TypeRoles{},
-	}
+	var types EntityMessageTypes
 
 	for _, h := range s {
-		m := h.MessageTypes()
-
-		for n, t := range m.Consumed {
-			types.Consumed[n] = t
-		}
-
-		for n, t := range m.Produced {
-			types.Produced[n] = t
-		}
+		types.union(h.MessageTypes())
 	}
 
 	return types

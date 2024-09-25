@@ -222,20 +222,20 @@ func (t *HandlerType) UnmarshalBinary(data []byte) error {
 
 // ConsumersOf returns the handler types that can consume messages of kind k.
 func ConsumersOf(k message.Kind) []HandlerType {
-	return message.KindMap(
+	return message.MapKind(
 		k,
-		func() []HandlerType { return []HandlerType{AggregateHandlerType, IntegrationHandlerType} },
-		func() []HandlerType { return []HandlerType{ProcessHandlerType, ProjectionHandlerType} },
-		func() []HandlerType { return []HandlerType{ProcessHandlerType} },
+		[]HandlerType{AggregateHandlerType, IntegrationHandlerType},
+		[]HandlerType{ProcessHandlerType, ProjectionHandlerType},
+		[]HandlerType{ProcessHandlerType},
 	)
 }
 
 // ProducersOf returns the handler types that can produces messages of kind k.
 func ProducersOf(k message.Kind) []HandlerType {
-	return message.KindMap(
+	return message.MapKind(
 		k,
-		func() []HandlerType { return []HandlerType{ProcessHandlerType} },
-		func() []HandlerType { return []HandlerType{AggregateHandlerType, IntegrationHandlerType} },
-		func() []HandlerType { return []HandlerType{ProcessHandlerType} },
+		[]HandlerType{ProcessHandlerType},
+		[]HandlerType{AggregateHandlerType, IntegrationHandlerType},
+		[]HandlerType{ProcessHandlerType},
 	)
 }

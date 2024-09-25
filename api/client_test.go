@@ -6,7 +6,8 @@ import (
 	"time"
 
 	. "github.com/dogmatiq/configkit/api"
-	"github.com/dogmatiq/interopspec/configspec"
+	"github.com/dogmatiq/enginekit/grpc/configgrpc"
+	"github.com/dogmatiq/enginekit/protobuf/configpb"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"google.golang.org/grpc"
@@ -16,10 +17,10 @@ type invalidServer struct{}
 
 func (s *invalidServer) ListApplications(
 	ctx context.Context,
-	req *configspec.ListApplicationsRequest,
-) (*configspec.ListApplicationsResponse, error) {
-	return &configspec.ListApplicationsResponse{
-		Applications: []*configspec.Application{
+	req *configgrpc.ListApplicationsRequest,
+) (*configgrpc.ListApplicationsResponse, error) {
+	return &configgrpc.ListApplicationsResponse{
+		Applications: []*configpb.Application{
 			{}, // invalid
 		},
 	}, nil
@@ -42,7 +43,7 @@ var _ = Describe("type Client", func() {
 		Expect(err).ShouldNot(HaveOccurred())
 
 		gserver = grpc.NewServer()
-		configspec.RegisterConfigAPIServer(gserver, &invalidServer{})
+		configgrpc.RegisterConfigAPIServer(gserver, &invalidServer{})
 
 		go gserver.Serve(listener)
 

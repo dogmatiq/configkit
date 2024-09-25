@@ -9,6 +9,8 @@ import (
 )
 
 // TypeCollection is an interface for containers of message types.
+//
+// Deprecated: Use [Set] instead.
 type TypeCollection interface {
 	// Has returns true if t is in the container.
 	Has(t Type) bool

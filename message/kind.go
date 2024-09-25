@@ -23,6 +23,12 @@ const (
 	TimeoutKind
 )
 
+// Symbol returns a character that identifies the message kind when displaying
+// message types.
+func (k Kind) Symbol() string {
+	return MapKind(k, "?", "!", "@")
+}
+
 func (k Kind) String() string {
 	switch k {
 	case CommandKind:
@@ -106,8 +112,7 @@ func Switch(
 	}
 }
 
-// Map invokes one of the provided functions based on the [Kind] of m, and
-// returns the result.
+// Map maps m's kind to a value of type T.
 //
 // It panics if m does not implement [dogma.Command], [dogma.Event] or
 // [dogma.Timeout].
@@ -148,8 +153,10 @@ func TryMap[T any](
 	return result, err
 }
 
-// KindSwitch invokes one of the provided functions based on k.
-func KindSwitch(
+// SwitchKind invokes one of the provided functions based on k.
+//
+// It panics if k is not a valid [Kind].
+func SwitchKind(
 	k Kind,
 	command func(),
 	event func(),
@@ -167,38 +174,19 @@ func KindSwitch(
 	}
 }
 
-// KindMap invokes one of the provided functions based on k, and returns the
-// result.
-func KindMap[T any](
+// MapKind maps k to a value of type T.
+//
+// It panics if k is not a valid [Kind].
+func MapKind[T any](
 	k Kind,
-	command func() T,
-	event func() T,
-	timeout func() T,
+	command, event, timeout T,
 ) (result T) {
-	KindSwitch(
+	SwitchKind(
 		k,
-		func() { result = command() },
-		func() { result = event() },
-		func() { result = timeout() },
+		func() { result = command },
+		func() { result = event },
+		func() { result = timeout },
 	)
 
 	return result
-}
-
-// TryKindMap invokes one of the provided functions based on k, and returns the
-// result.
-func TryKindMap[T any](
-	k Kind,
-	command func() (T, error),
-	event func() (T, error),
-	timeout func() (T, error),
-) (result T, err error) {
-	KindSwitch(
-		k,
-		func() { result, err = command() },
-		func() { result, err = event() },
-		func() { result, err = timeout() },
-	)
-
-	return result, err
 }

@@ -178,22 +178,7 @@ func (c *applicationConfigurer) registerIfConfigured(
 		c.config.handlers = RichHandlerSet{}
 	}
 	c.config.handlers.Add(h)
-
-	types := h.MessageTypes()
-
-	for mt, r := range types.Produced {
-		if c.config.types.Produced == nil {
-			c.config.types.Produced = message.TypeRoles{}
-		}
-		c.config.types.Produced.Add(mt, r)
-	}
-
-	for mt, r := range types.Consumed {
-		if c.config.types.Consumed == nil {
-			c.config.types.Consumed = message.TypeRoles{}
-		}
-		c.config.types.Consumed.Add(mt, r)
-	}
+	c.config.types.union(h.MessageTypes())
 }
 
 // guardAgainstConflictingIdentities panics if h's identity conflicts with the
@@ -235,8 +220,8 @@ func (c *applicationConfigurer) guardAgainstConflictingIdentities(h RichHandler)
 func (c *applicationConfigurer) guardAgainstConflictingRoutes(h RichHandler) {
 	types := h.MessageTypes()
 
-	for mt, r := range types.Consumed {
-		if r != message.CommandRole {
+	for mt := range types.Consumed.All() {
+		if mt.Kind() != message.CommandKind {
 			continue
 		}
 
@@ -252,8 +237,8 @@ func (c *applicationConfigurer) guardAgainstConflictingRoutes(h RichHandler) {
 		}
 	}
 
-	for mt, r := range types.Produced {
-		if r != message.EventRole {
+	for mt := range types.Produced.All() {
+		if mt.Kind() != message.EventKind {
 			continue
 		}
 

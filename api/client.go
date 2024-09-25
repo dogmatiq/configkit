@@ -4,21 +4,21 @@ import (
 	"context"
 
 	"github.com/dogmatiq/configkit"
-	"github.com/dogmatiq/interopspec/configspec"
+	"github.com/dogmatiq/enginekit/grpc/configgrpc"
 	"google.golang.org/grpc"
 )
 
-// Client wraps a configspec.ConfigAPIClient to unmarshal the server's responses
-// into types that implement the core configkit Application and Handler
-// interfaces.
+// Client wraps a [configgrpc.ConfigAPIClient] to unmarshal the server's
+// responses into types that implement the core configkit
+// [configkit.Application] and [configkit.Handler] interfaces.
 type Client struct {
-	Client configspec.ConfigAPIClient
+	Client configgrpc.ConfigAPIClient
 }
 
 // NewClient returns a new configuration client for the given connection.
 func NewClient(conn grpc.ClientConnInterface) *Client {
 	return &Client{
-		configspec.NewConfigAPIClient(conn),
+		configgrpc.NewConfigAPIClient(conn),
 	}
 }
 
@@ -27,7 +27,7 @@ func NewClient(conn grpc.ClientConnInterface) *Client {
 func (c *Client) ListApplications(
 	ctx context.Context,
 ) ([]configkit.Application, error) {
-	req := &configspec.ListApplicationsRequest{}
+	req := &configgrpc.ListApplicationsRequest{}
 	res, err := c.Client.ListApplications(ctx, req)
 	if err != nil {
 		return nil, err

@@ -96,8 +96,8 @@ func (h *richProcess) isConfigured() bool {
 
 func (h *richProcess) mustValidate() {
 	mustHaveValidIdentity(h.Identity(), h.ReflectType())
-	mustHaveConsumerRoute(h.types, message.EventRole, h.Identity(), h.ReflectType())
-	mustHaveProducerRoute(h.types, message.CommandRole, h.Identity(), h.ReflectType())
+	mustHaveConsumerRoute(h.types, message.EventKind, h.Identity(), h.ReflectType())
+	mustHaveProducerRoute(h.types, message.CommandKind, h.Identity(), h.ReflectType())
 }
 
 // processConfigurer is the default implementation of [dogma.ProcessConfigurer].

@@ -109,7 +109,7 @@ func (h *richProjection) isConfigured() bool {
 
 func (h *richProjection) mustValidate() {
 	mustHaveValidIdentity(h.Identity(), h.ReflectType())
-	mustHaveConsumerRoute(h.types, message.EventRole, h.Identity(), h.ReflectType())
+	mustHaveConsumerRoute(h.types, message.EventKind, h.Identity(), h.ReflectType())
 }
 
 // projectionConfigurer is the default implementation of

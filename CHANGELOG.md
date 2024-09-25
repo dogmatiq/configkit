@@ -25,6 +25,15 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 - **[BC]** Removed deprecated `fixtures` package.
 - **[BC]** Removed `EntityMessage[Names|Types].Foreign()` methods.
+- **[BC]** Removed `EntityMessage[Names|Types].RoleOf()` methods.
+- **[BC]** Removed `EntityMessage[Names|Types].All()` methods.
+- **[BC]** Removed `message.Role`, `NameRoles` and `TypeRoles` types.
+- **[BC]** Removed `message.NameSet` and `TypeSet`, use the generic
+  `message.Set` instead.
+
+### Changed
+
+- **[BC]** Renamed `message.NameFromType()` to `NameFromStaticType()`.
 
 ## [0.13.8] - 2024-08-23
 

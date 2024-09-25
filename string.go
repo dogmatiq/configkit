@@ -80,8 +80,10 @@ func (s *stringer) visitHandler(cfg Handler) error {
 		flagString,
 	)
 
-	for _, p := range sortNameRoles(cfg.MessageNames().Consumed) {
-		if p.Role == message.TimeoutRole {
+	names := cfg.MessageNames()
+
+	for _, p := range sortNameRoles(names.Kinds, names.Consumed) {
+		if p.Kind == message.TimeoutKind {
 			break
 		}
 
@@ -89,27 +91,17 @@ func (s *stringer) visitHandler(cfg Handler) error {
 			s.w,
 			"    handles %s%s\n",
 			p.Name,
-			p.Role.Marker(),
+			p.Kind.Symbol(),
 		)
 	}
 
-	for _, p := range sortNameRoles(cfg.MessageNames().Produced) {
-		verb := ""
-		switch p.Role {
-		case message.CommandRole:
-			verb = "executes"
-		case message.EventRole:
-			verb = "records"
-		case message.TimeoutRole:
-			verb = "schedules"
-		}
-
+	for _, p := range sortNameRoles(names.Kinds, names.Produced) {
 		must.Fprintf(
 			s.w,
 			"    %s %s%s\n",
-			verb,
+			message.MapKind(p.Kind, "executes", "records", "schedules"),
 			p.Name,
-			p.Role.Marker(),
+			p.Kind.Symbol(),
 		)
 	}
 
@@ -149,23 +141,26 @@ func sortHandlers(handlers HandlerSet) []Handler {
 
 type pair struct {
 	Name message.Name
-	Role message.Role
+	Kind message.Kind
 }
 
-// sortNameRoles returns a list of name/role pairs, sorted by name.
+// sortNameRoles returns a list of name/kind pairs, sorted by name.
 // Timeout messages are always sorted towards the end.
-func sortNameRoles(names message.NameRoles) []pair {
-	sorted := make([]pair, 0, len(names))
+func sortNameRoles(
+	kinds map[message.Name]message.Kind,
+	names message.Set[message.Name],
+) []pair {
+	sorted := make([]pair, 0, names.Len())
 
-	for n, r := range names {
-		sorted = append(sorted, pair{n, r})
+	for n := range names.All() {
+		sorted = append(sorted, pair{n, kinds[n]})
 	}
 
 	sort.Slice(sorted, func(i, j int) bool {
 		pi := sorted[i]
 		pj := sorted[j]
 
-		if pi.Role == message.TimeoutRole && pj.Role != message.TimeoutRole {
+		if pi.Kind == message.TimeoutKind && pj.Kind != message.TimeoutKind {
 			return false
 		}
 

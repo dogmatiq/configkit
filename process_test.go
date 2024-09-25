@@ -50,15 +50,21 @@ var _ = Describe("func FromProcess()", func() {
 			It("returns the expected message names", func() {
 				Expect(cfg.MessageNames()).To(Equal(
 					EntityMessageNames{
-						Produced: message.NameRoles{
-							message.NameFor[CommandStub[TypeA]](): message.CommandRole,
-							message.NameFor[TimeoutStub[TypeA]](): message.TimeoutRole,
+						Kinds: map[message.Name]message.Kind{
+							message.NameOf(CommandA1): message.CommandKind,
+							message.NameOf(EventA1):   message.EventKind,
+							message.NameOf(EventB1):   message.EventKind,
+							message.NameOf(TimeoutA1): message.TimeoutKind,
 						},
-						Consumed: message.NameRoles{
-							message.NameFor[EventStub[TypeA]]():   message.EventRole,
-							message.NameFor[EventStub[TypeB]]():   message.EventRole,
-							message.NameFor[TimeoutStub[TypeA]](): message.TimeoutRole,
-						},
+						Produced: message.NamesOf(
+							CommandA1,
+							TimeoutA1,
+						),
+						Consumed: message.NamesOf(
+							EventA1,
+							EventB1,
+							TimeoutA1,
+						),
 					},
 				))
 			})
@@ -68,15 +74,15 @@ var _ = Describe("func FromProcess()", func() {
 			It("returns the expected message types", func() {
 				Expect(cfg.MessageTypes()).To(Equal(
 					EntityMessageTypes{
-						Produced: message.TypeRoles{
-							message.TypeFor[CommandStub[TypeA]](): message.CommandRole,
-							message.TypeFor[TimeoutStub[TypeA]](): message.TimeoutRole,
-						},
-						Consumed: message.TypeRoles{
-							message.TypeFor[EventStub[TypeA]]():   message.EventRole,
-							message.TypeFor[EventStub[TypeB]]():   message.EventRole,
-							message.TypeFor[TimeoutStub[TypeA]](): message.TimeoutRole,
-						},
+						Produced: message.TypesOf(
+							CommandA1,
+							TimeoutA1,
+						),
+						Consumed: message.TypesOf(
+							EventA1,
+							EventB1,
+							TimeoutA1,
+						),
 					},
 				))
 			})

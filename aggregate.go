@@ -96,8 +96,8 @@ func (h *richAggregate) isConfigured() bool {
 
 func (h *richAggregate) mustValidate() {
 	mustHaveValidIdentity(h.Identity(), h.ReflectType())
-	mustHaveConsumerRoute(h.types, message.CommandRole, h.Identity(), h.ReflectType())
-	mustHaveProducerRoute(h.types, message.EventRole, h.Identity(), h.ReflectType())
+	mustHaveConsumerRoute(h.types, message.CommandKind, h.Identity(), h.ReflectType())
+	mustHaveProducerRoute(h.types, message.EventKind, h.Identity(), h.ReflectType())
 }
 
 // aggregateConfigurer is the default implementation of
