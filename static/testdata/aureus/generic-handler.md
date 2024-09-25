@@ -64,6 +64,6 @@ func (a App) Configure(c ApplicationConfigurer) {
 ```au:output
 application <app> (e522c782-48d2-4c47-a4c9-81e0d7cdeba0) App
 
-    - integration <integration> (abc7c329-c9da-4161-a8e2-6ab45be2dd83) *GenericIntegration[struct{}, integrationHandler]
+    - integration <integration> (abc7c329-c9da-4161-a8e2-6ab45be2dd83) *InstantiatedIntegration
         handles CommandStub[TypeA]?
 ```
