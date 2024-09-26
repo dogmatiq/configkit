@@ -93,6 +93,9 @@ var (
 // It provides a compile-time guarantee that all kinds are handled, even if new
 // [Kind] values are added in the future.
 //
+// It panics with a meaningful message if the function associated with m's kind
+// is nil.
+//
 // It panics if m does not implement [dogma.Command], [dogma.Event] or
 // [dogma.Timeout].
 func Switch(
@@ -103,10 +106,19 @@ func Switch(
 ) {
 	switch m := m.(type) {
 	case dogma.Command:
+		if command == nil {
+			panic("no case function was provided for dogma.Command messages")
+		}
 		command(m)
 	case dogma.Event:
+		if event == nil {
+			panic("no case function was provided for dogma.Event messages")
+		}
 		event(m)
 	case dogma.Timeout:
+		if timeout == nil {
+			panic("no case function was provided for dogma.Timeout messages")
+		}
 		timeout(m)
 	default:
 		panic(fmt.Sprintf(
@@ -122,6 +134,9 @@ func Switch(
 // It provides a compile-time guarantee that all kinds are handled, even if new
 // [Kind] values are added in the future.
 //
+// It panics with a meaningful message if the function associated with m's kind
+// is nil.
+//
 // It panics if m does not implement [dogma.Command], [dogma.Event] or
 // [dogma.Timeout].
 func Map[T any](
@@ -132,12 +147,21 @@ func Map[T any](
 ) (result T) {
 	Switch(
 		m,
-		func(m dogma.Command) { result = command(m) },
-		func(m dogma.Event) { result = event(m) },
-		func(m dogma.Timeout) { result = timeout(m) },
+		mapFunc(command, &result),
+		mapFunc(event, &result),
+		mapFunc(timeout, &result),
 	)
 
 	return result
+}
+
+func mapFunc[K dogma.Message, T any](fn func(K) T, v *T) func(K) {
+	if fn == nil {
+		return nil
+	}
+	return func(m K) {
+		*v = fn(m)
+	}
 }
 
 // TryMap invokes one of the provided functions based on the [Kind] of m, and
@@ -145,6 +169,9 @@ func Map[T any](
 //
 // It provides a compile-time guarantee that all kinds are handled, even if new
 // [Kind] values are added in the future.
+//
+// It panics with a meaningful message if the function associated with m's kind
+// is nil.
 //
 // It panics if m does not implement [dogma.Command], [dogma.Event] or
 // [dogma.Timeout].
@@ -156,18 +183,33 @@ func TryMap[T any](
 ) (result T, err error) {
 	Switch(
 		m,
-		func(m dogma.Command) { result, err = command(m) },
-		func(m dogma.Event) { result, err = event(m) },
-		func(m dogma.Timeout) { result, err = timeout(m) },
+		tryMapFunc(command, &result, &err),
+		tryMapFunc(event, &result, &err),
+		tryMapFunc(timeout, &result, &err),
 	)
 
 	return result, err
+}
+
+func tryMapFunc[K dogma.Message, T any](
+	fn func(K) (T, error),
+	v *T,
+	err *error,
+) func(K) {
+	if fn == nil {
+		return nil
+	}
+	return func(m K) {
+		*v, *err = fn(m)
+	}
 }
 
 // SwitchKind invokes one of the provided functions based on k.
 //
 // It provides a compile-time guarantee that all possible values are handled,
 // even if new [Kind] values are added in the future.
+//
+// It panics with a meaningful message if the function associated with k.
 //
 // It panics if k is not a valid [Kind].
 func SwitchKind(
@@ -176,16 +218,13 @@ func SwitchKind(
 	event func(),
 	timeout func(),
 ) {
-	switch k {
-	case CommandKind:
-		command()
-	case EventKind:
-		event()
-	case TimeoutKind:
-		timeout()
-	default:
-		panic("invalid kind")
+	fn := MapKind(k, command, event, timeout)
+
+	if fn == nil {
+		panic(fmt.Sprintf("no case function was provided for the %q kind", k))
 	}
+
+	fn()
 }
 
 // MapKind maps k to a value of type T.
@@ -194,16 +233,15 @@ func SwitchKind(
 // even if new [Kind] values are added in the future.
 //
 // It panics if k is not a valid [Kind].
-func MapKind[T any](
-	k Kind,
-	command, event, timeout T,
-) (result T) {
-	SwitchKind(
-		k,
-		func() { result = command },
-		func() { result = event },
-		func() { result = timeout },
-	)
-
-	return result
+func MapKind[T any](k Kind, command, event, timeout T) (result T) {
+	switch k {
+	case CommandKind:
+		return command
+	case EventKind:
+		return event
+	case TimeoutKind:
+		return timeout
+	default:
+		panic("invalid kind")
+	}
 }

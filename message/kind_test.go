@@ -145,6 +145,29 @@ func TestSwitch(t *testing.T) {
 		}
 	})
 
+	t.Run("it panics when the associated function is nil", func(t *testing.T) {
+		cases := []struct {
+			Message dogma.Message
+			Want    string
+		}{
+			{CommandA1, `no case function was provided for dogma.Command messages`},
+			{EventA1, `no case function was provided for dogma.Event messages`},
+			{TimeoutA1, `no case function was provided for dogma.Timeout messages`},
+		}
+
+		for _, c := range cases {
+			func() {
+				defer func() {
+					if got := recover(); got != c.Want {
+						t.Fatalf("unexpected panic: got %q, want %q", got, c.Want)
+					}
+				}()
+
+				Switch(c.Message, nil, nil, nil)
+			}()
+		}
+	})
+
 	t.Run("it panics if the message does not implement any of the more specific interfaces", func(t *testing.T) {
 		defer func() {
 			if r := recover(); r == nil {
@@ -183,6 +206,29 @@ func TestMap(t *testing.T) {
 			t.Fatalf("unexpected result: got %q, want %q", got, c.Want)
 		}
 	}
+
+	t.Run("it panics when the associated function is nil", func(t *testing.T) {
+		cases := []struct {
+			Message dogma.Message
+			Want    string
+		}{
+			{CommandA1, `no case function was provided for dogma.Command messages`},
+			{EventA1, `no case function was provided for dogma.Event messages`},
+			{TimeoutA1, `no case function was provided for dogma.Timeout messages`},
+		}
+
+		for _, c := range cases {
+			func() {
+				defer func() {
+					if got := recover(); got != c.Want {
+						t.Fatalf("unexpected panic: got %q, want %q", got, c.Want)
+					}
+				}()
+
+				Map[int](c.Message, nil, nil, nil)
+			}()
+		}
+	})
 
 	t.Run("it panics if the message does not implement any of the more specific interfaces", func(t *testing.T) {
 		defer func() {
@@ -231,6 +277,29 @@ func TestTryMap(t *testing.T) {
 		}
 	}
 
+	t.Run("it panics when the associated function is nil", func(t *testing.T) {
+		cases := []struct {
+			Message dogma.Message
+			Want    string
+		}{
+			{CommandA1, `no case function was provided for dogma.Command messages`},
+			{EventA1, `no case function was provided for dogma.Event messages`},
+			{TimeoutA1, `no case function was provided for dogma.Timeout messages`},
+		}
+
+		for _, c := range cases {
+			func() {
+				defer func() {
+					if got := recover(); got != c.Want {
+						t.Fatalf("unexpected panic: got %q, want %q", got, c.Want)
+					}
+				}()
+
+				TryMap[int](c.Message, nil, nil, nil)
+			}()
+		}
+	})
+
 	t.Run("it panics if the message does not implement any of the more specific interfaces", func(t *testing.T) {
 		defer func() {
 			if r := recover(); r == nil {
@@ -244,5 +313,98 @@ func TestTryMap(t *testing.T) {
 			func(m dogma.Event) (string, error) { t.Fatal("unexpected call to event case"); return "", nil },
 			func(m dogma.Timeout) (string, error) { t.Fatal("unexpected call to timeout case"); return "", nil },
 		)
+	})
+}
+
+func TestSwitchKind(t *testing.T) {
+	cases := []struct {
+		Kind Kind
+		Want string
+	}{
+		{CommandKind, "command"},
+		{EventKind, "event"},
+		{TimeoutKind, "timeout"},
+	}
+
+	for _, c := range cases {
+		var result string
+
+		SwitchKind(
+			c.Kind,
+			func() { result = "command" },
+			func() { result = "event" },
+			func() { result = "timeout" },
+		)
+
+		if result != c.Want {
+			t.Fatalf("unexpected result: got %q, want %q", result, c.Want)
+		}
+	}
+
+	t.Run("it panics when the associated function is nil", func(t *testing.T) {
+		cases := []struct {
+			Kind Kind
+			Want string
+		}{
+			{CommandKind, `no case function was provided for the "command" kind`},
+			{EventKind, `no case function was provided for the "event" kind`},
+			{TimeoutKind, `no case function was provided for the "timeout" kind`},
+		}
+
+		for _, c := range cases {
+			func() {
+				defer func() {
+					if got := recover(); got != c.Want {
+						t.Fatalf("unexpected panic: got %q, want %q", got, c.Want)
+					}
+				}()
+
+				SwitchKind(c.Kind, nil, nil, nil)
+			}()
+		}
+	})
+
+	t.Run("it panics when the kind is invalid", func(t *testing.T) {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Fatal("expected a panic")
+			}
+		}()
+
+		SwitchKind(Kind(-1), nil, nil, nil)
+	})
+}
+
+func TestMapKind(t *testing.T) {
+	cases := []struct {
+		Kind Kind
+		Want string
+	}{
+		{CommandKind, "command"},
+		{EventKind, "event"},
+		{TimeoutKind, "timeout"},
+	}
+
+	for _, c := range cases {
+		got := MapKind(
+			c.Kind,
+			"command",
+			"event",
+			"timeout",
+		)
+
+		if got != c.Want {
+			t.Fatalf("unexpected result: got %q, want %q", got, c.Want)
+		}
+	}
+
+	t.Run("it panics when the kind is invalid", func(t *testing.T) {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Fatal("expected a panic")
+			}
+		}()
+
+		MapKind(Kind(-1), "command", "event", "timeout")
 	})
 }
