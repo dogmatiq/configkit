@@ -3,6 +3,7 @@ package configkit
 import (
 	//revive:disable:dot-imports
 	"github.com/dogmatiq/configkit/message"
+	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 	"github.com/dogmatiq/enginekit/protobuf/configpb"
 	"github.com/dogmatiq/enginekit/protobuf/identitypb"
 	"github.com/dogmatiq/enginekit/protobuf/uuidpb"
@@ -16,11 +17,36 @@ var _ = Describe("func ToProto()", func() {
 
 	BeforeEach(func() {
 		app = &unmarshaledApplication{
-			ident:    MustNewIdentity("<name>", "28c19ec0-a32f-4479-bb1d-02887e90077c"),
+			ident:    MustNewIdentity("<app>", "28c19ec0-a32f-4479-bb1d-02887e90077c"),
 			typeName: "<app type>",
-			names:    EntityMessageNames{},
-			handlers: HandlerSet{},
+			handlers: HandlerSet{
+				MustNewIdentity("<handler>", "3c73fa07-1073-4cf3-a208-644e26b747d7"): &unmarshaledHandler{
+					ident: MustNewIdentity("<handler>", "3c73fa07-1073-4cf3-a208-644e26b747d7"),
+					names: EntityMessageNames{
+						Kinds: map[message.Name]message.Kind{
+							message.NameOf(CommandA1): message.CommandKind,
+							message.NameOf(EventA1):   message.EventKind,
+						},
+						Produced: message.NamesOf(CommandA1),
+						Consumed: message.NamesOf(EventA1),
+					},
+					typeName:    "<handler type>",
+					handlerType: IntegrationHandlerType,
+				},
+			},
 		}
+	})
+
+	It("produces a value that can be unmarshaled to an equivalent application", func() {
+		marshaled, err := ToProto(app)
+		Expect(err).ShouldNot(HaveOccurred())
+
+		unmarshaled, err := FromProto(marshaled)
+		Expect(err).ShouldNot(HaveOccurred())
+
+		Expect(ToString(unmarshaled)).To(Equal(ToString(app)))
+		Expect(unmarshaled).To(Equal(app))
+		Expect(IsApplicationEqual(unmarshaled, app)).To(BeTrue())
 	})
 
 	It("returns an error if the identity is invalid", func() {

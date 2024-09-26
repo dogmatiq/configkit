@@ -134,7 +134,7 @@ func ValidateIdentityName(n string) error {
 // ValidateIdentityKey returns nil if n is a valid application or handler key;
 // otherwise, it returns an error.
 func ValidateIdentityKey(k string) error {
-	if _, err := uuidpb.FromString(k); err != nil {
+	if _, err := uuidpb.Parse(k); err != nil {
 		return validation.Errorf(
 			"invalid key %#v, keys must be RFC 4122 UUIDs",
 			k,

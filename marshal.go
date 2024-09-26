@@ -97,7 +97,6 @@ func FromProto(app *configpb.Application) (Application, error) {
 			out.handlers = HandlerSet{}
 		}
 		out.handlers.Add(handlerOut)
-		out.names.union(handlerOut.MessageNames())
 	}
 
 	return out, nil
@@ -239,14 +238,9 @@ func marshalIdentity(in Identity) (*identitypb.Identity, error) {
 		return nil, err
 	}
 
-	key, err := uuidpb.FromString(in.Key)
-	if err != nil {
-		return nil, err
-	}
-
 	return &identitypb.Identity{
 		Name: in.Name,
-		Key:  key,
+		Key:  uuidpb.MustParse(in.Key),
 	}, nil
 }
 
@@ -333,7 +327,6 @@ func unmarshalMessageKind(r configpb.MessageKind) (message.Kind, error) {
 // produced by unmarshaling a configuration.
 type unmarshaledApplication struct {
 	ident    Identity
-	names    EntityMessageNames
 	typeName string
 	handlers HandlerSet
 }
@@ -343,7 +336,11 @@ func (a *unmarshaledApplication) Identity() Identity {
 }
 
 func (a *unmarshaledApplication) MessageNames() EntityMessageNames {
-	return a.names
+	var names EntityMessageNames
+	for _, h := range a.handlers {
+		names.union(h.MessageNames())
+	}
+	return names
 }
 
 func (a *unmarshaledApplication) TypeName() string {
