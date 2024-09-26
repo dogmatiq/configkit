@@ -77,6 +77,19 @@ var _ = Describe("type Type", func() {
 		})
 	})
 
+	Describe("func Kind()", func() {
+		It("returns the kind of the message", func() {
+			mt := TypeOf(CommandA1)
+			Expect(mt.Kind()).To(Equal(CommandKind))
+		})
+
+		It("panics if the type is the zero-value", func() {
+			Expect(func() {
+				Type{}.Kind()
+			}).To(Panic())
+		})
+	})
+
 	Describe("func ReflectType()", func() {
 		It("returns the reflect.Type for the message", func() {
 			mt := TypeOf(CommandA1)

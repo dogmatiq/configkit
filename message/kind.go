@@ -30,16 +30,7 @@ func (k Kind) Symbol() string {
 }
 
 func (k Kind) String() string {
-	switch k {
-	case CommandKind:
-		return "command"
-	case EventKind:
-		return "event"
-	case TimeoutKind:
-		return "timeout"
-	default:
-		panic("invalid kind")
-	}
+	return MapKind(k, "command", "event", "timeout")
 }
 
 // KindFor returns the [Kind] of the message with type T.
