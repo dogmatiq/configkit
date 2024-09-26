@@ -173,23 +173,8 @@ func mustHaveProducerRoute(
 		}
 	}
 
-	verb := ""
-	routeFunc := ""
-
-	message.SwitchKind(
-		kind,
-		func() {
-			verb = "execute"
-			routeFunc = "ExecutesCommand"
-		},
-		func() {
-			verb = "record"
-			routeFunc = "RecordsEvent"
-		},
-		func() {
-			panic("no handlers mandate use of timeout messages")
-		},
-	)
+	verb := message.MapKind(kind, "execute", "record", "schedule")
+	routeFunc := message.MapKind(kind, "ExecutesCommand", "RecordsEvent", "SchedulesTimeout")
 
 	validation.Panicf(
 		`%s is not configured to %s any %ss, at least one %s() route must be added within Configure()`,
