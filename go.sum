@@ -3,8 +3,8 @@ github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dogmatiq/aureus v0.1.0 h1:BIUF1G4pdCiJ+WQ6GnTmbhaejbjtX35Z9w2somdgslA=
 github.com/dogmatiq/aureus v0.1.0/go.mod h1:eTm6/WDfVI2tNjg1WCXiPt4fqjMhjO2kNM522ENa6mM=
-github.com/dogmatiq/dogma v0.14.2 h1:SrwuNGMbZ4W9jdxe9a9e7n1Fspo/dhsLLhMSVMdIQro=
-github.com/dogmatiq/dogma v0.14.2/go.mod h1:9lyVA+6V2+E/exV0IrBOrkUiyFwIATEhv+b0vnB2umQ=
+github.com/dogmatiq/dogma v0.14.3 h1:qwZqU1yqp80toUJcJBdFxLlh6xvlFd7jb7rycmriRUo=
+github.com/dogmatiq/dogma v0.14.3/go.mod h1:9lyVA+6V2+E/exV0IrBOrkUiyFwIATEhv+b0vnB2umQ=
 github.com/dogmatiq/enginekit v0.11.0 h1:CRI1ueX1KtVbkcrHF4nbE7EYxdeRFKfYZn98IrorkaY=
 github.com/dogmatiq/enginekit v0.11.0/go.mod h1:gDEDVDPAYstWK262NzHWKknox5MncDguQu+XW769jY4=
 github.com/dogmatiq/iago v0.4.0 h1:57nZqVT34IZxtCZEW/RFif7DNUEjMXgevfr/Mmd0N8I=

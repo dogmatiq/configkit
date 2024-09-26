@@ -10,11 +10,15 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
-## [Unreleased]
+## [0.14.0] - 2024-09-27
 
 ### Changed
 
 - Bumped minimum Go version to 1.23.
+
+### Removed
+
+- **[BC]** Removed deprecated `fixtures` package.
 
 ## [0.13.8] - 2024-08-23
 
@@ -361,6 +365,7 @@ interfaces. It does not yet include support for static analysis of the new
 [0.13.6]: https://github.com/dogmatiq/configkit/releases/v0.13.6
 [0.13.7]: https://github.com/dogmatiq/configkit/releases/v0.13.7
 [0.13.8]: https://github.com/dogmatiq/configkit/releases/v0.13.8
+[0.14.0]: https://github.com/dogmatiq/configkit/releases/v0.14.0
 
 <!-- version template
 ## [0.0.1] - YYYY-MM-DD
