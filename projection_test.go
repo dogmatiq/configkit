@@ -6,7 +6,6 @@ import (
 	"reflect"
 
 	. "github.com/dogmatiq/configkit"
-	"github.com/dogmatiq/configkit/fixtures" // can't dot-import due to conflicts
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
@@ -100,7 +99,7 @@ var _ = Describe("func FromProjection()", func() {
 
 		Describe("func AcceptVisitor()", func() {
 			It("calls the appropriate method on the visitor", func() {
-				v := &fixtures.Visitor{
+				v := &visitorStub{
 					VisitProjectionFunc: func(_ context.Context, c Projection) error {
 						Expect(c).To(BeIdenticalTo(cfg))
 						return errors.New("<error>")
@@ -114,7 +113,7 @@ var _ = Describe("func FromProjection()", func() {
 
 		Describe("func AcceptRichVisitor()", func() {
 			It("calls the appropriate method on the visitor", func() {
-				v := &fixtures.RichVisitor{
+				v := &richVisitorStub{
 					VisitRichProjectionFunc: func(_ context.Context, c RichProjection) error {
 						Expect(c).To(BeIdenticalTo(cfg))
 						return errors.New("<error>")

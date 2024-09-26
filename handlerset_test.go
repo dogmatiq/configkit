@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	. "github.com/dogmatiq/configkit"
-	"github.com/dogmatiq/configkit/fixtures"
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
@@ -300,7 +299,7 @@ var _ = Describe("type HandlerSet", func() {
 
 			err := set.AcceptVisitor(
 				context.Background(),
-				&fixtures.Visitor{
+				&visitorStub{
 					VisitAggregateFunc: func(_ context.Context, cfg Aggregate) error {
 						Expect(cfg).To(BeIdenticalTo(aggregate))
 						visited = append(visited, cfg)
@@ -321,7 +320,7 @@ var _ = Describe("type HandlerSet", func() {
 		It("returns an error if one of the handlers fails", func() {
 			err := set.AcceptVisitor(
 				context.Background(),
-				&fixtures.Visitor{
+				&visitorStub{
 					VisitProjectionFunc: func(_ context.Context, cfg Projection) error {
 						return errors.New("<error>")
 					},
@@ -845,7 +844,7 @@ var _ = Describe("type RichHandlerSet", func() {
 
 			err := set.AcceptRichVisitor(
 				context.Background(),
-				&fixtures.RichVisitor{
+				&richVisitorStub{
 					VisitRichAggregateFunc: func(_ context.Context, cfg RichAggregate) error {
 						Expect(cfg).To(BeIdenticalTo(aggregate))
 						visited = append(visited, cfg)
@@ -866,7 +865,7 @@ var _ = Describe("type RichHandlerSet", func() {
 		It("returns an error if one of the handlers fails", func() {
 			err := set.AcceptRichVisitor(
 				context.Background(),
-				&fixtures.RichVisitor{
+				&richVisitorStub{
 					VisitRichProjectionFunc: func(_ context.Context, cfg RichProjection) error {
 						return errors.New("<error>")
 					},
