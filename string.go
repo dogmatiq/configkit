@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/dogmatiq/configkit/message"
+	"github.com/dogmatiq/enginekit/collection/sets"
 	"github.com/dogmatiq/iago/indent"
 	"github.com/dogmatiq/iago/must"
 )
@@ -82,7 +83,7 @@ func (s *stringer) visitHandler(cfg Handler) error {
 
 	names := cfg.MessageNames()
 
-	for _, p := range sortNameRoles(names.Kinds, names.Consumed) {
+	for _, p := range sortNameKinds(names.Kinds, names.Consumed) {
 		if p.Kind == message.TimeoutKind {
 			break
 		}
@@ -95,7 +96,7 @@ func (s *stringer) visitHandler(cfg Handler) error {
 		)
 	}
 
-	for _, p := range sortNameRoles(names.Kinds, names.Produced) {
+	for _, p := range sortNameKinds(names.Kinds, names.Produced) {
 		must.Fprintf(
 			s.w,
 			"    %s %s%s\n",
@@ -144,11 +145,11 @@ type pair struct {
 	Kind message.Kind
 }
 
-// sortNameRoles returns a list of name/kind pairs, sorted by name.
+// sortNameKinds returns a list of name/kind pairs, sorted by name.
 // Timeout messages are always sorted towards the end.
-func sortNameRoles(
+func sortNameKinds(
 	kinds map[message.Name]message.Kind,
-	names message.Set[message.Name],
+	names sets.Set[message.Name],
 ) []pair {
 	sorted := make([]pair, 0, names.Len())
 

@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"github.com/dogmatiq/configkit/message"
+	"github.com/dogmatiq/enginekit/collection/sets"
 )
 
 // Entity is an interface that represents the configuration of a Dogma "entity"
@@ -50,10 +51,10 @@ type EntityMessageNames struct {
 	Kinds map[message.Name]message.Kind
 
 	// Produced contains the names of the messages produced by the entity.
-	Produced message.Set[message.Name]
+	Produced sets.Set[message.Name]
 
 	// Consumed contains the names of the messages consumed by the entity.
-	Consumed message.Set[message.Name]
+	Consumed sets.Set[message.Name]
 }
 
 // Has returns true if entity uses a message type with the given name.
@@ -78,7 +79,7 @@ func (names EntityMessageNames) IsEqual(n EntityMessageNames) bool {
 }
 
 func (names *EntityMessageNames) union(n EntityMessageNames) {
-	merge := func(dst, src *message.Set[message.Name]) {
+	merge := func(dst, src *sets.Set[message.Name]) {
 		for name := range src.All() {
 			k, ok := n.Kinds[name]
 			if !ok {
@@ -113,10 +114,10 @@ func (names *EntityMessageNames) union(n EntityMessageNames) {
 // EntityMessageTypes describes the message types used by a Dogma entity.
 type EntityMessageTypes struct {
 	// Produced is a set of message types produced by the entity.
-	Produced message.Set[message.Type]
+	Produced sets.Set[message.Type]
 
 	// Consumed is a set of message types consumed by the entity.
-	Consumed message.Set[message.Type]
+	Consumed sets.Set[message.Type]
 }
 
 // Has returns true if the entity uses messages of the given type.
@@ -131,8 +132,13 @@ func (types EntityMessageTypes) IsEqual(t EntityMessageTypes) bool {
 }
 
 func (types *EntityMessageTypes) union(t EntityMessageTypes) {
-	types.Produced.Union(t.Produced)
-	types.Consumed.Union(t.Consumed)
+	for mt := range t.Produced.All() {
+		types.Produced.Add(mt)
+	}
+
+	for mt := range t.Consumed.All() {
+		types.Consumed.Add(mt)
+	}
 }
 
 func (types EntityMessageTypes) asNames() EntityMessageNames {
