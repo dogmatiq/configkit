@@ -9,7 +9,6 @@ import (
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
-	"github.com/jmalloc/gomegax"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -106,7 +105,7 @@ var _ = Describe("func FromApplication()", func() {
 
 		Describe("func MessageNames()", func() {
 			It("returns the expected message names", func() {
-				Expect(cfg.MessageNames()).To(gomegax.EqualX(
+				Expect(cfg.MessageNames()).To(Equal(
 					EntityMessages[message.Name]{
 						message.NameOf(CommandA1): {
 							Kind:       message.CommandKind,
