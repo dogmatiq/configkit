@@ -43,7 +43,7 @@ func fromAggregateUnvalidated(h dogma.AggregateMessageHandler) *richAggregate {
 // richAggregate the default implementation of [RichAggregate].
 type richAggregate struct {
 	ident      Identity
-	types      EntityMessageTypes
+	types      EntityMessages[message.Type]
 	isDisabled bool
 	handler    dogma.AggregateMessageHandler
 }
@@ -52,11 +52,11 @@ func (h *richAggregate) Identity() Identity {
 	return h.ident
 }
 
-func (h *richAggregate) MessageNames() EntityMessageNames {
-	return h.types.asNames()
+func (h *richAggregate) MessageNames() EntityMessages[message.Name] {
+	return asMessageNames(h.types)
 }
 
-func (h *richAggregate) MessageTypes() EntityMessageTypes {
+func (h *richAggregate) MessageTypes() EntityMessages[message.Type] {
 	return h.types
 }
 
@@ -89,15 +89,13 @@ func (h *richAggregate) Handler() dogma.AggregateMessageHandler {
 }
 
 func (h *richAggregate) isConfigured() bool {
-	return !h.ident.IsZero() ||
-		h.types.Consumed.Len() != 0 ||
-		h.types.Produced.Len() != 0
+	return !h.ident.IsZero() || len(h.types) != 0
 }
 
 func (h *richAggregate) mustValidate() {
 	mustHaveValidIdentity(h.Identity(), h.ReflectType())
-	mustHaveConsumerRoute(h.types, message.CommandKind, h.Identity(), h.ReflectType())
-	mustHaveProducerRoute(h.types, message.EventKind, h.Identity(), h.ReflectType())
+	mustHaveConsumerRoute(&h.types, message.CommandKind, h.Identity(), h.ReflectType())
+	mustHaveProducerRoute(&h.types, message.EventKind, h.Identity(), h.ReflectType())
 }
 
 // aggregateConfigurer is the default implementation of

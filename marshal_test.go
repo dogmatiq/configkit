@@ -22,13 +22,15 @@ var _ = Describe("func ToProto()", func() {
 			handlers: HandlerSet{
 				MustNewIdentity("<handler>", "3c73fa07-1073-4cf3-a208-644e26b747d7"): &unmarshaledHandler{
 					ident: MustNewIdentity("<handler>", "3c73fa07-1073-4cf3-a208-644e26b747d7"),
-					names: EntityMessageNames{
-						Kinds: map[message.Name]message.Kind{
-							message.NameOf(CommandA1): message.CommandKind,
-							message.NameOf(EventA1):   message.EventKind,
+					names: EntityMessages[message.Name]{
+						message.NameOf(CommandA1): {
+							Kind:       message.CommandKind,
+							IsProduced: true,
 						},
-						Produced: message.NamesOf(CommandA1),
-						Consumed: message.NamesOf(EventA1),
+						message.NameOf(EventA1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
 					},
 					typeName:    "<handler type>",
 					handlerType: IntegrationHandlerType,
@@ -107,7 +109,7 @@ var _ = Describe("func marshalHandler()", func() {
 		handler = &unmarshaledHandler{
 			ident:       MustNewIdentity("<name>", "26c19bed-f9e8-45b1-8f60-746f7ca6ef36"),
 			typeName:    "example.com/somepackage.Message",
-			names:       EntityMessageNames{},
+			names:       EntityMessages[message.Name]{},
 			handlerType: AggregateHandlerType,
 		}
 	})
@@ -133,15 +135,8 @@ var _ = Describe("func marshalHandler()", func() {
 		Expect(err).Should(HaveOccurred())
 	})
 
-	It("returns an error if there is an invalid consumed message name", func() {
-		handler.names.Consumed.Add(message.Name{})
-
-		_, err := marshalHandler(handler)
-		Expect(err).Should(HaveOccurred())
-	})
-
-	It("returns an error if there is an invalid produced message name", func() {
-		handler.names.Produced.Add(message.Name{})
+	It("returns an error if there is an invalid message name", func() {
+		handler.names[message.Name{}] = EntityMessage{}
 
 		_, err := marshalHandler(handler)
 		Expect(err).Should(HaveOccurred())

@@ -9,6 +9,7 @@ import (
 	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
+	"github.com/jmalloc/gomegax"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -105,31 +106,39 @@ var _ = Describe("func FromApplication()", func() {
 
 		Describe("func MessageNames()", func() {
 			It("returns the expected message names", func() {
-				Expect(cfg.MessageNames()).To(Equal(
-					EntityMessageNames{
-						Kinds: map[message.Name]message.Kind{
-							message.NameOf(CommandA1): message.CommandKind,
-							message.NameOf(CommandB1): message.CommandKind,
-							message.NameOf(EventA1):   message.EventKind,
-							message.NameOf(EventB1):   message.EventKind,
-							message.NameOf(EventC1):   message.EventKind,
-							message.NameOf(EventD1):   message.EventKind,
-							message.NameOf(TimeoutA1): message.TimeoutKind,
+				Expect(cfg.MessageNames()).To(gomegax.EqualX(
+					EntityMessages[message.Name]{
+						message.NameOf(CommandA1): {
+							Kind:       message.CommandKind,
+							IsConsumed: true,
 						},
-						Produced: message.NamesOf(
-							CommandB1,
-							EventA1,
-							EventC1,
-							TimeoutA1,
-						),
-						Consumed: message.NamesOf(
-							CommandA1,
-							EventB1,
-							CommandB1,
-							EventD1,
-							EventA1,
-							TimeoutA1,
-						),
+						message.NameOf(CommandB1): {
+							Kind:       message.CommandKind,
+							IsProduced: true,
+							IsConsumed: true,
+						},
+						message.NameOf(EventA1): {
+							Kind:       message.EventKind,
+							IsProduced: true,
+							IsConsumed: true,
+						},
+						message.NameOf(EventB1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
+						message.NameOf(EventC1): {
+							Kind:       message.EventKind,
+							IsProduced: true,
+						},
+						message.NameOf(EventD1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
+						message.NameOf(TimeoutA1): {
+							Kind:       message.TimeoutKind,
+							IsProduced: true,
+							IsConsumed: true,
+						},
 					},
 				))
 			})
@@ -138,21 +147,38 @@ var _ = Describe("func FromApplication()", func() {
 		Describe("func MessageTypes()", func() {
 			It("returns the expected message types", func() {
 				Expect(cfg.MessageTypes()).To(Equal(
-					EntityMessageTypes{
-						Produced: message.TypesOf(
-							CommandB1,
-							EventA1,
-							EventC1,
-							TimeoutA1,
-						),
-						Consumed: message.TypesOf(
-							CommandA1,
-							EventB1,
-							CommandB1,
-							EventD1,
-							EventA1,
-							TimeoutA1,
-						),
+					EntityMessages[message.Type]{
+						message.TypeOf(CommandA1): {
+							Kind:       message.CommandKind,
+							IsConsumed: true,
+						},
+						message.TypeOf(CommandB1): {
+							Kind:       message.CommandKind,
+							IsProduced: true,
+							IsConsumed: true,
+						},
+						message.TypeOf(EventA1): {
+							Kind:       message.EventKind,
+							IsProduced: true,
+							IsConsumed: true,
+						},
+						message.TypeOf(EventB1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
+						message.TypeOf(EventC1): {
+							Kind:       message.EventKind,
+							IsProduced: true,
+						},
+						message.TypeOf(EventD1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
+						message.TypeOf(TimeoutA1): {
+							Kind:       message.TimeoutKind,
+							IsProduced: true,
+							IsConsumed: true,
+						},
 					},
 				))
 			})

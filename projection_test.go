@@ -50,15 +50,15 @@ var _ = Describe("func FromProjection()", func() {
 		Describe("func MessageNames()", func() {
 			It("returns the expected message names", func() {
 				Expect(cfg.MessageNames()).To(Equal(
-					EntityMessageNames{
-						Kinds: map[message.Name]message.Kind{
-							message.NameOf(EventA1): message.EventKind,
-							message.NameOf(EventB1): message.EventKind,
+					EntityMessages[message.Name]{
+						message.NameOf(EventA1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
 						},
-						Consumed: message.NamesOf(
-							EventA1,
-							EventB1,
-						),
+						message.NameOf(EventB1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
 					},
 				))
 			})
@@ -67,11 +67,15 @@ var _ = Describe("func FromProjection()", func() {
 		Describe("func MessageTypes()", func() {
 			It("returns the expected message types", func() {
 				Expect(cfg.MessageTypes()).To(Equal(
-					EntityMessageTypes{
-						Consumed: message.TypesOf(
-							EventA1,
-							EventB1,
-						),
+					EntityMessages[message.Type]{
+						message.TypeOf(EventA1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
+						message.TypeOf(EventB1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
 					},
 				))
 			})

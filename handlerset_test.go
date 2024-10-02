@@ -184,18 +184,16 @@ var _ = Describe("type HandlerSet", func() {
 
 		It("returns the messages used by the handlers in the set", func() {
 			Expect(set.MessageNames()).To(Equal(
-				EntityMessageNames{
-					Kinds: map[message.Name]message.Kind{
-						message.NameOf(EventA1):   message.EventKind,
-						message.NameOf(CommandA1): message.CommandKind,
+				EntityMessages[message.Name]{
+					message.NameOf(EventA1): {
+						Kind:       message.EventKind,
+						IsProduced: true,
+						IsConsumed: true,
 					},
-					Produced: message.NamesOf(
-						EventA1,
-					),
-					Consumed: message.NamesOf(
-						CommandA1,
-						EventA1,
-					),
+					message.NameOf(CommandA1): {
+						Kind:       message.CommandKind,
+						IsConsumed: true,
+					},
 				},
 			))
 		})
@@ -733,14 +731,17 @@ var _ = Describe("type RichHandlerSet", func() {
 
 		It("returns the messages used by the handlers in the set", func() {
 			Expect(set.MessageTypes()).To(Equal(
-				EntityMessageTypes{
-					Produced: message.TypesOf(
-						EventA1,
-					),
-					Consumed: message.TypesOf(
-						CommandA1,
-						EventA1,
-					)},
+				EntityMessages[message.Type]{
+					message.TypeOf(EventA1): {
+						Kind:       message.EventKind,
+						IsProduced: true,
+						IsConsumed: true,
+					},
+					message.TypeOf(CommandA1): {
+						Kind:       message.CommandKind,
+						IsConsumed: true,
+					},
+				},
 			))
 		})
 	})

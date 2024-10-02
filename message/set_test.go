@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	. "github.com/dogmatiq/configkit/message"
-	"github.com/dogmatiq/enginekit/collection/sets"
+	"github.com/dogmatiq/enginekit/collections/sets"
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 )
 

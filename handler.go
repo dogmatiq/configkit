@@ -58,24 +58,28 @@ func IsHandlerEqual(a, b Handler) bool {
 }
 
 func configureRoutes[T dogma.Route](
-	types *EntityMessageTypes,
+	types *EntityMessages[message.Type],
 	routes []T,
 	handlerIdent Identity,
 	handlerType reflect.Type,
 ) {
+	if *types == nil {
+		*types = EntityMessages[message.Type]{}
+	}
+
 	for _, route := range routes {
 		switch route := any(route).(type) {
 		case dogma.HandlesCommandRoute:
-			configureConsumerRoute(types, route.Type, "HandlesCommand", handlerIdent, handlerType)
+			configureConsumerRoute(*types, route.Type, "HandlesCommand", handlerIdent, handlerType)
 		case dogma.RecordsEventRoute:
-			configureProducerRoute(types, route.Type, "RecordsEvent", handlerIdent, handlerType)
+			configureProducerRoute(*types, route.Type, "RecordsEvent", handlerIdent, handlerType)
 		case dogma.HandlesEventRoute:
-			configureConsumerRoute(types, route.Type, "HandlesEvent", handlerIdent, handlerType)
+			configureConsumerRoute(*types, route.Type, "HandlesEvent", handlerIdent, handlerType)
 		case dogma.ExecutesCommandRoute:
-			configureProducerRoute(types, route.Type, "ExecutesCommand", handlerIdent, handlerType)
+			configureProducerRoute(*types, route.Type, "ExecutesCommand", handlerIdent, handlerType)
 		case dogma.SchedulesTimeoutRoute:
-			configureConsumerRoute(types, route.Type, "SchedulesTimeout", handlerIdent, handlerType)
-			configureProducerRoute(types, route.Type, "SchedulesTimeout", handlerIdent, handlerType)
+			configureConsumerRoute(*types, route.Type, "SchedulesTimeout", handlerIdent, handlerType)
+			configureProducerRoute(*types, route.Type, "SchedulesTimeout", handlerIdent, handlerType)
 		default:
 			panic(fmt.Sprintf("unsupported route type: %T", route))
 		}
@@ -83,45 +87,53 @@ func configureRoutes[T dogma.Route](
 }
 
 func configureConsumerRoute(
-	types *EntityMessageTypes,
+	types EntityMessages[message.Type],
 	messageType reflect.Type,
 	routeFunc string,
 	handlerIdent Identity,
 	handlerType reflect.Type,
 ) {
-	t := message.TypeFromReflect(messageType)
+	types.Update(
+		message.TypeFromReflect(messageType),
+		func(t message.Type, em *EntityMessage) {
+			if em.IsConsumed {
+				validation.Panicf(
+					"%s is configured with multiple %s() routes for %s, should these refer to different message types?",
+					handlerDisplayName(handlerIdent, handlerType),
+					routeFunc,
+					t,
+				)
+			}
 
-	if types.Consumed.Has(t) {
-		validation.Panicf(
-			"%s is configured with multiple %s() routes for %s, should these refer to different message types?",
-			handlerDisplayName(handlerIdent, handlerType),
-			routeFunc,
-			t,
-		)
-	}
-
-	types.Consumed.Add(t)
+			em.Kind = t.Kind()
+			em.IsConsumed = true
+		},
+	)
 }
 
 func configureProducerRoute(
-	types *EntityMessageTypes,
+	types EntityMessages[message.Type],
 	messageType reflect.Type,
 	routeFunc string,
 	handlerIdent Identity,
 	handlerType reflect.Type,
 ) {
-	t := message.TypeFromReflect(messageType)
+	types.Update(
+		message.TypeFromReflect(messageType),
+		func(t message.Type, em *EntityMessage) {
+			if em.IsProduced {
+				validation.Panicf(
+					"%s is configured with multiple %s() routes for %s, should these refer to different message types?",
+					handlerDisplayName(handlerIdent, handlerType),
+					routeFunc,
+					t,
+				)
+			}
 
-	if types.Produced.Has(t) {
-		validation.Panicf(
-			"%s is configured with multiple %s() routes for %s, should these refer to different message types?",
-			handlerDisplayName(handlerIdent, handlerType),
-			routeFunc,
-			t,
-		)
-	}
-
-	types.Produced.Add(t)
+			em.Kind = t.Kind()
+			em.IsProduced = true
+		},
+	)
 }
 
 func handlerDisplayName(
@@ -140,12 +152,12 @@ func handlerDisplayName(
 // mustHaveConsumerRoute panics if the handler is not configured to handle any
 // messages of the given kind.
 func mustHaveConsumerRoute(
-	types EntityMessageTypes,
+	types *EntityMessages[message.Type],
 	kind message.Kind,
 	handlerIdent Identity,
 	handlerType reflect.Type,
 ) {
-	for t := range types.Consumed.All() {
+	for t := range types.Consumed() {
 		if t.Kind() == kind {
 			return
 		}
@@ -162,12 +174,12 @@ func mustHaveConsumerRoute(
 // mustHaveProducerRoute panics if the handler is not configured to produce any
 // messages of the given kind.
 func mustHaveProducerRoute(
-	types EntityMessageTypes,
+	types *EntityMessages[message.Type],
 	kind message.Kind,
 	handlerIdent Identity,
 	handlerType reflect.Type,
 ) {
-	for t := range types.Produced.All() {
+	for t := range types.Produced() {
 		if t.Kind() == kind {
 			return
 		}

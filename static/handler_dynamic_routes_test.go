@@ -17,17 +17,15 @@ var _ = Describe("dynamic list of routes passed to configurer in a slice", func(
 
 		integration := apps[0].Handlers().Integrations()[0]
 		Expect(integration.MessageNames()).To(Equal(
-			configkit.EntityMessageNames{
-				Kinds: map[message.Name]message.Kind{
-					message.NameOf(CommandA1): message.CommandKind,
-					message.NameOf(EventA1):   message.EventKind,
+			configkit.EntityMessages[message.Name]{
+				message.NameOf(CommandA1): {
+					Kind:       message.CommandKind,
+					IsConsumed: true,
 				},
-				Consumed: message.NamesOf(
-					CommandA1,
-				),
-				Produced: message.NamesOf(
-					EventA1,
-				),
+				message.NameOf(EventA1): {
+					Kind:       message.EventKind,
+					IsProduced: true,
+				},
 			},
 		))
 	})

@@ -22,7 +22,7 @@ func analyzeApplication(
 	app := &application{
 		TypeNameValue:     gotypes.NameOf(typ),
 		HandlersValue:     configkit.HandlerSet{},
-		MessageNamesValue: configkit.EntityMessageNames{},
+		MessageNamesValue: configkit.EntityMessages[message.Name]{},
 	}
 
 	pkg := pkgOfNamedType(typ)
@@ -351,8 +351,9 @@ func addHandlerFromConfigureMethod(
 	ht configkit.HandlerType,
 ) {
 	h := &handler{
-		HandlerTypeValue: ht,
-		TypeNameValue:    handlerType,
+		HandlerTypeValue:  ht,
+		TypeNameValue:     handlerType,
+		MessageNamesValue: configkit.EntityMessages[message.Name]{},
 	}
 
 	for _, c := range findConfigurerCalls(prog, method, make(map[string]types.Type)) {
@@ -362,7 +363,7 @@ func addHandlerFromConfigureMethod(
 		case "Identity":
 			h.IdentityValue = analyzeIdentityCall(c)
 		case "Routes":
-			addMessagesFromRoutes(&h.MessageNamesValue, args)
+			addMessagesFromRoutes(h.MessageNamesValue, args)
 		}
 	}
 
@@ -373,7 +374,7 @@ func addHandlerFromConfigureMethod(
 // Routes() method to populate the messages that are produced and consumed by
 // the handler.
 func addMessagesFromRoutes(
-	messages *configkit.EntityMessageNames,
+	messages configkit.EntityMessages[message.Name],
 	args []ssa.Value,
 ) {
 	var mii []*ssa.MakeInterface
@@ -424,34 +425,34 @@ func addMessagesFromRoutes(
 			//  `github.com/dogmatiq/dogma.RecordsEvent()`
 			//  `github.com/dogmatiq/dogma.SchedulesTimeout()`
 			if f, ok := mi.X.(*ssa.Call).Common().Value.(*ssa.Function); ok {
-				name := message.NameFromStaticType(f.TypeArgs()[0])
+				messages.Update(
+					message.NameFromStaticType(f.TypeArgs()[0]),
+					func(n message.Name, em *configkit.EntityMessage) {
+						switch {
+						case strings.HasPrefix(f.Name(), "HandlesCommand["):
+							em.Kind = message.CommandKind
+							em.IsConsumed = true
 
-				if messages.Kinds == nil {
-					messages.Kinds = map[message.Name]message.Kind{}
-				}
+						case strings.HasPrefix(f.Name(), "HandlesEvent["):
+							em.Kind = message.EventKind
+							em.IsConsumed = true
 
-				switch {
-				case strings.HasPrefix(f.Name(), "HandlesCommand["):
-					messages.Kinds[name] = message.CommandKind
-					messages.Consumed.Add(name)
+						case strings.HasPrefix(f.Name(), "ExecutesCommand["):
+							em.Kind = message.CommandKind
+							em.IsProduced = true
 
-				case strings.HasPrefix(f.Name(), "HandlesEvent["):
-					messages.Kinds[name] = message.EventKind
-					messages.Consumed.Add(name)
+						case strings.HasPrefix(f.Name(), "RecordsEvent["):
+							em.Kind = message.EventKind
+							em.IsProduced = true
 
-				case strings.HasPrefix(f.Name(), "ExecutesCommand["):
-					messages.Kinds[name] = message.CommandKind
-					messages.Produced.Add(name)
+						case strings.HasPrefix(f.Name(), "SchedulesTimeout["):
+							em.Kind = message.TimeoutKind
+							em.IsProduced = true
+							em.IsConsumed = true
+						}
+					},
+				)
 
-				case strings.HasPrefix(f.Name(), "RecordsEvent["):
-					messages.Kinds[name] = message.EventKind
-					messages.Produced.Add(name)
-
-				case strings.HasPrefix(f.Name(), "SchedulesTimeout["):
-					messages.Kinds[name] = message.TimeoutKind
-					messages.Produced.Add(name)
-					messages.Consumed.Add(name)
-				}
 			}
 		}
 	}

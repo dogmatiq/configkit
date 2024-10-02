@@ -43,7 +43,7 @@ func fromProcessUnvalidated(h dogma.ProcessMessageHandler) *richProcess {
 // richProcess is the default implementation of [RichProcess].
 type richProcess struct {
 	ident      Identity
-	types      EntityMessageTypes
+	types      EntityMessages[message.Type]
 	isDisabled bool
 	handler    dogma.ProcessMessageHandler
 }
@@ -52,11 +52,11 @@ func (h *richProcess) Identity() Identity {
 	return h.ident
 }
 
-func (h *richProcess) MessageNames() EntityMessageNames {
-	return h.types.asNames()
+func (h *richProcess) MessageNames() EntityMessages[message.Name] {
+	return asMessageNames(h.types)
 }
 
-func (h *richProcess) MessageTypes() EntityMessageTypes {
+func (h *richProcess) MessageTypes() EntityMessages[message.Type] {
 	return h.types
 }
 
@@ -89,15 +89,13 @@ func (h *richProcess) Handler() dogma.ProcessMessageHandler {
 }
 
 func (h *richProcess) isConfigured() bool {
-	return !h.ident.IsZero() ||
-		h.types.Consumed.Len() != 0 ||
-		h.types.Produced.Len() != 0
+	return !h.ident.IsZero() || len(h.types) != 0
 }
 
 func (h *richProcess) mustValidate() {
 	mustHaveValidIdentity(h.Identity(), h.ReflectType())
-	mustHaveConsumerRoute(h.types, message.EventKind, h.Identity(), h.ReflectType())
-	mustHaveProducerRoute(h.types, message.CommandKind, h.Identity(), h.ReflectType())
+	mustHaveConsumerRoute(&h.types, message.EventKind, h.Identity(), h.ReflectType())
+	mustHaveProducerRoute(&h.types, message.CommandKind, h.Identity(), h.ReflectType())
 }
 
 // processConfigurer is the default implementation of [dogma.ProcessConfigurer].

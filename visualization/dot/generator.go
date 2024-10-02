@@ -57,8 +57,8 @@ func (g *generator) addApp(cfg configkit.Application) {
 	g.app.Attr("label", "("+cfg.Identity().Name+")")
 	styleApp(g.app, cfg)
 
-	for n, k := range cfg.MessageNames().Kinds {
-		g.kinds[n] = k
+	for n, m := range cfg.MessageNames() {
+		g.kinds[n] = m.Kind
 	}
 
 	for _, h := range sortHandlers(cfg.Handlers()) {
@@ -78,21 +78,21 @@ func (g *generator) addHandler(cfg configkit.Handler) {
 // addEdges adds edges describing the messages that are produced and consumed by
 // a specific handler.
 func (g *generator) addEdges(cfg configkit.Handler, n dot.Node) {
-	names := cfg.MessageNames()
+	for name, em := range cfg.MessageNames() {
+		if em.IsConsumed {
+			g.consumers[name] = append(g.consumers[name], n)
 
-	for name := range names.Consumed.All() {
-		g.consumers[name] = append(g.consumers[name], n)
-
-		for _, p := range g.producers[name] {
-			g.addEdge(p, n, name)
+			for _, p := range g.producers[name] {
+				g.addEdge(p, n, name)
+			}
 		}
-	}
 
-	for name := range names.Produced.All() {
-		g.producers[name] = append(g.producers[name], n)
+		if em.IsProduced {
+			g.producers[name] = append(g.producers[name], n)
 
-		for _, c := range g.consumers[name] {
-			g.addEdge(n, c, name)
+			for _, c := range g.consumers[name] {
+				g.addEdge(n, c, name)
+			}
 		}
 	}
 }
@@ -196,7 +196,7 @@ func sortHandlers(handlers configkit.HandlerSet) []configkit.Handler {
 		func(i, j int) bool {
 			in := sorted[i].MessageNames()
 			jn := sorted[j].MessageNames()
-			return len(in.Kinds) < len(jn.Kinds)
+			return len(in) < len(jn)
 		},
 	)
 

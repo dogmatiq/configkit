@@ -71,7 +71,7 @@ func IsApplicationEqual(a, b Application) bool {
 // richApplication is the default implementation of [RichApplication].
 type richApplication struct {
 	ident    Identity
-	types    EntityMessageTypes
+	types    EntityMessages[message.Type]
 	handlers RichHandlerSet
 	app      dogma.Application
 }
@@ -80,11 +80,11 @@ func (a *richApplication) Identity() Identity {
 	return a.ident
 }
 
-func (a *richApplication) MessageNames() EntityMessageNames {
-	return a.types.asNames()
+func (a *richApplication) MessageNames() EntityMessages[message.Name] {
+	return asMessageNames(a.types)
 }
 
-func (a *richApplication) MessageTypes() EntityMessageTypes {
+func (a *richApplication) MessageTypes() EntityMessages[message.Type] {
 	return a.types
 }
 
@@ -176,9 +176,11 @@ func (c *applicationConfigurer) registerIfConfigured(
 
 	if c.config.handlers == nil {
 		c.config.handlers = RichHandlerSet{}
+		c.config.types = EntityMessages[message.Type]{}
 	}
+
 	c.config.handlers.Add(h)
-	c.config.types.union(h.MessageTypes())
+	c.config.types.merge(h.MessageTypes())
 }
 
 // guardAgainstConflictingIdentities panics if h's identity conflicts with the
@@ -218,39 +220,31 @@ func (c *applicationConfigurer) guardAgainstConflictingIdentities(h RichHandler)
 // guardAgainstConflictingRoutes panics if an h consumes the same commands or
 // produces the same events as some existing handler.
 func (c *applicationConfigurer) guardAgainstConflictingRoutes(h RichHandler) {
-	types := h.MessageTypes()
-
-	for mt := range types.Consumed.All() {
-		if mt.Kind() != message.CommandKind {
-			continue
+	for mt, em := range h.MessageTypes() {
+		if em.Kind == message.CommandKind && em.IsConsumed {
+			for _, x := range c.config.handlers.ConsumersOf(mt) {
+				validation.Panicf(
+					`%s (%s) can not handle %s commands because they are already configured to be handled by %s (%s)`,
+					h.ReflectType(),
+					h.Identity().Name,
+					mt,
+					x.ReflectType(),
+					x.Identity().Name,
+				)
+			}
 		}
 
-		for _, x := range c.config.handlers.ConsumersOf(mt) {
-			validation.Panicf(
-				`%s (%s) can not handle %s commands because they are already configured to be handled by %s (%s)`,
-				h.ReflectType(),
-				h.Identity().Name,
-				mt,
-				x.ReflectType(),
-				x.Identity().Name,
-			)
-		}
-	}
-
-	for mt := range types.Produced.All() {
-		if mt.Kind() != message.EventKind {
-			continue
-		}
-
-		for _, x := range c.config.handlers.ProducersOf(mt) {
-			validation.Panicf(
-				`%s (%s) can not record %s events because they are already configured to be recorded by %s (%s)`,
-				h.ReflectType(),
-				h.Identity().Name,
-				mt,
-				x.ReflectType(),
-				x.Identity().Name,
-			)
+		if em.Kind == message.EventKind && em.IsProduced {
+			for _, x := range c.config.handlers.ProducersOf(mt) {
+				validation.Panicf(
+					`%s (%s) can not record %s events because they are already configured to be recorded by %s (%s)`,
+					h.ReflectType(),
+					h.Identity().Name,
+					mt,
+					x.ReflectType(),
+					x.Identity().Name,
+				)
+			}
 		}
 	}
 }

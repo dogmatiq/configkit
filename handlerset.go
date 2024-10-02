@@ -77,7 +77,7 @@ func (s HandlerSet) ByType(t HandlerType) HandlerSet {
 // given name.
 func (s HandlerSet) ConsumersOf(n message.Name) HandlerSet {
 	return s.Filter(func(h Handler) bool {
-		return h.MessageNames().Consumed.Has(n)
+		return h.MessageNames()[n].IsConsumed
 	})
 }
 
@@ -85,16 +85,16 @@ func (s HandlerSet) ConsumersOf(n message.Name) HandlerSet {
 // given name.
 func (s HandlerSet) ProducersOf(n message.Name) HandlerSet {
 	return s.Filter(func(h Handler) bool {
-		return h.MessageNames().Produced.Has(n)
+		return h.MessageNames()[n].IsProduced
 	})
 }
 
 // MessageNames returns information about the messages used all handlers in s.
-func (s HandlerSet) MessageNames() EntityMessageNames {
-	var names EntityMessageNames
+func (s HandlerSet) MessageNames() EntityMessages[message.Name] {
+	names := EntityMessages[message.Name]{}
 
 	for _, h := range s {
-		names.union(h.MessageNames())
+		names.merge(h.MessageNames())
 	}
 
 	return names
@@ -369,7 +369,7 @@ func (s RichHandlerSet) ConsumersOf(t message.Type) RichHandlerSet {
 	subset := RichHandlerSet{}
 
 	for i, h := range s {
-		if h.MessageTypes().Consumed.Has(t) {
+		if h.MessageTypes()[t].IsConsumed {
 			subset[i] = h
 		}
 	}
@@ -383,7 +383,7 @@ func (s RichHandlerSet) ProducersOf(t message.Type) RichHandlerSet {
 	subset := RichHandlerSet{}
 
 	for i, h := range s {
-		if h.MessageTypes().Produced.Has(t) {
+		if h.MessageTypes()[t].IsProduced {
 			subset[i] = h
 		}
 	}
@@ -392,11 +392,11 @@ func (s RichHandlerSet) ProducersOf(t message.Type) RichHandlerSet {
 }
 
 // MessageTypes returns information about the messages used all handlers in s.
-func (s RichHandlerSet) MessageTypes() EntityMessageTypes {
-	var types EntityMessageTypes
+func (s RichHandlerSet) MessageTypes() EntityMessages[message.Type] {
+	types := EntityMessages[message.Type]{}
 
 	for _, h := range s {
-		types.union(h.MessageTypes())
+		types.merge(h.MessageTypes())
 	}
 
 	return types

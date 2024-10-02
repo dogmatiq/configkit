@@ -48,19 +48,19 @@ var _ = Describe("func FromAggregate()", func() {
 		Describe("func MessageNames()", func() {
 			It("returns the expected message names", func() {
 				Expect(cfg.MessageNames()).To(Equal(
-					EntityMessageNames{
-						Kinds: map[message.Name]message.Kind{
-							message.NameOf(EventA1):   message.EventKind,
-							message.NameOf(CommandA1): message.CommandKind,
-							message.NameOf(CommandB1): message.CommandKind,
+					EntityMessages[message.Name]{
+						message.NameOf(EventA1): {
+							Kind:       message.EventKind,
+							IsProduced: true,
 						},
-						Produced: message.NamesOf(
-							EventA1,
-						),
-						Consumed: message.NamesOf(
-							CommandA1,
-							CommandB1,
-						),
+						message.NameOf(CommandA1): {
+							Kind:       message.CommandKind,
+							IsConsumed: true,
+						},
+						message.NameOf(CommandB1): {
+							Kind:       message.CommandKind,
+							IsConsumed: true,
+						},
 					},
 				))
 			})
@@ -69,14 +69,19 @@ var _ = Describe("func FromAggregate()", func() {
 		Describe("func MessageTypes()", func() {
 			It("returns the expected message types", func() {
 				Expect(cfg.MessageTypes()).To(Equal(
-					EntityMessageTypes{
-						Produced: message.TypesOf(
-							EventA1,
-						),
-						Consumed: message.TypesOf(
-							CommandA1,
-							CommandB1,
-						),
+					EntityMessages[message.Type]{
+						message.TypeOf(EventA1): {
+							Kind:       message.EventKind,
+							IsProduced: true,
+						},
+						message.TypeOf(CommandA1): {
+							Kind:       message.CommandKind,
+							IsConsumed: true,
+						},
+						message.TypeOf(CommandB1): {
+							Kind:       message.CommandKind,
+							IsConsumed: true,
+						},
 					},
 				))
 			})

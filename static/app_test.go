@@ -82,27 +82,33 @@ var _ = Describe("func FromPackages() (application detection)", func() {
 			Expect(apps).To(HaveLen(1))
 
 			Expect(apps[0].MessageNames()).To(Equal(
-				configkit.EntityMessageNames{
-					Kinds: map[message.Name]message.Kind{
-						message.NameOf(CommandA1): message.CommandKind,
-						message.NameOf(CommandB1): message.CommandKind,
-						message.NameOf(EventA1):   message.EventKind,
-						message.NameOf(EventB1):   message.EventKind,
-						message.NameOf(EventC1):   message.EventKind,
-						message.NameOf(TimeoutA1): message.TimeoutKind,
+				configkit.EntityMessages[message.Name]{
+					message.NameOf(CommandA1): {
+						Kind:       message.CommandKind,
+						IsConsumed: true,
 					},
-					Consumed: message.NamesOf(
-						CommandA1,
-						EventA1,
-						EventC1,
-						TimeoutA1,
-					),
-					Produced: message.NamesOf(
-						EventA1,
-						CommandB1,
-						TimeoutA1,
-						EventB1,
-					),
+					message.NameOf(CommandB1): {
+						Kind:       message.CommandKind,
+						IsProduced: true,
+					},
+					message.NameOf(EventA1): {
+						Kind:       message.EventKind,
+						IsProduced: true,
+						IsConsumed: true,
+					},
+					message.NameOf(EventB1): {
+						Kind:       message.EventKind,
+						IsProduced: true,
+					},
+					message.NameOf(EventC1): {
+						Kind:       message.EventKind,
+						IsConsumed: true,
+					},
+					message.NameOf(TimeoutA1): {
+						Kind:       message.TimeoutKind,
+						IsProduced: true,
+						IsConsumed: true,
+					},
 				},
 			))
 		})

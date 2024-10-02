@@ -7,10 +7,11 @@ toolchain go1.23.1
 require (
 	github.com/dogmatiq/aureus v0.1.0
 	github.com/dogmatiq/dogma v0.14.4-0.20240926234834-3c0cc27a2ca1
-	github.com/dogmatiq/enginekit v0.14.1-0.20241001043115-6518710927b0
+	github.com/dogmatiq/enginekit v0.15.2-0.20241002024509-1d30c2ed8b6c
 	github.com/dogmatiq/iago v0.4.0
 	github.com/emicklei/dot v1.6.2
 	github.com/google/uuid v1.6.0
+	github.com/jmalloc/gomegax v0.0.0-20200507221434-64fca4c0e03a
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.34.2
 	golang.org/x/text v0.18.0

@@ -49,22 +49,24 @@ var _ = Describe("func FromProcess()", func() {
 		Describe("func MessageNames()", func() {
 			It("returns the expected message names", func() {
 				Expect(cfg.MessageNames()).To(Equal(
-					EntityMessageNames{
-						Kinds: map[message.Name]message.Kind{
-							message.NameOf(CommandA1): message.CommandKind,
-							message.NameOf(EventA1):   message.EventKind,
-							message.NameOf(EventB1):   message.EventKind,
-							message.NameOf(TimeoutA1): message.TimeoutKind,
+					EntityMessages[message.Name]{
+						message.NameOf(CommandA1): {
+							Kind:       message.CommandKind,
+							IsProduced: true,
 						},
-						Produced: message.NamesOf(
-							CommandA1,
-							TimeoutA1,
-						),
-						Consumed: message.NamesOf(
-							EventA1,
-							EventB1,
-							TimeoutA1,
-						),
+						message.NameOf(EventA1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
+						message.NameOf(EventB1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
+						message.NameOf(TimeoutA1): {
+							Kind:       message.TimeoutKind,
+							IsProduced: true,
+							IsConsumed: true,
+						},
 					},
 				))
 			})
@@ -73,16 +75,24 @@ var _ = Describe("func FromProcess()", func() {
 		Describe("func MessageTypes()", func() {
 			It("returns the expected message types", func() {
 				Expect(cfg.MessageTypes()).To(Equal(
-					EntityMessageTypes{
-						Produced: message.TypesOf(
-							CommandA1,
-							TimeoutA1,
-						),
-						Consumed: message.TypesOf(
-							EventA1,
-							EventB1,
-							TimeoutA1,
-						),
+					EntityMessages[message.Type]{
+						message.TypeOf(CommandA1): {
+							Kind:       message.CommandKind,
+							IsProduced: true,
+						},
+						message.TypeOf(EventA1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
+						message.TypeOf(EventB1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
+						message.TypeOf(TimeoutA1): {
+							Kind:       message.TimeoutKind,
+							IsProduced: true,
+							IsConsumed: true,
+						},
 					},
 				))
 			})

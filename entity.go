@@ -3,10 +3,10 @@ package configkit
 import (
 	"context"
 	"fmt"
+	"iter"
 	"reflect"
 
 	"github.com/dogmatiq/configkit/message"
-	"github.com/dogmatiq/enginekit/collection/sets"
 )
 
 // Entity is an interface that represents the configuration of a Dogma "entity"
@@ -22,7 +22,7 @@ type Entity interface {
 	TypeName() string
 
 	// MessageNames returns information about the messages used by the entity.
-	MessageNames() EntityMessageNames
+	MessageNames() EntityMessages[message.Name]
 
 	// AcceptVisitor calls the appropriate method on v for this entity type.
 	AcceptVisitor(ctx context.Context, v Visitor) error
@@ -37,131 +37,108 @@ type RichEntity interface {
 	ReflectType() reflect.Type
 
 	// MessageTypes returns information about the messages used by the entity.
-	MessageTypes() EntityMessageTypes
+	MessageTypes() EntityMessages[message.Type]
 
 	// AcceptRichVisitor calls the appropriate method on v for this
 	// configuration type.
 	AcceptRichVisitor(ctx context.Context, v RichVisitor) error
 }
 
-// EntityMessageNames describes the messages used by a Dogma entity where each
-// message is identified by its name.
-type EntityMessageNames struct {
-	// Kinds is a map of message type name to that type's kind.
-	Kinds map[message.Name]message.Kind
-
-	// Produced contains the names of the messages produced by the entity.
-	Produced sets.Set[message.Name]
-
-	// Consumed contains the names of the messages consumed by the entity.
-	Consumed sets.Set[message.Name]
+// EntityMessage describes a message used by a Dogma entity.
+type EntityMessage struct {
+	Kind                   message.Kind
+	IsProduced, IsConsumed bool
 }
 
-// Has returns true if entity uses a message type with the given name.
-func (names EntityMessageNames) Has(n message.Name) bool {
-	return names.Produced.Has(n) || names.Consumed.Has(n)
-}
+// EntityMessages describes the messages used by a Dogma entity.
+type EntityMessages[K comparable] map[K]EntityMessage
 
-// IsEqual returns true if names is equal to n.
-func (names EntityMessageNames) IsEqual(n EntityMessageNames) bool {
-	if len(names.Kinds) != len(n.Kinds) {
+// IsEqual returns true if m is equal to n.
+func (m EntityMessages[K]) IsEqual(n EntityMessages[K]) bool {
+	if len(m) != len(n) {
 		return false
 	}
 
-	for name, k := range names.Kinds {
-		if x, ok := n.Kinds[name]; !ok || x != k {
+	for k, v := range m {
+		if x, ok := n[k]; !ok || x != v {
 			return false
 		}
 	}
 
-	return names.Produced.IsEqual(n.Produced) &&
-		names.Consumed.IsEqual(n.Consumed)
+	return true
 }
 
-func (names *EntityMessageNames) union(n EntityMessageNames) {
-	merge := func(dst, src *sets.Set[message.Name]) {
-		for name := range src.All() {
-			k, ok := n.Kinds[name]
-			if !ok {
-				panic(fmt.Sprintf(
-					"message type %q has no associated message kind",
-					name,
-				))
-			}
-
-			if x, ok := names.Kinds[name]; !ok {
-				if names.Kinds == nil {
-					names.Kinds = map[message.Name]message.Kind{}
+// Produced returns an iterator that yields the messages that are produced by
+// the entity.
+func (m EntityMessages[K]) Produced() iter.Seq2[K, message.Kind] {
+	return func(yield func(K, message.Kind) bool) {
+		for k, v := range m {
+			if v.IsProduced {
+				if !yield(k, v.Kind) {
+					return
 				}
-				names.Kinds[name] = k
-			} else if x != k {
-				panic(fmt.Sprintf(
-					"message type %q has conflicting kinds %s and %s",
-					name,
-					x,
-					k,
-				))
 			}
-
-			dst.Add(name)
 		}
 	}
-
-	merge(&names.Produced, &n.Produced)
-	merge(&names.Consumed, &n.Consumed)
 }
 
-// EntityMessageTypes describes the message types used by a Dogma entity.
-type EntityMessageTypes struct {
-	// Produced is a set of message types produced by the entity.
-	Produced sets.Set[message.Type]
-
-	// Consumed is a set of message types consumed by the entity.
-	Consumed sets.Set[message.Type]
-}
-
-// Has returns true if the entity uses messages of the given type.
-func (types EntityMessageTypes) Has(t message.Type) bool {
-	return types.Produced.Has(t) || types.Consumed.Has(t)
-}
-
-// IsEqual returns true if types is equal to t.
-func (types EntityMessageTypes) IsEqual(t EntityMessageTypes) bool {
-	return types.Produced.IsEqual(t.Produced) &&
-		types.Consumed.IsEqual(t.Consumed)
-}
-
-func (types *EntityMessageTypes) union(t EntityMessageTypes) {
-	for mt := range t.Produced.All() {
-		types.Produced.Add(mt)
-	}
-
-	for mt := range t.Consumed.All() {
-		types.Consumed.Add(mt)
+// Consumed returns an iterator that yields the messages that are consumed by
+// the entity.
+func (m EntityMessages[K]) Consumed() iter.Seq2[K, message.Kind] {
+	return func(yield func(K, message.Kind) bool) {
+		for n, m := range m {
+			if m.IsConsumed {
+				if !yield(n, m.Kind) {
+					return
+				}
+			}
+		}
 	}
 }
 
-func (types EntityMessageTypes) asNames() EntityMessageNames {
-	var names EntityMessageNames
+// Update updates the message with the given key by calling fn.
+//
+// If, after calling fn, the [EntityMessage] is neither produced nor consumed,
+// it is removed from the map.
+func (m EntityMessages[K]) Update(k K, fn func(K, *EntityMessage)) {
+	em, ok := m[k]
 
-	for t := range types.Produced.All() {
-		if names.Kinds == nil {
-			names.Kinds = map[message.Name]message.Kind{}
+	fn(k, &em)
+
+	if em.IsConsumed || em.IsProduced {
+		m[k] = em
+	} else if ok {
+		delete(m, k)
+	}
+}
+
+func (m EntityMessages[K]) merge(n EntityMessages[K]) {
+	for k, em := range n {
+		x, ok := m[k]
+
+		if !ok {
+			x.Kind = em.Kind
+		} else if x.Kind != em.Kind {
+			panic(fmt.Sprintf("message %v has conflicting kinds %s and %s", k, x.Kind, em.Kind))
 		}
 
-		n := t.Name()
-		names.Kinds[n] = t.Kind()
-		names.Produced.Add(n)
-	}
-
-	for t := range types.Consumed.All() {
-		if names.Kinds == nil {
-			names.Kinds = map[message.Name]message.Kind{}
+		if em.IsProduced {
+			x.IsProduced = true
 		}
 
-		n := t.Name()
-		names.Kinds[n] = t.Kind()
-		names.Consumed.Add(n)
+		if em.IsConsumed {
+			x.IsConsumed = true
+		}
+
+		m[k] = x
+	}
+}
+
+func asMessageNames(types EntityMessages[message.Type]) EntityMessages[message.Name] {
+	names := make(EntityMessages[message.Name], len(types))
+
+	for t, em := range types {
+		names[t.Name()] = em
 	}
 
 	return names

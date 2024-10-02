@@ -3,11 +3,11 @@ package configkit
 import (
 	"context"
 	"io"
+	"iter"
 	"sort"
 	"strings"
 
 	"github.com/dogmatiq/configkit/message"
-	"github.com/dogmatiq/enginekit/collection/sets"
 	"github.com/dogmatiq/iago/indent"
 	"github.com/dogmatiq/iago/must"
 )
@@ -83,20 +83,18 @@ func (s *stringer) visitHandler(cfg Handler) error {
 
 	names := cfg.MessageNames()
 
-	for _, p := range sortNameKinds(names.Kinds, names.Consumed) {
-		if p.Kind == message.TimeoutKind {
-			break
+	for _, p := range sortNameKinds(names.Consumed()) {
+		if p.Kind != message.TimeoutKind {
+			must.Fprintf(
+				s.w,
+				"    handles %s%s\n",
+				p.Name,
+				p.Kind.Symbol(),
+			)
 		}
-
-		must.Fprintf(
-			s.w,
-			"    handles %s%s\n",
-			p.Name,
-			p.Kind.Symbol(),
-		)
 	}
 
-	for _, p := range sortNameKinds(names.Kinds, names.Produced) {
+	for _, p := range sortNameKinds(names.Produced()) {
 		must.Fprintf(
 			s.w,
 			"    %s %s%s\n",
@@ -148,25 +146,26 @@ type pair struct {
 // sortNameKinds returns a list of name/kind pairs, sorted by name.
 // Timeout messages are always sorted towards the end.
 func sortNameKinds(
-	kinds map[message.Name]message.Kind,
-	names sets.Set[message.Name],
+	names iter.Seq2[message.Name, message.Kind],
 ) []pair {
-	sorted := make([]pair, 0, names.Len())
-
-	for n := range names.All() {
-		sorted = append(sorted, pair{n, kinds[n]})
+	var pairs []pair
+	for n, k := range names {
+		pairs = append(pairs, pair{n, k})
 	}
 
-	sort.Slice(sorted, func(i, j int) bool {
-		pi := sorted[i]
-		pj := sorted[j]
+	sort.Slice(
+		pairs,
+		func(i, j int) bool {
+			pi := pairs[i]
+			pj := pairs[j]
 
-		if pi.Kind == message.TimeoutKind && pj.Kind != message.TimeoutKind {
-			return false
-		}
+			if pi.Kind == message.TimeoutKind && pj.Kind != message.TimeoutKind {
+				return false
+			}
 
-		return pi.Name.String() < pj.Name.String()
-	})
+			return pi.Name.String() < pj.Name.String()
+		},
+	)
 
-	return sorted
+	return pairs
 }

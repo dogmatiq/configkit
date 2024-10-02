@@ -27,13 +27,13 @@ func ToProto(app Application) (*configpb.Application, error) {
 		return nil, errors.New("application type name is empty")
 	}
 
-	for n, k := range app.MessageNames().Kinds {
+	for n, em := range app.MessageNames() {
 		nOut, err := n.MarshalText()
 		if err != nil {
 			return nil, err
 		}
 
-		kOut, err := marshalMessageKind(k)
+		kOut, err := marshalMessageKind(em.Kind)
 		if err != nil {
 			return nil, err
 		}
@@ -124,53 +124,31 @@ func marshalHandler(in Handler) (*configpb.Handler, error) {
 		return nil, err
 	}
 
-	updateUsage := func(
-		n message.Name,
-		fn func(*configpb.MessageUsage),
-	) error {
+	for n, em := range in.MessageNames() {
 		if out.Messages == nil {
 			out.Messages = map[string]*configpb.MessageUsage{}
 		}
 
 		name, err := n.MarshalText()
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		key := string(name)
 
-		if u, ok := out.Messages[key]; ok {
-			fn(u)
-		} else {
-			u := &configpb.MessageUsage{}
-			fn(u)
-			out.Messages[key] = u
+		usage, ok := out.Messages[key]
+		if !ok {
+			usage = &configpb.MessageUsage{}
+			out.Messages[key] = usage
 		}
 
-		return nil
-	}
-
-	for n := range in.MessageNames().Produced.All() {
-		if err := updateUsage(
-			n,
-			func(u *configpb.MessageUsage) {
-				u.IsProduced = true
-			},
-		); err != nil {
-			return nil, err
-		}
-	}
-
-	for n := range in.MessageNames().Consumed.All() {
-		if err := updateUsage(
-			n,
-			func(u *configpb.MessageUsage) {
-				u.IsConsumed = true
-			},
-		); err != nil {
-			return nil, err
+		if em.IsConsumed {
+			usage.IsConsumed = true
 		}
 
+		if em.IsProduced {
+			usage.IsProduced = true
+		}
 	}
 
 	return out, nil
@@ -213,19 +191,24 @@ func unmarshalHandler(
 			return nil, fmt.Errorf("message name %s as no associated message kind", n)
 		}
 
-		if out.names.Kinds == nil {
-			out.names.Kinds = map[message.Name]message.Kind{}
+		if out.names == nil {
+			out.names = EntityMessages[message.Name]{}
 		}
 
-		out.names.Kinds[nOut] = k
+		out.names.Update(
+			nOut,
+			func(n message.Name, em *EntityMessage) {
+				em.Kind = k
 
-		if usage.IsProduced {
-			out.names.Produced.Add(nOut)
-		}
+				if usage.IsProduced {
+					em.IsProduced = true
+				}
 
-		if usage.IsConsumed {
-			out.names.Consumed.Add(nOut)
-		}
+				if usage.IsConsumed {
+					em.IsConsumed = true
+				}
+			},
+		)
 	}
 
 	return out, nil
@@ -335,11 +318,13 @@ func (a *unmarshaledApplication) Identity() Identity {
 	return a.ident
 }
 
-func (a *unmarshaledApplication) MessageNames() EntityMessageNames {
-	var names EntityMessageNames
+func (a *unmarshaledApplication) MessageNames() EntityMessages[message.Name] {
+	names := EntityMessages[message.Name]{}
+
 	for _, h := range a.handlers {
-		names.union(h.MessageNames())
+		names.merge(h.MessageNames())
 	}
+
 	return names
 }
 
@@ -359,7 +344,7 @@ func (a *unmarshaledApplication) Handlers() HandlerSet {
 // by unmarshaling a configuration.
 type unmarshaledHandler struct {
 	ident       Identity
-	names       EntityMessageNames
+	names       EntityMessages[message.Name]
 	typeName    string
 	handlerType HandlerType
 	isDisabled  bool
@@ -371,7 +356,7 @@ func (h *unmarshaledHandler) Identity() Identity {
 }
 
 // MessageNames returns information about the messages used by the entity.
-func (h *unmarshaledHandler) MessageNames() EntityMessageNames {
+func (h *unmarshaledHandler) MessageNames() EntityMessages[message.Name] {
 	return h.names
 }
 

@@ -1,6 +1,8 @@
 package configkit_test
 
 import (
+	"maps"
+
 	. "github.com/dogmatiq/configkit"
 	"github.com/dogmatiq/configkit/message"
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
@@ -9,159 +11,111 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("type EntityMessageNames", func() {
-	Describe("func Has()", func() {
-		It("returns true if the message is either produced or consumed", func() {
-			names := EntityMessageNames{
-				Kinds: map[message.Name]message.Kind{
-					message.NameOf(EventA1):   message.EventKind,
-					message.NameOf(CommandA1): message.CommandKind,
-				},
-				Produced: message.NamesOf(EventA1),
-				Consumed: message.NamesOf(CommandA1),
-			}
-
-			Expect(names.Has(message.NameOf(EventA1))).To(BeTrue())
-			Expect(names.Has(message.NameOf(CommandA1))).To(BeTrue())
-			Expect(names.Has(message.NameOf(TimeoutA1))).To(BeFalse())
-		})
-	})
-
+var _ = Describe("type EntityMessages", func() {
 	Describe("func IsEqual()", func() {
 		It("returns true if the sets are equivalent", func() {
-			a := EntityMessageNames{
-				Kinds: map[message.Name]message.Kind{
-					message.NameOf(EventA1):   message.EventKind,
-					message.NameOf(CommandA1): message.CommandKind,
+			a := EntityMessages[message.Name]{
+				message.NameOf(EventA1): {
+					Kind:       message.EventKind,
+					IsProduced: true,
 				},
-				Produced: message.NamesOf(EventA1),
-				Consumed: message.NamesOf(CommandA1),
+				message.NameOf(CommandA1): {
+					Kind:       message.CommandKind,
+					IsConsumed: true,
+				},
 			}
 
-			b := EntityMessageNames{
-				Kinds: map[message.Name]message.Kind{
-					message.NameOf(EventA1):   message.EventKind,
-					message.NameOf(CommandA1): message.CommandKind,
-				},
-				Produced: message.NamesOf(EventA1),
-				Consumed: message.NamesOf(CommandA1),
-			}
+			b := maps.Clone(a)
 
 			Expect(a.IsEqual(b)).To(BeTrue())
 		})
 
 		DescribeTable(
 			"returns false if the sets are not equivalent",
-			func(b EntityMessageNames) {
-				a := EntityMessageNames{
-					Kinds: map[message.Name]message.Kind{
-						message.NameOf(EventA1):   message.EventKind,
-						message.NameOf(CommandA1): message.CommandKind,
+			func(b EntityMessages[message.Name]) {
+				a := EntityMessages[message.Name]{
+					message.NameOf(EventA1): {
+						Kind:       message.EventKind,
+						IsProduced: true,
 					},
-					Produced: message.NamesOf(EventA1),
-					Consumed: message.NamesOf(CommandA1),
+					message.NameOf(CommandA1): {
+						Kind:       message.CommandKind,
+						IsConsumed: true,
+					},
 				}
 				Expect(a.IsEqual(b)).To(BeFalse())
 			},
 			Entry(
 				"kinds differ",
-				EntityMessageNames{
-					Kinds: map[message.Name]message.Kind{
-						message.NameOf(EventA1):   message.EventKind,
-						message.NameOf(CommandA1): message.TimeoutKind, // diff
+				EntityMessages[message.Name]{
+					message.NameOf(EventA1): {
+						Kind:       message.EventKind,
+						IsProduced: true,
 					},
-					Produced: message.NamesOf(EventA1),
-					Consumed: message.NamesOf(CommandA1),
+					message.NameOf(CommandA1): {
+						Kind:       message.TimeoutKind, // diff
+						IsConsumed: true,
+					},
 				},
 			),
 			Entry(
 				"produced messages differ",
-				EntityMessageNames{
-					Kinds: map[message.Name]message.Kind{
-						message.NameOf(EventA1):   message.EventKind,
-						message.NameOf(CommandA1): message.CommandKind,
+				EntityMessages[message.Name]{
+					message.NameOf(EventA1): {
+						Kind:       message.EventKind,
+						IsProduced: true,
 					},
-					Produced: message.NamesOf(
-						EventA1,
-						CommandA1, // diff
-					),
-					Consumed: message.NamesOf(CommandA1),
+					message.NameOf(CommandA1): {
+						Kind:       message.CommandKind,
+						IsConsumed: true,
+						IsProduced: true, // diff
+					},
 				},
 			),
 			Entry(
 				"consumed messages differ",
-				EntityMessageNames{
-					Kinds: map[message.Name]message.Kind{
-						message.NameOf(EventA1):   message.EventKind,
-						message.NameOf(CommandA1): message.CommandKind,
+				EntityMessages[message.Name]{
+					message.NameOf(EventA1): {
+						Kind:       message.EventKind,
+						IsProduced: true,
+						IsConsumed: true, // diff
 					},
-					Produced: message.NamesOf(EventA1),
-					Consumed: message.NamesOf(
-						EventA1,
-						CommandA1, // diff
-					),
-				},
-			),
-		)
-	})
-})
-
-var _ = Describe("type EntityMessageTypes", func() {
-	Describe("func Has()", func() {
-		It("returns true if the message is either produced or consumed", func() {
-			types := EntityMessageTypes{
-				Produced: message.TypesOf(EventA1),
-				Consumed: message.TypesOf(CommandA1),
-			}
-
-			Expect(types.Has(message.TypeOf(EventA1))).To(BeTrue())
-			Expect(types.Has(message.TypeOf(CommandA1))).To(BeTrue())
-			Expect(types.Has(message.TypeOf(TimeoutA1))).To(BeFalse())
-		})
-	})
-
-	Describe("func IsEqual()", func() {
-		It("returns true if the sets are equivalent", func() {
-			a := EntityMessageTypes{
-				Produced: message.TypesOf(EventA1),
-				Consumed: message.TypesOf(CommandA1),
-			}
-
-			b := EntityMessageTypes{
-				Produced: message.TypesOf(EventA1),
-				Consumed: message.TypesOf(CommandA1),
-			}
-
-			Expect(a.IsEqual(b)).To(BeTrue())
-		})
-
-		DescribeTable(
-			"returns false if the sets are not equivalent",
-			func(b EntityMessageTypes) {
-				a := EntityMessageTypes{
-					Produced: message.TypesOf(EventA1),
-					Consumed: message.TypesOf(CommandA1),
-				}
-				Expect(a.IsEqual(b)).To(BeFalse())
-			},
-			Entry(
-				"produced messages differ",
-				EntityMessageTypes{
-					Produced: message.TypesOf(
-						EventA1,
-						TimeoutA1, // diff
-					),
-					Consumed: message.TypesOf(CommandA1),
+					message.NameOf(CommandA1): {
+						Kind:       message.CommandKind,
+						IsConsumed: true,
+					},
 				},
 			),
 			Entry(
-				"consumed messages differ",
-				EntityMessageTypes{
-					Produced: message.TypesOf(EventA1),
-					Consumed: message.TypesOf(
-						CommandA1,
-						TimeoutA1, // diff
-					),
+				"keys differ",
+				EntityMessages[message.Name]{
+					message.NameOf(EventB1): { // diff
+						Kind:       message.EventKind,
+						IsProduced: true,
+					},
+					message.NameOf(CommandA1): {
+						Kind:       message.CommandKind,
+						IsConsumed: true,
+					},
+				},
+			),
+			Entry(
+				"lengths differ",
+				EntityMessages[message.Name]{
+					message.NameOf(EventA1): {
+						Kind:       message.EventKind,
+						IsProduced: true,
+					},
+					message.NameOf(CommandA1): {
+						Kind:       message.CommandKind,
+						IsConsumed: true,
+					},
+					// diff
+					message.NameOf(TimeoutA1): {
+						Kind:       message.TimeoutKind,
+						IsConsumed: true,
+						IsProduced: true,
+					},
 				},
 			),
 		)
