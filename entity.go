@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"iter"
 	"reflect"
+	"slices"
 
 	"github.com/dogmatiq/configkit/message"
 )
@@ -70,12 +71,14 @@ func (m EntityMessages[K]) IsEqual(n EntityMessages[K]) bool {
 
 // Produced returns an iterator that yields the messages that are produced by
 // the entity.
-func (m EntityMessages[K]) Produced() iter.Seq2[K, message.Kind] {
+func (m EntityMessages[K]) Produced(filter ...message.Kind) iter.Seq2[K, message.Kind] {
 	return func(yield func(K, message.Kind) bool) {
 		for k, v := range m {
 			if v.IsProduced {
-				if !yield(k, v.Kind) {
-					return
+				if len(filter) == 0 || slices.Contains(filter, v.Kind) {
+					if !yield(k, v.Kind) {
+						return
+					}
 				}
 			}
 		}
@@ -84,12 +87,14 @@ func (m EntityMessages[K]) Produced() iter.Seq2[K, message.Kind] {
 
 // Consumed returns an iterator that yields the messages that are consumed by
 // the entity.
-func (m EntityMessages[K]) Consumed() iter.Seq2[K, message.Kind] {
+func (m EntityMessages[K]) Consumed(filter ...message.Kind) iter.Seq2[K, message.Kind] {
 	return func(yield func(K, message.Kind) bool) {
 		for n, m := range m {
 			if m.IsConsumed {
-				if !yield(n, m.Kind) {
-					return
+				if len(filter) == 0 || slices.Contains(filter, m.Kind) {
+					if !yield(n, m.Kind) {
+						return
+					}
 				}
 			}
 		}
