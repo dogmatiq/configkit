@@ -7,7 +7,7 @@ toolchain go1.23.1
 require (
 	github.com/dogmatiq/aureus v0.1.0
 	github.com/dogmatiq/dogma v0.14.3
-	github.com/dogmatiq/enginekit v0.15.0
+	github.com/dogmatiq/enginekit v0.15.1
 	github.com/dogmatiq/iago v0.4.0
 	github.com/dogmatiq/interopspec v0.5.4
 	github.com/emicklei/dot v1.6.2
