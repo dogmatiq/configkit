@@ -10,25 +10,20 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
-## [0.14.0] - 2024-09-27
-
-### Changed
-
-- Bumped minimum Go version to 1.23.
+## [Unreleased]
 
 ### Added
 
 - Added `message.Kind` enumeration to represent the different kinds of message,
-  that is `Command`, `Event`, and `Timeout`. This is a replacement for the (now
-  removed) `message.Role` enumeration, which had the same elements but referred
-  specifically to how the message was used within a specific application, which
-  could differ from one application to another.
+  that is `Command`, `Event`, and `Timeout`. This is a replacement for the
+  `message.Role` enumeration, which was removed in this release. `Role` had the
+  same enumeration values but referred specifically to how the message was used
+  within a specific application, which could differ from one application to
+  another.
 - Added `message.SwitchKind()` and `MapKind()` to perform exhaustive switches
   and maps on a `Kind`.
 - Added `message.Switch()`, `Map()` and `TryMap()` to perform exchaustive
   switches on the kind of a `dogma.Message`.
-- Added a generic `message.Set` type.
-- Added `EntityMessage[Names|Types].Has()` methods.
 
 ### Removed
 
@@ -40,12 +35,22 @@ The format is based on [Keep a Changelog], and this project adheres to
 - **[BC]** Removed `EntityMessage[Names|Types].Foreign()` methods.
 - **[BC]** Removed `EntityMessage[Names|Types].RoleOf()` methods.
 - **[BC]** Removed `EntityMessage[Names|Types].All()` methods.
-- **[BC]** Removed deprecated `fixtures` package.
 
 ### Changed
 
 - **[BC]** Renamed `message.NameFromType()` to `NameFromStaticType()`.
-- **[BC]** Changed `EntityMessage[Names|Types]` to use `message.Set` internally.
+- **[BC]** Changed `EntityMessage[Names|Types]` to use a new generic
+  `EntityMessages[K]` type.
+
+## [0.14.0] - 2024-09-27
+
+### Changed
+
+- Bumped minimum Go version to 1.23.
+
+### Removed
+
+- **[BC]** Removed deprecated `fixtures` package.
 
 ## [0.13.8] - 2024-08-23
 
