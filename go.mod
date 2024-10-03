@@ -6,10 +6,9 @@ toolchain go1.23.1
 
 require (
 	github.com/dogmatiq/aureus v0.1.0
-	github.com/dogmatiq/dogma v0.14.3
-	github.com/dogmatiq/enginekit v0.15.1
+	github.com/dogmatiq/dogma v0.15.0
+	github.com/dogmatiq/enginekit v0.16.0
 	github.com/dogmatiq/iago v0.4.0
-	github.com/dogmatiq/interopspec v0.5.4
 	github.com/emicklei/dot v1.6.2
 	github.com/google/uuid v1.6.0
 	github.com/onsi/ginkgo v1.16.5
@@ -22,7 +21,6 @@ require (
 require (
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/yuin/goldmark v1.7.0 // indirect
 	golang.org/x/mod v0.21.0 // indirect

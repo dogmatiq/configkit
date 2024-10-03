@@ -106,20 +106,37 @@ var _ = Describe("func FromApplication()", func() {
 		Describe("func MessageNames()", func() {
 			It("returns the expected message names", func() {
 				Expect(cfg.MessageNames()).To(Equal(
-					EntityMessageNames{
-						Produced: message.NameRoles{
-							message.NameFor[CommandStub[TypeB]](): message.CommandRole,
-							message.NameFor[EventStub[TypeA]]():   message.EventRole,
-							message.NameFor[EventStub[TypeC]]():   message.EventRole,
-							message.NameFor[TimeoutStub[TypeA]](): message.TimeoutRole,
+					EntityMessages[message.Name]{
+						message.NameOf(CommandA1): {
+							Kind:       message.CommandKind,
+							IsConsumed: true,
 						},
-						Consumed: message.NameRoles{
-							message.NameFor[CommandStub[TypeA]](): message.CommandRole,
-							message.NameFor[EventStub[TypeB]]():   message.EventRole,
-							message.NameFor[CommandStub[TypeB]](): message.CommandRole,
-							message.NameFor[EventStub[TypeD]]():   message.EventRole,
-							message.NameFor[EventStub[TypeA]]():   message.EventRole,
-							message.NameFor[TimeoutStub[TypeA]](): message.TimeoutRole,
+						message.NameOf(CommandB1): {
+							Kind:       message.CommandKind,
+							IsProduced: true,
+							IsConsumed: true,
+						},
+						message.NameOf(EventA1): {
+							Kind:       message.EventKind,
+							IsProduced: true,
+							IsConsumed: true,
+						},
+						message.NameOf(EventB1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
+						message.NameOf(EventC1): {
+							Kind:       message.EventKind,
+							IsProduced: true,
+						},
+						message.NameOf(EventD1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
+						message.NameOf(TimeoutA1): {
+							Kind:       message.TimeoutKind,
+							IsProduced: true,
+							IsConsumed: true,
 						},
 					},
 				))
@@ -129,20 +146,37 @@ var _ = Describe("func FromApplication()", func() {
 		Describe("func MessageTypes()", func() {
 			It("returns the expected message types", func() {
 				Expect(cfg.MessageTypes()).To(Equal(
-					EntityMessageTypes{
-						Produced: message.TypeRoles{
-							message.TypeFor[CommandStub[TypeB]](): message.CommandRole,
-							message.TypeFor[EventStub[TypeA]]():   message.EventRole,
-							message.TypeFor[EventStub[TypeC]]():   message.EventRole,
-							message.TypeFor[TimeoutStub[TypeA]](): message.TimeoutRole,
+					EntityMessages[message.Type]{
+						message.TypeOf(CommandA1): {
+							Kind:       message.CommandKind,
+							IsConsumed: true,
 						},
-						Consumed: message.TypeRoles{
-							message.TypeFor[CommandStub[TypeA]](): message.CommandRole,
-							message.TypeFor[EventStub[TypeB]]():   message.EventRole,
-							message.TypeFor[CommandStub[TypeB]](): message.CommandRole,
-							message.TypeFor[EventStub[TypeD]]():   message.EventRole,
-							message.TypeFor[EventStub[TypeA]]():   message.EventRole,
-							message.TypeFor[TimeoutStub[TypeA]](): message.TimeoutRole,
+						message.TypeOf(CommandB1): {
+							Kind:       message.CommandKind,
+							IsProduced: true,
+							IsConsumed: true,
+						},
+						message.TypeOf(EventA1): {
+							Kind:       message.EventKind,
+							IsProduced: true,
+							IsConsumed: true,
+						},
+						message.TypeOf(EventB1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
+						message.TypeOf(EventC1): {
+							Kind:       message.EventKind,
+							IsProduced: true,
+						},
+						message.TypeOf(EventD1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
+						message.TypeOf(TimeoutA1): {
+							Kind:       message.TimeoutKind,
+							IsProduced: true,
+							IsConsumed: true,
 						},
 					},
 				))
@@ -450,24 +484,6 @@ var _ = Describe("func FromApplication()", func() {
 						dogma.HandlesCommand[CommandStub[TypeB]](),
 						dogma.RecordsEvent[EventStub[TypeA]](), // conflict with <aggregate>
 					)
-				}
-			},
-		),
-		Entry(
-			"when multiple handlers use a single message type in differing roles",
-			`*stubs.ProjectionMessageHandlerStub (<projection>) configures stubs.CommandStub[TypeA] as an event but *stubs.AggregateMessageHandlerStub (<aggregate>) configures it as a command`,
-			func() {
-				projection.ConfigureFunc = func(c dogma.ProjectionConfigurer) {
-					c.Identity("<projection>", projectionKey)
-					c.Routes(
-						dogma.HandlesEvent[CommandStub[TypeA]](), // conflict with <aggregate>
-					)
-				}
-
-				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
-					c.Identity("<app>", appKey)
-					c.RegisterAggregate(aggregate)
-					c.RegisterProjection(projection)
 				}
 			},
 		),

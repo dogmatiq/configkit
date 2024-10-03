@@ -39,7 +39,7 @@ type RichHandler interface {
 // It returns true if both handlers:
 //
 //  1. have the same identity
-//  2. produce and consume the same messages, with the same roles
+//  2. produce and consume the same message types
 //  3. are implemented using the same Go types
 //
 // Point 3. refers to the type used to implement the dogma.Aggregate,
@@ -58,24 +58,28 @@ func IsHandlerEqual(a, b Handler) bool {
 }
 
 func configureRoutes[T dogma.Route](
-	types *EntityMessageTypes,
+	types *EntityMessages[message.Type],
 	routes []T,
 	handlerIdent Identity,
 	handlerType reflect.Type,
 ) {
+	if *types == nil {
+		*types = EntityMessages[message.Type]{}
+	}
+
 	for _, route := range routes {
 		switch route := any(route).(type) {
 		case dogma.HandlesCommandRoute:
-			configureConsumerRoute(types, route.Type, message.CommandRole, "HandlesCommand", handlerIdent, handlerType)
+			configureConsumerRoute(*types, route.Type, "HandlesCommand", handlerIdent, handlerType)
 		case dogma.RecordsEventRoute:
-			configureProducerRoute(types, route.Type, message.EventRole, "RecordsEvent", handlerIdent, handlerType)
+			configureProducerRoute(*types, route.Type, "RecordsEvent", handlerIdent, handlerType)
 		case dogma.HandlesEventRoute:
-			configureConsumerRoute(types, route.Type, message.EventRole, "HandlesEvent", handlerIdent, handlerType)
+			configureConsumerRoute(*types, route.Type, "HandlesEvent", handlerIdent, handlerType)
 		case dogma.ExecutesCommandRoute:
-			configureProducerRoute(types, route.Type, message.CommandRole, "ExecutesCommand", handlerIdent, handlerType)
+			configureProducerRoute(*types, route.Type, "ExecutesCommand", handlerIdent, handlerType)
 		case dogma.SchedulesTimeoutRoute:
-			configureConsumerRoute(types, route.Type, message.TimeoutRole, "SchedulesTimeout", handlerIdent, handlerType)
-			configureProducerRoute(types, route.Type, message.TimeoutRole, "SchedulesTimeout", handlerIdent, handlerType)
+			configureConsumerRoute(*types, route.Type, "SchedulesTimeout", handlerIdent, handlerType)
+			configureProducerRoute(*types, route.Type, "SchedulesTimeout", handlerIdent, handlerType)
 		default:
 			panic(fmt.Sprintf("unsupported route type: %T", route))
 		}
@@ -83,90 +87,52 @@ func configureRoutes[T dogma.Route](
 }
 
 func configureConsumerRoute(
-	types *EntityMessageTypes,
+	types EntityMessages[message.Type],
 	messageType reflect.Type,
-	role message.Role,
 	routeFunc string,
 	handlerIdent Identity,
 	handlerType reflect.Type,
 ) {
-	t := message.TypeFromReflect(messageType)
+	types.Update(
+		message.TypeFromReflect(messageType),
+		func(t message.Type, em *EntityMessage) {
+			if em.IsConsumed {
+				validation.Panicf(
+					"%s is configured with multiple %s() routes for %s, should these refer to different message types?",
+					handlerDisplayName(handlerIdent, handlerType),
+					routeFunc,
+					t,
+				)
+			}
 
-	guardAgainstConflictingRoles(
-		types,
-		t,
-		role,
-		handlerIdent,
-		handlerType,
+			em.Kind = t.Kind()
+			em.IsConsumed = true
+		},
 	)
-
-	if types.Consumed.Has(t) {
-		validation.Panicf(
-			"%s is configured with multiple %s() routes for %s, should these refer to different message types?",
-			handlerDisplayName(handlerIdent, handlerType),
-			routeFunc,
-			t,
-		)
-	}
-
-	if types.Consumed == nil {
-		types.Consumed = message.TypeRoles{}
-	}
-	types.Consumed.Add(t, role)
 }
 
 func configureProducerRoute(
-	types *EntityMessageTypes,
+	types EntityMessages[message.Type],
 	messageType reflect.Type,
-	role message.Role,
 	routeFunc string,
 	handlerIdent Identity,
 	handlerType reflect.Type,
 ) {
-	t := message.TypeFromReflect(messageType)
+	types.Update(
+		message.TypeFromReflect(messageType),
+		func(t message.Type, em *EntityMessage) {
+			if em.IsProduced {
+				validation.Panicf(
+					"%s is configured with multiple %s() routes for %s, should these refer to different message types?",
+					handlerDisplayName(handlerIdent, handlerType),
+					routeFunc,
+					t,
+				)
+			}
 
-	guardAgainstConflictingRoles(
-		types,
-		t,
-		role,
-		handlerIdent,
-		handlerType,
-	)
-
-	if types.Produced.Has(t) {
-		validation.Panicf(
-			"%s is configured with multiple %s() routes for %s, should these refer to different message types?",
-			handlerDisplayName(handlerIdent, handlerType),
-			routeFunc,
-			t,
-		)
-	}
-
-	if types.Produced == nil {
-		types.Produced = message.TypeRoles{}
-	}
-	types.Produced.Add(t, role)
-}
-
-func guardAgainstConflictingRoles(
-	types *EntityMessageTypes,
-	messageType message.Type,
-	proposed message.Role,
-	handlerIdent Identity,
-	handlerType reflect.Type,
-) {
-	existing, ok := types.RoleOf(messageType)
-
-	if !ok || existing == proposed {
-		return
-	}
-
-	validation.Panicf(
-		"%s is configured to use %s as both a %s and a %s",
-		handlerDisplayName(handlerIdent, handlerType),
-		messageType,
-		existing,
-		proposed,
+			em.Kind = t.Kind()
+			em.IsProduced = true
+		},
 	)
 }
 
@@ -184,15 +150,15 @@ func handlerDisplayName(
 }
 
 // mustHaveConsumerRoute panics if the handler is not configured to handle any
-// messages of the given role.
+// messages of the given kind.
 func mustHaveConsumerRoute(
-	types EntityMessageTypes,
-	role message.Role,
+	types *EntityMessages[message.Type],
+	kind message.Kind,
 	handlerIdent Identity,
 	handlerType reflect.Type,
 ) {
-	for _, r := range types.Consumed {
-		if r == role {
+	for _, k := range types.Consumed() {
+		if k == kind {
 			return
 		}
 	}
@@ -200,45 +166,33 @@ func mustHaveConsumerRoute(
 	validation.Panicf(
 		`%s is not configured to handle any %ss, at least one Handles%s() route must be added within Configure()`,
 		handlerDisplayName(handlerIdent, handlerType),
-		role,
-		cases.Title(language.English).String(role.String()),
+		kind,
+		cases.Title(language.English).String(kind.String()),
 	)
 }
 
 // mustHaveProducerRoute panics if the handler is not configured to produce any
-// messages of the given role.
+// messages of the given kind.
 func mustHaveProducerRoute(
-	types EntityMessageTypes,
-	role message.Role,
+	types *EntityMessages[message.Type],
+	kind message.Kind,
 	handlerIdent Identity,
 	handlerType reflect.Type,
 ) {
-	for _, r := range types.Produced {
-		if r == role {
+	for _, k := range types.Produced() {
+		if k == kind {
 			return
 		}
 	}
 
-	verb := ""
-	routeFunc := ""
-
-	switch role {
-	case message.CommandRole:
-		verb = "execute"
-		routeFunc = "ExecutesCommand"
-	case message.EventRole:
-		verb = "record"
-		routeFunc = "RecordsEvent"
-	case message.TimeoutRole:
-		verb = "schedule"
-		routeFunc = "SchedulesTimeout"
-	}
+	verb := message.MapKind(kind, "execute", "record", "schedule")
+	routeFunc := message.MapKind(kind, "ExecutesCommand", "RecordsEvent", "SchedulesTimeout")
 
 	validation.Panicf(
 		`%s is not configured to %s any %ss, at least one %s() route must be added within Configure()`,
 		handlerDisplayName(handlerIdent, handlerType),
 		verb,
-		role,
+		kind,
 		routeFunc,
 	)
 }

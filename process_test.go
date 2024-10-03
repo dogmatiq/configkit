@@ -49,15 +49,23 @@ var _ = Describe("func FromProcess()", func() {
 		Describe("func MessageNames()", func() {
 			It("returns the expected message names", func() {
 				Expect(cfg.MessageNames()).To(Equal(
-					EntityMessageNames{
-						Produced: message.NameRoles{
-							message.NameFor[CommandStub[TypeA]](): message.CommandRole,
-							message.NameFor[TimeoutStub[TypeA]](): message.TimeoutRole,
+					EntityMessages[message.Name]{
+						message.NameOf(CommandA1): {
+							Kind:       message.CommandKind,
+							IsProduced: true,
 						},
-						Consumed: message.NameRoles{
-							message.NameFor[EventStub[TypeA]]():   message.EventRole,
-							message.NameFor[EventStub[TypeB]]():   message.EventRole,
-							message.NameFor[TimeoutStub[TypeA]](): message.TimeoutRole,
+						message.NameOf(EventA1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
+						message.NameOf(EventB1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
+						message.NameOf(TimeoutA1): {
+							Kind:       message.TimeoutKind,
+							IsProduced: true,
+							IsConsumed: true,
 						},
 					},
 				))
@@ -67,15 +75,23 @@ var _ = Describe("func FromProcess()", func() {
 		Describe("func MessageTypes()", func() {
 			It("returns the expected message types", func() {
 				Expect(cfg.MessageTypes()).To(Equal(
-					EntityMessageTypes{
-						Produced: message.TypeRoles{
-							message.TypeFor[CommandStub[TypeA]](): message.CommandRole,
-							message.TypeFor[TimeoutStub[TypeA]](): message.TimeoutRole,
+					EntityMessages[message.Type]{
+						message.TypeOf(CommandA1): {
+							Kind:       message.CommandKind,
+							IsProduced: true,
 						},
-						Consumed: message.TypeRoles{
-							message.TypeFor[EventStub[TypeA]]():   message.EventRole,
-							message.TypeFor[EventStub[TypeB]]():   message.EventRole,
-							message.TypeFor[TimeoutStub[TypeA]](): message.TimeoutRole,
+						message.TypeOf(EventA1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
+						message.TypeOf(EventB1): {
+							Kind:       message.EventKind,
+							IsConsumed: true,
+						},
+						message.TypeOf(TimeoutA1): {
+							Kind:       message.TimeoutKind,
+							IsProduced: true,
+							IsConsumed: true,
 						},
 					},
 				))
@@ -273,17 +289,6 @@ var _ = Describe("func FromProcess()", func() {
 					dogma.ExecutesCommand[CommandStub[TypeA]](),
 					dogma.SchedulesTimeout[TimeoutStub[TypeA]](),
 					dogma.SchedulesTimeout[TimeoutStub[TypeA]](),
-				)
-			},
-		),
-		Entry(
-			"when the handler configures the same message type with different roles",
-			`*stubs.ProcessMessageHandlerStub (<name>) is configured to use stubs.EventStub[TypeA] as both an event and a timeout`,
-			func(c dogma.ProcessConfigurer) {
-				c.Identity("<name>", processKey)
-				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
-					dogma.SchedulesTimeout[EventStub[TypeA]](),
 				)
 			},
 		),

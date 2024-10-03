@@ -15,7 +15,7 @@ type generator struct {
 	id        int
 	root      *dot.Graph
 	app       *dot.Graph
-	roles     map[message.Name]message.Role
+	kinds     map[message.Name]message.Kind
 	producers map[message.Name][]dot.Node
 	consumers map[message.Name][]dot.Node
 }
@@ -35,7 +35,7 @@ func (g *generator) generate(apps []configkit.Application) (_ *dot.Graph, err er
 	g.root.Attr("overlap", "false")
 	g.root.Attr("outputorder", "edgesfirst")
 
-	g.roles = map[message.Name]message.Role{}
+	g.kinds = map[message.Name]message.Kind{}
 	g.producers = map[message.Name][]dot.Node{}
 	g.consumers = map[message.Name][]dot.Node{}
 
@@ -57,6 +57,10 @@ func (g *generator) addApp(cfg configkit.Application) {
 	g.app.Attr("label", "("+cfg.Identity().Name+")")
 	styleApp(g.app, cfg)
 
+	for n, m := range cfg.MessageNames() {
+		g.kinds[n] = m.Kind
+	}
+
 	for _, h := range sortHandlers(cfg.Handlers()) {
 		g.addHandler(h)
 	}
@@ -74,31 +78,31 @@ func (g *generator) addHandler(cfg configkit.Handler) {
 // addEdges adds edges describing the messages that are produced and consumed by
 // a specific handler.
 func (g *generator) addEdges(cfg configkit.Handler, n dot.Node) {
-	names := cfg.MessageNames()
+	for name, em := range cfg.MessageNames() {
+		if em.IsConsumed {
+			g.consumers[name] = append(g.consumers[name], n)
 
-	for mn, r := range names.Consumed {
-		g.roles[mn] = r
-		g.consumers[mn] = append(g.consumers[mn], n)
-
-		for _, p := range g.producers[mn] {
-			g.addEdge(p, n, mn, r)
+			for _, p := range g.producers[name] {
+				g.addEdge(p, n, name)
+			}
 		}
-	}
 
-	for mn, r := range names.Produced {
-		g.roles[mn] = r
-		g.producers[mn] = append(g.producers[mn], n)
+		if em.IsProduced {
+			g.producers[name] = append(g.producers[name], n)
 
-		for _, c := range g.consumers[mn] {
-			g.addEdge(n, c, mn, r)
+			for _, c := range g.consumers[name] {
+				g.addEdge(n, c, name)
+			}
 		}
 	}
 }
 
 // addEdge adds an edge between two handler nodes.
+//
 // If the edge already exists, its label is expanded to include this message type.
-func (g *generator) addEdge(src, dst dot.Node, mn message.Name, r message.Role) {
-	label := mn.String() + r.Marker()
+func (g *generator) addEdge(src, dst dot.Node, n message.Name) {
+	k := g.kinds[n]
+	label := n.String() + k.Symbol()
 
 	index := strings.LastIndex(label, ".")
 	if index != -1 {
@@ -127,59 +131,53 @@ func (g *generator) addEdge(src, dst dot.Node, mn message.Name, r message.Role) 
 		label,
 	)
 
-	styleMessageEdge(e, r)
+	styleMessageEdge(e, k)
 }
 
 // addForeign adds nodes that represent producers and consumers that are
 // external to any of the applications in the graph.
 func (g *generator) addForeign() {
-	for mn, nodes := range g.producers {
-		if _, ok := g.consumers[mn]; ok {
+	for name, nodes := range g.producers {
+		if _, ok := g.consumers[name]; ok {
 			continue
 		}
-
-		r := g.roles[mn]
 
 		for _, n := range nodes {
 			g.addEdge(
 				n,
-				g.foreignConsumer(r),
-				mn,
-				r,
+				g.foreignConsumer(g.kinds[name]),
+				name,
 			)
 		}
 	}
 
-	for mn, nodes := range g.consumers {
-		if _, ok := g.producers[mn]; ok {
+	for name, nodes := range g.consumers {
+		if _, ok := g.producers[name]; ok {
 			continue
 		}
 
-		r := g.roles[mn]
-
 		for _, n := range nodes {
 			g.addEdge(
-				g.foreignProducer(r),
+				g.foreignProducer(g.kinds[name]),
 				n,
-				mn,
-				r,
+				name,
 			)
 		}
 	}
 }
 
 // foreignConsumer adds and returns a node representing an external consumer.
-func (g *generator) foreignConsumer(r message.Role) dot.Node {
-	n := g.root.Node("foreign\n" + r.String() + "\nconsumer")
-	styleForeignNode(n, r)
+func (g *generator) foreignConsumer(k message.Kind) dot.Node {
+	n := g.root.Node("foreign\n" + k.String() + "\nconsumer")
+	styleForeignNode(n, k)
 
 	return n
 }
 
 // foreignProducer adds and returns a node representing an external producer.
-func (g *generator) foreignProducer(r message.Role) dot.Node {
-	n := g.root.Node("foreign\n" + r.String() + "\nproducer")
-	styleForeignNode(n, r)
+func (g *generator) foreignProducer(k message.Kind) dot.Node {
+	n := g.root.Node("foreign\n" + k.String() + "\nproducer")
+	styleForeignNode(n, k)
 
 	return n
 }
@@ -198,7 +196,7 @@ func sortHandlers(handlers configkit.HandlerSet) []configkit.Handler {
 		func(i, j int) bool {
 			in := sorted[i].MessageNames()
 			jn := sorted[j].MessageNames()
-			return len(in.All()) < len(jn.All())
+			return len(in) < len(jn)
 		},
 	)
 

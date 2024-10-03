@@ -3,6 +3,7 @@ package configkit
 import (
 	"bytes"
 	"fmt"
+	"slices"
 
 	"github.com/dogmatiq/configkit/internal/validation"
 	"github.com/dogmatiq/configkit/message"
@@ -96,47 +97,47 @@ func (t HandlerType) MustNotBe(types ...HandlerType) {
 	}
 }
 
-// IsConsumerOf returns true if handlers of type t can consume messages with the
-// given role.
-func (t HandlerType) IsConsumerOf(r message.Role) bool {
-	return r.Is(t.Consumes()...)
+// IsConsumerOf returns true if handlers of type t can consume messages of the
+// given kind.
+func (t HandlerType) IsConsumerOf(k message.Kind) bool {
+	return slices.Contains(t.Consumes(), k)
 }
 
-// IsProducerOf returns true if handlers of type t can produce messages with the
-// given role.
-func (t HandlerType) IsProducerOf(r message.Role) bool {
-	return r.Is(t.Produces()...)
+// IsProducerOf returns true if handlers of type t can produce messages of the
+// given kind.
+func (t HandlerType) IsProducerOf(k message.Kind) bool {
+	return slices.Contains(t.Produces(), k)
 }
 
-// Consumes returns the roles of messages that can be consumed by handlers of
-// this type.
-func (t HandlerType) Consumes() []message.Role {
+// Consumes returns the kind of messages that can be consumed by handlers of
+// type t.
+func (t HandlerType) Consumes() []message.Kind {
 	t.MustValidate()
 
 	switch t {
 	case AggregateHandlerType:
-		return []message.Role{message.CommandRole}
+		return []message.Kind{message.CommandKind}
 	case ProcessHandlerType:
-		return []message.Role{message.EventRole, message.TimeoutRole}
+		return []message.Kind{message.EventKind, message.TimeoutKind}
 	case IntegrationHandlerType:
-		return []message.Role{message.CommandRole}
+		return []message.Kind{message.CommandKind}
 	default: // ProjectionHandlerType
-		return []message.Role{message.EventRole}
+		return []message.Kind{message.EventKind}
 	}
 }
 
-// Produces returns the roles of messages that can be produced by handlers of
-// this type.
-func (t HandlerType) Produces() []message.Role {
+// Produces returns the kinds of messages that can be produced by handlers of
+// type t.
+func (t HandlerType) Produces() []message.Kind {
 	t.MustValidate()
 
 	switch t {
 	case AggregateHandlerType:
-		return []message.Role{message.EventRole}
+		return []message.Kind{message.EventKind}
 	case ProcessHandlerType:
-		return []message.Role{message.CommandRole, message.TimeoutRole}
+		return []message.Kind{message.CommandKind, message.TimeoutKind}
 	case IntegrationHandlerType:
-		return []message.Role{message.EventRole}
+		return []message.Kind{message.EventKind}
 	default: // ProjectionHandlerType
 		return nil
 	}
@@ -219,32 +220,22 @@ func (t *HandlerType) UnmarshalBinary(data []byte) error {
 	return nil
 }
 
-// ConsumersOf returns the handler types that can consume messages with the
-// given role.
-func ConsumersOf(r message.Role) []HandlerType {
-	r.MustValidate()
-
-	switch r {
-	case message.CommandRole:
-		return []HandlerType{AggregateHandlerType, IntegrationHandlerType}
-	case message.EventRole:
-		return []HandlerType{ProcessHandlerType, ProjectionHandlerType}
-	default: // message.TimeoutRole
-		return []HandlerType{ProcessHandlerType}
-	}
+// ConsumersOf returns the handler types that can consume messages of kind k.
+func ConsumersOf(k message.Kind) []HandlerType {
+	return message.MapKind(
+		k,
+		[]HandlerType{AggregateHandlerType, IntegrationHandlerType},
+		[]HandlerType{ProcessHandlerType, ProjectionHandlerType},
+		[]HandlerType{ProcessHandlerType},
+	)
 }
 
-// ProducersOf returns the handler types that can produces messages with the
-// given role.
-func ProducersOf(r message.Role) []HandlerType {
-	r.MustValidate()
-
-	switch r {
-	case message.CommandRole:
-		return []HandlerType{ProcessHandlerType}
-	case message.EventRole:
-		return []HandlerType{AggregateHandlerType, IntegrationHandlerType}
-	default: // message.TimeoutRole
-		return []HandlerType{ProcessHandlerType}
-	}
+// ProducersOf returns the handler types that can produces messages of kind k.
+func ProducersOf(k message.Kind) []HandlerType {
+	return message.MapKind(
+		k,
+		[]HandlerType{ProcessHandlerType},
+		[]HandlerType{AggregateHandlerType, IntegrationHandlerType},
+		[]HandlerType{ProcessHandlerType},
+	)
 }

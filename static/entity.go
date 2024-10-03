@@ -4,13 +4,14 @@ import (
 	"context"
 
 	"github.com/dogmatiq/configkit"
+	"github.com/dogmatiq/configkit/message"
 )
 
 // application is an implementation of [configkit.Application].
 type application struct {
 	IdentityValue     configkit.Identity
 	TypeNameValue     string
-	MessageNamesValue configkit.EntityMessageNames
+	MessageNamesValue configkit.EntityMessages[message.Name]
 	HandlersValue     configkit.HandlerSet
 }
 
@@ -25,7 +26,7 @@ func (a *application) TypeName() string {
 }
 
 // MessageNames returns information about the messages used by the entity.
-func (a *application) MessageNames() configkit.EntityMessageNames {
+func (a *application) MessageNames() configkit.EntityMessages[message.Name] {
 	return a.MessageNamesValue
 }
 
@@ -43,7 +44,7 @@ func (a *application) AcceptVisitor(ctx context.Context, v configkit.Visitor) er
 type handler struct {
 	IdentityValue     configkit.Identity
 	TypeNameValue     string
-	MessageNamesValue configkit.EntityMessageNames
+	MessageNamesValue configkit.EntityMessages[message.Name]
 	HandlerTypeValue  configkit.HandlerType
 	IsDisabledValue   bool
 }
@@ -59,7 +60,7 @@ func (h *handler) TypeName() string {
 }
 
 // MessageNames returns information about the messages used by the entity.
-func (h *handler) MessageNames() configkit.EntityMessageNames {
+func (h *handler) MessageNames() configkit.EntityMessages[message.Name] {
 	return h.MessageNamesValue
 }
 

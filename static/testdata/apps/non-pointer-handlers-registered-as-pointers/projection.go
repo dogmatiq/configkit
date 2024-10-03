@@ -16,7 +16,7 @@ func (ProjectionHandler) Configure(c dogma.ProjectionConfigurer) {
 	c.Identity("<projection>", "3dfcd7cd-1f63-47a1-9be7-3242bd252423")
 
 	c.Routes(
-		dogma.HandlesEvent[stubs.CommandStub[stubs.TypeA]](),
+		dogma.HandlesEvent[stubs.EventStub[stubs.TypeA]](),
 	)
 }
 

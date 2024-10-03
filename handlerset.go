@@ -77,7 +77,7 @@ func (s HandlerSet) ByType(t HandlerType) HandlerSet {
 // given name.
 func (s HandlerSet) ConsumersOf(n message.Name) HandlerSet {
 	return s.Filter(func(h Handler) bool {
-		return h.MessageNames().Consumed.Has(n)
+		return h.MessageNames()[n].IsConsumed
 	})
 }
 
@@ -85,27 +85,16 @@ func (s HandlerSet) ConsumersOf(n message.Name) HandlerSet {
 // given name.
 func (s HandlerSet) ProducersOf(n message.Name) HandlerSet {
 	return s.Filter(func(h Handler) bool {
-		return h.MessageNames().Produced.Has(n)
+		return h.MessageNames()[n].IsProduced
 	})
 }
 
 // MessageNames returns information about the messages used all handlers in s.
-func (s HandlerSet) MessageNames() EntityMessageNames {
-	names := EntityMessageNames{
-		Produced: message.NameRoles{},
-		Consumed: message.NameRoles{},
-	}
+func (s HandlerSet) MessageNames() EntityMessages[message.Name] {
+	names := EntityMessages[message.Name]{}
 
 	for _, h := range s {
-		m := h.MessageNames()
-
-		for n, r := range m.Consumed {
-			names.Consumed[n] = r
-		}
-
-		for n, r := range m.Produced {
-			names.Produced[n] = r
-		}
+		names.merge(h.MessageNames())
 	}
 
 	return names
@@ -380,7 +369,7 @@ func (s RichHandlerSet) ConsumersOf(t message.Type) RichHandlerSet {
 	subset := RichHandlerSet{}
 
 	for i, h := range s {
-		if h.MessageTypes().Consumed.Has(t) {
+		if h.MessageTypes()[t].IsConsumed {
 			subset[i] = h
 		}
 	}
@@ -394,7 +383,7 @@ func (s RichHandlerSet) ProducersOf(t message.Type) RichHandlerSet {
 	subset := RichHandlerSet{}
 
 	for i, h := range s {
-		if h.MessageTypes().Produced.Has(t) {
+		if h.MessageTypes()[t].IsProduced {
 			subset[i] = h
 		}
 	}
@@ -403,22 +392,11 @@ func (s RichHandlerSet) ProducersOf(t message.Type) RichHandlerSet {
 }
 
 // MessageTypes returns information about the messages used all handlers in s.
-func (s RichHandlerSet) MessageTypes() EntityMessageTypes {
-	types := EntityMessageTypes{
-		Produced: message.TypeRoles{},
-		Consumed: message.TypeRoles{},
-	}
+func (s RichHandlerSet) MessageTypes() EntityMessages[message.Type] {
+	types := EntityMessages[message.Type]{}
 
 	for _, h := range s {
-		m := h.MessageTypes()
-
-		for n, t := range m.Consumed {
-			types.Consumed[n] = t
-		}
-
-		for n, t := range m.Produced {
-			types.Produced[n] = t
-		}
+		types.merge(h.MessageTypes())
 	}
 
 	return types

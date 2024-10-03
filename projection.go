@@ -47,7 +47,7 @@ func fromProjectionUnvalidated(h dogma.ProjectionMessageHandler) *richProjection
 // richProjection is an implementation of RichProjection.
 type richProjection struct {
 	ident          Identity
-	types          EntityMessageTypes
+	types          EntityMessages[message.Type]
 	deliveryPolicy dogma.ProjectionDeliveryPolicy
 	isDisabled     bool
 	handler        dogma.ProjectionMessageHandler
@@ -57,11 +57,11 @@ func (h *richProjection) Identity() Identity {
 	return h.ident
 }
 
-func (h *richProjection) MessageNames() EntityMessageNames {
-	return h.types.asNames()
+func (h *richProjection) MessageNames() EntityMessages[message.Name] {
+	return asMessageNames(h.types)
 }
 
-func (h *richProjection) MessageTypes() EntityMessageTypes {
+func (h *richProjection) MessageTypes() EntityMessages[message.Type] {
 	return h.types
 }
 
@@ -102,14 +102,13 @@ func (h *richProjection) DeliveryPolicy() dogma.ProjectionDeliveryPolicy {
 
 func (h *richProjection) isConfigured() bool {
 	return !h.ident.IsZero() ||
-		h.types.Consumed.Len() != 0 ||
-		h.types.Produced.Len() != 0 ||
+		len(h.types) != 0 ||
 		h.deliveryPolicy != nil
 }
 
 func (h *richProjection) mustValidate() {
 	mustHaveValidIdentity(h.Identity(), h.ReflectType())
-	mustHaveConsumerRoute(h.types, message.EventRole, h.Identity(), h.ReflectType())
+	mustHaveConsumerRoute(&h.types, message.EventKind, h.Identity(), h.ReflectType())
 }
 
 // projectionConfigurer is the default implementation of

@@ -43,7 +43,7 @@ func fromIntegrationUnvalidated(h dogma.IntegrationMessageHandler) *richIntegrat
 // richIntegration the default implementation of [RichIntegration].
 type richIntegration struct {
 	ident      Identity
-	types      EntityMessageTypes
+	types      EntityMessages[message.Type]
 	isDisabled bool
 	handler    dogma.IntegrationMessageHandler
 }
@@ -52,11 +52,11 @@ func (h *richIntegration) Identity() Identity {
 	return h.ident
 }
 
-func (h *richIntegration) MessageNames() EntityMessageNames {
-	return h.types.asNames()
+func (h *richIntegration) MessageNames() EntityMessages[message.Name] {
+	return asMessageNames(h.types)
 }
 
-func (h *richIntegration) MessageTypes() EntityMessageTypes {
+func (h *richIntegration) MessageTypes() EntityMessages[message.Type] {
 	return h.types
 }
 
@@ -89,14 +89,12 @@ func (h *richIntegration) Handler() dogma.IntegrationMessageHandler {
 }
 
 func (h *richIntegration) isConfigured() bool {
-	return !h.ident.IsZero() ||
-		h.types.Consumed.Len() != 0 ||
-		h.types.Produced.Len() != 0
+	return !h.ident.IsZero() || len(h.types) != 0
 }
 
 func (h *richIntegration) mustValidate() {
 	mustHaveValidIdentity(h.Identity(), h.ReflectType())
-	mustHaveConsumerRoute(h.types, message.CommandRole, h.Identity(), h.ReflectType())
+	mustHaveConsumerRoute(&h.types, message.CommandKind, h.Identity(), h.ReflectType())
 }
 
 // integrationConfigurer is the default implementation of

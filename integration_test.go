@@ -48,13 +48,18 @@ var _ = Describe("func FromIntegration()", func() {
 		Describe("func MessageNames()", func() {
 			It("returns the expected message names", func() {
 				Expect(cfg.MessageNames()).To(Equal(
-					EntityMessageNames{
-						Produced: message.NameRoles{
-							message.NameFor[EventStub[TypeA]](): message.EventRole,
+					EntityMessages[message.Name]{
+						message.NameOf(EventA1): {
+							Kind:       message.EventKind,
+							IsProduced: true,
 						},
-						Consumed: message.NameRoles{
-							message.NameFor[CommandStub[TypeA]](): message.CommandRole,
-							message.NameFor[CommandStub[TypeB]](): message.CommandRole,
+						message.NameOf(CommandA1): {
+							Kind:       message.CommandKind,
+							IsConsumed: true,
+						},
+						message.NameOf(CommandB1): {
+							Kind:       message.CommandKind,
+							IsConsumed: true,
 						},
 					},
 				))
@@ -64,13 +69,18 @@ var _ = Describe("func FromIntegration()", func() {
 		Describe("func MessageTypes()", func() {
 			It("returns the expected message types", func() {
 				Expect(cfg.MessageTypes()).To(Equal(
-					EntityMessageTypes{
-						Produced: message.TypeRoles{
-							message.TypeFor[EventStub[TypeA]](): message.EventRole,
+					EntityMessages[message.Type]{
+						message.TypeOf(EventA1): {
+							Kind:       message.EventKind,
+							IsProduced: true,
 						},
-						Consumed: message.TypeRoles{
-							message.TypeFor[CommandStub[TypeA]](): message.CommandRole,
-							message.TypeFor[CommandStub[TypeB]](): message.CommandRole,
+						message.TypeOf(CommandA1): {
+							Kind:       message.CommandKind,
+							IsConsumed: true,
+						},
+						message.TypeOf(CommandB1): {
+							Kind:       message.CommandKind,
+							IsConsumed: true,
 						},
 					},
 				))
@@ -260,17 +270,6 @@ var _ = Describe("func FromIntegration()", func() {
 					dogma.HandlesCommand[CommandStub[TypeA]](),
 					dogma.RecordsEvent[EventStub[TypeA]](),
 					dogma.RecordsEvent[EventStub[TypeA]](),
-				)
-			},
-		),
-		Entry(
-			"when the handler configures the same message type with different roles",
-			`*stubs.IntegrationMessageHandlerStub (<name>) is configured to use stubs.CommandStub[TypeA] as both a command and an event`,
-			func(c dogma.IntegrationConfigurer) {
-				c.Identity("<name>", integrationKey)
-				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.RecordsEvent[CommandStub[TypeA]](),
 				)
 			},
 		),

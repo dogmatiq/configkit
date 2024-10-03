@@ -6,32 +6,50 @@ import (
 	"fmt"
 
 	"github.com/dogmatiq/configkit/message"
-	"github.com/dogmatiq/interopspec/configspec"
+	"github.com/dogmatiq/enginekit/protobuf/configpb"
+	"github.com/dogmatiq/enginekit/protobuf/identitypb"
+	"github.com/dogmatiq/enginekit/protobuf/uuidpb"
 )
 
 // ToProto converts an application configuration to its protocol buffers
 // representation.
-func ToProto(in Application) (*configspec.Application, error) {
-	out := &configspec.Application{}
+func ToProto(app Application) (*configpb.Application, error) {
+	out := &configpb.Application{}
 
 	var err error
-	out.Identity, err = marshalIdentity(in.Identity())
+	out.Identity, err = marshalIdentity(app.Identity())
 	if err != nil {
 		return nil, err
 	}
 
-	out.GoType = in.TypeName()
+	out.GoType = app.TypeName()
 	if out.GoType == "" {
 		return nil, errors.New("application type name is empty")
 	}
 
-	for _, hIn := range in.Handlers() {
-		hOut, err := marshalHandler(hIn)
+	for n, em := range app.MessageNames() {
+		nOut, err := n.MarshalText()
 		if err != nil {
 			return nil, err
 		}
 
-		out.Handlers = append(out.Handlers, hOut)
+		kOut, err := marshalMessageKind(em.Kind)
+		if err != nil {
+			return nil, err
+		}
+
+		if out.Messages == nil {
+			out.Messages = map[string]configpb.MessageKind{}
+		}
+		out.Messages[string(nOut)] = kOut
+	}
+
+	for _, h := range app.Handlers() {
+		handlerOut, err := marshalHandler(h)
+		if err != nil {
+			return nil, err
+		}
+		out.Handlers = append(out.Handlers, handlerOut)
 	}
 
 	return out, nil
@@ -39,22 +57,38 @@ func ToProto(in Application) (*configspec.Application, error) {
 
 // FromProto converts an application configuration from its protocol buffers
 // representation.
-func FromProto(in *configspec.Application) (Application, error) {
+func FromProto(app *configpb.Application) (Application, error) {
 	out := &unmarshaledApplication{}
 
 	var err error
-	out.ident, err = unmarshalIdentity(in.GetIdentity())
+	out.ident, err = unmarshalIdentity(app.GetIdentity())
 	if err != nil {
 		return nil, err
 	}
 
-	out.typeName = in.GetGoType()
+	out.typeName = app.GetGoType()
 	if out.typeName == "" {
 		return nil, errors.New("application type name is empty")
 	}
 
-	for _, hIn := range in.GetHandlers() {
-		hOut, err := unmarshalHandler(hIn)
+	kinds := map[message.Name]message.Kind{}
+
+	for n, k := range app.GetMessages() {
+		var nOut message.Name
+		if err := nOut.UnmarshalText([]byte(n)); err != nil {
+			return nil, err
+		}
+
+		kOut, err := unmarshalMessageKind(k)
+		if err != nil {
+			return nil, err
+		}
+
+		kinds[nOut] = kOut
+	}
+
+	for _, h := range app.GetHandlers() {
+		handlerOut, err := unmarshalHandler(h, kinds)
 		if err != nil {
 			return nil, err
 		}
@@ -62,29 +96,15 @@ func FromProto(in *configspec.Application) (Application, error) {
 		if out.handlers == nil {
 			out.handlers = HandlerSet{}
 		}
-		out.handlers.Add(hOut)
-
-		for n, r := range hOut.MessageNames().Produced {
-			if out.names.Produced == nil {
-				out.names.Produced = message.NameRoles{}
-			}
-			out.names.Produced[n] = r
-		}
-
-		for n, r := range hOut.MessageNames().Consumed {
-			if out.names.Consumed == nil {
-				out.names.Consumed = message.NameRoles{}
-			}
-			out.names.Consumed[n] = r
-		}
+		out.handlers.Add(handlerOut)
 	}
 
 	return out, nil
 }
 
 // marshalHandler marshals a handler config to its protobuf representation.
-func marshalHandler(in Handler) (*configspec.Handler, error) {
-	out := &configspec.Handler{
+func marshalHandler(in Handler) (*configpb.Handler, error) {
+	out := &configpb.Handler{
 		IsDisabled: in.IsDisabled(),
 	}
 
@@ -104,15 +124,31 @@ func marshalHandler(in Handler) (*configspec.Handler, error) {
 		return nil, err
 	}
 
-	names := in.MessageNames()
-	out.ProducedMessages, err = marshalNameRoles(names.Produced)
-	if err != nil {
-		return nil, err
-	}
+	for n, em := range in.MessageNames() {
+		if out.Messages == nil {
+			out.Messages = map[string]*configpb.MessageUsage{}
+		}
 
-	out.ConsumedMessages, err = marshalNameRoles(names.Consumed)
-	if err != nil {
-		return nil, err
+		name, err := n.MarshalText()
+		if err != nil {
+			return nil, err
+		}
+
+		key := string(name)
+
+		usage, ok := out.Messages[key]
+		if !ok {
+			usage = &configpb.MessageUsage{}
+			out.Messages[key] = usage
+		}
+
+		if em.IsConsumed {
+			usage.IsConsumed = true
+		}
+
+		if em.IsProduced {
+			usage.IsProduced = true
+		}
 	}
 
 	return out, nil
@@ -120,7 +156,10 @@ func marshalHandler(in Handler) (*configspec.Handler, error) {
 
 // unmarshalHandler unmarshals a handler configuration from its protocol buffers
 // representation.
-func unmarshalHandler(in *configspec.Handler) (Handler, error) {
+func unmarshalHandler(
+	in *configpb.Handler,
+	kinds map[message.Name]message.Kind,
+) (Handler, error) {
 	out := &unmarshaledHandler{
 		isDisabled: in.GetIsDisabled(),
 	}
@@ -141,59 +180,35 @@ func unmarshalHandler(in *configspec.Handler) (Handler, error) {
 		return nil, err
 	}
 
-	out.names.Produced, err = unmarshalNameRoles(in.GetProducedMessages())
-	if err != nil {
-		return nil, err
-	}
-
-	out.names.Consumed, err = unmarshalNameRoles(in.GetConsumedMessages())
-	if err != nil {
-		return nil, err
-	}
-
-	return out, nil
-}
-
-// marshalNameRoles marshals a message.NameRoles collection into
-// its protocol buffers representation.
-func marshalNameRoles(in message.NameRoles) (map[string]configspec.MessageRole, error) {
-	out := map[string]configspec.MessageRole{}
-
-	for nIn, rIn := range in {
-		nOut, err := nIn.MarshalText()
-		if err != nil {
-			return nil, err
-		}
-
-		rOut, err := marshalMessageRole(rIn)
-		if err != nil {
-			return nil, err
-		}
-
-		out[string(nOut)] = rOut
-	}
-
-	return out, nil
-}
-
-// unmarshalNameRoles unmarshals a message.NameRoles collection from
-// its protocol buffers representation.
-func unmarshalNameRoles(in map[string]configspec.MessageRole) (message.NameRoles, error) {
-	out := message.NameRoles{}
-
-	for nIn, rIn := range in {
+	for n, usage := range in.GetMessages() {
 		var nOut message.Name
-
-		if err := nOut.UnmarshalText([]byte(nIn)); err != nil {
+		if err := nOut.UnmarshalText([]byte(n)); err != nil {
 			return nil, err
 		}
 
-		rOut, err := unmarshalMessageRole(rIn)
-		if err != nil {
-			return nil, err
+		k, ok := kinds[nOut]
+		if !ok {
+			return nil, fmt.Errorf("message name %s as no associated message kind", n)
 		}
 
-		out[nOut] = rOut
+		if out.names == nil {
+			out.names = EntityMessages[message.Name]{}
+		}
+
+		out.names.Update(
+			nOut,
+			func(n message.Name, em *EntityMessage) {
+				em.Kind = k
+
+				if usage.IsProduced {
+					em.IsProduced = true
+				}
+
+				if usage.IsConsumed {
+					em.IsConsumed = true
+				}
+			},
+		)
 	}
 
 	return out, nil
@@ -201,91 +216,93 @@ func unmarshalNameRoles(in map[string]configspec.MessageRole) (message.NameRoles
 
 // marshalIdentity marshals a Identity to its protocol buffers
 // representation.
-func marshalIdentity(in Identity) (*configspec.Identity, error) {
+func marshalIdentity(in Identity) (*identitypb.Identity, error) {
 	if err := in.Validate(); err != nil {
 		return nil, err
 	}
 
-	return &configspec.Identity{
+	return &identitypb.Identity{
 		Name: in.Name,
-		Key:  in.Key,
+		Key:  uuidpb.MustParse(in.Key),
 	}, nil
 }
 
 // unmarshalIdentity unmarshals a Identity from its protocol buffers
 // representation.
-func unmarshalIdentity(in *configspec.Identity) (Identity, error) {
-	return NewIdentity(
-		in.GetName(),
-		in.GetKey(),
-	)
+func unmarshalIdentity(in *identitypb.Identity) (Identity, error) {
+	if err := ValidateIdentityName(in.GetName()); err != nil {
+		return Identity{}, err
+	}
+
+	return Identity{
+		Name: in.GetName(),
+		Key:  in.GetKey().AsString(),
+	}, nil
 }
 
 // marshalHandlerType marshals a HandlerType to its protocol buffers
 // representation.
-func marshalHandlerType(t HandlerType) (configspec.HandlerType, error) {
+func marshalHandlerType(t HandlerType) (configpb.HandlerType, error) {
 	if err := t.Validate(); err != nil {
-		return configspec.HandlerType_UNKNOWN_HANDLER_TYPE, err
+		return configpb.HandlerType_UNKNOWN_HANDLER_TYPE, err
 	}
 
 	switch t {
 	case AggregateHandlerType:
-		return configspec.HandlerType_AGGREGATE, nil
+		return configpb.HandlerType_AGGREGATE, nil
 	case ProcessHandlerType:
-		return configspec.HandlerType_PROCESS, nil
+		return configpb.HandlerType_PROCESS, nil
 	case IntegrationHandlerType:
-		return configspec.HandlerType_INTEGRATION, nil
+		return configpb.HandlerType_INTEGRATION, nil
 	default: // ProjectionHandlerType
-		return configspec.HandlerType_PROJECTION, nil
+		return configpb.HandlerType_PROJECTION, nil
 	}
 }
 
 // unmarshalHandlerType unmarshals a HandlerType from its protocol
 // buffers representation.
-func unmarshalHandlerType(t configspec.HandlerType) (HandlerType, error) {
+func unmarshalHandlerType(t configpb.HandlerType) (HandlerType, error) {
 	switch t {
-	case configspec.HandlerType_AGGREGATE:
+	case configpb.HandlerType_AGGREGATE:
 		return AggregateHandlerType, nil
-	case configspec.HandlerType_PROCESS:
+	case configpb.HandlerType_PROCESS:
 		return ProcessHandlerType, nil
-	case configspec.HandlerType_INTEGRATION:
+	case configpb.HandlerType_INTEGRATION:
 		return IntegrationHandlerType, nil
-	case configspec.HandlerType_PROJECTION:
+	case configpb.HandlerType_PROJECTION:
 		return ProjectionHandlerType, nil
 	default:
 		return "", fmt.Errorf("unknown handler type: %#v", t)
 	}
 }
 
-// marshalMessageRole marshals a message.Role to its protocol buffers
+// marshalMessageKind marshals a [message.Kind] to its protocol buffers
 // representation.
-func marshalMessageRole(r message.Role) (configspec.MessageRole, error) {
-	if err := r.Validate(); err != nil {
-		return configspec.MessageRole_UNKNOWN_MESSAGE_ROLE, err
-	}
-
-	switch r {
-	case message.CommandRole:
-		return configspec.MessageRole_COMMAND, nil
-	case message.EventRole:
-		return configspec.MessageRole_EVENT, nil
-	default: // message.TimeoutRole
-		return configspec.MessageRole_TIMEOUT, nil
+func marshalMessageKind(k message.Kind) (configpb.MessageKind, error) {
+	switch k {
+	case message.CommandKind:
+		return configpb.MessageKind_COMMAND, nil
+	case message.EventKind:
+		return configpb.MessageKind_EVENT, nil
+	case message.TimeoutKind:
+		return configpb.MessageKind_TIMEOUT, nil
+	default:
+		return configpb.MessageKind_UNKNOWN_MESSAGE_KIND, fmt.Errorf("unknown message kind: %#v", k)
 	}
 }
 
-// unmarshalMessageRole unmarshals a message.Role from its protocol buffers
+// unmarshalMessageKind unmarshals a [message.Kind] from its protocol buffers
 // representation.
-func unmarshalMessageRole(r configspec.MessageRole) (message.Role, error) {
+func unmarshalMessageKind(r configpb.MessageKind) (message.Kind, error) {
 	switch r {
-	case configspec.MessageRole_COMMAND:
-		return message.CommandRole, nil
-	case configspec.MessageRole_EVENT:
-		return message.EventRole, nil
-	case configspec.MessageRole_TIMEOUT:
-		return message.TimeoutRole, nil
+	case configpb.MessageKind_COMMAND:
+		return message.CommandKind, nil
+	case configpb.MessageKind_EVENT:
+		return message.EventKind, nil
+	case configpb.MessageKind_TIMEOUT:
+		return message.TimeoutKind, nil
 	default:
-		return "", fmt.Errorf("unknown message role: %#v", r)
+		return 0, fmt.Errorf("unknown message kind: %#v", r)
 	}
 }
 
@@ -293,7 +310,6 @@ func unmarshalMessageRole(r configspec.MessageRole) (message.Role, error) {
 // produced by unmarshaling a configuration.
 type unmarshaledApplication struct {
 	ident    Identity
-	names    EntityMessageNames
 	typeName string
 	handlers HandlerSet
 }
@@ -302,8 +318,14 @@ func (a *unmarshaledApplication) Identity() Identity {
 	return a.ident
 }
 
-func (a *unmarshaledApplication) MessageNames() EntityMessageNames {
-	return a.names
+func (a *unmarshaledApplication) MessageNames() EntityMessages[message.Name] {
+	names := EntityMessages[message.Name]{}
+
+	for _, h := range a.handlers {
+		names.merge(h.MessageNames())
+	}
+
+	return names
 }
 
 func (a *unmarshaledApplication) TypeName() string {
@@ -322,7 +344,7 @@ func (a *unmarshaledApplication) Handlers() HandlerSet {
 // by unmarshaling a configuration.
 type unmarshaledHandler struct {
 	ident       Identity
-	names       EntityMessageNames
+	names       EntityMessages[message.Name]
 	typeName    string
 	handlerType HandlerType
 	isDisabled  bool
@@ -334,7 +356,7 @@ func (h *unmarshaledHandler) Identity() Identity {
 }
 
 // MessageNames returns information about the messages used by the entity.
-func (h *unmarshaledHandler) MessageNames() EntityMessageNames {
+func (h *unmarshaledHandler) MessageNames() EntityMessages[message.Name] {
 	return h.names
 }
 

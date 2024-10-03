@@ -4,15 +4,15 @@ import (
 	"context"
 
 	"github.com/dogmatiq/configkit"
-	"github.com/dogmatiq/interopspec/configspec"
+	"github.com/dogmatiq/enginekit/grpc/configgrpc"
 )
 
 // Server is an implementation of configspec.ConfigAPIServer.
 type Server struct {
-	response configspec.ListApplicationsResponse
+	response configgrpc.ListApplicationsResponse
 }
 
-var _ configspec.ConfigAPIServer = (*Server)(nil)
+var _ configgrpc.ConfigAPIServer = (*Server)(nil)
 
 // NewServer returns an API server that serves the configuration of the given
 // applications.
@@ -37,7 +37,7 @@ func NewServer(apps ...configkit.Application) *Server {
 // ListApplications returns the full configuration of all applications.
 func (s *Server) ListApplications(
 	context.Context,
-	*configspec.ListApplicationsRequest,
-) (*configspec.ListApplicationsResponse, error) {
+	*configgrpc.ListApplicationsRequest,
+) (*configgrpc.ListApplicationsResponse, error) {
 	return &s.response, nil
 }

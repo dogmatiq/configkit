@@ -13,6 +13,6 @@ var _ = Describe("added nil-valued routes", func() {
 		Expect(apps[0].Handlers().Integrations()).To(HaveLen(1))
 
 		integration := apps[0].Handlers().Integrations()[0]
-		Expect(integration.MessageNames().All()).To(BeEmpty())
+		Expect(integration.MessageNames()).To(BeEmpty())
 	})
 })

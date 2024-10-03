@@ -9,7 +9,7 @@ import (
 	. "github.com/dogmatiq/configkit/api"
 	"github.com/dogmatiq/dogma"
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
-	"github.com/dogmatiq/interopspec/configspec"
+	"github.com/dogmatiq/enginekit/grpc/configgrpc"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"google.golang.org/grpc"
@@ -91,7 +91,7 @@ var _ = Context("end-to-end tests", func() {
 		Expect(err).ShouldNot(HaveOccurred())
 
 		gserver = grpc.NewServer()
-		configspec.RegisterConfigAPIServer(
+		configgrpc.RegisterConfigAPIServer(
 			gserver,
 			NewServer(cfg1, cfg2),
 		)

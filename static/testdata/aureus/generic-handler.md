@@ -8,7 +8,7 @@ package app
 
 import (
 	"context"
-    . "github.com/dogmatiq/dogma"
+	. "github.com/dogmatiq/dogma"
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
 )
 

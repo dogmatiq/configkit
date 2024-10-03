@@ -18,14 +18,22 @@ var _ = Describe("routes added in conditional branches", func() {
 		integration := apps[0].Handlers().Integrations()[0]
 
 		Expect(integration.MessageNames()).To(Equal(
-			configkit.EntityMessageNames{
-				Consumed: message.NameRoles{
-					message.NameFor[CommandStub[TypeA]](): message.CommandRole,
-					message.NameFor[CommandStub[TypeB]](): message.CommandRole,
+			configkit.EntityMessages[message.Name]{
+				message.NameOf(CommandA1): {
+					Kind:       message.CommandKind,
+					IsConsumed: true,
 				},
-				Produced: message.NameRoles{
-					message.NameFor[EventStub[TypeA]](): message.EventRole,
-					message.NameFor[EventStub[TypeB]](): message.EventRole,
+				message.NameOf(CommandB1): {
+					Kind:       message.CommandKind,
+					IsConsumed: true,
+				},
+				message.NameOf(EventA1): {
+					Kind:       message.EventKind,
+					IsProduced: true,
+				},
+				message.NameOf(EventB1): {
+					Kind:       message.EventKind,
+					IsProduced: true,
 				},
 			},
 		))

@@ -22,7 +22,7 @@ func analyzeApplication(
 	app := &application{
 		TypeNameValue:     gotypes.NameOf(typ),
 		HandlersValue:     configkit.HandlerSet{},
-		MessageNamesValue: configkit.EntityMessageNames{},
+		MessageNamesValue: configkit.EntityMessages[message.Name]{},
 	}
 
 	pkg := pkgOfNamedType(typ)
@@ -350,13 +350,10 @@ func addHandlerFromConfigureMethod(
 	hs configkit.HandlerSet,
 	ht configkit.HandlerType,
 ) {
-	hdr := &handler{
-		HandlerTypeValue: ht,
-		TypeNameValue:    handlerType,
-		MessageNamesValue: configkit.EntityMessageNames{
-			Produced: message.NameRoles{},
-			Consumed: message.NameRoles{},
-		},
+	h := &handler{
+		HandlerTypeValue:  ht,
+		TypeNameValue:     handlerType,
+		MessageNamesValue: configkit.EntityMessages[message.Name]{},
 	}
 
 	for _, c := range findConfigurerCalls(prog, method, make(map[string]types.Type)) {
@@ -364,25 +361,21 @@ func addHandlerFromConfigureMethod(
 
 		switch c.Common().Method.Name() {
 		case "Identity":
-			hdr.IdentityValue = analyzeIdentityCall(c)
+			h.IdentityValue = analyzeIdentityCall(c)
 		case "Routes":
-			addMessagesFromRoutes(
-				args,
-				hdr.MessageNamesValue.Produced,
-				hdr.MessageNamesValue.Consumed,
-			)
+			addMessagesFromRoutes(h.MessageNamesValue, args)
 		}
 	}
 
-	hs.Add(hdr)
+	hs.Add(h)
 }
 
 // addMessagesFromRoutes analyzes the arguments in a call to a configurer's
 // Routes() method to populate the messages that are produced and consumed by
 // the handler.
 func addMessagesFromRoutes(
+	messages configkit.EntityMessages[message.Name],
 	args []ssa.Value,
-	produced, consumed message.NameRoles,
 ) {
 	var mii []*ssa.MakeInterface
 	for _, arg := range args {
@@ -432,37 +425,34 @@ func addMessagesFromRoutes(
 			//  `github.com/dogmatiq/dogma.RecordsEvent()`
 			//  `github.com/dogmatiq/dogma.SchedulesTimeout()`
 			if f, ok := mi.X.(*ssa.Call).Common().Value.(*ssa.Function); ok {
-				switch {
-				case strings.HasPrefix(f.Name(), "ExecutesCommand["):
-					produced.Add(
-						message.NameFromType(f.TypeArgs()[0]),
-						message.CommandRole,
-					)
-				case strings.HasPrefix(f.Name(), "RecordsEvent["):
-					produced.Add(
-						message.NameFromType(f.TypeArgs()[0]),
-						message.EventRole,
-					)
-				case strings.HasPrefix(f.Name(), "HandlesCommand["):
-					consumed.Add(
-						message.NameFromType(f.TypeArgs()[0]),
-						message.CommandRole,
-					)
-				case strings.HasPrefix(f.Name(), "HandlesEvent["):
-					consumed.Add(
-						message.NameFromType(f.TypeArgs()[0]),
-						message.EventRole,
-					)
-				case strings.HasPrefix(f.Name(), "SchedulesTimeout["):
-					produced.Add(
-						message.NameFromType(f.TypeArgs()[0]),
-						message.TimeoutRole,
-					)
-					consumed.Add(
-						message.NameFromType(f.TypeArgs()[0]),
-						message.TimeoutRole,
-					)
-				}
+				messages.Update(
+					message.NameFromStaticType(f.TypeArgs()[0]),
+					func(n message.Name, em *configkit.EntityMessage) {
+						switch {
+						case strings.HasPrefix(f.Name(), "HandlesCommand["):
+							em.Kind = message.CommandKind
+							em.IsConsumed = true
+
+						case strings.HasPrefix(f.Name(), "HandlesEvent["):
+							em.Kind = message.EventKind
+							em.IsConsumed = true
+
+						case strings.HasPrefix(f.Name(), "ExecutesCommand["):
+							em.Kind = message.CommandKind
+							em.IsProduced = true
+
+						case strings.HasPrefix(f.Name(), "RecordsEvent["):
+							em.Kind = message.EventKind
+							em.IsProduced = true
+
+						case strings.HasPrefix(f.Name(), "SchedulesTimeout["):
+							em.Kind = message.TimeoutKind
+							em.IsProduced = true
+							em.IsConsumed = true
+						}
+					},
+				)
+
 			}
 		}
 	}

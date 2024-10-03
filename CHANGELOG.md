@@ -10,6 +10,38 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+### Added
+
+- Added `message.Kind` enumeration to represent the different kinds of message,
+  that is `Command`, `Event`, and `Timeout`. This is a replacement for the
+  `message.Role` enumeration, which was removed in this release. `Kind` and
+  `Role` have the same enumeration values, but whereas a message's "role" was a
+  function of how it was used within a specific application, its "kind" is
+  inherit to the message type itself.
+- Added `message.SwitchKind()` and `MapKind()` to perform exhaustive switches
+  and maps on a `Kind`.
+- Added `message.Switch()`, `Map()` and `TryMap()` to perform exchaustive
+  switches on the kind of a `dogma.Message`.
+
+### Removed
+
+- **[BC]** Removed `message.Role`.
+- **[BC]** Removed `message.NameRoles` and `TypeRoles`.
+- **[BC]** Removed `message.NameSet` and `TypeSet`, use `message.Set` instead.
+- **[BC]** Removed `message.NameCollection`, `NameSet`, `TypeCollection` and
+  `TypeSet`, and their associated set functions, use `message.Set` instead.
+
+### Changed
+
+- **[BC]** Renamed `message.NameFromType()` to `NameFromStaticType()`.
+- **[BC]** Changed `EntityMessage[Names|Types]` to use a new generic
+  `EntityMessages[K]` type.
+- **[BC]** Changed the `api` package to implement the `configgrpc` APIs defined
+  in `dogmatiq/enginekit`, instead of the (deprecated) `interopspec/configspec`
+  APIs.
+
 ## [0.14.0] - 2024-09-27
 
 ### Changed

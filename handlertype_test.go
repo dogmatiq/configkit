@@ -59,61 +59,61 @@ var _ = Describe("type HandlerType", func() {
 
 	Describe("func IsConsumerOf()", func() {
 		It("returns the expected values", func() {
-			Expect(AggregateHandlerType.IsConsumerOf(message.CommandRole)).To(BeTrue())
-			Expect(AggregateHandlerType.IsConsumerOf(message.EventRole)).To(BeFalse())
-			Expect(AggregateHandlerType.IsConsumerOf(message.TimeoutRole)).To(BeFalse())
+			Expect(AggregateHandlerType.IsConsumerOf(message.CommandKind)).To(BeTrue())
+			Expect(AggregateHandlerType.IsConsumerOf(message.EventKind)).To(BeFalse())
+			Expect(AggregateHandlerType.IsConsumerOf(message.TimeoutKind)).To(BeFalse())
 
-			Expect(ProcessHandlerType.IsConsumerOf(message.CommandRole)).To(BeFalse())
-			Expect(ProcessHandlerType.IsConsumerOf(message.EventRole)).To(BeTrue())
-			Expect(ProcessHandlerType.IsConsumerOf(message.TimeoutRole)).To(BeTrue())
+			Expect(ProcessHandlerType.IsConsumerOf(message.CommandKind)).To(BeFalse())
+			Expect(ProcessHandlerType.IsConsumerOf(message.EventKind)).To(BeTrue())
+			Expect(ProcessHandlerType.IsConsumerOf(message.TimeoutKind)).To(BeTrue())
 
-			Expect(IntegrationHandlerType.IsConsumerOf(message.CommandRole)).To(BeTrue())
-			Expect(IntegrationHandlerType.IsConsumerOf(message.EventRole)).To(BeFalse())
-			Expect(IntegrationHandlerType.IsConsumerOf(message.TimeoutRole)).To(BeFalse())
+			Expect(IntegrationHandlerType.IsConsumerOf(message.CommandKind)).To(BeTrue())
+			Expect(IntegrationHandlerType.IsConsumerOf(message.EventKind)).To(BeFalse())
+			Expect(IntegrationHandlerType.IsConsumerOf(message.TimeoutKind)).To(BeFalse())
 
-			Expect(ProjectionHandlerType.IsConsumerOf(message.CommandRole)).To(BeFalse())
-			Expect(ProjectionHandlerType.IsConsumerOf(message.EventRole)).To(BeTrue())
-			Expect(ProjectionHandlerType.IsConsumerOf(message.TimeoutRole)).To(BeFalse())
+			Expect(ProjectionHandlerType.IsConsumerOf(message.CommandKind)).To(BeFalse())
+			Expect(ProjectionHandlerType.IsConsumerOf(message.EventKind)).To(BeTrue())
+			Expect(ProjectionHandlerType.IsConsumerOf(message.TimeoutKind)).To(BeFalse())
 		})
 	})
 
 	Describe("func IsProducerOf()", func() {
 		It("returns the expected values", func() {
-			Expect(AggregateHandlerType.IsProducerOf(message.CommandRole)).To(BeFalse())
-			Expect(AggregateHandlerType.IsProducerOf(message.EventRole)).To(BeTrue())
-			Expect(AggregateHandlerType.IsProducerOf(message.TimeoutRole)).To(BeFalse())
+			Expect(AggregateHandlerType.IsProducerOf(message.CommandKind)).To(BeFalse())
+			Expect(AggregateHandlerType.IsProducerOf(message.EventKind)).To(BeTrue())
+			Expect(AggregateHandlerType.IsProducerOf(message.TimeoutKind)).To(BeFalse())
 
-			Expect(ProcessHandlerType.IsProducerOf(message.CommandRole)).To(BeTrue())
-			Expect(ProcessHandlerType.IsProducerOf(message.EventRole)).To(BeFalse())
-			Expect(ProcessHandlerType.IsProducerOf(message.TimeoutRole)).To(BeTrue())
+			Expect(ProcessHandlerType.IsProducerOf(message.CommandKind)).To(BeTrue())
+			Expect(ProcessHandlerType.IsProducerOf(message.EventKind)).To(BeFalse())
+			Expect(ProcessHandlerType.IsProducerOf(message.TimeoutKind)).To(BeTrue())
 
-			Expect(IntegrationHandlerType.IsProducerOf(message.CommandRole)).To(BeFalse())
-			Expect(IntegrationHandlerType.IsProducerOf(message.EventRole)).To(BeTrue())
-			Expect(IntegrationHandlerType.IsProducerOf(message.TimeoutRole)).To(BeFalse())
+			Expect(IntegrationHandlerType.IsProducerOf(message.CommandKind)).To(BeFalse())
+			Expect(IntegrationHandlerType.IsProducerOf(message.EventKind)).To(BeTrue())
+			Expect(IntegrationHandlerType.IsProducerOf(message.TimeoutKind)).To(BeFalse())
 
-			Expect(ProjectionHandlerType.IsProducerOf(message.CommandRole)).To(BeFalse())
-			Expect(ProjectionHandlerType.IsProducerOf(message.EventRole)).To(BeFalse())
-			Expect(ProjectionHandlerType.IsProducerOf(message.TimeoutRole)).To(BeFalse())
+			Expect(ProjectionHandlerType.IsProducerOf(message.CommandKind)).To(BeFalse())
+			Expect(ProjectionHandlerType.IsProducerOf(message.EventKind)).To(BeFalse())
+			Expect(ProjectionHandlerType.IsProducerOf(message.TimeoutKind)).To(BeFalse())
 		})
 	})
 
 	Describe("func Consumes()", func() {
 		It("returns the expected values", func() {
 			Expect(AggregateHandlerType.Consumes()).To(ConsistOf(
-				message.CommandRole,
+				message.CommandKind,
 			))
 
 			Expect(ProcessHandlerType.Consumes()).To(ConsistOf(
-				message.EventRole,
-				message.TimeoutRole,
+				message.EventKind,
+				message.TimeoutKind,
 			))
 
 			Expect(IntegrationHandlerType.Consumes()).To(ConsistOf(
-				message.CommandRole,
+				message.CommandKind,
 			))
 
 			Expect(ProjectionHandlerType.Consumes()).To(ConsistOf(
-				message.EventRole,
+				message.EventKind,
 			))
 		})
 	})
@@ -121,16 +121,16 @@ var _ = Describe("type HandlerType", func() {
 	Describe("func Produces()", func() {
 		It("returns the expected values", func() {
 			Expect(AggregateHandlerType.Produces()).To(ConsistOf(
-				message.EventRole,
+				message.EventKind,
 			))
 
 			Expect(ProcessHandlerType.Produces()).To(ConsistOf(
-				message.CommandRole,
-				message.TimeoutRole,
+				message.CommandKind,
+				message.TimeoutKind,
 			))
 
 			Expect(IntegrationHandlerType.Produces()).To(ConsistOf(
-				message.EventRole,
+				message.EventKind,
 			))
 
 			Expect(ProjectionHandlerType.Produces()).To(BeEmpty())
@@ -251,17 +251,17 @@ var _ = Describe("type HandlerType", func() {
 
 	Describe("func ConsumersOf()", func() {
 		It("returns the expected values", func() {
-			Expect(ConsumersOf(message.CommandRole)).To(ConsistOf(
+			Expect(ConsumersOf(message.CommandKind)).To(ConsistOf(
 				AggregateHandlerType,
 				IntegrationHandlerType,
 			))
 
-			Expect(ConsumersOf(message.EventRole)).To(ConsistOf(
+			Expect(ConsumersOf(message.EventKind)).To(ConsistOf(
 				ProcessHandlerType,
 				ProjectionHandlerType,
 			))
 
-			Expect(ConsumersOf(message.TimeoutRole)).To(ConsistOf(
+			Expect(ConsumersOf(message.TimeoutKind)).To(ConsistOf(
 				ProcessHandlerType,
 			))
 		})
@@ -269,16 +269,16 @@ var _ = Describe("type HandlerType", func() {
 
 	Describe("func ProducersOf()", func() {
 		It("returns the expected values", func() {
-			Expect(ProducersOf(message.CommandRole)).To(ConsistOf(
+			Expect(ProducersOf(message.CommandKind)).To(ConsistOf(
 				ProcessHandlerType,
 			))
 
-			Expect(ProducersOf(message.EventRole)).To(ConsistOf(
+			Expect(ProducersOf(message.EventKind)).To(ConsistOf(
 				AggregateHandlerType,
 				IntegrationHandlerType,
 			))
 
-			Expect(ProducersOf(message.TimeoutRole)).To(ConsistOf(
+			Expect(ProducersOf(message.TimeoutKind)).To(ConsistOf(
 				ProcessHandlerType,
 			))
 		})

@@ -3,6 +3,7 @@ package configkit
 import (
 	"context"
 	"io"
+	"iter"
 	"sort"
 	"strings"
 
@@ -80,36 +81,26 @@ func (s *stringer) visitHandler(cfg Handler) error {
 		flagString,
 	)
 
-	for _, p := range sortNameRoles(cfg.MessageNames().Consumed) {
-		if p.Role == message.TimeoutRole {
-			break
-		}
+	names := cfg.MessageNames()
 
-		must.Fprintf(
-			s.w,
-			"    handles %s%s\n",
-			p.Name,
-			p.Role.Marker(),
-		)
+	for _, p := range sortNameKinds(names.Consumed()) {
+		if p.Kind != message.TimeoutKind {
+			must.Fprintf(
+				s.w,
+				"    handles %s%s\n",
+				p.Name,
+				p.Kind.Symbol(),
+			)
+		}
 	}
 
-	for _, p := range sortNameRoles(cfg.MessageNames().Produced) {
-		verb := ""
-		switch p.Role {
-		case message.CommandRole:
-			verb = "executes"
-		case message.EventRole:
-			verb = "records"
-		case message.TimeoutRole:
-			verb = "schedules"
-		}
-
+	for _, p := range sortNameKinds(names.Produced()) {
 		must.Fprintf(
 			s.w,
 			"    %s %s%s\n",
-			verb,
+			message.MapKind(p.Kind, "executes", "records", "schedules"),
 			p.Name,
-			p.Role.Marker(),
+			p.Kind.Symbol(),
 		)
 	}
 
@@ -149,28 +140,32 @@ func sortHandlers(handlers HandlerSet) []Handler {
 
 type pair struct {
 	Name message.Name
-	Role message.Role
+	Kind message.Kind
 }
 
-// sortNameRoles returns a list of name/role pairs, sorted by name.
+// sortNameKinds returns a list of name/kind pairs, sorted by name.
 // Timeout messages are always sorted towards the end.
-func sortNameRoles(names message.NameRoles) []pair {
-	sorted := make([]pair, 0, len(names))
-
-	for n, r := range names {
-		sorted = append(sorted, pair{n, r})
+func sortNameKinds(
+	names iter.Seq2[message.Name, message.Kind],
+) []pair {
+	var pairs []pair
+	for n, k := range names {
+		pairs = append(pairs, pair{n, k})
 	}
 
-	sort.Slice(sorted, func(i, j int) bool {
-		pi := sorted[i]
-		pj := sorted[j]
+	sort.Slice(
+		pairs,
+		func(i, j int) bool {
+			pi := pairs[i]
+			pj := pairs[j]
 
-		if pi.Role == message.TimeoutRole && pj.Role != message.TimeoutRole {
-			return false
-		}
+			if pi.Kind == message.TimeoutKind && pj.Kind != message.TimeoutKind {
+				return false
+			}
 
-		return pi.Name.String() < pj.Name.String()
-	})
+			return pi.Name.String() < pj.Name.String()
+		},
+	)
 
-	return sorted
+	return pairs
 }

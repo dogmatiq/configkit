@@ -8,7 +8,7 @@ import (
 	"unicode"
 
 	"github.com/dogmatiq/configkit/internal/validation"
-	"github.com/google/uuid"
+	"github.com/dogmatiq/enginekit/protobuf/uuidpb"
 )
 
 // Identity is the application-defined identity of a Dogma entity.
@@ -134,7 +134,7 @@ func ValidateIdentityName(n string) error {
 // ValidateIdentityKey returns nil if n is a valid application or handler key;
 // otherwise, it returns an error.
 func ValidateIdentityKey(k string) error {
-	if _, err := uuid.Parse(k); err != nil {
+	if _, err := uuidpb.Parse(k); err != nil {
 		return validation.Errorf(
 			"invalid key %#v, keys must be RFC 4122 UUIDs",
 			k,
