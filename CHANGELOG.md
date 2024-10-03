@@ -38,6 +38,9 @@ The format is based on [Keep a Changelog], and this project adheres to
 - **[BC]** Renamed `message.NameFromType()` to `NameFromStaticType()`.
 - **[BC]** Changed `EntityMessage[Names|Types]` to use a new generic
   `EntityMessages[K]` type.
+- **[BC]** Changed the `api` package to implement the `configgrpc` APIs defined
+  in `dogmatiq/enginekit`, instead of the (deprecated) `interopspec/configspec`
+  APIs.
 
 ## [0.14.0] - 2024-09-27
 
