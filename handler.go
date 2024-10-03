@@ -157,8 +157,8 @@ func mustHaveConsumerRoute(
 	handlerIdent Identity,
 	handlerType reflect.Type,
 ) {
-	for t := range types.Consumed() {
-		if t.Kind() == kind {
+	for _, k := range types.Consumed() {
+		if k == kind {
 			return
 		}
 	}
@@ -179,8 +179,8 @@ func mustHaveProducerRoute(
 	handlerIdent Identity,
 	handlerType reflect.Type,
 ) {
-	for t := range types.Produced() {
-		if t.Kind() == kind {
+	for _, k := range types.Produced() {
+		if k == kind {
 			return
 		}
 	}
