@@ -16,10 +16,10 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 - Added `message.Kind` enumeration to represent the different kinds of message,
   that is `Command`, `Event`, and `Timeout`. This is a replacement for the
-  `message.Role` enumeration, which was removed in this release. `Role` had the
-  same enumeration values but referred specifically to how the message was used
-  within a specific application, which could differ from one application to
-  another.
+  `message.Role` enumeration, which was removed in this release. `Kind` and
+  `Role` have the same enumeration values, but whereas a message's "role" was a
+  function of how it was used within a specific application, its "kind" is
+  inherit to the message type itself.
 - Added `message.SwitchKind()` and `MapKind()` to perform exhaustive switches
   and maps on a `Kind`.
 - Added `message.Switch()`, `Map()` and `TryMap()` to perform exchaustive
@@ -32,9 +32,6 @@ The format is based on [Keep a Changelog], and this project adheres to
 - **[BC]** Removed `message.NameSet` and `TypeSet`, use `message.Set` instead.
 - **[BC]** Removed `message.NameCollection`, `NameSet`, `TypeCollection` and
   `TypeSet`, and their associated set functions, use `message.Set` instead.
-- **[BC]** Removed `EntityMessage[Names|Types].Foreign()` methods.
-- **[BC]** Removed `EntityMessage[Names|Types].RoleOf()` methods.
-- **[BC]** Removed `EntityMessage[Names|Types].All()` methods.
 
 ### Changed
 
