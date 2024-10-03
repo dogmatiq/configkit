@@ -39,7 +39,7 @@ type RichHandler interface {
 // It returns true if both handlers:
 //
 //  1. have the same identity
-//  2. produce and consume the same messages, with the same roles
+//  2. produce and consume the same message types
 //  3. are implemented using the same Go types
 //
 // Point 3. refers to the type used to implement the dogma.Aggregate,

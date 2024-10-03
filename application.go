@@ -55,7 +55,7 @@ func FromApplication(a dogma.Application) RichApplication {
 // It returns true if both applications:
 //
 //  1. have the same identity
-//  2. produce and consume the same messages, with the same roles
+//  2. produce and consume the same message types
 //  3. are implemented using the same Go types
 //  4. contain equivalent handlers
 //
