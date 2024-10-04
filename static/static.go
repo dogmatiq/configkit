@@ -2,6 +2,7 @@ package static
 
 import (
 	"go/types"
+	"slices"
 
 	"github.com/dogmatiq/configkit"
 	"golang.org/x/tools/go/packages"
@@ -92,5 +93,18 @@ func FromPackages(pkgs []*packages.Package) []configkit.Application {
 		}
 	}
 
-	return apps
+	return slices.SortedFunc(
+		slices.Values(apps),
+		func(a, b configkit.Application) int {
+			if a.Identity().Name > b.Identity().Name {
+				return 1
+			}
+
+			if a.Identity().Name < b.Identity().Name {
+				return -1
+			}
+
+			return 0
+		},
+	)
 }
