@@ -3,7 +3,7 @@ package configkit
 import (
 	"context"
 
-	"github.com/dogmatiq/configkit/message"
+	"github.com/dogmatiq/enginekit/message"
 )
 
 // HandlerSet is a collection of handlers.

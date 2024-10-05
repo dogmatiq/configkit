@@ -2,7 +2,7 @@ package configkit_test
 
 import (
 	. "github.com/dogmatiq/configkit"
-	"github.com/dogmatiq/configkit/message"
+	"github.com/dogmatiq/enginekit/message"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

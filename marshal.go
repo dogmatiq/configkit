@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/dogmatiq/configkit/message"
+	"github.com/dogmatiq/enginekit/message"
 	"github.com/dogmatiq/enginekit/protobuf/configpb"
 	"github.com/dogmatiq/enginekit/protobuf/identitypb"
 	"github.com/dogmatiq/enginekit/protobuf/uuidpb"
@@ -28,11 +28,6 @@ func ToProto(app Application) (*configpb.Application, error) {
 	}
 
 	for n, em := range app.MessageNames() {
-		nOut, err := n.MarshalText()
-		if err != nil {
-			return nil, err
-		}
-
 		kOut, err := marshalMessageKind(em.Kind)
 		if err != nil {
 			return nil, err
@@ -41,7 +36,7 @@ func ToProto(app Application) (*configpb.Application, error) {
 		if out.Messages == nil {
 			out.Messages = map[string]configpb.MessageKind{}
 		}
-		out.Messages[string(nOut)] = kOut
+		out.Messages[string(n)] = kOut
 	}
 
 	for _, h := range app.Handlers() {
@@ -74,17 +69,12 @@ func FromProto(app *configpb.Application) (Application, error) {
 	kinds := map[message.Name]message.Kind{}
 
 	for n, k := range app.GetMessages() {
-		var nOut message.Name
-		if err := nOut.UnmarshalText([]byte(n)); err != nil {
-			return nil, err
-		}
-
 		kOut, err := unmarshalMessageKind(k)
 		if err != nil {
 			return nil, err
 		}
 
-		kinds[nOut] = kOut
+		kinds[message.Name(n)] = kOut
 	}
 
 	for _, h := range app.GetHandlers() {
@@ -125,16 +115,15 @@ func marshalHandler(in Handler) (*configpb.Handler, error) {
 	}
 
 	for n, em := range in.MessageNames() {
+		if n == "" {
+			return nil, errors.New("message name is empty")
+		}
+
 		if out.Messages == nil {
 			out.Messages = map[string]*configpb.MessageUsage{}
 		}
 
-		name, err := n.MarshalText()
-		if err != nil {
-			return nil, err
-		}
-
-		key := string(name)
+		key := string(n)
 
 		usage, ok := out.Messages[key]
 		if !ok {
@@ -181,12 +170,8 @@ func unmarshalHandler(
 	}
 
 	for n, usage := range in.GetMessages() {
-		var nOut message.Name
-		if err := nOut.UnmarshalText([]byte(n)); err != nil {
-			return nil, err
-		}
-
-		k, ok := kinds[nOut]
+		nOut := message.Name(n)
+		kOut, ok := kinds[nOut]
 		if !ok {
 			return nil, fmt.Errorf("message name %s as no associated message kind", n)
 		}
@@ -198,7 +183,7 @@ func unmarshalHandler(
 		out.names.Update(
 			nOut,
 			func(n message.Name, em *EntityMessage) {
-				em.Kind = k
+				em.Kind = kOut
 
 				if usage.IsProduced {
 					em.IsProduced = true

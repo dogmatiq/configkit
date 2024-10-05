@@ -5,8 +5,8 @@ import (
 	"reflect"
 
 	"github.com/dogmatiq/configkit/internal/typename/goreflect"
-	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
+	"github.com/dogmatiq/enginekit/message"
 )
 
 // Aggregate is an interface that represents the configuration of a Dogma

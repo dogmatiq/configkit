@@ -2,8 +2,8 @@ package configkit
 
 import (
 	//revive:disable:dot-imports
-	"github.com/dogmatiq/configkit/message"
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
+	"github.com/dogmatiq/enginekit/message"
 	"github.com/dogmatiq/enginekit/protobuf/configpb"
 	"github.com/dogmatiq/enginekit/protobuf/identitypb"
 	"github.com/dogmatiq/enginekit/protobuf/uuidpb"
@@ -136,7 +136,7 @@ var _ = Describe("func marshalHandler()", func() {
 	})
 
 	It("returns an error if there is an invalid message name", func() {
-		handler.names[message.Name{}] = EntityMessage{}
+		handler.names[""] = EntityMessage{}
 
 		_, err := marshalHandler(handler)
 		Expect(err).Should(HaveOccurred())

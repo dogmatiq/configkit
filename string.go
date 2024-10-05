@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/dogmatiq/configkit/message"
+	"github.com/dogmatiq/enginekit/message"
 	"github.com/dogmatiq/iago/indent"
 	"github.com/dogmatiq/iago/must"
 )
@@ -98,7 +98,7 @@ func (s *stringer) visitHandler(cfg Handler) error {
 		must.Fprintf(
 			s.w,
 			"    %s %s%s\n",
-			message.MapKind(p.Kind, "executes", "records", "schedules"),
+			message.MapByKind(p.Kind, "executes", "records", "schedules"),
 			p.Name,
 			p.Kind.Symbol(),
 		)
@@ -163,7 +163,7 @@ func sortNameKinds(
 				return false
 			}
 
-			return pi.Name.String() < pj.Name.String()
+			return pi.Name < pj.Name
 		},
 	)
 

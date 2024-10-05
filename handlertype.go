@@ -6,7 +6,7 @@ import (
 	"slices"
 
 	"github.com/dogmatiq/configkit/internal/validation"
-	"github.com/dogmatiq/configkit/message"
+	"github.com/dogmatiq/enginekit/message"
 )
 
 // HandlerType is an enumeration of the types of handlers.
@@ -222,7 +222,7 @@ func (t *HandlerType) UnmarshalBinary(data []byte) error {
 
 // ConsumersOf returns the handler types that can consume messages of kind k.
 func ConsumersOf(k message.Kind) []HandlerType {
-	return message.MapKind(
+	return message.MapByKind(
 		k,
 		[]HandlerType{AggregateHandlerType, IntegrationHandlerType},
 		[]HandlerType{ProcessHandlerType, ProjectionHandlerType},
@@ -232,7 +232,7 @@ func ConsumersOf(k message.Kind) []HandlerType {
 
 // ProducersOf returns the handler types that can produces messages of kind k.
 func ProducersOf(k message.Kind) []HandlerType {
-	return message.MapKind(
+	return message.MapByKind(
 		k,
 		[]HandlerType{ProcessHandlerType},
 		[]HandlerType{AggregateHandlerType, IntegrationHandlerType},

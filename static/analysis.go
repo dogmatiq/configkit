@@ -8,7 +8,7 @@ import (
 
 	"github.com/dogmatiq/configkit"
 	"github.com/dogmatiq/configkit/internal/typename/gotypes"
-	"github.com/dogmatiq/configkit/message"
+	"github.com/dogmatiq/enginekit/message"
 	"golang.org/x/tools/go/ssa"
 )
 
@@ -426,7 +426,7 @@ func addMessagesFromRoutes(
 			//  `github.com/dogmatiq/dogma.SchedulesTimeout()`
 			if f, ok := mi.X.(*ssa.Call).Common().Value.(*ssa.Function); ok {
 				messages.Update(
-					message.NameFromStaticType(f.TypeArgs()[0]),
+					message.Name(gotypes.NameOf(f.TypeArgs()[0])),
 					func(n message.Name, em *configkit.EntityMessage) {
 						switch {
 						case strings.HasPrefix(f.Name(), "HandlesCommand["):

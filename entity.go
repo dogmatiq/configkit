@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"slices"
 
-	"github.com/dogmatiq/configkit/message"
+	"github.com/dogmatiq/enginekit/message"
 )
 
 // Entity is an interface that represents the configuration of a Dogma "entity"

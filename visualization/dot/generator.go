@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/dogmatiq/configkit"
-	"github.com/dogmatiq/configkit/message"
+	"github.com/dogmatiq/enginekit/message"
 	"github.com/emicklei/dot"
 )
 
@@ -102,7 +102,7 @@ func (g *generator) addEdges(cfg configkit.Handler, n dot.Node) {
 // If the edge already exists, its label is expanded to include this message type.
 func (g *generator) addEdge(src, dst dot.Node, n message.Name) {
 	k := g.kinds[n]
-	label := n.String() + k.Symbol()
+	label := string(n) + k.Symbol()
 
 	index := strings.LastIndex(label, ".")
 	if index != -1 {

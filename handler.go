@@ -5,8 +5,8 @@ import (
 	"reflect"
 
 	"github.com/dogmatiq/configkit/internal/validation"
-	"github.com/dogmatiq/configkit/message"
 	"github.com/dogmatiq/dogma"
+	"github.com/dogmatiq/enginekit/message"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -185,8 +185,8 @@ func mustHaveProducerRoute(
 		}
 	}
 
-	verb := message.MapKind(kind, "execute", "record", "schedule")
-	routeFunc := message.MapKind(kind, "ExecutesCommand", "RecordsEvent", "SchedulesTimeout")
+	verb := message.MapByKind(kind, "execute", "record", "schedule")
+	routeFunc := message.MapByKind(kind, "ExecutesCommand", "RecordsEvent", "SchedulesTimeout")
 
 	validation.Panicf(
 		`%s is not configured to %s any %ss, at least one %s() route must be added within Configure()`,

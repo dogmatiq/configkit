@@ -10,6 +10,17 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
+## [0.16.0] - 2024-10-05
+
+### Changed
+
+- **[BC]** Use `enginekit/message.Type`, `Kind` and `Name` throughout, replacing
+  the deprecated and now removed `message` package.
+
+### Removed
+
+- **[BC]** Removed the deprecated `message` package.
+
 ## [0.15.1] - 2024-10-05
 
 ### Deprecated
@@ -407,6 +418,7 @@ interfaces. It does not yet include support for static analysis of the new
 [0.14.0]: https://github.com/dogmatiq/configkit/releases/v0.14.0
 [0.15.0]: https://github.com/dogmatiq/configkit/releases/v0.15.0
 [0.15.1]: https://github.com/dogmatiq/configkit/releases/v0.15.1
+[0.16.0]: https://github.com/dogmatiq/configkit/releases/v0.16.0
 
 <!-- version template
 ## [0.0.1] - YYYY-MM-DD

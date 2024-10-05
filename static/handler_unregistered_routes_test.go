@@ -1,9 +1,9 @@
 package static_test
 
 import (
-	"github.com/dogmatiq/configkit/message"
 	. "github.com/dogmatiq/configkit/static"
 	. "github.com/dogmatiq/enginekit/enginetest/stubs"
+	"github.com/dogmatiq/enginekit/message"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
