@@ -28,7 +28,7 @@ func analyzeApplication(
 	pkg := pkgOfNamedType(typ)
 	fn := prog.LookupMethod(typ, pkg, "Configure")
 
-	for _, c := range findConfigurerCalls(prog, fn, make(map[string]types.Type)) {
+	for _, c := range findConfigurerCalls(prog, fn) {
 		args := c.Common().Args
 
 		switch c.Common().Method.Name() {
@@ -86,17 +86,9 @@ func analyzeApplication(
 // fn is the Configure() method on an application or handler. In this case the
 // first parameter is the receiver, so the second parameter is the configurer
 // itself.
-//
-// The instantiatedTypes map is used to store the types that have been
-// instantiated in the function. This is necessary because the SSA
-// representation of a function does not include type information for the
-// arguments, so we need to track this information ourselves. The keys are the
-// names of the type parameters and the values are the concrete types that have
-// been instantiated.
 func findConfigurerCalls(
 	prog *ssa.Program,
 	fn *ssa.Function,
-	instantiatedTypes map[string]types.Type,
 	indices ...int,
 ) []*ssa.Call {
 	if len(indices) == 0 {
@@ -110,10 +102,6 @@ func findConfigurerCalls(
 	}
 
 	var calls []*ssa.Call
-
-	if fn.Synthetic != "" {
-		populateInstantiatedTypes(fn, instantiatedTypes)
-	}
 
 	for _, b := range fn.Blocks {
 		for _, i := range b.Instrs {
@@ -131,7 +119,6 @@ func findConfigurerCalls(
 							prog,
 							configurers,
 							c,
-							instantiatedTypes,
 						)...,
 					)
 				}
@@ -140,36 +127,6 @@ func findConfigurerCalls(
 	}
 
 	return calls
-}
-
-// populateInstantiatedTypes populates the instantiatedTypes map with the types
-// that have been instantiated in the synthetic function.
-func populateInstantiatedTypes(
-	fn *ssa.Function,
-	instantiatedTypes map[string]types.Type,
-) {
-	for _, b := range fn.Blocks {
-		for _, i := range b.Instrs {
-			if c, ok := i.(*ssa.ChangeType); ok {
-				var (
-					tpl *types.TypeParamList
-					tal *types.TypeList
-				)
-
-				if ok, nt := namedType(c.Type()); ok {
-					tpl = nt.TypeParams()
-				}
-
-				if ok, nt := namedType(c.X.Type()); ok {
-					tal = nt.TypeArgs()
-				}
-
-				for i := 0; i < tpl.Len(); i++ {
-					instantiatedTypes[tpl.At(i).String()] = tal.At(i)
-				}
-			}
-		}
-	}
 }
 
 // namedType returns true and the named type if t is a named type or a pointer
@@ -192,7 +149,6 @@ func findIndirectConfigurerCalls(
 	prog *ssa.Program,
 	configurers map[ssa.Value]struct{},
 	c *ssa.Call,
-	instantiatedTypes map[string]types.Type,
 ) []*ssa.Call {
 	com := c.Common()
 
@@ -208,25 +164,14 @@ func findIndirectConfigurerCalls(
 	}
 
 	if com.IsInvoke() {
-		t, ok := instantiatedTypes[com.Value.Type().String()]
-		if !ok {
-			// If we cannot find any instantiated types in mapping, most likely
-			// we hit the interface method and cannot analyze any further.
-			return nil
-		}
-
-		return findConfigurerCalls(
-			prog,
-			prog.LookupMethod(t, com.Method.Pkg(), com.Method.Name()),
-			instantiatedTypes,
-			// don't pass indices here, as we are already in the method.
-		)
+		// If the call is in Invoke mode, most likely
+		// we hit the interface method and cannot analyze any further.
+		return nil
 	}
 
 	return findConfigurerCalls(
 		prog,
 		com.StaticCallee(),
-		instantiatedTypes,
 		indices...,
 	)
 }
@@ -356,7 +301,7 @@ func addHandlerFromConfigureMethod(
 		MessageNamesValue: configkit.EntityMessages[message.Name]{},
 	}
 
-	for _, c := range findConfigurerCalls(prog, method, make(map[string]types.Type)) {
+	for _, c := range findConfigurerCalls(prog, method) {
 		args := c.Common().Args
 
 		switch c.Common().Method.Name() {

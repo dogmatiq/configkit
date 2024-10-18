@@ -52,7 +52,10 @@ func FromDir(dir string) []configkit.Application {
 //
 // It ignores packages that can not be built.
 func FromPackages(pkgs []*packages.Package) []configkit.Application {
-	prog, packages := ssautil.AllPackages(pkgs, ssa.SanityCheckFunctions)
+	prog, packages := ssautil.AllPackages(
+		pkgs,
+		ssa.SanityCheckFunctions|ssa.InstantiateGenerics,
+	)
 	prog.Build()
 
 	dogmaPkg, isImported := lookupDogmaPackage(prog)
