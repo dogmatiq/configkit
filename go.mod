@@ -9,7 +9,7 @@ require (
 	github.com/dogmatiq/dogma v0.15.0
 	github.com/dogmatiq/enginekit v0.16.1
 	github.com/dogmatiq/iago v0.4.0
-	github.com/emicklei/dot v1.6.3
+	github.com/emicklei/dot v1.6.4
 	github.com/google/uuid v1.6.0
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.36.0
