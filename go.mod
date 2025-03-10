@@ -1,7 +1,8 @@
 module github.com/dogmatiq/configkit
 
-go 1.23
-toolchain go1.23.1
+go 1.23.0
+
+toolchain go1.23.6
 
 require (
 	github.com/dogmatiq/aureus v0.1.0
