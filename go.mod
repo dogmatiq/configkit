@@ -2,7 +2,7 @@ module github.com/dogmatiq/configkit
 
 go 1.23.0
 
-toolchain go1.23.6
+toolchain go1.24.1
 
 require (
 	github.com/dogmatiq/aureus v0.2.12
@@ -15,7 +15,7 @@ require (
 	github.com/onsi/gomega v1.36.3
 	golang.org/x/text v0.23.0
 	golang.org/x/tools v0.31.0
-	google.golang.org/grpc v1.71.0
+	google.golang.org/grpc v1.71.1
 )
 
 require (
