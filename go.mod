@@ -12,7 +12,7 @@ require (
 	github.com/emicklei/dot v1.9.0
 	github.com/google/uuid v1.6.0
 	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/gomega v1.38.1
+	github.com/onsi/gomega v1.38.2
 	golang.org/x/text v0.28.0
 	golang.org/x/tools v0.36.0
 	google.golang.org/grpc v1.75.0
