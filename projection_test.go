@@ -25,9 +25,6 @@ var _ = Describe("func FromProjection()", func() {
 					dogma.HandlesEvent[EventStub[TypeA]](),
 					dogma.HandlesEvent[EventStub[TypeB]](),
 				)
-				c.DeliveryPolicy(dogma.BroadcastProjectionDeliveryPolicy{
-					PrimaryFirst: true,
-				})
 			},
 		}
 	})
@@ -90,16 +87,6 @@ var _ = Describe("func FromProjection()", func() {
 		Describe("func ReflectType()", func() {
 			It("returns the type of the handler", func() {
 				Expect(cfg.ReflectType()).To(Equal(reflect.TypeOf(handler)))
-			})
-		})
-
-		Describe("func DeliveryPolicy()", func() {
-			It("returns the delivery policy", func() {
-				Expect(cfg.DeliveryPolicy()).To(Equal(
-					dogma.BroadcastProjectionDeliveryPolicy{
-						PrimaryFirst: true,
-					},
-				))
 			})
 		})
 
@@ -250,17 +237,6 @@ var _ = Describe("func FromProjection()", func() {
 					dogma.HandlesEvent[EventStub[TypeA]](),
 					dogma.HandlesEvent[EventStub[TypeA]](),
 				)
-			},
-		),
-		Entry(
-			"when the handler configures a nil delivery policy",
-			`delivery policy must not be nil`,
-			func(c dogma.ProjectionConfigurer) {
-				c.Identity("<name>", projectionKey)
-				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
-				)
-				c.DeliveryPolicy(nil)
 			},
 		),
 	)

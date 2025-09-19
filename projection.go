@@ -5,7 +5,6 @@ import (
 	"reflect"
 
 	"github.com/dogmatiq/configkit/internal/typename/goreflect"
-	"github.com/dogmatiq/configkit/internal/validation"
 	"github.com/dogmatiq/dogma"
 	"github.com/dogmatiq/enginekit/message"
 )
@@ -23,9 +22,6 @@ type RichProjection interface {
 
 	// Handler returns the underlying message handler.
 	Handler() dogma.ProjectionMessageHandler
-
-	// DeliveryPolicy returns the projection's delivery policy.
-	DeliveryPolicy() dogma.ProjectionDeliveryPolicy
 }
 
 // FromProjection returns the configuration for a projection message handler.
@@ -46,11 +42,10 @@ func fromProjectionUnvalidated(h dogma.ProjectionMessageHandler) *richProjection
 
 // richProjection is an implementation of RichProjection.
 type richProjection struct {
-	ident          Identity
-	types          EntityMessages[message.Type]
-	deliveryPolicy dogma.ProjectionDeliveryPolicy
-	isDisabled     bool
-	handler        dogma.ProjectionMessageHandler
+	ident      Identity
+	types      EntityMessages[message.Type]
+	isDisabled bool
+	handler    dogma.ProjectionMessageHandler
 }
 
 func (h *richProjection) Identity() Identity {
@@ -93,17 +88,8 @@ func (h *richProjection) Handler() dogma.ProjectionMessageHandler {
 	return h.handler
 }
 
-func (h *richProjection) DeliveryPolicy() dogma.ProjectionDeliveryPolicy {
-	if h.deliveryPolicy == nil {
-		return dogma.UnicastProjectionDeliveryPolicy{}
-	}
-	return h.deliveryPolicy
-}
-
 func (h *richProjection) isConfigured() bool {
-	return !h.ident.IsZero() ||
-		len(h.types) != 0 ||
-		h.deliveryPolicy != nil
+	return !h.ident.IsZero() || len(h.types) != 0
 }
 
 func (h *richProjection) mustValidate() {
@@ -127,11 +113,4 @@ func (c *projectionConfigurer) Routes(routes ...dogma.ProjectionRoute) {
 
 func (c *projectionConfigurer) Disable(...dogma.DisableOption) {
 	c.config.isDisabled = true
-}
-
-func (c *projectionConfigurer) DeliveryPolicy(p dogma.ProjectionDeliveryPolicy) {
-	if p == nil {
-		validation.Panicf("delivery policy must not be nil")
-	}
-	c.config.deliveryPolicy = p
 }

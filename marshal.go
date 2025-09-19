@@ -182,7 +182,7 @@ func unmarshalHandler(
 
 		out.names.Update(
 			nOut,
-			func(n message.Name, em *EntityMessage) {
+			func(_ message.Name, em *EntityMessage) {
 				em.Kind = kOut
 
 				if usage.IsProduced {
