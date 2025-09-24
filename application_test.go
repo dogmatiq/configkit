@@ -79,11 +79,13 @@ var _ = Describe("func FromApplication()", func() {
 		app = &ApplicationStub{
 			ConfigureFunc: func(c dogma.ApplicationConfigurer) {
 				c.Identity("<app>", appKey)
-				c.RegisterAggregate(aggregate)
-				c.RegisterProcess(process)
-				c.RegisterIntegration(integration)
-				c.RegisterProjection(projection)
-				c.RegisterProjection(disabled)
+				c.Routes(
+					dogma.ViaAggregate(aggregate),
+					dogma.ViaProcess(process),
+					dogma.ViaIntegration(integration),
+					dogma.ViaProjection(projection),
+					dogma.ViaProjection(disabled),
+				)
 			},
 		}
 	})
@@ -295,8 +297,10 @@ var _ = Describe("func FromApplication()", func() {
 			app := &ApplicationStub{
 				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
 					c.Identity("<app>", appKey)
-					c.RegisterProcess(process1)
-					c.RegisterProcess(process2)
+					c.Routes(
+						dogma.ViaProcess(process1),
+						dogma.ViaProcess(process2),
+					)
 				},
 			}
 
@@ -337,7 +341,9 @@ var _ = Describe("func FromApplication()", func() {
 			`*stubs.ApplicationStub is configured without an identity, Identity() must be called exactly once within Configure()`,
 			func() {
 				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
-					c.RegisterAggregate(aggregate)
+					c.Routes(
+						dogma.ViaAggregate(aggregate),
+					)
 				}
 			},
 		),
@@ -348,7 +354,9 @@ var _ = Describe("func FromApplication()", func() {
 				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
 					c.Identity("<name>", appKey)
 					c.Identity("<other>", appKey)
-					c.RegisterAggregate(aggregate)
+					c.Routes(
+						dogma.ViaAggregate(aggregate),
+					)
 				}
 			},
 		),
@@ -358,7 +366,9 @@ var _ = Describe("func FromApplication()", func() {
 			func() {
 				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
 					c.Identity("\t \n", appKey)
-					c.RegisterAggregate(aggregate)
+					c.Routes(
+						dogma.ViaAggregate(aggregate),
+					)
 				}
 			},
 		),
@@ -368,7 +378,9 @@ var _ = Describe("func FromApplication()", func() {
 			func() {
 				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
 					c.Identity("<name>", "\t \n")
-					c.RegisterAggregate(aggregate)
+					c.Routes(
+						dogma.ViaAggregate(aggregate),
+					)
 				}
 			},
 		),
@@ -377,7 +389,9 @@ var _ = Describe("func FromApplication()", func() {
 			`*stubs.ApplicationStub can not use the application key "14769f7f-87fe-48dd-916e-5bcab6ba6aca", because it is already used by *stubs.AggregateMessageHandlerStub`,
 			func() {
 				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
-					c.RegisterAggregate(aggregate)
+					c.Routes(
+						dogma.ViaAggregate(aggregate),
+					)
 					c.Identity("<app>", aggregateKey) // conflict
 				}
 			},
@@ -437,8 +451,10 @@ var _ = Describe("func FromApplication()", func() {
 
 				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
 					c.Identity("<app>", appKey)
-					c.RegisterProcess(process)
-					c.RegisterAggregate(aggregate) // register the conflicting aggregate last
+					c.Routes(
+						dogma.ViaProcess(process),
+						dogma.ViaAggregate(aggregate), // register the conflicting aggregate last
+					)
 				}
 			},
 		),
@@ -456,8 +472,10 @@ var _ = Describe("func FromApplication()", func() {
 
 				app.ConfigureFunc = func(c dogma.ApplicationConfigurer) {
 					c.Identity("<app>", appKey)
-					c.RegisterProcess(process)
-					c.RegisterAggregate(aggregate) // register the conflicting aggregate last
+					c.Routes(
+						dogma.ViaProcess(process),
+						dogma.ViaAggregate(aggregate), // register the conflicting aggregate last
+					)
 				}
 			},
 		),
@@ -495,14 +513,16 @@ var _ = Describe("func IsApplicationEqual()", func() {
 		app := &ApplicationStub{
 			ConfigureFunc: func(c dogma.ApplicationConfigurer) {
 				c.Identity("<app>", appKey)
-				c.RegisterProjection(&ProjectionMessageHandlerStub{
-					ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-						c.Identity("<projection>", projectionKey)
-						c.Routes(
-							dogma.HandlesEvent[EventStub[TypeA]](),
-						)
-					},
-				})
+				c.Routes(
+					dogma.ViaProjection(&ProjectionMessageHandlerStub{
+						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+							c.Identity("<projection>", projectionKey)
+							c.Routes(
+								dogma.HandlesEvent[EventStub[TypeA]](),
+							)
+						},
+					}),
+				)
 			},
 		}
 
@@ -525,14 +545,16 @@ var _ = Describe("func IsApplicationEqual()", func() {
 			app := &ApplicationStub{
 				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
 					c.Identity("<app>", appKey)
-					c.RegisterProjection(&ProjectionMessageHandlerStub{
-						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-							c.Identity("<projection>", projectionKey)
-							c.Routes(
-								dogma.HandlesEvent[EventStub[TypeA]](),
-							)
-						},
-					})
+					c.Routes(
+						dogma.ViaProjection(&ProjectionMessageHandlerStub{
+							ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+								c.Identity("<projection>", projectionKey)
+								c.Routes(
+									dogma.HandlesEvent[EventStub[TypeA]](),
+								)
+							},
+						}),
+					)
 				},
 			}
 
@@ -546,14 +568,16 @@ var _ = Describe("func IsApplicationEqual()", func() {
 				ApplicationStub: ApplicationStub{
 					ConfigureFunc: func(c dogma.ApplicationConfigurer) {
 						c.Identity("<app>", appKey)
-						c.RegisterProjection(&ProjectionMessageHandlerStub{
-							ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-								c.Identity("<projection>", projectionKey)
-								c.Routes(
-									dogma.HandlesEvent[EventStub[TypeA]](),
-								)
-							},
-						})
+						c.Routes(
+							dogma.ViaProjection(&ProjectionMessageHandlerStub{
+								ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+									c.Identity("<projection>", projectionKey)
+									c.Routes(
+										dogma.HandlesEvent[EventStub[TypeA]](),
+									)
+								},
+							}),
+						)
 					},
 				},
 			}),
@@ -563,14 +587,16 @@ var _ = Describe("func IsApplicationEqual()", func() {
 			FromApplication(&ApplicationStub{
 				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
 					c.Identity("<app-different>", appKey) // diff
-					c.RegisterProjection(&ProjectionMessageHandlerStub{
-						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-							c.Identity("<projection>", projectionKey)
-							c.Routes(
-								dogma.HandlesEvent[EventStub[TypeA]](),
-							)
-						},
-					})
+					c.Routes(
+						dogma.ViaProjection(&ProjectionMessageHandlerStub{
+							ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+								c.Identity("<projection>", projectionKey)
+								c.Routes(
+									dogma.HandlesEvent[EventStub[TypeA]](),
+								)
+							},
+						}),
+					)
 				},
 			}),
 		),
@@ -579,14 +605,16 @@ var _ = Describe("func IsApplicationEqual()", func() {
 			FromApplication(&ApplicationStub{
 				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
 					c.Identity("<app>", "b7deb466-0fb7-4e89-b4dd-a32cdb1e1823") // diff
-					c.RegisterProjection(&ProjectionMessageHandlerStub{
-						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-							c.Identity("<projection>", projectionKey)
-							c.Routes(
-								dogma.HandlesEvent[EventStub[TypeA]](),
-							)
-						},
-					})
+					c.Routes(
+						dogma.ViaProjection(&ProjectionMessageHandlerStub{
+							ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+								c.Identity("<projection>", projectionKey)
+								c.Routes(
+									dogma.HandlesEvent[EventStub[TypeA]](),
+								)
+							},
+						}),
+					)
 				},
 			}),
 		),
@@ -595,15 +623,17 @@ var _ = Describe("func IsApplicationEqual()", func() {
 			FromApplication(&ApplicationStub{
 				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
 					c.Identity("<app>", appKey)
-					c.RegisterProjection(&ProjectionMessageHandlerStub{
-						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-							c.Identity("<projection>", projectionKey)
-							c.Routes(
-								dogma.HandlesEvent[EventStub[TypeA]](),
-								dogma.HandlesEvent[EventStub[TypeX]](), // diff
-							)
-						},
-					})
+					c.Routes(
+						dogma.ViaProjection(&ProjectionMessageHandlerStub{
+							ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+								c.Identity("<projection>", projectionKey)
+								c.Routes(
+									dogma.HandlesEvent[EventStub[TypeA]](),
+									dogma.HandlesEvent[EventStub[TypeX]](), // diff
+								)
+							},
+						}),
+					)
 				},
 			}),
 		),
@@ -612,14 +642,16 @@ var _ = Describe("func IsApplicationEqual()", func() {
 			FromApplication(&ApplicationStub{
 				ConfigureFunc: func(c dogma.ApplicationConfigurer) {
 					c.Identity("<app>", appKey)
-					c.RegisterProjection(&ProjectionMessageHandlerStub{
-						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-							c.Identity("<projection-different>", projectionKey) // diff
-							c.Routes(
-								dogma.HandlesEvent[EventStub[TypeA]](),
-							)
-						},
-					})
+					c.Routes(
+						dogma.ViaProjection(&ProjectionMessageHandlerStub{
+							ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+								c.Identity("<projection-different>", projectionKey) // diff
+								c.Routes(
+									dogma.HandlesEvent[EventStub[TypeA]](),
+								)
+							},
+						}),
+					)
 				},
 			}),
 		),

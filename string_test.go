@@ -18,47 +18,46 @@ var _ = Describe("func ToString()", func() {
 			ConfigureFunc: func(c dogma.ApplicationConfigurer) {
 				c.Identity("<app>", appKey)
 
-				c.RegisterAggregate(&AggregateMessageHandlerStub{
-					ConfigureFunc: func(c dogma.AggregateConfigurer) {
-						c.Identity("<aggregate>", aggregateKey)
-						c.Routes(
-							dogma.HandlesCommand[CommandStub[TypeA]](),
-							dogma.RecordsEvent[EventStub[TypeA]](),
-						)
-					},
-				})
-
-				c.RegisterProcess(&ProcessMessageHandlerStub{
-					ConfigureFunc: func(c dogma.ProcessConfigurer) {
-						c.Identity("<process>", processKey)
-						c.Routes(
-							dogma.HandlesEvent[EventStub[TypeA]](),
-							dogma.ExecutesCommand[CommandStub[TypeA]](),
-							dogma.SchedulesTimeout[TimeoutStub[TypeA]](),
-						)
-					},
-				})
-
-				c.RegisterIntegration(&IntegrationMessageHandlerStub{
-					ConfigureFunc: func(c dogma.IntegrationConfigurer) {
-						c.Identity("<integration>", integrationKey)
-						c.Routes(
-							dogma.HandlesCommand[CommandStub[TypeB]](),
-							dogma.RecordsEvent[EventStub[TypeB]](),
-						)
-					},
-				})
-
-				c.RegisterProjection(&ProjectionMessageHandlerStub{
-					ConfigureFunc: func(c dogma.ProjectionConfigurer) {
-						c.Identity("<projection>", projectionKey)
-						c.Routes(
-							dogma.HandlesEvent[EventStub[TypeA]](),
-							dogma.HandlesEvent[EventStub[TypeB]](),
-						)
-						c.Disable()
-					},
-				})
+				c.Routes(
+					dogma.ViaAggregate(&AggregateMessageHandlerStub{
+						ConfigureFunc: func(c dogma.AggregateConfigurer) {
+							c.Identity("<aggregate>", aggregateKey)
+							c.Routes(
+								dogma.HandlesCommand[CommandStub[TypeA]](),
+								dogma.RecordsEvent[EventStub[TypeA]](),
+							)
+						},
+					}),
+					dogma.ViaProcess(&ProcessMessageHandlerStub{
+						ConfigureFunc: func(c dogma.ProcessConfigurer) {
+							c.Identity("<process>", processKey)
+							c.Routes(
+								dogma.HandlesEvent[EventStub[TypeA]](),
+								dogma.ExecutesCommand[CommandStub[TypeA]](),
+								dogma.SchedulesTimeout[TimeoutStub[TypeA]](),
+							)
+						},
+					}),
+					dogma.ViaIntegration(&IntegrationMessageHandlerStub{
+						ConfigureFunc: func(c dogma.IntegrationConfigurer) {
+							c.Identity("<integration>", integrationKey)
+							c.Routes(
+								dogma.HandlesCommand[CommandStub[TypeB]](),
+								dogma.RecordsEvent[EventStub[TypeB]](),
+							)
+						},
+					}),
+					dogma.ViaProjection(&ProjectionMessageHandlerStub{
+						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
+							c.Identity("<projection>", projectionKey)
+							c.Routes(
+								dogma.HandlesEvent[EventStub[TypeA]](),
+								dogma.HandlesEvent[EventStub[TypeB]](),
+							)
+							c.Disable()
+						},
+					}),
+				)
 			},
 		}
 
