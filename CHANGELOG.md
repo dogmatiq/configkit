@@ -11,7 +11,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 [bc]: https://github.com/dogmatiq/.github/blob/main/VERSIONING.md#changelogs
 
-## [Unreleased]
+## [0.17.0] - 2025-10-06
 
 ### Removed
 
@@ -426,6 +426,7 @@ interfaces. It does not yet include support for static analysis of the new
 [0.15.0]: https://github.com/dogmatiq/configkit/releases/v0.15.0
 [0.15.1]: https://github.com/dogmatiq/configkit/releases/v0.15.1
 [0.16.0]: https://github.com/dogmatiq/configkit/releases/v0.16.0
+[0.17.0]: https://github.com/dogmatiq/configkit/releases/v0.17.0
 
 <!-- version template
 ## [0.0.1] - YYYY-MM-DD
