@@ -135,20 +135,25 @@ func (c *applicationConfigurer) Identity(name, key string) {
 	configureIdentity(&c.config.ident, name, key, c.config.ReflectType())
 }
 
-func (c *applicationConfigurer) RegisterAggregate(h dogma.AggregateMessageHandler, _ ...dogma.RegisterAggregateOption) {
-	c.registerIfConfigured(fromAggregateUnvalidated(h))
-}
+func (c *applicationConfigurer) Routes(routes ...dogma.HandlerRoute) {
+	for _, r := range routes {
+		var h validatableHandler
 
-func (c *applicationConfigurer) RegisterProcess(h dogma.ProcessMessageHandler, _ ...dogma.RegisterProcessOption) {
-	c.registerIfConfigured(fromProcessUnvalidated(h))
-}
+		switch r := r.(type) {
+		case dogma.AggregateHandlerRoute:
+			h = fromAggregateUnvalidated(r.Handler())
+		case dogma.ProcessHandlerRoute:
+			h = fromProcessUnvalidated(r.Handler())
+		case dogma.IntegrationHandlerRoute:
+			h = fromIntegrationUnvalidated(r.Handler())
+		case dogma.ProjectionHandlerRoute:
+			h = fromProjectionUnvalidated(r.Handler())
+		default:
+			validation.Panicf("unsupported route type: %T", r)
+		}
 
-func (c *applicationConfigurer) RegisterIntegration(h dogma.IntegrationMessageHandler, _ ...dogma.RegisterIntegrationOption) {
-	c.registerIfConfigured(fromIntegrationUnvalidated(h))
-}
-
-func (c *applicationConfigurer) RegisterProjection(h dogma.ProjectionMessageHandler, _ ...dogma.RegisterProjectionOption) {
-	c.registerIfConfigured(fromProjectionUnvalidated(h))
+		c.registerIfConfigured(h)
+	}
 }
 
 type validatableHandler interface {

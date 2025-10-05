@@ -57,7 +57,7 @@ func IsHandlerEqual(a, b Handler) bool {
 		a.MessageNames().IsEqual(b.MessageNames())
 }
 
-func configureRoutes[T dogma.Route](
+func configureRoutes[T dogma.MessageRoute](
 	types *EntityMessages[message.Type],
 	routes []T,
 	handlerIdent Identity,
@@ -70,16 +70,16 @@ func configureRoutes[T dogma.Route](
 	for _, route := range routes {
 		switch route := any(route).(type) {
 		case dogma.HandlesCommandRoute:
-			configureConsumerRoute(*types, route.Type, "HandlesCommand", handlerIdent, handlerType)
+			configureConsumerRoute(*types, route.Type(), "HandlesCommand", handlerIdent, handlerType)
 		case dogma.RecordsEventRoute:
-			configureProducerRoute(*types, route.Type, "RecordsEvent", handlerIdent, handlerType)
+			configureProducerRoute(*types, route.Type(), "RecordsEvent", handlerIdent, handlerType)
 		case dogma.HandlesEventRoute:
-			configureConsumerRoute(*types, route.Type, "HandlesEvent", handlerIdent, handlerType)
+			configureConsumerRoute(*types, route.Type(), "HandlesEvent", handlerIdent, handlerType)
 		case dogma.ExecutesCommandRoute:
-			configureProducerRoute(*types, route.Type, "ExecutesCommand", handlerIdent, handlerType)
+			configureProducerRoute(*types, route.Type(), "ExecutesCommand", handlerIdent, handlerType)
 		case dogma.SchedulesTimeoutRoute:
-			configureConsumerRoute(*types, route.Type, "SchedulesTimeout", handlerIdent, handlerType)
-			configureProducerRoute(*types, route.Type, "SchedulesTimeout", handlerIdent, handlerType)
+			configureConsumerRoute(*types, route.Type(), "SchedulesTimeout", handlerIdent, handlerType)
+			configureProducerRoute(*types, route.Type(), "SchedulesTimeout", handlerIdent, handlerType)
 		default:
 			panic(fmt.Sprintf("unsupported route type: %T", route))
 		}
@@ -88,13 +88,13 @@ func configureRoutes[T dogma.Route](
 
 func configureConsumerRoute(
 	types EntityMessages[message.Type],
-	messageType reflect.Type,
+	messageType dogma.RegisteredMessageType,
 	routeFunc string,
 	handlerIdent Identity,
 	handlerType reflect.Type,
 ) {
 	types.Update(
-		message.TypeFromReflect(messageType),
+		message.TypeFromReflect(messageType.GoType()),
 		func(t message.Type, em *EntityMessage) {
 			if em.IsConsumed {
 				validation.Panicf(
@@ -113,13 +113,13 @@ func configureConsumerRoute(
 
 func configureProducerRoute(
 	types EntityMessages[message.Type],
-	messageType reflect.Type,
+	messageType dogma.RegisteredMessageType,
 	routeFunc string,
 	handlerIdent Identity,
 	handlerType reflect.Type,
 ) {
 	types.Update(
-		message.TypeFromReflect(messageType),
+		message.TypeFromReflect(messageType.GoType()),
 		func(t message.Type, em *EntityMessage) {
 			if em.IsProduced {
 				validation.Panicf(
