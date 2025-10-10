@@ -22,10 +22,10 @@ var _ = Describe("func FromProcess()", func() {
 			ConfigureFunc: func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
-					dogma.HandlesEvent[EventStub[TypeB]](),
-					dogma.ExecutesCommand[CommandStub[TypeA]](),
-					dogma.SchedulesTimeout[TimeoutStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeB]](),
+					dogma.ExecutesCommand[*CommandStub[TypeA]](),
+					dogma.SchedulesTimeout[*TimeoutStub[TypeA]](),
 				)
 			},
 		}
@@ -196,8 +196,8 @@ var _ = Describe("func FromProcess()", func() {
 			`*stubs.ProcessMessageHandlerStub is configured without an identity, Identity() must be called exactly once within Configure()`,
 			func(c dogma.ProcessConfigurer) {
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
-					dogma.ExecutesCommand[CommandStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
+					dogma.ExecutesCommand[*CommandStub[TypeA]](),
 				)
 			},
 		),
@@ -208,8 +208,8 @@ var _ = Describe("func FromProcess()", func() {
 				c.Identity("<name>", processKey)
 				c.Identity("<other>", processKey)
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
-					dogma.ExecutesCommand[CommandStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
+					dogma.ExecutesCommand[*CommandStub[TypeA]](),
 				)
 			},
 		),
@@ -219,8 +219,8 @@ var _ = Describe("func FromProcess()", func() {
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("\t \n", processKey)
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
-					dogma.ExecutesCommand[CommandStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
+					dogma.ExecutesCommand[*CommandStub[TypeA]](),
 				)
 			},
 		),
@@ -230,8 +230,8 @@ var _ = Describe("func FromProcess()", func() {
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", "\t \n")
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
-					dogma.ExecutesCommand[CommandStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
+					dogma.ExecutesCommand[*CommandStub[TypeA]](),
 				)
 			},
 		),
@@ -241,19 +241,19 @@ var _ = Describe("func FromProcess()", func() {
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
-					dogma.ExecutesCommand[CommandStub[TypeA]](),
+					dogma.ExecutesCommand[*CommandStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when the handler configures multiple routes for the same event",
-			`*stubs.ProcessMessageHandlerStub (<name>) is configured with multiple HandlesEvent() routes for stubs.EventStub[TypeA], should these refer to different message types?`,
+			`*stubs.ProcessMessageHandlerStub (<name>) is configured with multiple HandlesEvent() routes for *stubs.EventStub[TypeA], should these refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
-					dogma.HandlesEvent[EventStub[TypeA]](),
-					dogma.ExecutesCommand[CommandStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
+					dogma.ExecutesCommand[*CommandStub[TypeA]](),
 				)
 			},
 		),
@@ -263,42 +263,42 @@ var _ = Describe("func FromProcess()", func() {
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when the handler configures multiple routes for the same command",
-			`*stubs.ProcessMessageHandlerStub (<name>) is configured with multiple ExecutesCommand() routes for stubs.CommandStub[TypeA], should these refer to different message types?`,
+			`*stubs.ProcessMessageHandlerStub (<name>) is configured with multiple ExecutesCommand() routes for *stubs.CommandStub[TypeA], should these refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
-					dogma.ExecutesCommand[CommandStub[TypeA]](),
-					dogma.ExecutesCommand[CommandStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
+					dogma.ExecutesCommand[*CommandStub[TypeA]](),
+					dogma.ExecutesCommand[*CommandStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when the handler configures multiple routes for the same timeout",
-			`*stubs.ProcessMessageHandlerStub (<name>) is configured with multiple SchedulesTimeout() routes for stubs.TimeoutStub[TypeA], should these refer to different message types?`,
+			`*stubs.ProcessMessageHandlerStub (<name>) is configured with multiple SchedulesTimeout() routes for *stubs.TimeoutStub[TypeA], should these refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Identity("<name>", processKey)
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
-					dogma.ExecutesCommand[CommandStub[TypeA]](),
-					dogma.SchedulesTimeout[TimeoutStub[TypeA]](),
-					dogma.SchedulesTimeout[TimeoutStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
+					dogma.ExecutesCommand[*CommandStub[TypeA]](),
+					dogma.SchedulesTimeout[*TimeoutStub[TypeA]](),
+					dogma.SchedulesTimeout[*TimeoutStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
-			`*stubs.ProcessMessageHandlerStub is configured with multiple HandlesEvent() routes for stubs.EventStub[TypeA], should these refer to different message types?`,
+			`*stubs.ProcessMessageHandlerStub is configured with multiple HandlesEvent() routes for *stubs.EventStub[TypeA], should these refer to different message types?`,
 			func(c dogma.ProcessConfigurer) {
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
-					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
 				)
 			},
 		),

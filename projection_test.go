@@ -22,8 +22,8 @@ var _ = Describe("func FromProjection()", func() {
 			ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", projectionKey)
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
-					dogma.HandlesEvent[EventStub[TypeB]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeB]](),
 				)
 			},
 		}
@@ -176,7 +176,7 @@ var _ = Describe("func FromProjection()", func() {
 			`*stubs.ProjectionMessageHandlerStub is configured without an identity, Identity() must be called exactly once within Configure()`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
@@ -187,7 +187,7 @@ var _ = Describe("func FromProjection()", func() {
 				c.Identity("<name>", projectionKey)
 				c.Identity("<other>", projectionKey)
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
@@ -197,7 +197,7 @@ var _ = Describe("func FromProjection()", func() {
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("\t \n", projectionKey)
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
@@ -207,7 +207,7 @@ var _ = Describe("func FromProjection()", func() {
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", "\t \n")
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
@@ -220,22 +220,22 @@ var _ = Describe("func FromProjection()", func() {
 		),
 		Entry(
 			"when the handler configures multiple routes for the same event",
-			`*stubs.ProjectionMessageHandlerStub (<name>) is configured with multiple HandlesEvent() routes for stubs.EventStub[TypeA], should these refer to different message types?`,
+			`*stubs.ProjectionMessageHandlerStub (<name>) is configured with multiple HandlesEvent() routes for *stubs.EventStub[TypeA], should these refer to different message types?`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Identity("<name>", projectionKey)
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
-					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
-			`*stubs.ProjectionMessageHandlerStub is configured with multiple HandlesEvent() routes for stubs.EventStub[TypeA], should these refer to different message types?`,
+			`*stubs.ProjectionMessageHandlerStub is configured with multiple HandlesEvent() routes for *stubs.EventStub[TypeA], should these refer to different message types?`,
 			func(c dogma.ProjectionConfigurer) {
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](),
-					dogma.HandlesEvent[EventStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
