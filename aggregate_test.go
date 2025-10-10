@@ -22,9 +22,9 @@ var _ = Describe("func FromAggregate()", func() {
 			ConfigureFunc: func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.HandlesCommand[CommandStub[TypeB]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeB]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		}
@@ -191,8 +191,8 @@ var _ = Describe("func FromAggregate()", func() {
 			`*stubs.AggregateMessageHandlerStub is configured without an identity, Identity() must be called exactly once within Configure()`,
 			func(c dogma.AggregateConfigurer) {
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
@@ -203,8 +203,8 @@ var _ = Describe("func FromAggregate()", func() {
 				c.Identity("<name>", aggregateKey)
 				c.Identity("<other>", aggregateKey)
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
@@ -214,8 +214,8 @@ var _ = Describe("func FromAggregate()", func() {
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("\t \n", appKey)
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
@@ -225,8 +225,8 @@ var _ = Describe("func FromAggregate()", func() {
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", "\t \n")
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
@@ -236,19 +236,19 @@ var _ = Describe("func FromAggregate()", func() {
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when the handler configures multiple routes for the same command",
-			`*stubs.AggregateMessageHandlerStub (<name>) is configured with multiple HandlesCommand() routes for stubs.CommandStub[TypeA], should these refer to different message types?`,
+			`*stubs.AggregateMessageHandlerStub (<name>) is configured with multiple HandlesCommand() routes for *stubs.CommandStub[TypeA], should these refer to different message types?`,
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
@@ -258,29 +258,29 @@ var _ = Describe("func FromAggregate()", func() {
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when the handler configures multiple routes for the same event",
-			`*stubs.AggregateMessageHandlerStub (<name>) is configured with multiple RecordsEvent() routes for stubs.EventStub[TypeA], should these refer to different message types?`,
+			`*stubs.AggregateMessageHandlerStub (<name>) is configured with multiple RecordsEvent() routes for *stubs.EventStub[TypeA], should these refer to different message types?`,
 			func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
-			`*stubs.AggregateMessageHandlerStub is configured with multiple HandlesCommand() routes for stubs.CommandStub[TypeA], should these refer to different message types?`,
+			`*stubs.AggregateMessageHandlerStub is configured with multiple HandlesCommand() routes for *stubs.CommandStub[TypeA], should these refer to different message types?`,
 			func(c dogma.AggregateConfigurer) {
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.HandlesCommand[CommandStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
 				)
 			},
 		),

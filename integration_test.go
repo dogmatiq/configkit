@@ -22,9 +22,9 @@ var _ = Describe("func FromIntegration()", func() {
 			ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", integrationKey)
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.HandlesCommand[CommandStub[TypeB]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeB]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		}
@@ -160,7 +160,7 @@ var _ = Describe("func FromIntegration()", func() {
 				handler.ConfigureFunc = func(c dogma.IntegrationConfigurer) {
 					c.Identity("<name>", integrationKey)
 					c.Routes(
-						dogma.HandlesCommand[CommandStub[TypeA]](),
+						dogma.HandlesCommand[*CommandStub[TypeA]](),
 					)
 				}
 			})
@@ -200,8 +200,8 @@ var _ = Describe("func FromIntegration()", func() {
 			`*stubs.IntegrationMessageHandlerStub is configured without an identity, Identity() must be called exactly once within Configure()`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
@@ -212,8 +212,8 @@ var _ = Describe("func FromIntegration()", func() {
 				c.Identity("<name>", integrationKey)
 				c.Identity("<other>", integrationKey)
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
@@ -223,8 +223,8 @@ var _ = Describe("func FromIntegration()", func() {
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("\t \n", integrationKey)
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
@@ -234,8 +234,8 @@ var _ = Describe("func FromIntegration()", func() {
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", "\t \n")
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
@@ -245,41 +245,41 @@ var _ = Describe("func FromIntegration()", func() {
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", integrationKey)
 				c.Routes(
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when the handler configures multiple routes for the same command",
-			`*stubs.IntegrationMessageHandlerStub (<name>) is configured with multiple HandlesCommand() routes for stubs.CommandStub[TypeA], should these refer to different message types?`,
+			`*stubs.IntegrationMessageHandlerStub (<name>) is configured with multiple HandlesCommand() routes for *stubs.CommandStub[TypeA], should these refer to different message types?`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", integrationKey)
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when the handler configures multiple routes for the same event",
-			`*stubs.IntegrationMessageHandlerStub (<name>) is configured with multiple RecordsEvent() routes for stubs.EventStub[TypeA], should these refer to different message types?`,
+			`*stubs.IntegrationMessageHandlerStub (<name>) is configured with multiple RecordsEvent() routes for *stubs.EventStub[TypeA], should these refer to different message types?`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Identity("<name>", integrationKey)
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		),
 		Entry(
 			"when an error occurs before the identity is configured it omits the handler name",
-			`*stubs.IntegrationMessageHandlerStub is configured with multiple HandlesCommand() routes for stubs.CommandStub[TypeA], should these refer to different message types?`,
+			`*stubs.IntegrationMessageHandlerStub is configured with multiple HandlesCommand() routes for *stubs.CommandStub[TypeA], should these refer to different message types?`,
 			func(c dogma.IntegrationConfigurer) {
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.HandlesCommand[CommandStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
 				)
 			},
 		),

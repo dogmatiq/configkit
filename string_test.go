@@ -23,8 +23,8 @@ var _ = Describe("func ToString()", func() {
 						ConfigureFunc: func(c dogma.AggregateConfigurer) {
 							c.Identity("<aggregate>", aggregateKey)
 							c.Routes(
-								dogma.HandlesCommand[CommandStub[TypeA]](),
-								dogma.RecordsEvent[EventStub[TypeA]](),
+								dogma.HandlesCommand[*CommandStub[TypeA]](),
+								dogma.RecordsEvent[*EventStub[TypeA]](),
 							)
 						},
 					}),
@@ -32,9 +32,9 @@ var _ = Describe("func ToString()", func() {
 						ConfigureFunc: func(c dogma.ProcessConfigurer) {
 							c.Identity("<process>", processKey)
 							c.Routes(
-								dogma.HandlesEvent[EventStub[TypeA]](),
-								dogma.ExecutesCommand[CommandStub[TypeA]](),
-								dogma.SchedulesTimeout[TimeoutStub[TypeA]](),
+								dogma.HandlesEvent[*EventStub[TypeA]](),
+								dogma.ExecutesCommand[*CommandStub[TypeA]](),
+								dogma.SchedulesTimeout[*TimeoutStub[TypeA]](),
 							)
 						},
 					}),
@@ -42,8 +42,8 @@ var _ = Describe("func ToString()", func() {
 						ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 							c.Identity("<integration>", integrationKey)
 							c.Routes(
-								dogma.HandlesCommand[CommandStub[TypeB]](),
-								dogma.RecordsEvent[EventStub[TypeB]](),
+								dogma.HandlesCommand[*CommandStub[TypeB]](),
+								dogma.RecordsEvent[*EventStub[TypeB]](),
 							)
 						},
 					}),
@@ -51,8 +51,8 @@ var _ = Describe("func ToString()", func() {
 						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 							c.Identity("<projection>", projectionKey)
 							c.Routes(
-								dogma.HandlesEvent[EventStub[TypeA]](),
-								dogma.HandlesEvent[EventStub[TypeB]](),
+								dogma.HandlesEvent[*EventStub[TypeA]](),
+								dogma.HandlesEvent[*EventStub[TypeB]](),
 							)
 							c.Disable()
 						},
@@ -68,21 +68,21 @@ var _ = Describe("func ToString()", func() {
 		expected := "application <app> (59a82a24-a181-41e8-9b93-17a6ce86956e) *github.com/dogmatiq/enginekit/enginetest/stubs.ApplicationStub\n"
 		expected += "\n"
 		expected += "    - aggregate <aggregate> (14769f7f-87fe-48dd-916e-5bcab6ba6aca) *github.com/dogmatiq/enginekit/enginetest/stubs.AggregateMessageHandlerStub\n"
-		expected += "        handles github.com/dogmatiq/enginekit/enginetest/stubs.CommandStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeA]?\n"
-		expected += "        records github.com/dogmatiq/enginekit/enginetest/stubs.EventStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeA]!\n"
+		expected += "        handles *github.com/dogmatiq/enginekit/enginetest/stubs.CommandStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeA]?\n"
+		expected += "        records *github.com/dogmatiq/enginekit/enginetest/stubs.EventStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeA]!\n"
 		expected += "\n"
 		expected += "    - integration <integration> (e28f056e-e5a0-4ee7-aaf1-1d1fe02fb6e3) *github.com/dogmatiq/enginekit/enginetest/stubs.IntegrationMessageHandlerStub\n"
-		expected += "        handles github.com/dogmatiq/enginekit/enginetest/stubs.CommandStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeB]?\n"
-		expected += "        records github.com/dogmatiq/enginekit/enginetest/stubs.EventStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeB]!\n"
+		expected += "        handles *github.com/dogmatiq/enginekit/enginetest/stubs.CommandStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeB]?\n"
+		expected += "        records *github.com/dogmatiq/enginekit/enginetest/stubs.EventStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeB]!\n"
 		expected += "\n"
 		expected += "    - process <process> (bea52cf4-e403-4b18-819d-88ade7836308) *github.com/dogmatiq/enginekit/enginetest/stubs.ProcessMessageHandlerStub\n"
-		expected += "        handles github.com/dogmatiq/enginekit/enginetest/stubs.EventStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeA]!\n"
-		expected += "        executes github.com/dogmatiq/enginekit/enginetest/stubs.CommandStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeA]?\n"
-		expected += "        schedules github.com/dogmatiq/enginekit/enginetest/stubs.TimeoutStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeA]@\n"
+		expected += "        handles *github.com/dogmatiq/enginekit/enginetest/stubs.EventStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeA]!\n"
+		expected += "        executes *github.com/dogmatiq/enginekit/enginetest/stubs.CommandStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeA]?\n"
+		expected += "        schedules *github.com/dogmatiq/enginekit/enginetest/stubs.TimeoutStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeA]@\n"
 		expected += "\n"
 		expected += "    - projection <projection> (70fdf7fa-4b24-448d-bd29-7ecc71d18c56) *github.com/dogmatiq/enginekit/enginetest/stubs.ProjectionMessageHandlerStub [disabled]\n"
-		expected += "        handles github.com/dogmatiq/enginekit/enginetest/stubs.EventStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeA]!\n"
-		expected += "        handles github.com/dogmatiq/enginekit/enginetest/stubs.EventStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeB]!\n"
+		expected += "        handles *github.com/dogmatiq/enginekit/enginetest/stubs.EventStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeA]!\n"
+		expected += "        handles *github.com/dogmatiq/enginekit/enginetest/stubs.EventStub[github.com/dogmatiq/enginekit/enginetest/stubs.TypeB]!\n"
 
 		s := ToString(cfg)
 

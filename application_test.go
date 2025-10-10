@@ -29,8 +29,8 @@ var _ = Describe("func FromApplication()", func() {
 			ConfigureFunc: func(c dogma.AggregateConfigurer) {
 				c.Identity("<aggregate>", aggregateKey)
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		}
@@ -39,10 +39,10 @@ var _ = Describe("func FromApplication()", func() {
 			ConfigureFunc: func(c dogma.ProcessConfigurer) {
 				c.Identity("<process>", processKey)
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](), // shared with <projection>
-					dogma.HandlesEvent[EventStub[TypeB]](),
-					dogma.ExecutesCommand[CommandStub[TypeB]](),
-					dogma.SchedulesTimeout[TimeoutStub[TypeA]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](), // shared with <projection>
+					dogma.HandlesEvent[*EventStub[TypeB]](),
+					dogma.ExecutesCommand[*CommandStub[TypeB]](),
+					dogma.SchedulesTimeout[*TimeoutStub[TypeA]](),
 				)
 			},
 		}
@@ -51,8 +51,8 @@ var _ = Describe("func FromApplication()", func() {
 			ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 				c.Identity("<integration>", integrationKey)
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeB]](),
-					dogma.RecordsEvent[EventStub[TypeC]](),
+					dogma.HandlesCommand[*CommandStub[TypeB]](),
+					dogma.RecordsEvent[*EventStub[TypeC]](),
 				)
 			},
 		}
@@ -61,8 +61,8 @@ var _ = Describe("func FromApplication()", func() {
 			ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 				c.Identity("<projection>", projectionKey)
 				c.Routes(
-					dogma.HandlesEvent[EventStub[TypeA]](), // shared with <process>
-					dogma.HandlesEvent[EventStub[TypeD]](),
+					dogma.HandlesEvent[*EventStub[TypeA]](), // shared with <process>
+					dogma.HandlesEvent[*EventStub[TypeD]](),
 				)
 			},
 		}
@@ -261,8 +261,8 @@ var _ = Describe("func FromApplication()", func() {
 			aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
 				c.Identity("<app>", aggregateKey)
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			}
 
@@ -276,9 +276,9 @@ var _ = Describe("func FromApplication()", func() {
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
 					c.Identity("<process-1>", "51621cac-73e2-48fa-95ad-8c3d06ab2ac3")
 					c.Routes(
-						dogma.HandlesEvent[EventStub[TypeB]](),
-						dogma.ExecutesCommand[CommandStub[TypeB]](),
-						dogma.SchedulesTimeout[TimeoutStub[TypeA]](),
+						dogma.HandlesEvent[*EventStub[TypeB]](),
+						dogma.ExecutesCommand[*CommandStub[TypeB]](),
+						dogma.SchedulesTimeout[*TimeoutStub[TypeA]](),
 					)
 				},
 			}
@@ -287,9 +287,9 @@ var _ = Describe("func FromApplication()", func() {
 				ConfigureFunc: func(c dogma.ProcessConfigurer) {
 					c.Identity("<process-2>", "97abc0e1-39c8-434a-8ff2-1f0e2d37486e")
 					c.Routes(
-						dogma.HandlesEvent[EventStub[TypeB]](),
-						dogma.ExecutesCommand[CommandStub[TypeB]](),
-						dogma.SchedulesTimeout[TimeoutStub[TypeA]](),
+						dogma.HandlesEvent[*EventStub[TypeB]](),
+						dogma.ExecutesCommand[*CommandStub[TypeB]](),
+						dogma.SchedulesTimeout[*TimeoutStub[TypeA]](),
 					)
 				},
 			}
@@ -403,8 +403,8 @@ var _ = Describe("func FromApplication()", func() {
 				aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
 					c.Identity("<aggregate>", appKey) // conflict!
 					c.Routes(
-						dogma.HandlesCommand[CommandStub[TypeA]](),
-						dogma.RecordsEvent[EventStub[TypeA]](),
+						dogma.HandlesCommand[*CommandStub[TypeA]](),
+						dogma.RecordsEvent[*EventStub[TypeA]](),
 					)
 				}
 			},
@@ -444,8 +444,8 @@ var _ = Describe("func FromApplication()", func() {
 				aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
 					c.Identity("<process>", aggregateKey) // conflict!
 					c.Routes(
-						dogma.HandlesCommand[CommandStub[TypeA]](),
-						dogma.RecordsEvent[EventStub[TypeA]](),
+						dogma.HandlesCommand[*CommandStub[TypeA]](),
+						dogma.RecordsEvent[*EventStub[TypeA]](),
 					)
 				}
 
@@ -465,8 +465,8 @@ var _ = Describe("func FromApplication()", func() {
 				aggregate.ConfigureFunc = func(c dogma.AggregateConfigurer) {
 					c.Identity("<aggregate>", processKey) // conflict!
 					c.Routes(
-						dogma.HandlesCommand[CommandStub[TypeA]](),
-						dogma.RecordsEvent[EventStub[TypeA]](),
+						dogma.HandlesCommand[*CommandStub[TypeA]](),
+						dogma.RecordsEvent[*EventStub[TypeA]](),
 					)
 				}
 
@@ -481,26 +481,26 @@ var _ = Describe("func FromApplication()", func() {
 		),
 		Entry(
 			"when the app contains multiple handlers of the same command",
-			`*stubs.IntegrationMessageHandlerStub (<integration>) can not handle stubs.CommandStub[TypeA] commands because they are already configured to be handled by *stubs.AggregateMessageHandlerStub (<aggregate>)`,
+			`*stubs.IntegrationMessageHandlerStub (<integration>) can not handle *stubs.CommandStub[TypeA] commands because they are already configured to be handled by *stubs.AggregateMessageHandlerStub (<aggregate>)`,
 			func() {
 				integration.ConfigureFunc = func(c dogma.IntegrationConfigurer) {
 					c.Identity("<integration>", integrationKey)
 					c.Routes(
-						dogma.HandlesCommand[CommandStub[TypeA]](), // conflict with <aggregate>
-						dogma.RecordsEvent[EventStub[TypeC]](),
+						dogma.HandlesCommand[*CommandStub[TypeA]](), // conflict with <aggregate>
+						dogma.RecordsEvent[*EventStub[TypeC]](),
 					)
 				}
 			},
 		),
 		Entry(
 			"when the app contains multiple handlers that record the same event",
-			`*stubs.IntegrationMessageHandlerStub (<integration>) can not record stubs.EventStub[TypeA] events because they are already configured to be recorded by *stubs.AggregateMessageHandlerStub (<aggregate>)`,
+			`*stubs.IntegrationMessageHandlerStub (<integration>) can not record *stubs.EventStub[TypeA] events because they are already configured to be recorded by *stubs.AggregateMessageHandlerStub (<aggregate>)`,
 			func() {
 				integration.ConfigureFunc = func(c dogma.IntegrationConfigurer) {
 					c.Identity("<integration>", integrationKey)
 					c.Routes(
-						dogma.HandlesCommand[CommandStub[TypeB]](),
-						dogma.RecordsEvent[EventStub[TypeA]](), // conflict with <aggregate>
+						dogma.HandlesCommand[*CommandStub[TypeB]](),
+						dogma.RecordsEvent[*EventStub[TypeA]](), // conflict with <aggregate>
 					)
 				}
 			},
@@ -518,7 +518,7 @@ var _ = Describe("func IsApplicationEqual()", func() {
 						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 							c.Identity("<projection>", projectionKey)
 							c.Routes(
-								dogma.HandlesEvent[EventStub[TypeA]](),
+								dogma.HandlesEvent[*EventStub[TypeA]](),
 							)
 						},
 					}),
@@ -550,7 +550,7 @@ var _ = Describe("func IsApplicationEqual()", func() {
 							ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 								c.Identity("<projection>", projectionKey)
 								c.Routes(
-									dogma.HandlesEvent[EventStub[TypeA]](),
+									dogma.HandlesEvent[*EventStub[TypeA]](),
 								)
 							},
 						}),
@@ -573,7 +573,7 @@ var _ = Describe("func IsApplicationEqual()", func() {
 								ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 									c.Identity("<projection>", projectionKey)
 									c.Routes(
-										dogma.HandlesEvent[EventStub[TypeA]](),
+										dogma.HandlesEvent[*EventStub[TypeA]](),
 									)
 								},
 							}),
@@ -592,7 +592,7 @@ var _ = Describe("func IsApplicationEqual()", func() {
 							ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 								c.Identity("<projection>", projectionKey)
 								c.Routes(
-									dogma.HandlesEvent[EventStub[TypeA]](),
+									dogma.HandlesEvent[*EventStub[TypeA]](),
 								)
 							},
 						}),
@@ -610,7 +610,7 @@ var _ = Describe("func IsApplicationEqual()", func() {
 							ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 								c.Identity("<projection>", projectionKey)
 								c.Routes(
-									dogma.HandlesEvent[EventStub[TypeA]](),
+									dogma.HandlesEvent[*EventStub[TypeA]](),
 								)
 							},
 						}),
@@ -628,8 +628,8 @@ var _ = Describe("func IsApplicationEqual()", func() {
 							ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 								c.Identity("<projection>", projectionKey)
 								c.Routes(
-									dogma.HandlesEvent[EventStub[TypeA]](),
-									dogma.HandlesEvent[EventStub[TypeX]](), // diff
+									dogma.HandlesEvent[*EventStub[TypeA]](),
+									dogma.HandlesEvent[*EventStub[TypeX]](), // diff
 								)
 							},
 						}),
@@ -647,7 +647,7 @@ var _ = Describe("func IsApplicationEqual()", func() {
 							ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 								c.Identity("<projection-different>", projectionKey) // diff
 								c.Routes(
-									dogma.HandlesEvent[EventStub[TypeA]](),
+									dogma.HandlesEvent[*EventStub[TypeA]](),
 								)
 							},
 						}),

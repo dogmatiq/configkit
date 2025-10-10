@@ -15,9 +15,9 @@ var _ = Describe("func IsHandlerEqual()", func() {
 			ConfigureFunc: func(c dogma.AggregateConfigurer) {
 				c.Identity("<name>", aggregateKey)
 				c.Routes(
-					dogma.HandlesCommand[CommandStub[TypeA]](),
-					dogma.HandlesCommand[CommandStub[TypeB]](),
-					dogma.RecordsEvent[EventStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeA]](),
+					dogma.HandlesCommand[*CommandStub[TypeB]](),
+					dogma.RecordsEvent[*EventStub[TypeA]](),
 				)
 			},
 		}
@@ -35,9 +35,9 @@ var _ = Describe("func IsHandlerEqual()", func() {
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<name>", aggregateKey)
 					c.Routes(
-						dogma.HandlesCommand[CommandStub[TypeA]](),
-						dogma.HandlesCommand[CommandStub[TypeB]](),
-						dogma.RecordsEvent[EventStub[TypeA]](),
+						dogma.HandlesCommand[*CommandStub[TypeA]](),
+						dogma.HandlesCommand[*CommandStub[TypeB]](),
+						dogma.RecordsEvent[*EventStub[TypeA]](),
 					)
 				},
 			}
@@ -52,9 +52,9 @@ var _ = Describe("func IsHandlerEqual()", func() {
 				ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 					c.Identity("<name>", integrationKey)
 					c.Routes(
-						dogma.HandlesCommand[CommandStub[TypeA]](),
-						dogma.HandlesCommand[CommandStub[TypeB]](),
-						dogma.RecordsEvent[EventStub[TypeA]](),
+						dogma.HandlesCommand[*CommandStub[TypeA]](),
+						dogma.HandlesCommand[*CommandStub[TypeB]](),
+						dogma.RecordsEvent[*EventStub[TypeA]](),
 					)
 				},
 			}),
@@ -65,9 +65,9 @@ var _ = Describe("func IsHandlerEqual()", func() {
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<name-different>", aggregateKey) // diff
 					c.Routes(
-						dogma.HandlesCommand[CommandStub[TypeA]](),
-						dogma.HandlesCommand[CommandStub[TypeB]](),
-						dogma.RecordsEvent[EventStub[TypeA]](),
+						dogma.HandlesCommand[*CommandStub[TypeA]](),
+						dogma.HandlesCommand[*CommandStub[TypeB]](),
+						dogma.RecordsEvent[*EventStub[TypeA]](),
 					)
 				},
 			}),
@@ -78,9 +78,9 @@ var _ = Describe("func IsHandlerEqual()", func() {
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<name>", "799239e7-8c03-48f9-a324-14b7f9b76e30") // diff
 					c.Routes(
-						dogma.HandlesCommand[CommandStub[TypeA]](),
-						dogma.HandlesCommand[CommandStub[TypeB]](),
-						dogma.RecordsEvent[EventStub[TypeA]](),
+						dogma.HandlesCommand[*CommandStub[TypeA]](),
+						dogma.HandlesCommand[*CommandStub[TypeB]](),
+						dogma.RecordsEvent[*EventStub[TypeA]](),
 					)
 				},
 			}),
@@ -91,9 +91,9 @@ var _ = Describe("func IsHandlerEqual()", func() {
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<name>", aggregateKey)
 					c.Routes(
-						dogma.HandlesCommand[CommandStub[TypeA]](),
-						dogma.HandlesCommand[CommandStub[TypeB]](),
-						dogma.RecordsEvent[EventStub[TypeA]](),
+						dogma.HandlesCommand[*CommandStub[TypeA]](),
+						dogma.HandlesCommand[*CommandStub[TypeB]](),
+						dogma.RecordsEvent[*EventStub[TypeA]](),
 					)
 					c.Disable()
 				},
@@ -105,9 +105,9 @@ var _ = Describe("func IsHandlerEqual()", func() {
 				ConfigureFunc: func(c dogma.AggregateConfigurer) {
 					c.Identity("<name>", aggregateKey)
 					c.Routes(
-						dogma.HandlesCommand[CommandStub[TypeA]](),
-						dogma.HandlesCommand[CommandStub[TypeC]](), // diff
-						dogma.RecordsEvent[EventStub[TypeA]](),
+						dogma.HandlesCommand[*CommandStub[TypeA]](),
+						dogma.HandlesCommand[*CommandStub[TypeC]](), // diff
+						dogma.RecordsEvent[*EventStub[TypeA]](),
 					)
 				},
 			}),

@@ -38,8 +38,8 @@ var _ = Context("end-to-end tests", func() {
 						ConfigureFunc: func(c dogma.AggregateConfigurer) {
 							c.Identity("<aggregate>", "938b829d-e4d7-4780-bf06-ea349453ba8f")
 							c.Routes(
-								dogma.HandlesCommand[CommandStub[TypeA]](),
-								dogma.RecordsEvent[EventStub[TypeA]](),
+								dogma.HandlesCommand[*CommandStub[TypeA]](),
+								dogma.RecordsEvent[*EventStub[TypeA]](),
 							)
 						},
 					}),
@@ -47,9 +47,9 @@ var _ = Context("end-to-end tests", func() {
 						ConfigureFunc: func(c dogma.ProcessConfigurer) {
 							c.Identity("<process>", "2a87972b-547d-416b-b6e5-4dddb1187658")
 							c.Routes(
-								dogma.HandlesEvent[EventStub[TypeA]](),
-								dogma.ExecutesCommand[CommandStub[TypeA]](),
-								dogma.SchedulesTimeout[TimeoutStub[TypeA]](),
+								dogma.HandlesEvent[*EventStub[TypeA]](),
+								dogma.ExecutesCommand[*CommandStub[TypeA]](),
+								dogma.SchedulesTimeout[*TimeoutStub[TypeA]](),
 							)
 						},
 					}),
@@ -66,8 +66,8 @@ var _ = Context("end-to-end tests", func() {
 						ConfigureFunc: func(c dogma.IntegrationConfigurer) {
 							c.Identity("<integration>", "e6f0ad02-d301-4f46-a03d-4f9d0d20f5cf")
 							c.Routes(
-								dogma.HandlesCommand[CommandStub[TypeB]](),
-								dogma.RecordsEvent[EventStub[TypeB]](),
+								dogma.HandlesCommand[*CommandStub[TypeB]](),
+								dogma.RecordsEvent[*EventStub[TypeB]](),
 							)
 						},
 					}),
@@ -75,8 +75,8 @@ var _ = Context("end-to-end tests", func() {
 						ConfigureFunc: func(c dogma.ProjectionConfigurer) {
 							c.Identity("<projection>", "280a58bd-f154-46d7-863b-23ce70e49d2a")
 							c.Routes(
-								dogma.HandlesEvent[EventStub[TypeA]](),
-								dogma.HandlesEvent[EventStub[TypeB]](),
+								dogma.HandlesEvent[*EventStub[TypeA]](),
+								dogma.HandlesEvent[*EventStub[TypeB]](),
 							)
 							c.Disable()
 						},
