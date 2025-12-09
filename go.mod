@@ -11,7 +11,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.38.3
-	golang.org/x/text v0.31.0
+	golang.org/x/text v0.32.0
 	google.golang.org/grpc v1.77.0
 )
 
