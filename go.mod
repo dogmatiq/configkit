@@ -1,12 +1,10 @@
 module github.com/dogmatiq/configkit
 
-go 1.24.0
-
-toolchain go1.24.1
+go 1.25.0
 
 require (
-	github.com/dogmatiq/dogma v0.18.0
-	github.com/dogmatiq/enginekit v0.19.16
+	github.com/dogmatiq/dogma v0.19.0
+	github.com/dogmatiq/enginekit v0.20.0
 	github.com/dogmatiq/iago v0.4.0
 	github.com/google/uuid v1.6.0
 	github.com/onsi/ginkgo v1.16.5
@@ -23,6 +21,6 @@ require (
 	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/sys v0.40.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect
-	google.golang.org/protobuf v1.36.10 // indirect
+	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 )
