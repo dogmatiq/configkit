@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.39.1
-	golang.org/x/text v0.35.0
+	golang.org/x/text v0.36.0
 	google.golang.org/grpc v1.80.0
 )
 
