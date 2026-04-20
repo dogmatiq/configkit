@@ -3,7 +3,7 @@ module github.com/dogmatiq/configkit
 go 1.25.0
 
 require (
-	github.com/dogmatiq/dogma v0.18.0
+	github.com/dogmatiq/dogma v0.21.0
 	github.com/dogmatiq/enginekit v0.19.16
 	github.com/dogmatiq/iago v0.4.0
 	github.com/google/uuid v1.6.0
