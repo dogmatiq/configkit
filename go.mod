@@ -1,6 +1,6 @@
 module github.com/dogmatiq/configkit
 
-go 1.25.0
+go 1.26.0
 
 require (
 	github.com/dogmatiq/dogma v0.18.0
@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.43.0
-	golang.org/x/text v0.41.0
+	golang.org/x/text v0.42.0
 	google.golang.org/grpc v1.83.2
 )
 
